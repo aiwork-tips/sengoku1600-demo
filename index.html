@@ -2212,6 +2212,83 @@ html[lang="en"] .cine-sub { letter-spacing: 0.04em; font-size: 13px; font-style:
 @media (max-height: 640px) {
   .sound-btn { top: 158px; }
 }
+
+/* ===== もしもモード v7 ===== */
+.wi-btn {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  padding: 6px 8px;
+  color: #f4c542;
+  border-color: rgba(244, 197, 66, 0.45);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.wi-btn.active {
+  background: linear-gradient(135deg, rgba(244, 197, 66, 0.25), rgba(201, 169, 97, 0.12));
+  border-color: #f4c542;
+  box-shadow: 0 0 8px rgba(244, 197, 66, 0.35);
+}
+.scenario-banner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin: 0 0 8px;
+  padding: 5px 8px;
+  border: 1px dashed rgba(244, 197, 66, 0.55);
+  background: rgba(244, 197, 66, 0.07);
+  font-size: 10px;
+  color: #f4e8cc;
+}
+.sb-tag {
+  background: #9a6a10;
+  color: #fff4d8;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 1px 6px;
+}
+.sb-name { font-weight: 700; }
+.sb-from { color: #a89680; font-size: 9px; margin-left: auto; }
+.info-title.alt::after {
+  content: attr(data-tag);
+  display: inline-block;
+  margin-left: 6px;
+  vertical-align: middle;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  color: #f4c542;
+  border: 1px solid rgba(244, 197, 66, 0.6);
+  padding: 1px 5px;
+  font-weight: 700;
+}
+.phase-marker.alt .phase-marker-dot { border-color: #f4c542; border-style: dashed; }
+.phase-marker.alt .phase-marker-label { color: #b8924a; }
+
+.wi-content { max-width: 340px; text-align: left; }
+.wi-content .modal-icon, .wi-content .modal-title { text-align: center; }
+.wi-content .modal-close { display: block; margin: 0 auto; }
+.wi-list { display: flex; flex-direction: column; gap: 8px; margin: 6px 0 12px; }
+.wi-item {
+  text-align: left;
+  background: rgba(10, 8, 5, 0.6);
+  border: 1px solid rgba(201, 169, 97, 0.3);
+  padding: 10px 12px;
+  color: #e8dcc4;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.wi-item.alt { border-style: dashed; border-color: rgba(244, 197, 66, 0.45); }
+.wi-item.active { border-color: #f4c542; box-shadow: inset 3px 0 0 #f4c542; }
+.wi-item:active { transform: scale(0.98); }
+.wi-name { font-size: 13px; font-weight: 700; color: #f4e8cc; line-height: 1.35; }
+.wi-desc { font-size: 10.5px; color: #a89680; line-height: 1.5; }
+.wi-note { font-size: 9.5px; color: #8b7355; line-height: 1.55; margin-bottom: 12px; }
+html[lang="en"] .wi-name, html[lang="en"] .wi-desc, html[lang="en"] .wi-note,
+html[lang="en"] .scenario-banner { letter-spacing: 0; }
 </style>
 </head>
 <body>
@@ -2352,12 +2429,14 @@ html[lang="en"] .cine-sub { letter-spacing: 0.04em; font-size: 13px; font-style:
       
       <div class="controls">
         <!-- ボタン行: 最上段に独立配置 -->
+        <div class="scenario-banner" id="scenarioBanner" hidden></div>
         <div class="controls-row">
           <div class="speed-group">
             <button class="speed-btn" data-speed="0.5">× 0.5</button>
             <button class="speed-btn active" data-speed="1.0">× 1.0</button>
             <button class="speed-btn" data-speed="1.5">× 1.5</button>
           </div>
+          <button type="button" class="btn wi-btn" id="whatIfBtn" data-i18n="wi.btn">WHAT IF?</button>
           <div class="playback-group">
             <button class="btn btn-icon" id="btnPrev">◀</button>
             <button class="btn btn-primary" id="btnPlay">
@@ -2402,6 +2481,16 @@ html[lang="en"] .cine-sub { letter-spacing: 0.04em; font-size: 13px; font-style:
   </section>
 
   <!-- 準備中モーダル -->
+  <div class="modal-overlay" id="whatIfModal">
+    <div class="modal-content wi-content">
+      <div class="modal-icon">⚔</div>
+      <div class="modal-title" data-i18n="wi.title">WHAT IF…?</div>
+      <div class="wi-list" id="wiList"></div>
+      <div class="wi-note" data-i18n="wi.note"></div>
+      <button class="modal-close" id="wiClose" data-i18n="modal.close">Close</button>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="comingModal">
     <div class="modal-content">
       <div class="modal-icon">⚔</div>
@@ -2896,6 +2985,7 @@ function setLang(l) {
   renderEras();
   if (currentScreen === 'era' && currentEra) openEra(currentEra.id);
   refreshSimText();
+  if (typeof refreshScenarioUI === 'function' && sim3DInitialized) refreshScenarioUI();
 }
 
 function initConfig() {
@@ -3163,6 +3253,7 @@ document.getElementById('backFromEra').addEventListener('click', () => {
 
 document.getElementById('backFromSim').addEventListener('click', () => {
   endCinematic();
+  setScenario(null, false);
   audioQuiet();
   stopPlay();
   showScreen('era');
@@ -3909,6 +4000,7 @@ function applyPhase(idx) {
   setArrowsForPhase(idx);
   setAtmosphereForPhase(idx);
   onPhaseCinematic(idx);
+  markAltTitle(idx);
   
   if (p.fog !== undefined) {
     fogPlane.material.opacity = p.fog;
@@ -5550,6 +5642,412 @@ function updateTroops(dt, t) {
   });
 }
 
+// ========================================================
+// ===== 「もしも」モード v7: 史実から分岐する仮想シナリオ =====
+// ========================================================
+
+Object.assign(STR.en, {
+  'wi.btn': 'WHAT IF?',
+  'wi.title': 'WHAT IF…?',
+  'wi.note': 'What-if scenarios are speculation, not history. Troop moves and outcomes are imagined.',
+  'wi.history': 'History',
+  'wi.historyDesc': 'What actually happened on Oct 21, 1600.',
+  'wi.tag': 'WHAT IF',
+  'wi.spec': 'SPECULATIVE',
+  'wi.from': 'branches at',
+});
+Object.assign(STR.ja, {
+  'wi.btn': 'もしも',
+  'wi.title': 'もしも…',
+  'wi.note': '「もしも」は史実ではない創作です。部隊の動きや結末は想像によるものです。',
+  'wi.history': '史実',
+  'wi.historyDesc': '慶長五年九月十五日に実際に起きたこと。',
+  'wi.tag': 'もしも',
+  'wi.spec': '創作',
+  'wi.from': 'から分岐',
+});
+
+// 史実の表を保存しておく(切り替えで元に戻せるように)
+const BASE_TABLES = {
+  phases: phases.slice(),
+  en: EN_PHASES.slice(),
+  arrows: PHASE_ARROWS.slice(),
+  cine: CINE.slice(),
+  moments: Object.assign({}, CINE_MOMENTS),
+  momentum: MOMENTUM.slice(),
+};
+
+// 分岐フェーズを短く書くための補助
+function altPhase(idx, o) {
+  const base = BASE_TABLES.phases[idx];
+  return {
+    ja: {
+      time: base.time, phase: o.ja.phase, label: o.ja.label, title: o.ja.title, text: o.ja.text,
+      camera: { pos: o.cam.pos, look: o.cam.look, label: o.ja.cam },
+      units: Object.assign({}, base.units, o.units),
+      battles: o.battles || [], battling: o.battling || [], defeated: o.defeated || [],
+      traitor: null,
+    },
+    en: { phase: o.en.phase, label: o.en.label, title: o.en.title, text: o.en.text, cam: o.en.cam },
+    arrows: o.arrows || [],
+    cine: o.cine || { orbit: 0.02, dolly: 0.08 },
+    moment: o.moment || null,
+    mom: o.mom,
+  };
+}
+
+const W = 'west', E = 'east';
+const atk = (from, to, side) => ({ from, to, side, style: 'attack' });
+const mv = (from, to, side) => ({ from, to, side, style: 'move' });
+
+const SCENARIOS = {
+  // ---------------- A: 小早川が裏切らなかったら ----------------
+  loyal: {
+    branch: 7,
+    ja: { name: 'もしも小早川が裏切らなかったら', desc: '12:00で分岐。松尾山の1万5千が、西軍として東軍の側面を突く。' },
+    en: { name: 'What if Kobayakawa had stayed loyal?', desc: "Branches at 12:00. The 15,000 on Mt. Matsuo strike the East's flank — for the West." },
+    phases: [
+      altPhase(7, {
+        ja: { phase: '小早川、西へ', label: '西軍に付く', cam: 'CAM · 松尾山',
+          title: '問鉄砲に、小早川は西軍として応える',
+          text: '家康は松尾山へ威嚇の銃撃を放つ。だが<span class="info-west">小早川秀秋</span>は<span class="info-highlight">西軍として山を下り</span>、東軍の側面へ向かう。' },
+        en: { phase: 'LOYAL TO THE WEST', label: 'Loyal', cam: 'CAM · MT. MATSUO',
+          title: 'Kobayakawa answers the shots — for the West',
+          text: `Ieyasu fires toward Mt. Matsuo, but <span class="info-west">Kobayakawa Hideaki</span> <span class="info-highlight">comes down the mountain for the Western Army</span>, heading for the East's exposed flank.` },
+        cam: { pos: [-5, 55, 60], look: [-20, 0, 10] },
+        units: { kobayakawa: [-24, 18] },
+        battles: [{ x: -15, z: 3 }, { x: -19, z: -13 }],
+        battling: ['fukushima', 'ukita', 'kuroda', 'konishi', 'mitsunari'],
+        arrows: [{ from: 'ieyasu', to: 'kobayakawa', side: E, style: 'shot' }, mv('kobayakawa', 'fukushima', W),
+          atk('fukushima', 'ukita', E), atk('kuroda', 'mitsunari', E)],
+        cine: { focus: ['kobayakawa', 'ieyasu'], blend: 0.6, orbit: -0.02, dolly: 0.08 },
+        moment: { ja: '裏切らず', en: 'LOYAL TO THE WEST', subJa: '小早川一万五千、西軍として山を下りる', subEn: "Kobayakawa's 15,000 descend — for the West", shake: 0.6 },
+        mom: 42,
+      }),
+      altPhase(8, {
+        ja: { phase: '側面崩れ', label: '側面攻撃', cam: 'CAM · 側面',
+          title: '東軍の側面が崩れる',
+          text: '<span class="info-west">小早川隊</span>が<span class="info-east">福島・井伊隊</span>の側面へ突入。挟まれた東軍の前線が<span class="info-highlight">大きく押し戻される</span>。' },
+        en: { phase: 'FLANK COLLAPSES', label: 'Flank attack', cam: 'CAM · FLANK',
+          title: "The East's flank gives way",
+          text: `<span class="info-west">Kobayakawa's men</span> slam into the flank of <span class="info-east">Fukushima and Ii</span>. Caught from two sides, the Eastern front line is <span class="info-highlight">driven back</span>.` },
+        cam: { pos: [5, 50, 55], look: [-10, 0, 6] },
+        units: { fukushima: [-5, 5], ii: [-4, 2], kobayakawa: [-12, 12], ukita: [-10, 4], otani: [-18, 14],
+          kuroda: [-13, -8], hosokawa: [-10, -14], honda: [-2, -10] },
+        battles: [{ x: -8, z: 8 }, { x: -7, z: 3 }, { x: -19, z: -13 }],
+        battling: ['kobayakawa', 'fukushima', 'ii', 'ukita', 'otani', 'kuroda', 'mitsunari'],
+        arrows: [atk('kobayakawa', 'fukushima', W), atk('otani', 'ii', W), atk('ukita', 'fukushima', W), atk('kuroda', 'mitsunari', E)],
+        cine: { focus: ['kobayakawa', 'fukushima'], blend: 0.8, orbit: 0.025, dolly: 0.1 },
+        mom: 32,
+      }),
+      altPhase(9, {
+        ja: { phase: '本隊投入', label: '家康動く', cam: 'CAM · 本陣',
+          title: '家康、本隊を前へ',
+          text: '崩れかけた前線を支えるため、<span class="info-east">徳川家康</span>は本陣を前進させ<span class="info-east">本多忠勝</span>らを投入。<span class="info-highlight">戦線は再び膠着</span>する。' },
+        en: { phase: 'IEYASU COMMITS', label: 'Ieyasu moves', cam: 'CAM · HQ',
+          title: 'Ieyasu throws in his main force',
+          text: `To hold the buckling line, <span class="info-east">Tokugawa Ieyasu</span> moves his HQ forward and sends in <span class="info-east">Honda Tadakatsu</span> and others. <span class="info-highlight">The front locks up again</span>.` },
+        cam: { pos: [20, 52, 55], look: [-2, 0, 4] },
+        units: { ieyasu: [8, 2], honda: [-2, 4], fukushima: [-4, 5], ii: [-3, 1], kobayakawa: [-9, 10], ukita: [-9, 4],
+          otani: [-16, 13], kuroda: [-13, -8], hosokawa: [-10, -14], shimazu: [-22, -10] },
+        battles: [{ x: -6, z: 7 }, { x: -6, z: 2 }, { x: -19, z: -13 }],
+        battling: ['kobayakawa', 'fukushima', 'ii', 'honda', 'ukita', 'otani', 'kuroda', 'mitsunari'],
+        arrows: [atk('honda', 'kobayakawa', E), atk('kobayakawa', 'fukushima', W), atk('ukita', 'ii', W), atk('kuroda', 'mitsunari', E)],
+        cine: { focus: ['ieyasu', 'kobayakawa'], blend: 0.5, orbit: 0.02, dolly: 0.1 },
+        mom: 38,
+      }),
+      altPhase(10, {
+        ja: { phase: '東軍後退', label: '東軍後退', cam: 'CAM · 前線',
+          title: '福島隊が崩れ、東軍が後退',
+          text: '数で勝る西軍の圧力に<span class="info-east">福島隊</span>が崩れる。<span class="info-west">宇喜多・大谷・小早川</span>が前進し、東軍は<span class="info-highlight">じりじりと後退</span>していく。' },
+        en: { phase: 'EAST FALLS BACK', label: 'East retreats', cam: 'CAM · FRONT',
+          title: 'Fukushima breaks; the East falls back',
+          text: `Under the weight of Western numbers, <span class="info-east">Fukushima's division</span> breaks. <span class="info-west">Ukita, Ōtani and Kobayakawa</span> push forward, and the East <span class="info-highlight">gives ground step by step</span>.` },
+        cam: { pos: [25, 55, 55], look: [2, 0, 2] },
+        units: { fukushima: [4, 8], ii: [3, 2], honda: [4, -2], ieyasu: [12, 2], kobayakawa: [-2, 9], ukita: [-3, 4], otani: [-10, 12],
+          kuroda: [-8, -8], hosokawa: [-6, -13], mitsunari: [-38, -30], shimazu: [-18, -8], konishi: [-20, -12] },
+        battles: [{ x: 0, z: 5 }, { x: -12, z: -11 }],
+        battling: ['kobayakawa', 'ukita', 'ii', 'honda', 'kuroda', 'konishi'],
+        defeated: ['fukushima'],
+        arrows: [atk('kobayakawa', 'honda', W), atk('ukita', 'ii', W), atk('kuroda', 'konishi', E)],
+        cine: { orbit: -0.02, dolly: 0.08 },
+        mom: 28,
+      }),
+      altPhase(11, {
+        ja: { phase: '撤退', label: '家康撤退', cam: 'CAM · 撤退',
+          title: '家康、桃配山へ退く',
+          text: '前線を支えきれず、<span class="info-east">家康</span>は<span class="info-highlight">桃配山への撤退</span>を命じる。<span class="info-east">井伊・本多</span>が殿（しんがり）となり、追いすがる西軍を食い止める。' },
+        en: { phase: 'WITHDRAWAL', label: 'Withdrawal', cam: 'CAM · WITHDRAWAL',
+          title: 'Ieyasu pulls back toward Mt. Momokubari',
+          text: `Unable to hold, <span class="info-east">Ieyasu</span> orders <span class="info-highlight">a withdrawal to Mt. Momokubari</span>. <span class="info-east">Ii and Honda</span> form the rear guard against the pursuing West.` },
+        cam: { pos: [35, 55, 58], look: [14, 0, 2] },
+        units: { ieyasu: [36, 4], ii: [10, 2], honda: [12, -3], kuroda: [8, -8], hosokawa: [10, -12], fukushima: [22, 10],
+          kobayakawa: [4, 8], ukita: [3, 3], otani: [-4, 10], shimazu: [-10, -8], konishi: [-12, -12], mitsunari: [-34, -26] },
+        battles: [{ x: 7, z: 4 }, { x: 8, z: -1 }],
+        battling: ['ii', 'honda', 'kobayakawa', 'ukita'],
+        defeated: ['fukushima'],
+        arrows: [mv('ieyasu', [48, 8], E), atk('kobayakawa', 'ii', W), atk('ukita', 'honda', W)],
+        cine: { focus: ['ieyasu'], blend: 0.4, orbit: 0.02, dolly: 0.05 },
+        mom: 22,
+      }),
+      altPhase(12, {
+        ja: { phase: '西軍勝利？', label: '結末', cam: 'CAM · 結末',
+          title: '西軍、関ヶ原を制す（仮説）',
+          text: '日暮れとともに東軍は戦場を離れ、<span class="info-west">西軍が関ヶ原を制する</span>。ただし家康の本隊は健在で、戦いが長引いた可能性も高い。<span class="info-highlight">この先の歴史は誰にも分からない</span>。' },
+        en: { phase: 'A WESTERN VICTORY?', label: 'Outcome', cam: 'CAM · OUTCOME',
+          title: 'The West holds Sekigahara (speculative)',
+          text: `As dusk falls, the East leaves the field and <span class="info-west">the West holds Sekigahara</span>. But Ieyasu's main army survives, and the war could well have dragged on. <span class="info-highlight">What came next, no one can say</span>.` },
+        cam: { pos: [10, 70, 72], look: [5, 0, 0] },
+        units: { ieyasu: [58, 14], ii: [30, 4], honda: [32, -2], kuroda: [28, -8], hosokawa: [30, -12], fukushima: [40, 12],
+          kobayakawa: [12, 8], ukita: [10, 3], otani: [2, 10], shimazu: [-4, -6], konishi: [-6, -10], mitsunari: [-20, -16] },
+        defeated: ['fukushima'],
+        arrows: [mv('ieyasu', [70, 18], E)],
+        cine: { orbit: 0.03, dolly: -0.05 },
+        moment: { ja: '西軍勝利？', en: 'A WESTERN VICTORY?', subJa: 'もうひとつの関ヶ原', subEn: 'Another Sekigahara', shake: 0 },
+        mom: 15,
+      }),
+    ],
+  },
+
+  // ---------------- B: 毛利が南宮山を下りていたら ----------------
+  mori: {
+    branch: 5,
+    ja: { name: 'もしも毛利が南宮山を下りていたら', desc: '10:00で分岐。動かなかった3万が、家康の背後を突く。' },
+    en: { name: 'What if the Mōri had come down from Mt. Nangū?', desc: 'Branches at 10:00. The 30,000 who never fought strike Ieyasu from behind.' },
+    phases: [
+      altPhase(5, {
+        ja: { phase: '毛利動く', label: '毛利出陣', cam: 'CAM · 南宮山',
+          title: '狼煙に応え、毛利が山を下りる',
+          text: '三成の狼煙を見た<span class="info-west">毛利秀元</span>は、道をふさぐ<span class="info-west">吉川広家</span>を押しのけ<span class="info-highlight">南宮山を下る</span>。その先には家康の本陣がある。' },
+        en: { phase: 'THE MŌRI MARCH', label: 'Mōri march', cam: 'CAM · MT. NANGŪ',
+          title: 'Answering the signal, the Mōri come down',
+          text: `Seeing Mitsunari's signal fires, <span class="info-west">Mōri Hidemoto</span> pushes past <span class="info-west">Kikkawa Hiroie</span>, who had blocked the way, and <span class="info-highlight">descends Mt. Nangū</span>. Ahead lies Ieyasu's headquarters.` },
+        cam: { pos: [45, 55, 60], look: [28, 0, -2] },
+        units: { mori: [38, -3] },
+        battles: [{ x: -12, z: 3 }, { x: -18, z: -12 }],
+        battling: ['fukushima', 'ukita', 'kuroda', 'hosokawa', 'konishi', 'mitsunari'],
+        arrows: [{ from: 'mitsunari', to: 'mori', side: 'signal', style: 'signal' }, mv('mori', 'ieyasu', W),
+          atk('fukushima', 'ukita', E), atk('kuroda', 'mitsunari', E)],
+        cine: { focus: ['mori', 'ieyasu'], blend: 0.7, orbit: 0.02, dolly: 0.1 },
+        moment: { ja: '毛利、動く', en: 'THE MŌRI MARCH', subJa: '動かなかったはずの三万が山を下りる', subEn: 'The 30,000 who never fought come down the mountain', shake: 0.7 },
+        mom: 50,
+      }),
+      altPhase(6, {
+        ja: { phase: '背後から', label: '家康挟撃', cam: 'CAM · 本陣',
+          title: '家康の本陣、背後から襲われる',
+          text: '<span class="info-west">毛利・吉川隊</span>が<span class="info-east">家康本陣</span>の背後に突入。前線を支えていた<span class="info-east">本多忠勝</span>が引き返し、<span class="info-highlight">本陣を守る戦い</span>が始まる。' },
+        en: { phase: 'ATTACK FROM BEHIND', label: 'Rear attack', cam: 'CAM · HQ',
+          title: "Ieyasu's HQ is struck from behind",
+          text: `<span class="info-west">The Mōri and Kikkawa</span> crash into the rear of <span class="info-east">Ieyasu's headquarters</span>. <span class="info-east">Honda Tadakatsu</span> turns back from the front, and <span class="info-highlight">a fight to save the HQ</span> begins.` },
+        cam: { pos: [40, 52, 55], look: [22, 0, 0] },
+        units: { ieyasu: [23, 2], mori: [29, -2], honda: [18, -4], ukita: [-14, 4] },
+        battles: [{ x: 26, z: 0 }, { x: -13, z: 3 }, { x: -18, z: -12 }],
+        battling: ['mori', 'ieyasu', 'honda', 'fukushima', 'ukita', 'kuroda', 'konishi', 'mitsunari'],
+        arrows: [atk('mori', 'ieyasu', W), atk('honda', 'mori', E), atk('fukushima', 'ukita', E), atk('kuroda', 'mitsunari', E)],
+        cine: { focus: ['mori', 'ieyasu'], blend: 0.8, orbit: -0.02, dolly: 0.15 },
+        mom: 42,
+      }),
+      altPhase(7, {
+        ja: { phase: '小早川静観', label: '小早川静観', cam: 'CAM · 松尾山',
+          title: '形勢を見る小早川',
+          text: '家康は背後の敵に追われ、<span class="info-highlight">松尾山への問鉄砲を撃つ余裕がない</span>。東軍の不利を見た<span class="info-west">小早川秀秋</span>は、約束を守るべきか迷い続ける。' },
+        en: { phase: 'KOBAYAKAWA WAITS', label: 'Kobayakawa waits', cam: 'CAM · MT. MATSUO',
+          title: 'Kobayakawa watches which way the wind blows',
+          text: `Busy fending off the attack from behind, Ieyasu has <span class="info-highlight">no chance to fire his inquiry shots</span> at Mt. Matsuo. Seeing the East in trouble, <span class="info-west">Kobayakawa Hideaki</span> wavers over his secret promise.` },
+        cam: { pos: [-10, 50, 62], look: [-26, 0, 18] },
+        units: { ieyasu: [22, 3], mori: [26, -1], honda: [19, -3], fukushima: [-11, 3], kuroda: [-11, -8], hosokawa: [-8, -14],
+          ii: [-9, 1], ukita: [-13, 4], otani: [-25, 20], kobayakawa: [-30, 26] },
+        battles: [{ x: 24, z: 1 }, { x: -13, z: 3 }, { x: -18, z: -12 }],
+        battling: ['mori', 'ieyasu', 'honda', 'fukushima', 'ukita', 'kuroda', 'konishi', 'mitsunari'],
+        arrows: [atk('mori', 'ieyasu', W), atk('honda', 'mori', E), atk('fukushima', 'ukita', E), atk('kuroda', 'mitsunari', E)],
+        cine: { focus: ['kobayakawa'], blend: 0.4, orbit: 0.02, dolly: 0.08 },
+        mom: 38,
+      }),
+      altPhase(8, {
+        ja: { phase: '小早川、西へ', label: '小早川参戦', cam: 'CAM · 両面',
+          title: '小早川、西軍として参戦',
+          text: '東軍の敗色を見た<span class="info-west">小早川隊1万5千</span>が<span class="info-highlight">西軍として松尾山を下り</span>、<span class="info-east">福島・井伊隊</span>の側面を突く。' },
+        en: { phase: 'KOBAYAKAWA CHOOSES THE WEST', label: 'Kobayakawa joins', cam: 'CAM · TWO FRONTS',
+          title: 'Kobayakawa joins the battle — for the West',
+          text: `Sensing an Eastern defeat, <span class="info-west">Kobayakawa's 15,000</span> <span class="info-highlight">come down Mt. Matsuo for the West</span> and strike the flank of <span class="info-east">Fukushima and Ii</span>.` },
+        cam: { pos: [5, 58, 62], look: [0, 0, 4] },
+        units: { kobayakawa: [-14, 12], fukushima: [-7, 5], ii: [-6, 2], ukita: [-11, 4], otani: [-18, 15], kuroda: [-12, -8],
+          hosokawa: [-9, -14], ieyasu: [21, 3], mori: [24, 0], honda: [18, -2] },
+        battles: [{ x: -10, z: 8 }, { x: 23, z: 2 }, { x: -18, z: -12 }],
+        battling: ['kobayakawa', 'fukushima', 'ii', 'ukita', 'otani', 'mori', 'ieyasu', 'honda', 'kuroda', 'mitsunari'],
+        arrows: [atk('kobayakawa', 'fukushima', W), atk('mori', 'ieyasu', W), atk('ukita', 'ii', W), atk('kuroda', 'mitsunari', E)],
+        cine: { orbit: 0.02, dolly: 0.05 },
+        moment: { ja: '小早川、西へ', en: 'KOBAYAKAWA CHOOSES THE WEST', subJa: '裏切りは起きなかった', subEn: 'The betrayal never comes', shake: 0.8 },
+        mom: 26,
+      }),
+      altPhase(9, {
+        ja: { phase: '東軍包囲', label: '東軍包囲', cam: 'CAM · 包囲',
+          title: '東軍、前後から挟まれる',
+          text: '前に<span class="info-west">宇喜多・小早川</span>、後ろに<span class="info-west">毛利</span>。<span class="info-east">東軍</span>は関ヶ原の中央で<span class="info-highlight">挟み撃ち</span>にされ、<span class="info-east">井伊隊</span>が崩れる。' },
+        en: { phase: 'SURROUNDED', label: 'Surrounded', cam: 'CAM · PINCER',
+          title: 'The East is caught front and rear',
+          text: `<span class="info-west">Ukita and Kobayakawa</span> in front, <span class="info-west">the Mōri</span> behind: <span class="info-east">the Eastern Army</span> is <span class="info-highlight">caught in a pincer</span> in the middle of the basin, and <span class="info-east">Ii's division</span> breaks.` },
+        cam: { pos: [15, 62, 64], look: [4, 0, 2] },
+        units: { fukushima: [-2, 5], ii: [0, 2], kuroda: [-8, -8], hosokawa: [-5, -13], honda: [14, -2], ieyasu: [18, 4], mori: [21, 0],
+          kobayakawa: [-6, 10], ukita: [-7, 4], otani: [-13, 13], shimazu: [-18, -8], konishi: [-20, -12] },
+        battles: [{ x: -4, z: 6 }, { x: 19, z: 2 }, { x: -12, z: -11 }],
+        battling: ['kobayakawa', 'fukushima', 'ukita', 'mori', 'ieyasu', 'honda', 'kuroda', 'konishi'],
+        defeated: ['ii'],
+        arrows: [atk('kobayakawa', 'fukushima', W), atk('ukita', 'fukushima', W), atk('mori', 'ieyasu', W), atk('konishi', 'kuroda', W)],
+        cine: { orbit: -0.02, dolly: 0.05 },
+        mom: 18,
+      }),
+      altPhase(10, {
+        ja: { phase: '家康脱出', label: '家康脱出', cam: 'CAM · 脱出',
+          title: '家康、北へ活路を開く',
+          text: '本陣の崩壊を悟った<span class="info-east">家康</span>は、<span class="info-east">本多忠勝</span>に守られ<span class="info-highlight">北東へ脱出</span>を図る。取り残された<span class="info-east">福島隊</span>も崩れる。' },
+        en: { phase: 'IEYASU BREAKS OUT', label: 'Breakout', cam: 'CAM · BREAKOUT',
+          title: 'Ieyasu cuts his way out to the north',
+          text: `Seeing his HQ about to fall, <span class="info-east">Ieyasu</span>, shielded by <span class="info-east">Honda Tadakatsu</span>, <span class="info-highlight">breaks out to the northeast</span>. Left behind, <span class="info-east">Fukushima's division</span> collapses too.` },
+        cam: { pos: [40, 55, 58], look: [22, 0, 8] },
+        units: { ieyasu: [30, 14], honda: [26, 10], mori: [20, 2], fukushima: [2, 6], ii: [3, 2], kuroda: [-4, -8], hosokawa: [-2, -12],
+          kobayakawa: [-1, 8], ukita: [-3, 4], otani: [-10, 12], shimazu: [-14, -8], konishi: [-16, -11], mitsunari: [-36, -28] },
+        battles: [{ x: 24, z: 8 }, { x: -6, z: -10 }],
+        battling: ['honda', 'mori', 'kuroda', 'konishi'],
+        defeated: ['ii', 'fukushima'],
+        arrows: [mv('ieyasu', [44, 22], E), atk('mori', 'honda', W), atk('konishi', 'kuroda', W)],
+        cine: { focus: ['ieyasu'], blend: 0.7, orbit: 0.02, dolly: 0.1 },
+        mom: 12,
+      }),
+      altPhase(11, {
+        ja: { phase: '追撃', label: '追撃', cam: 'CAM · 追撃',
+          title: '西軍の追撃',
+          text: '勝勢に乗った<span class="info-west">西軍</span>が追撃に移る。<span class="info-east">黒田・細川隊</span>も退路を断たれ、<span class="info-highlight">東軍は散り散りに敗走</span>する。' },
+        en: { phase: 'PURSUIT', label: 'Pursuit', cam: 'CAM · PURSUIT',
+          title: 'The West gives chase',
+          text: `Riding their momentum, <span class="info-west">the Western Army</span> takes up the pursuit. Cut off, <span class="info-east">Kuroda and Hosokawa</span> fall back as well, and <span class="info-highlight">the East scatters</span>.` },
+        cam: { pos: [25, 62, 64], look: [12, 0, 4] },
+        units: { ieyasu: [44, 22], honda: [38, 18], mori: [28, 8], kuroda: [6, -10], hosokawa: [8, -14], fukushima: [10, 8], ii: [8, 3],
+          kobayakawa: [6, 8], ukita: [4, 3], otani: [-4, 10], shimazu: [-6, -8], konishi: [-8, -10], mitsunari: [-30, -22] },
+        battles: [{ x: 6, z: -8 }],
+        battling: ['shimazu', 'kuroda', 'konishi'],
+        defeated: ['ii', 'fukushima', 'hosokawa'],
+        arrows: [mv('mori', 'ieyasu', W), atk('shimazu', 'kuroda', W), mv('kobayakawa', [22, 10], W)],
+        cine: { orbit: 0.02, dolly: 0.06 },
+        mom: 8,
+      }),
+      altPhase(12, {
+        ja: { phase: '西軍勝利', label: '結末', cam: 'CAM · 結末',
+          title: '西軍勝利（仮説）',
+          text: '関ヶ原は<span class="info-west">西軍の勝利</span>に終わる。家康は生き延びて江戸へ退くが、<span class="info-highlight">徳川の天下はここで遠のいた</span>かもしれない。すべては「もしも」の物語。' },
+        en: { phase: 'A WESTERN VICTORY', label: 'Outcome', cam: 'CAM · OUTCOME',
+          title: 'The West wins (speculative)',
+          text: `Sekigahara ends in <span class="info-west">a Western victory</span>. Ieyasu escapes and falls back toward Edo, but <span class="info-highlight">Tokugawa rule may have slipped out of reach</span>. All of this is a "what if."` },
+        cam: { pos: [20, 72, 74], look: [10, 0, 0] },
+        units: { ieyasu: [60, 26], honda: [54, 22], mori: [40, 14], kuroda: [24, -12], hosokawa: [26, -16], fukushima: [30, 10], ii: [24, 4],
+          kobayakawa: [14, 8], ukita: [12, 3], otani: [4, 10], shimazu: [2, -6], konishi: [0, -10], mitsunari: [-20, -14] },
+        defeated: ['ii', 'fukushima', 'hosokawa', 'kuroda'],
+        arrows: [mv('mori', [58, 24], W)],
+        cine: { orbit: 0.03, dolly: -0.05 },
+        moment: { ja: 'もうひとつの天下', en: 'A DIFFERENT JAPAN', subJa: '西軍勝利（仮説）', subEn: 'A Western victory — a what-if', shake: 0 },
+        mom: 6,
+      }),
+    ],
+  },
+};
+
+let currentScenario = null;
+const isAltPhase = idx => !!(currentScenario && idx >= SCENARIOS[currentScenario].branch);
+
+// 史実/シナリオの表に入れ替える(配列やオブジェクトは中身だけ差し替える)
+function loadScenarioTables(id) {
+  const sc = id ? SCENARIOS[id] : null;
+  for (let i = 0; i < BASE_TABLES.phases.length; i++) {
+    const alt = sc && i >= sc.branch ? sc.phases[i - sc.branch] : null;
+    phases[i] = alt ? alt.ja : BASE_TABLES.phases[i];
+    EN_PHASES[i] = alt ? alt.en : BASE_TABLES.en[i];
+    PHASE_ARROWS[i] = alt ? alt.arrows : BASE_TABLES.arrows[i];
+    CINE[i] = alt ? alt.cine : BASE_TABLES.cine[i];
+    MOMENTUM[i] = alt ? alt.mom : BASE_TABLES.momentum[i];
+    delete CINE_MOMENTS[i];
+    const mom = alt ? alt.moment : BASE_TABLES.moments[i];
+    if (mom) CINE_MOMENTS[i] = mom;
+  }
+}
+
+function refreshScenarioUI() {
+  const sc = currentScenario ? SCENARIOS[currentScenario] : null;
+  const banner = document.getElementById('scenarioBanner');
+  if (banner) {
+    if (sc) {
+      const L = LANG === 'en' ? sc.en : sc.ja;
+      const at = BASE_TABLES.phases[sc.branch].time;
+      const from = LANG === 'en' ? `${t('wi.from')} ${at}` : `${at}${t('wi.from')}`;
+      banner.innerHTML = `<span class="sb-tag">${t('wi.tag')}</span><span class="sb-name">${L.name}</span><span class="sb-from">${from}</span>`;
+      banner.hidden = false;
+    } else {
+      banner.hidden = true;
+    }
+  }
+  const btn = document.getElementById('whatIfBtn');
+  if (btn) btn.classList.toggle('active', !!sc);
+  document.querySelectorAll('.phase-marker').forEach(m => {
+    m.classList.toggle('alt', isAltPhase(parseInt(m.dataset.idx)));
+  });
+  markAltTitle(currentPhase);
+}
+
+function markAltTitle(idx) {
+  const title = document.getElementById('infoTitle');
+  if (!title) return;
+  title.classList.toggle('alt', isAltPhase(idx));
+  title.dataset.tag = t('wi.spec');
+}
+
+function setScenario(id, jump = true) {
+  if (id === currentScenario) return;
+  const prev = currentScenario ? SCENARIOS[currentScenario] : null;
+  currentScenario = id;
+  loadScenarioTables(id);
+  // 倒れた兵を起こして隊列を立て直す
+  Object.values(units).forEach(u => { if (u.troop) u.troop.lastPhase = 999; });
+  refreshSimText();
+  refreshScenarioUI();
+  if (!jump) return;
+  const sc = id ? SCENARIOS[id] : null;
+  const target = sc ? sc.branch : (prev ? prev.branch : currentPhase);
+  stopPlay();
+  currentPhase = target;
+  applyPhase(target);
+  scrollToPhase(target);
+}
+
+function renderWhatIfList() {
+  const list = document.getElementById('wiList');
+  if (!list) return;
+  const items = [{ id: null, name: t('wi.history'), desc: t('wi.historyDesc') }];
+  Object.entries(SCENARIOS).forEach(([id, sc]) => {
+    const L = LANG === 'en' ? sc.en : sc.ja;
+    items.push({ id, name: L.name, desc: L.desc });
+  });
+  list.innerHTML = '';
+  items.forEach(it => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'wi-item' + (it.id === currentScenario ? ' active' : '') + (it.id ? ' alt' : '');
+    b.innerHTML = `<span class="wi-name">${it.name}</span><span class="wi-desc">${it.desc}</span>`;
+    b.addEventListener('click', () => {
+      document.getElementById('whatIfModal').classList.remove('active');
+      setScenario(it.id);
+    });
+    list.appendChild(b);
+  });
+}
+
+function initWhatIf() {
+  const btn = document.getElementById('whatIfBtn');
+  const modal = document.getElementById('whatIfModal');
+  if (btn) btn.addEventListener('click', () => { renderWhatIfList(); modal.classList.add('active'); });
+  document.getElementById('wiClose').addEventListener('click', () => modal.classList.remove('active'));
+  modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+  refreshScenarioUI();
+}
+
 // ========= 初期化 =========
 function initSekigahara() {
   const canvas = document.getElementById('canvas3d');
@@ -5937,6 +6435,7 @@ function initSekigahara() {
   initPlaceLabels();
   initAtmosphereFx();
   initTroops();
+  initWhatIf();
   initSoundUI();
   initCameraControls();
   
