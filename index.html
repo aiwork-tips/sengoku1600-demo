@@ -1985,6 +1985,204 @@ html[lang="en"] .place-label { letter-spacing: 0.04em; }
 
 /* 非表示の画面の要素はタップを受け取らない */
 .screen:not(.active) * { pointer-events: none !important; }
+
+/* ===== 見応え強化 v4 ===== */
+.letterbox {
+  position: absolute;
+  left: 0; right: 0;
+  height: 90px;
+  background: #050302;
+  z-index: 14;
+  pointer-events: none;
+  transform: scaleY(0);
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.letterbox.top { top: 0; transform-origin: top; }
+.letterbox.bottom { transform-origin: bottom; box-shadow: 0 -1px 0 rgba(201,169,97,0.25); }
+.letterbox.top { box-shadow: 0 1px 0 rgba(201,169,97,0.25); }
+#sim-container.cinematic .letterbox { transform: scaleY(1); }
+
+#sim-container .legend,
+#sim-container .cam-label,
+#sim-container .cam-mode-btn,
+#sim-container .general-indicator,
+#sim-container .unit-labels,
+#sim-container .place-labels,
+#sim-container .tap-hint,
+#sim-container .momentum,
+#sim-container .time-display,
+#sim-container .sim-header {
+  transition: opacity 0.5s ease;
+}
+#sim-container.cinematic .legend,
+#sim-container.cinematic .cam-label,
+#sim-container.cinematic .cam-mode-btn,
+#sim-container.cinematic .general-indicator,
+#sim-container.cinematic .tap-hint,
+#sim-container.cinematic .momentum,
+#sim-container.cinematic .time-display,
+#sim-container.cinematic .sim-header { opacity: 0 !important; }
+#sim-container.cinematic .unit-labels,
+#sim-container.cinematic .place-labels { opacity: 0.35; }
+
+.cine-title {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%);
+  z-index: 15;
+  pointer-events: none;
+  text-align: center;
+  width: 92%;
+  opacity: 0;
+}
+.cine-brush {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 115%; height: 150%;
+  transform: translate(-50%, -50%) scaleX(0);
+  background: radial-gradient(ellipse at center, rgba(8,5,3,0.82) 0%, rgba(8,5,3,0.55) 42%, rgba(8,5,3,0) 70%);
+  z-index: -1;
+}
+.cine-kanji {
+  display: inline-block;
+  font-family: 'Noto Serif JP', serif;
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: 0.25em;
+  color: #f4e8cc;
+  background: #8b1a1a;
+  padding: 4px 6px 4px 10px;
+  margin-bottom: 8px;
+  box-shadow: 0 0 0 1px rgba(201,48,48,0.7), 0 2px 10px rgba(0,0,0,0.6);
+}
+.cine-title.gold .cine-kanji { background: #9a6a10; box-shadow: 0 0 0 1px rgba(242,165,22,0.8), 0 2px 10px rgba(0,0,0,0.6); }
+.cine-main {
+  font-family: 'Noto Serif JP', serif;
+  font-weight: 900;
+  font-size: 52px;
+  line-height: 1.1;
+  color: #f4e8cc;
+  letter-spacing: 0.2em;
+  text-shadow: 0 0 22px rgba(0,0,0,0.95), 0 2px 4px rgba(0,0,0,0.9);
+}
+html[lang="en"] .cine-main {
+  font-family: 'Cormorant Garamond', 'Noto Serif JP', serif;
+  font-weight: 700;
+  font-size: 34px;
+  letter-spacing: 0.14em;
+}
+.cine-title.gold .cine-main { color: #ffd88a; }
+.cine-main::after {
+  content: '';
+  display: block;
+  height: 2px;
+  margin: 10px auto 0;
+  width: 0;
+  background: linear-gradient(90deg, transparent, #c93030, #f4c542, #c93030, transparent);
+}
+.cine-sub {
+  margin-top: 8px;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: #e8dcc4;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.95);
+}
+html[lang="en"] .cine-sub { letter-spacing: 0.04em; font-size: 13px; font-style: italic; }
+
+.cine-title.show { animation: cineFade 3.4s ease forwards; }
+.cine-title.show .cine-brush { animation: cineBrush 3.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.cine-title.show .cine-main { animation: cineMain 3.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.cine-title.show .cine-main::after { animation: cineLine 3.4s ease forwards; }
+.cine-title.show .cine-sub { animation: cineSub 3.4s ease forwards; }
+
+@keyframes cineFade {
+  0% { opacity: 0; } 12% { opacity: 1; } 82% { opacity: 1; } 100% { opacity: 0; }
+}
+@keyframes cineBrush {
+  0% { transform: translate(-50%, -50%) scaleX(0); }
+  18% { transform: translate(-50%, -50%) scaleX(1); }
+  100% { transform: translate(-50%, -50%) scaleX(1.05); }
+}
+@keyframes cineMain {
+  0% { opacity: 0; filter: blur(8px); transform: scale(1.18); }
+  20% { opacity: 1; filter: blur(0); transform: scale(1); }
+  100% { opacity: 1; filter: blur(0); transform: scale(0.97); }
+}
+@keyframes cineLine {
+  0%, 15% { width: 0; } 40% { width: 70%; } 100% { width: 70%; }
+}
+@keyframes cineSub {
+  0%, 25% { opacity: 0; transform: translateY(6px); } 40% { opacity: 1; transform: translateY(0); } 100% { opacity: 1; }
+}
+
+.cine-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(255,240,210,0.85), rgba(255,220,160,0.4) 60%, transparent 100%);
+  z-index: 13;
+  pointer-events: none;
+  opacity: 0;
+}
+.cine-flash.go { animation: cineFlash 0.7s ease-out; }
+@keyframes cineFlash { 0% { opacity: 0.8; } 100% { opacity: 0; } }
+
+/* 戦力ゲージ */
+.momentum {
+  position: absolute;
+  top: 124px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150px;
+  z-index: 10;
+  pointer-events: none;
+  padding: 4px 6px 5px;
+  background: rgba(10, 8, 5, 0.72);
+  border: 1px solid rgba(201, 169, 97, 0.28);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.mom-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  margin-bottom: 3px;
+  font-weight: 700;
+}
+.mom-east { color: #7fb0e0; }
+.mom-west { color: #e88080; }
+.mom-title { color: #8b7355; font-size: 7px; letter-spacing: 0.1em; font-weight: 600; }
+.mom-bar {
+  position: relative;
+  height: 5px;
+  background: linear-gradient(90deg, #8b2a2a, #d94545);
+  overflow: hidden;
+}
+.mom-east-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 47%;
+  background: linear-gradient(90deg, #2f5f9a, #5b8fc4);
+  transition: width 1.6s cubic-bezier(0.3, 0, 0.2, 1);
+  box-shadow: 1px 0 0 rgba(255,255,255,0.7);
+}
+.mom-marker {
+  position: absolute;
+  left: 50%; top: -1px; bottom: -1px;
+  width: 1px;
+  background: rgba(244, 197, 66, 0.8);
+}
+.momentum.surge { animation: momSurge 1.6s ease; }
+@keyframes momSurge {
+  0%, 100% { box-shadow: none; border-color: rgba(201,169,97,0.28); }
+  30% { box-shadow: 0 0 14px rgba(244,197,66,0.7); border-color: rgba(244,197,66,0.9); }
+}
+
+@media (max-height: 640px) {
+  .momentum { top: 104px; width: 130px; }
+}
 </style>
 </head>
 <body>
@@ -2088,6 +2286,23 @@ html[lang="en"] .place-label { letter-spacing: 0.04em; }
         <div class="legend-item"><span class="legend-dot traitor"></span><span data-i18n="legend.traitor">Defected</span></div>
       </div>
       
+      <div class="momentum" id="momentum">
+        <div class="mom-labels">
+          <span class="mom-east" data-i18n="legend.east">East</span>
+          <span class="mom-title" data-i18n="mom.title">MOMENTUM · EST.</span>
+          <span class="mom-west" data-i18n="legend.west">West</span>
+        </div>
+        <div class="mom-bar"><div class="mom-east-fill" id="momEast"></div><div class="mom-marker"></div></div>
+      </div>
+      <div class="letterbox top"></div>
+      <div class="letterbox bottom"></div>
+      <div class="cine-flash" id="cineFlash"></div>
+      <div class="cine-title" id="cineTitle">
+        <div class="cine-brush"></div>
+        <div class="cine-kanji" id="cineKanji"></div>
+        <div class="cine-main" id="cineMain"></div>
+        <div class="cine-sub" id="cineSub"></div>
+      </div>
       <div class="cam-label" id="camLabel">CAM · OVERVIEW</div>
       <button type="button" class="cam-mode-btn" id="camModeBtn">● AUTO CAM</button>
       
@@ -2917,6 +3132,7 @@ document.getElementById('backFromEra').addEventListener('click', () => {
 });
 
 document.getElementById('backFromSim').addEventListener('click', () => {
+  endCinematic();
   stopPlay();
   showScreen('era');
 });
@@ -3661,6 +3877,7 @@ function applyPhase(idx) {
   onPhaseCamera(idx, PL.cam);
   setArrowsForPhase(idx);
   setAtmosphereForPhase(idx);
+  onPhaseCinematic(idx);
   
   if (p.fog !== undefined) {
     fogPlane.material.opacity = p.fog;
@@ -3749,13 +3966,14 @@ function startPlay() {
 }
 
 function restartPlayTimer() {
-  if (playTimer) { clearInterval(playTimer); playTimer = null; }
+  if (playTimer) { clearTimeout(playTimer); playTimer = null; }
   if (!isPlaying) return;
-  const interval = BASE_INTERVAL / playSpeed;
-  playTimer = setInterval(() => {
-    if (currentPhase < phases.length - 1) next();
+  const extra = CINE_MOMENTS[currentPhase] ? 1.5 : 1;
+  playTimer = setTimeout(() => {
+    playTimer = null;
+    if (currentPhase < phases.length - 1) { next(); restartPlayTimer(); }
     else stopPlay();
-  }, interval);
+  }, (BASE_INTERVAL / playSpeed) * extra);
 }
 
 function stopPlay() {
@@ -4600,6 +4818,159 @@ function initAtmosphereFx() {
   initFogBanks();
 }
 
+// ========================================================
+// ===== 見応え強化 v4: 名場面の演出・戦力ゲージ =====
+// ========================================================
+
+Object.assign(STR.en, { 'mom.title': 'MOMENTUM · EST.' });
+Object.assign(STR.ja, { 'mom.title': '戦況（推定）' });
+
+// 名場面(フェーズ番号 → 演出)
+const CINE_MOMENTS = {
+  3:  { ja: '開戦', en: 'THE BATTLE BEGINS',
+        subJa: '霧が晴れ、井伊隊の銃声で火蓋が切られる', subEn: "The fog lifts, and Ii's guns open the battle", shake: 0.6 },
+  7:  { ja: '問鉄砲', en: 'THE INQUIRY SHOTS',
+        subJa: '家康、松尾山へ威嚇の銃撃', subEn: 'Ieyasu fires toward Mt. Matsuo', shake: 0.4, flash: true },
+  8:  { ja: '裏切り', en: 'BETRAYAL',
+        subJa: '小早川一万五千、松尾山を駆け下りる', subEn: "Kobayakawa's 15,000 charge down Mt. Matsuo", shake: 1.0, accent: 'gold' },
+  11: { ja: '島津の退き口', en: 'THE SHIMAZU BREAKOUT',
+        subJa: '敵の中央を突き抜ける退却', subEn: "A retreat straight through the enemy's heart", shake: 0.5 },
+  12: { ja: '東軍勝利', en: 'VICTORY IN THE EAST',
+        subJa: '天下の行方が決まる', subEn: "Japan's fate is decided", shake: 0 },
+};
+
+// 戦況(東軍の勢い %、推定)。フェーズと同じ順序
+const MOMENTUM = [47, 47, 47, 50, 50, 48, 50, 53, 70, 80, 92, 94, 96];
+
+const cine = { t: -1, idx: -1, dur: 3.6, moment: null, timeScale: 1, pendingMomentum: null };
+
+function cineTimeScale() { return cine.timeScale; }
+
+function layoutCinematic() {
+  const container = document.getElementById('sim-container');
+  const controls = container.querySelector('.controls');
+  const vh = container.clientHeight;
+  const ctrlH = controls ? controls.offsetHeight : 0;
+  const barH = Math.round(Math.min(110, vh * 0.12));
+  const top = container.querySelector('.letterbox.top');
+  const bottom = container.querySelector('.letterbox.bottom');
+  top.style.height = barH + 'px';
+  bottom.style.height = barH + 'px';
+  bottom.style.bottom = ctrlH + 'px';
+  const title = document.getElementById('cineTitle');
+  title.style.top = Math.round((barH + (vh - ctrlH - barH)) / 2) + 'px';
+}
+
+let cineStartTimer = null;
+function onPhaseCinematic(idx) {
+  clearTimeout(cineStartTimer);
+  const m = CINE_MOMENTS[idx];
+  if (!m) {
+    endCinematic();
+    setMomentum(idx);
+    return;
+  }
+  if (cine.t >= 0 && cine.idx === idx) return;
+  if (cine.t >= 0) endCinematic();
+  cine.pendingMomentum = idx;
+  // タイムラインのスクロール中に途中の場面を通過しても、止まった場面でだけ演出する
+  cineStartTimer = setTimeout(() => {
+    if (currentPhase !== idx || currentScreen !== 'sim') return;
+    startCinematic(idx, m);
+  }, 160);
+}
+
+function startCinematic(idx, m) {
+  const container = document.getElementById('sim-container');
+  cine.idx = idx;
+  cine.moment = m;
+  cine.t = 0;
+  cine.pendingMomentum = idx;
+
+  const title = document.getElementById('cineTitle');
+  const kanji = document.getElementById('cineKanji');
+  const main = document.getElementById('cineMain');
+  const sub = document.getElementById('cineSub');
+  if (LANG === 'en') {
+    kanji.textContent = m.ja;
+    kanji.style.display = '';
+    main.textContent = m.en;
+    sub.textContent = m.subEn;
+  } else {
+    kanji.style.display = 'none';
+    main.textContent = m.ja;
+    sub.textContent = m.subJa;
+  }
+  title.classList.toggle('gold', m.accent === 'gold');
+  layoutCinematic();
+
+  // アニメーションをやり直すため、一度クラスを外して付け直す
+  container.classList.remove('cinematic');
+  title.classList.remove('show');
+  void title.offsetWidth;
+  container.classList.add('cinematic');
+  title.classList.add('show');
+
+  if (m.flash) {
+    const f = document.getElementById('cineFlash');
+    f.classList.remove('go');
+    void f.offsetWidth;
+    f.classList.add('go');
+  }
+}
+
+function endCinematic() {
+  clearTimeout(cineStartTimer);
+  const container = document.getElementById('sim-container');
+  if (!container) return;
+  container.classList.remove('cinematic');
+  const title = document.getElementById('cineTitle');
+  if (title) title.classList.remove('show');
+  cine.t = -1;
+  cine.idx = -1;
+  cine.timeScale = 1;
+  if (cine.pendingMomentum !== null) {
+    setMomentum(cine.pendingMomentum);
+    cine.pendingMomentum = null;
+  }
+}
+
+// 毎フレーム: スロー・画面の揺れ・終了判定
+function updateCinematic(dtRaw) {
+  if (cine.t < 0) { cine.timeScale = 1; return; }
+  cine.t += dtRaw;
+  if (cine.t < 1.2) layoutCinematic();
+  const t = cine.t, dur = cine.dur;
+  const SLOW = 0.35;
+  if (t < 0.4) cine.timeScale = 1 - (1 - SLOW) * (t / 0.4);
+  else if (t < dur - 0.6) cine.timeScale = SLOW;
+  else cine.timeScale = SLOW + (1 - SLOW) * Math.min(1, (t - (dur - 0.6)) / 0.6);
+
+  const amp = (cine.moment && cine.moment.shake || 0) * Math.max(0, 1 - t / 1.2) * 0.6;
+  if (amp > 0.001 && camera) {
+    camera.position.x += (Math.random() - 0.5) * amp;
+    camera.position.y += (Math.random() - 0.5) * amp;
+  }
+  if (t >= dur) endCinematic();
+}
+
+// ---------- 戦力ゲージ ----------
+let lastMomentum = null;
+function setMomentum(idx) {
+  const v = MOMENTUM[idx];
+  if (v === undefined) return;
+  const fill = document.getElementById('momEast');
+  const box = document.getElementById('momentum');
+  if (!fill || !box) return;
+  fill.style.width = v + '%';
+  if (lastMomentum !== null && Math.abs(v - lastMomentum) >= 10) {
+    box.classList.remove('surge');
+    void box.offsetWidth;
+    box.classList.add('surge');
+  }
+  lastMomentum = v;
+}
+
 // ========= 初期化 =========
 function initSekigahara() {
   const canvas = document.getElementById('canvas3d');
@@ -5066,13 +5437,15 @@ function initSekigahara() {
       requestAnimationFrame(animate);
       return;
     }
-    const dt = clock.getDelta();
+    const dtRaw = clock.getDelta();
+    const dt = dtRaw * cineTimeScale();
     const t = clock.getElapsedTime();
     
     Object.values(units).forEach(u => u.update(dt, t));
     updateBattleEffects(dt);
     spawnBattleParticles(t);
     updateCamera(dt);
+    updateCinematic(dtRaw);
     updateArrows(dt, t);
     updateAtmosphereAndFx(dt, t);
     updateLabels();
