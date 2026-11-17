@@ -2289,6 +2289,77 @@ html[lang="en"] .cine-sub { letter-spacing: 0.04em; font-size: 13px; font-style:
 .wi-note { font-size: 9.5px; color: #8b7355; line-height: 1.55; margin-bottom: 12px; }
 html[lang="en"] .wi-name, html[lang="en"] .wi-desc, html[lang="en"] .wi-note,
 html[lang="en"] .scenario-banner { letter-spacing: 0; }
+
+/* ===== 決断モード v8 ===== */
+.phase-marker.locked { opacity: 0.45; }
+.phase-marker.locked .phase-marker-dot { border-style: dotted; }
+#sim-container.deciding .controls-row,
+#sim-container.deciding .scroll-track-wrap { opacity: 0.35; pointer-events: none; }
+#sim-container.deciding .legend,
+#sim-container.deciding .cam-mode-btn,
+#sim-container.deciding .sound-btn,
+#sim-container.deciding .tap-hint { opacity: 0.2; }
+
+.decision-panel, .end-card {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%) scale(0.92);
+  width: min(340px, 90vw);
+  z-index: 17;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+  background: linear-gradient(180deg, rgba(36, 26, 18, 0.97), rgba(14, 10, 6, 0.98));
+  border: 1px solid rgba(244, 197, 66, 0.55);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.85), 0 0 30px rgba(244,197,66,0.12);
+  padding: 14px 14px 12px;
+}
+.decision-panel.active, .end-card.active { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+.decision-panel::before, .end-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #c93030, #f4c542, #c93030, transparent);
+}
+.dp-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.dp-tag { font-size: 9px; letter-spacing: 0.2em; font-weight: 700; color: #fff4d8; background: #8b1a1a; padding: 2px 8px; }
+.dp-time { font-size: 13px; font-weight: 800; color: #c9a961; letter-spacing: 0.08em; font-feature-settings: 'tnum'; }
+.dp-who { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 800; color: #f4e8cc; margin-bottom: 6px; letter-spacing: 0.06em; }
+html[lang="en"] .dp-who { font-family: 'Cormorant Garamond', serif; font-size: 20px; letter-spacing: 0.06em; }
+.dp-who img { width: 26px; height: 26px; filter: brightness(0) invert(0.85) sepia(0.4); }
+.dp-sit { font-size: 11px; line-height: 1.6; color: #c9b896; margin-bottom: 10px; padding: 8px 10px; background: rgba(10,8,5,0.55); border-left: 2px solid #c9a961; }
+.dp-opts { display: flex; flex-direction: column; gap: 7px; }
+.dp-opt {
+  text-align: left; font-family: inherit; cursor: pointer;
+  background: linear-gradient(135deg, rgba(139,26,26,0.35), rgba(60,20,14,0.5));
+  border: 1px solid rgba(201,48,48,0.55);
+  color: #f4e8cc; padding: 9px 11px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.dp-opt.history { background: rgba(10,8,5,0.6); border-color: rgba(201,169,97,0.4); }
+.dp-opt:active { transform: scale(0.98); }
+.dp-opt-name { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.dp-opt-name em { font-style: normal; font-size: 8px; letter-spacing: 0.15em; color: #c9a961; border: 1px solid rgba(201,169,97,0.5); padding: 0 4px; font-weight: 600; }
+.dp-opt-hint { font-size: 10px; color: #a89680; line-height: 1.45; }
+html[lang="en"] .dp-sit, html[lang="en"] .dp-opt-hint, html[lang="en"] .dp-opt-name { letter-spacing: 0; }
+
+.end-card { text-align: center; padding: 18px 16px 14px; }
+.ec-close { position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border-radius: 50%; border: 1px solid rgba(201,169,97,0.4); background: rgba(10,8,5,0.6); color: #c9a961; font-size: 12px; cursor: pointer; }
+.ec-label { font-size: 9px; letter-spacing: 0.3em; color: #c9a961; font-weight: 700; margin-bottom: 6px; }
+.ec-name { font-family: 'Noto Serif JP', serif; font-weight: 900; font-size: 22px; color: #f4e8cc; letter-spacing: 0.08em; margin-bottom: 6px; }
+html[lang="en"] .ec-name { font-family: 'Cormorant Garamond', serif; font-size: 25px; letter-spacing: 0.04em; }
+.ec-desc { font-size: 11px; color: #c9b896; line-height: 1.6; margin-bottom: 12px; }
+.ec-found { display: flex; align-items: center; justify-content: center; gap: 5px; margin-bottom: 14px; flex-wrap: wrap; }
+.ec-dot { width: 9px; height: 9px; border-radius: 50%; border: 1px solid rgba(201,169,97,0.5); }
+.ec-dot.on { background: #c9a961; }
+.ec-dot.now { background: #f4c542; box-shadow: 0 0 8px rgba(244,197,66,0.9); }
+.ec-count { font-size: 9px; color: #a89680; margin-left: 6px; letter-spacing: 0.05em; }
+.ec-btns { display: flex; flex-direction: column; gap: 7px; }
+.ec-btns button { font-family: inherit; font-size: 11px; letter-spacing: 0.12em; font-weight: 700; padding: 9px; cursor: pointer; }
+#ecAgain { background: linear-gradient(135deg, #8b1a1a, #5a0f0f); border: 1px solid #c93030; color: #fff; }
+#ecHistory { background: rgba(10,8,5,0.6); border: 1px solid rgba(201,169,97,0.4); color: #c9a961; }
 </style>
 </head>
 <body>
@@ -2408,6 +2479,23 @@ html[lang="en"] .scenario-banner { letter-spacing: 0; }
         <div class="cine-kanji" id="cineKanji"></div>
         <div class="cine-main" id="cineMain"></div>
         <div class="cine-sub" id="cineSub"></div>
+      </div>
+      <div class="decision-panel" id="decisionPanel">
+        <div class="dp-head"></div>
+        <div class="dp-who"></div>
+        <div class="dp-sit"></div>
+        <div class="dp-opts"></div>
+      </div>
+      <div class="end-card" id="endCard">
+        <button type="button" class="ec-close" id="ecClose">✕</button>
+        <div class="ec-label"></div>
+        <div class="ec-name"></div>
+        <div class="ec-desc"></div>
+        <div class="ec-found"></div>
+        <div class="ec-btns">
+          <button type="button" id="ecAgain"></button>
+          <button type="button" id="ecHistory"></button>
+        </div>
       </div>
       <div class="cam-label" id="camLabel">CAM · OVERVIEW</div>
       <button type="button" class="cam-mode-btn" id="camModeBtn">● AUTO CAM</button>
@@ -3971,6 +4059,8 @@ function updateLabels() {
 }
 
 function applyPhase(idx) {
+  if (decideState.active && decisionGate(idx)) return;
+  lastAppliedPhase = idx;
   const p = phases[idx];
   const [h, m] = p.time.split(':');
   document.getElementById('timeHour').textContent = h;
@@ -4001,6 +4091,7 @@ function applyPhase(idx) {
   setAtmosphereForPhase(idx);
   onPhaseCinematic(idx);
   markAltTitle(idx);
+  maybeShowEnding(idx);
   
   if (p.fog !== undefined) {
     fogPlane.material.opacity = p.fog;
@@ -5686,7 +5777,7 @@ function altPhase(idx, o) {
       camera: { pos: o.cam.pos, look: o.cam.look, label: o.ja.cam },
       units: Object.assign({}, base.units, o.units),
       battles: o.battles || [], battling: o.battling || [], defeated: o.defeated || [],
-      traitor: null,
+      traitor: o.traitor || null,
     },
     en: { phase: o.en.phase, label: o.en.label, title: o.en.title, text: o.en.text, cam: o.en.cam },
     arrows: o.arrows || [],
@@ -5951,43 +6042,571 @@ const SCENARIOS = {
   },
 };
 
-let currentScenario = null;
-const isAltPhase = idx => !!(currentScenario && idx >= SCENARIOS[currentScenario].branch);
+// ========================================================
+// ===== 決断モード v8: 3つの決断と7つのエンディング =====
+// ========================================================
 
-// 史実/シナリオの表に入れ替える(配列やオブジェクトは中身だけ差し替える)
-function loadScenarioTables(id) {
-  const sc = id ? SCENARIOS[id] : null;
-  for (let i = 0; i < BASE_TABLES.phases.length; i++) {
-    const alt = sc && i >= sc.branch ? sc.phases[i - sc.branch] : null;
-    phases[i] = alt ? alt.ja : BASE_TABLES.phases[i];
-    EN_PHASES[i] = alt ? alt.en : BASE_TABLES.en[i];
-    PHASE_ARROWS[i] = alt ? alt.arrows : BASE_TABLES.arrows[i];
-    CINE[i] = alt ? alt.cine : BASE_TABLES.cine[i];
-    MOMENTUM[i] = alt ? alt.mom : BASE_TABLES.momentum[i];
-    delete CINE_MOMENTS[i];
-    const mom = alt ? alt.moment : BASE_TABLES.moments[i];
-    if (mom) CINE_MOMENTS[i] = mom;
+Object.assign(STR.en, {
+  'dm.name': 'YOUR CALL',
+  'dm.desc': 'Make the decisions at 10:00, 12:00 and 15:00. Seven endings to discover.',
+  'dm.tag': 'YOUR CALL',
+  'dm.bannerName': 'Decision mode',
+  'dm.found': 'endings found',
+  'dm.decide': 'DECISION',
+  'dm.ending': 'ENDING',
+  'dm.again': 'Try different calls',
+  'dm.history': 'Back to history',
+  'dm.history_tag': 'HISTORY',
+});
+Object.assign(STR.ja, {
+  'dm.name': 'あなたが決める',
+  'dm.desc': '10:00・12:00・15:00の決断で展開が変わる。エンディングは全7種。',
+  'dm.tag': '決断',
+  'dm.bannerName': '決断モード',
+  'dm.found': 'エンディング発見',
+  'dm.decide': '決断',
+  'dm.ending': 'エンディング',
+  'dm.again': '別の決断を試す',
+  'dm.history': '史実に戻る',
+  'dm.history_tag': '史実',
+});
+
+// ---------- 新しい分岐 ----------
+const segOf = (sc, from, to) => {
+  const out = {};
+  sc.phases.forEach((ph, k) => { const i = sc.branch + k; if (i >= from && i <= to) out[i] = ph; });
+  return out;
+};
+
+// 静観: 小早川がどちらにも付かない(12:00〜)
+const SEG_WAIT = {
+  7: altPhase(7, {
+    ja: { phase: '小早川静観', label: '動かず', cam: 'CAM · 松尾山',
+      title: '問鉄砲にも、小早川は動かない',
+      text: '家康の威嚇射撃にも<span class="info-west">小早川秀秋</span>は応えず、<span class="info-highlight">松尾山に留まり続ける</span>。両軍とも、山上の1万5千から目が離せない。' },
+    en: { phase: 'KOBAYAKAWA WAITS', label: 'No move', cam: 'CAM · MT. MATSUO',
+      title: 'Even after the shots, Kobayakawa does not move',
+      text: `Ieyasu's warning shots go unanswered. <span class="info-west">Kobayakawa Hideaki</span> <span class="info-highlight">stays on Mt. Matsuo</span>, and both armies keep one eye on the 15,000 above them.` },
+    cam: { pos: [-10, 50, 62], look: [-26, 0, 18] },
+    units: { kobayakawa: [-32, 32] },
+    battles: [{ x: -15, z: 3 }, { x: -19, z: -13 }],
+    battling: ['fukushima', 'ukita', 'kuroda', 'konishi', 'mitsunari'],
+    arrows: [{ from: 'ieyasu', to: 'kobayakawa', side: E, style: 'shot' }, atk('fukushima', 'ukita', E), atk('kuroda', 'mitsunari', E)],
+    cine: { focus: ['kobayakawa'], blend: 0.5, orbit: 0.02, dolly: 0.08 },
+    moment: { ja: '動かぬ山', en: 'THE MOUNTAIN WAITS', subJa: '小早川、どちらにも付かず', subEn: 'Kobayakawa sides with no one', shake: 0.3 },
+    mom: 50,
+  }),
+  8: altPhase(8, {
+    ja: { phase: '膠着', label: '膠着続く', cam: 'CAM · 前線',
+      title: '決め手を欠く戦い',
+      text: '両軍とも決め手を欠き、<span class="info-highlight">一進一退の攻防</span>が続く。<span class="info-west">大谷吉継</span>は松尾山への備えを解けず、前線に兵を回せない。' },
+    en: { phase: 'DEADLOCK', label: 'Deadlock', cam: 'CAM · FRONT',
+      title: 'Neither side can land the blow',
+      text: `Neither army can land the decisive blow, and <span class="info-highlight">the fighting surges back and forth</span>. <span class="info-west">Ōtani Yoshitsugu</span> cannot spare men from watching Mt. Matsuo.` },
+    cam: { pos: [5, 55, 60], look: [-14, 0, 0] },
+    units: { kobayakawa: [-32, 32], otani: [-25, 20], ukita: [-14, 4], fukushima: [-12, 3], ii: [-11, 1], kuroda: [-13, -8], hosokawa: [-10, -14] },
+    battles: [{ x: -14, z: 3 }, { x: -19, z: -13 }],
+    battling: ['fukushima', 'ukita', 'ii', 'kuroda', 'mitsunari', 'konishi'],
+    arrows: [atk('fukushima', 'ukita', E), atk('ii', 'ukita', E), atk('kuroda', 'mitsunari', E)],
+    cine: { orbit: 0.02, dolly: 0.08 },
+    mom: 50,
+  }),
+  9: altPhase(9, {
+    ja: { phase: '消耗戦', label: '消耗戦', cam: 'CAM · 全景',
+      title: '消耗する両軍',
+      text: '朝から続く戦いで<span class="info-highlight">両軍の疲れは限界</span>に近づく。<span class="info-east">東軍</span>は南宮山の毛利、<span class="info-west">西軍</span>は松尾山の小早川を警戒し、全力を出せない。' },
+    en: { phase: 'EXHAUSTION', label: 'Exhaustion', cam: 'CAM · WIDE',
+      title: 'Both armies wear down',
+      text: `After a morning of fighting, <span class="info-highlight">both armies near exhaustion</span>. <span class="info-east">The East</span> fears the Mōri on Mt. Nangū; <span class="info-west">the West</span> fears Kobayakawa on Mt. Matsuo. Neither can commit fully.` },
+    cam: { pos: [10, 62, 66], look: [-5, 0, 0] },
+    units: { kobayakawa: [-32, 32], otani: [-25, 20], ukita: [-15, 4], fukushima: [-11, 3], ii: [-11, 1], kuroda: [-13, -8], hosokawa: [-10, -14], shimazu: [-22, -10] },
+    battles: [{ x: -13, z: 3 }, { x: -19, z: -13 }],
+    battling: ['fukushima', 'ukita', 'kuroda', 'mitsunari'],
+    arrows: [atk('fukushima', 'ukita', E), atk('kuroda', 'mitsunari', E)],
+    cine: { orbit: -0.015, dolly: 0.04 },
+    mom: 49,
+  }),
+  10: altPhase(10, {
+    ja: { phase: '両軍後退', label: '両軍後退', cam: 'CAM · 全景',
+      title: '両軍、陣を立て直す',
+      text: '決着がつかぬまま、両軍は<span class="info-highlight">少しずつ兵を引き</span>、陣を立て直す。戦場には負傷兵と倒れた旗だけが残る。' },
+    en: { phase: 'PULLING BACK', label: 'Pull back', cam: 'CAM · WIDE',
+      title: 'Both armies pull back to regroup',
+      text: `With nothing decided, both sides <span class="info-highlight">slowly pull their troops back</span> to regroup. Only the wounded and fallen banners remain between the lines.` },
+    cam: { pos: [5, 62, 66], look: [-6, 0, 0] },
+    units: { fukushima: [-4, 4], ii: [-2, 1], kuroda: [-4, -8], hosokawa: [-2, -14], honda: [6, -10], ieyasu: [22, 0],
+      ukita: [-20, 4], otani: [-26, 20], konishi: [-28, -15], shimazu: [-24, -10], mitsunari: [-38, -30], kobayakawa: [-32, 32] },
+    arrows: [mv('fukushima', [4, 4], E), mv('ukita', [-26, 4], W)],
+    cine: { orbit: 0.015, dolly: 0.03 },
+    mom: 50,
+  }),
+  11: altPhase(11, {
+    ja: { phase: '睨み合い', label: '睨み合い', cam: 'CAM · 全景',
+      title: '夕刻、睨み合い',
+      text: '日が傾き、両軍は<span class="info-highlight">にらみ合ったまま</span>動かない。家康は夜戦を避け、三成も大垣へ退く道を探り始める。' },
+    en: { phase: 'STANDOFF', label: 'Standoff', cam: 'CAM · WIDE',
+      title: 'Late afternoon: a standoff',
+      text: `As the sun sinks, the armies <span class="info-highlight">face each other without moving</span>. Ieyasu avoids a night battle, and Mitsunari begins weighing a withdrawal toward Ōgaki.` },
+    cam: { pos: [5, 65, 70], look: [-8, 0, 0] },
+    units: { fukushima: [2, 4], ii: [4, 1], kuroda: [2, -8], hosokawa: [4, -14], honda: [10, -10], ieyasu: [26, 0],
+      ukita: [-24, 4], otani: [-26, 20], konishi: [-28, -15], shimazu: [-24, -10], mitsunari: [-38, -30], kobayakawa: [-32, 32] },
+    cine: { orbit: 0.02, dolly: 0.02 },
+    mom: 50,
+  }),
+  12: altPhase(12, {
+    ja: { phase: '引き分け', label: '結末', cam: 'CAM · 結末',
+      title: '日没、勝負つかず（仮説）',
+      text: '日没とともに両軍は兵を収める。<span class="info-highlight">関ヶ原は引き分け</span>に終わり、天下分け目の戦いは<span class="info-highlight">長い戦乱の始まり</span>になったかもしれない。' },
+    en: { phase: 'A DRAW', label: 'Outcome', cam: 'CAM · OUTCOME',
+      title: 'Nightfall, nothing decided (speculative)',
+      text: `At sunset both armies withdraw. <span class="info-highlight">Sekigahara ends in a draw</span>, and the battle meant to decide Japan may instead have opened <span class="info-highlight">a long civil war</span>.` },
+    cam: { pos: [10, 70, 72], look: [-4, 0, 0] },
+    units: { ieyasu: [40, 2], fukushima: [14, 6], ii: [16, 2], kuroda: [14, -8], hosokawa: [16, -14], honda: [20, -8],
+      ukita: [-26, 4], otani: [-28, 20], konishi: [-30, -16], shimazu: [-26, -11], mitsunari: [-40, -32], kobayakawa: [-32, 32] },
+    cine: { orbit: 0.03, dolly: -0.05 },
+    moment: { ja: '引き分け', en: 'A DRAW', subJa: '天下は定まらず', subEn: 'Japan remains undecided', shake: 0 },
+    mom: 50,
+  }),
+};
+
+// 島津、家康本陣へ突撃(史実ルートの15:00〜)
+const SEG_SHIMAZU_CHARGE = {
+  11: altPhase(11, {
+    ja: { phase: '島津突撃', label: '本陣突撃', cam: 'CAM · 本陣',
+      title: '島津、家康本陣へ突撃',
+      text: '退くのではなく、<span class="info-west">島津義弘</span>は<span class="info-highlight">家康の本陣めがけて突撃</span>する。<span class="info-east">井伊・本多隊</span>が立ちはだかり、激戦となる。' },
+    en: { phase: 'SHIMAZU CHARGE', label: 'Charge', cam: 'CAM · HQ',
+      title: "Shimazu charges Ieyasu's HQ",
+      text: `Instead of retreating, <span class="info-west">Shimazu Yoshihiro</span> <span class="info-highlight">charges straight at Ieyasu's headquarters</span>. <span class="info-east">Ii and Honda</span> block the way, and a savage fight breaks out.` },
+    cam: { pos: [25, 48, 52], look: [8, 0, 0] },
+    units: { shimazu: [9, 1], ieyasu: [13, 0], ii: [6, 2], honda: [6, -4] },
+    battles: [{ x: 8, z: 1 }],
+    battling: ['shimazu', 'ii', 'honda', 'ieyasu'],
+    defeated: ['otani', 'ukita', 'konishi'],
+    traitor: 'kobayakawa',
+    arrows: [atk('shimazu', 'ieyasu', W), atk('ii', 'shimazu', E), atk('honda', 'shimazu', E)],
+    cine: { focus: ['shimazu', 'ieyasu'], blend: 0.85, orbit: 0.02, dolly: 0.15 },
+    moment: { ja: '本陣突撃', en: 'CHARGE THE HQ', subJa: '島津、家康の首を狙う', subEn: "Shimazu goes for Ieyasu's head", shake: 0.9 },
+    mom: 90,
+  }),
+  12: altPhase(12, {
+    ja: { phase: '島津散る', label: '結末', cam: 'CAM · 結末',
+      title: '島津、本陣前に散る（仮説）',
+      text: '島津勢は家康の本陣に迫るが、<span class="info-highlight">あと一歩届かず</span>。<span class="info-west">義弘</span>は討ち取られ、東軍の勝利は揺るがない。だが当主を失った薩摩の島津家は、<span class="info-highlight">のちの幕末の歴史も変わっていた</span>かもしれない。' },
+    en: { phase: 'SHIMAZU FALLS', label: 'Outcome', cam: 'CAM · OUTCOME',
+      title: 'Shimazu falls before the HQ (speculative)',
+      text: `The Shimazu come within reach of Ieyasu's HQ but <span class="info-highlight">fall just short</span>. <span class="info-west">Yoshihiro</span> is killed and the Eastern victory stands. Yet without him, the Shimazu of Satsuma, who would help topple the shogunate 260 years later, <span class="info-highlight">might have followed a very different path</span>.` },
+    cam: { pos: [15, 62, 66], look: [4, 0, 0] },
+    units: { shimazu: [10, 1], ieyasu: [15, 0], ii: [8, 2], honda: [8, -4] },
+    defeated: ['otani', 'ukita', 'konishi', 'mitsunari', 'shimazu'],
+    traitor: 'kobayakawa',
+    cine: { orbit: 0.03, dolly: -0.05 },
+    moment: { ja: '島津、散る', en: 'SHIMAZU FALLS', subJa: '東軍勝利、ただし…', subEn: 'The East wins — at a cost', shake: 0 },
+    mom: 97,
+  }),
+};
+
+// 家康、最後の決戦(小早川が西軍ルートの15:00〜)
+const SEG_LAST_STAND = {
+  11: altPhase(11, {
+    ja: { phase: '最後の決戦', label: '家康突撃', cam: 'CAM · 決戦',
+      title: '家康、自ら最後の決戦へ',
+      text: '撤退を拒んだ<span class="info-east">家康</span>は、<span class="info-highlight">旗本を率いて自ら前へ</span>。<span class="info-east">井伊・本多</span>とともに、押し寄せる西軍に最後の反撃を挑む。' },
+    en: { phase: 'LAST STAND', label: 'Last stand', cam: 'CAM · CLASH',
+      title: 'Ieyasu leads the final charge himself',
+      text: `Refusing to retreat, <span class="info-east">Ieyasu</span> <span class="info-highlight">leads his own guard into the fight</span>. With <span class="info-east">Ii and Honda</span>, he throws everything at the advancing West.` },
+    cam: { pos: [15, 45, 50], look: [-2, 0, 3] },
+    units: { ieyasu: [2, 3], ii: [0, 2], honda: [1, -2], kuroda: [-4, -8], hosokawa: [-2, -13], fukushima: [10, 8],
+      kobayakawa: [-3, 8], ukita: [-4, 3], otani: [-10, 11], shimazu: [-14, -8], konishi: [-16, -11], mitsunari: [-36, -28] },
+    battles: [{ x: -1, z: 5 }, { x: -1, z: 1 }, { x: -9, z: -10 }],
+    battling: ['ieyasu', 'ii', 'honda', 'kobayakawa', 'ukita', 'otani', 'kuroda', 'konishi'],
+    defeated: ['fukushima'],
+    arrows: [atk('ieyasu', 'ukita', E), atk('honda', 'kobayakawa', E), atk('kobayakawa', 'honda', W)],
+    cine: { focus: ['ieyasu', 'ukita'], blend: 0.8, orbit: 0.02, dolly: 0.15 },
+    moment: { ja: '最後の決戦', en: 'THE LAST STAND', subJa: '家康、自ら槍を取る', subEn: 'Ieyasu rides into the fight', shake: 1.0 },
+    mom: 30,
+  }),
+  12: altPhase(12, {
+    ja: { phase: '勝者なし', label: '結末', cam: 'CAM · 結末',
+      title: '両軍壊滅、天下は混沌へ（仮説）',
+      text: '激戦の末、<span class="info-highlight">両軍とも大きな損害</span>を出して戦場を離れる。家康は深手を負い、三成も軍を立て直せない。勝者のいない関ヶ原の後、<span class="info-highlight">天下は再び群雄割拠</span>に戻ったかもしれない。' },
+    en: { phase: 'NO VICTOR', label: 'Outcome', cam: 'CAM · OUTCOME',
+      title: 'Both armies shattered (speculative)',
+      text: `After brutal fighting, <span class="info-highlight">both armies leave the field badly broken</span>. Ieyasu is gravely wounded, and Mitsunari cannot rebuild his army. With no victor at Sekigahara, <span class="info-highlight">Japan may have slid back into an age of warring lords</span>.` },
+    cam: { pos: [10, 66, 70], look: [0, 0, 0] },
+    units: { ieyasu: [16, 2], ii: [10, 2], honda: [10, -4], kuroda: [8, -10], hosokawa: [10, -14], fukushima: [24, 10],
+      kobayakawa: [-8, 9], ukita: [-10, 3], otani: [-16, 12], shimazu: [-18, -8], konishi: [-20, -12], mitsunari: [-38, -30] },
+    defeated: ['fukushima', 'ii', 'ukita', 'otani'],
+    cine: { orbit: 0.03, dolly: -0.05 },
+    moment: { ja: '勝者なし', en: 'NO VICTOR', subJa: '天下は再び乱世へ', subEn: 'Japan returns to chaos', shake: 0 },
+    mom: 50,
+  }),
+};
+
+// 毛利が下山した後、小早川が約束どおり裏切る(12:00〜)
+const SEG_MORI_BETRAYAL = {
+  7: altPhase(7, {
+    ja: { phase: '家康の賭け', label: '家康の賭け', cam: 'CAM · 松尾山',
+      title: '背後を突かれた家康、小早川に賭ける',
+      text: '本陣を襲われながらも、<span class="info-east">家康</span>は松尾山へ合図の銃撃を放つ。<span class="info-highlight">小早川が約束を守るか</span>に、東軍の運命がかかる。' },
+    en: { phase: 'A GAMBLE', label: 'Gamble', cam: 'CAM · MT. MATSUO',
+      title: 'Ieyasu bets everything on Kobayakawa',
+      text: `Even with his HQ under attack, <span class="info-east">Ieyasu</span> fires the signal shots toward Mt. Matsuo. <span class="info-highlight">Whether Kobayakawa keeps his promise</span> now decides the East's fate.` },
+    cam: { pos: [-5, 55, 62], look: [-18, 0, 12] },
+    units: { ieyasu: [22, 3], mori: [26, -1], honda: [19, -3], fukushima: [-11, 3], kuroda: [-11, -8], hosokawa: [-8, -14],
+      ii: [-9, 1], ukita: [-13, 4], otani: [-25, 20], kobayakawa: [-30, 26] },
+    battles: [{ x: 24, z: 1 }, { x: -13, z: 3 }, { x: -18, z: -12 }],
+    battling: ['mori', 'ieyasu', 'honda', 'fukushima', 'ukita', 'kuroda', 'konishi', 'mitsunari'],
+    traitor: 'kobayakawa',
+    arrows: [{ from: 'ieyasu', to: 'kobayakawa', side: E, style: 'shot' }, atk('mori', 'ieyasu', W), atk('honda', 'mori', E)],
+    cine: { focus: ['kobayakawa', 'ieyasu'], blend: 0.5, orbit: -0.02, dolly: 0.06 },
+    mom: 40,
+  }),
+  8: altPhase(8, {
+    ja: { phase: '裏切り', label: '裏切り', cam: 'CAM · 大谷陣',
+      title: '小早川、大谷隊へ突入',
+      text: '<span class="info-west">小早川隊</span>が<span class="info-highlight">約束どおり西軍を裏切り</span>、<span class="info-west">大谷隊</span>へ攻めかかる。関ヶ原は、<span class="info-highlight">前でも後ろでも東西が入り乱れる</span>大混戦となる。' },
+    en: { phase: 'BETRAYAL', label: 'Betrayal', cam: "CAM · ŌTANI'S CAMP",
+      title: "Kobayakawa strikes Ōtani's unit",
+      text: `<span class="info-west">Kobayakawa's men</span> <span class="info-highlight">keep their word and turn on the West</span>, charging <span class="info-west">Ōtani's unit</span>. Now the whole basin is <span class="info-highlight">a melee on two fronts</span>.` },
+    cam: { pos: [5, 58, 64], look: [-2, 0, 8] },
+    units: { kobayakawa: [-26, 24], otani: [-24, 21], ieyasu: [21, 3], mori: [24, 0], honda: [18, -2] },
+    battles: [{ x: -25, z: 22 }, { x: 23, z: 2 }, { x: -15, z: 3 }],
+    battling: ['kobayakawa', 'otani', 'mori', 'ieyasu', 'honda', 'fukushima', 'ukita', 'kuroda', 'mitsunari'],
+    traitor: 'kobayakawa',
+    arrows: [{ from: [-33, 32], to: 'otani', side: 'traitor', style: 'attack' }, atk('mori', 'ieyasu', W), atk('fukushima', 'ukita', E)],
+    cine: { orbit: 0.02, dolly: 0.04 },
+    moment: { ja: 'それでも裏切り', en: 'BETRAYAL ANYWAY', subJa: '小早川、約束を守る', subEn: 'Kobayakawa keeps his word', shake: 1.0, accent: 'gold' },
+    mom: 55,
+  }),
+  9: altPhase(9, {
+    ja: { phase: '二正面', label: '二正面', cam: 'CAM · 全景',
+      title: '崩れる西軍中央、追い詰められる家康',
+      text: '西軍の<span class="info-west">大谷隊</span>が崩れる一方、<span class="info-east">家康本陣</span>も毛利に押され<span class="info-highlight">後退を重ねる</span>。どちらが先に崩れるかの勝負となる。' },
+    en: { phase: 'TWO FRONTS', label: 'Two fronts', cam: 'CAM · WIDE',
+      title: "The West's center cracks — and so does Ieyasu's HQ",
+      text: `<span class="info-west">Ōtani's unit</span> collapses, but <span class="info-east">Ieyasu's HQ</span> is <span class="info-highlight">pushed back again and again</span> by the Mōri. It becomes a race to see which side breaks first.` },
+    cam: { pos: [5, 65, 70], look: [2, 0, 4] },
+    units: { ieyasu: [26, 8], honda: [24, 4], mori: [22, 0], kobayakawa: [-22, 20] },
+    battles: [{ x: -18, z: 3 }, { x: 24, z: 4 }, { x: -22, z: -12 }],
+    battling: ['kobayakawa', 'fukushima', 'ukita', 'kuroda', 'mitsunari', 'mori', 'honda', 'ieyasu'],
+    defeated: ['otani'],
+    traitor: 'kobayakawa',
+    arrows: [atk('kobayakawa', 'ukita', 'traitor'), atk('mori', 'ieyasu', W), atk('honda', 'mori', E)],
+    cine: { orbit: -0.02, dolly: 0.04 },
+    mom: 52,
+  }),
+  10: altPhase(10, {
+    ja: { phase: '本多奮戦', label: '本多奮戦', cam: 'CAM · 本陣',
+      title: '本多忠勝、毛利を食い止める',
+      text: '<span class="info-east">本多忠勝</span>が<span class="info-highlight">わずかな兵で毛利の大軍を食い止める</span>。その間に前線では<span class="info-west">宇喜多・小西隊</span>が崩れ始める。' },
+    en: { phase: 'HONDA HOLDS', label: 'Honda holds', cam: 'CAM · HQ',
+      title: 'Honda Tadakatsu holds back the Mōri',
+      text: `<span class="info-east">Honda Tadakatsu</span> <span class="info-highlight">holds off the huge Mōri force with only a handful of men</span>. Meanwhile, on the front line, <span class="info-west">Ukita and Konishi</span> begin to break.` },
+    cam: { pos: [40, 50, 55], look: [22, 0, 0] },
+    units: { ieyasu: [28, 10], honda: [24, 2], mori: [22, -1], kobayakawa: [-18, 15] },
+    battles: [{ x: 23, z: 1 }, { x: -18, z: -2 }],
+    battling: ['honda', 'mori', 'shimazu', 'mitsunari', 'fukushima'],
+    defeated: ['otani', 'ukita', 'konishi'],
+    traitor: 'kobayakawa',
+    arrows: [atk('honda', 'mori', E), atk('mori', 'honda', W)],
+    cine: { focus: ['honda', 'mori'], blend: 0.85, orbit: 0.02, dolly: 0.2 },
+    mom: 62,
+  }),
+  11: altPhase(11, {
+    ja: { phase: '毛利撤退', label: '毛利撤退', cam: 'CAM · 南宮山',
+      title: '西軍崩壊を見て、毛利が退く',
+      text: '西軍本隊の崩壊を知った<span class="info-west">毛利勢</span>は、<span class="info-highlight">南宮山方面へ兵を引く</span>。<span class="info-east">家康</span>は辛うじて本陣を守り抜く。' },
+    en: { phase: 'THE MŌRI WITHDRAW', label: 'Mōri withdraw', cam: 'CAM · MT. NANGŪ',
+      title: 'Seeing the West collapse, the Mōri pull back',
+      text: `Learning that the main Western army has collapsed, <span class="info-west">the Mōri</span> <span class="info-highlight">pull back toward Mt. Nangū</span>. <span class="info-east">Ieyasu</span> barely holds on to his headquarters.` },
+    cam: { pos: [45, 55, 60], look: [28, 0, 0] },
+    units: { mori: [40, -6], honda: [24, 2], ieyasu: [26, 6], shimazu: [-16, -6], kobayakawa: [-15, 12] },
+    defeated: ['otani', 'ukita', 'konishi'],
+    traitor: 'kobayakawa',
+    arrows: [mv('mori', [48, -8], W)],
+    cine: { focus: ['mori'], blend: 0.5, orbit: 0.02, dolly: 0.06 },
+    mom: 80,
+  }),
+  12: altPhase(12, {
+    ja: { phase: '血の勝利', label: '結末', cam: 'CAM · 結末',
+      title: '東軍、辛勝（仮説）',
+      text: '関ヶ原は<span class="info-east">東軍の勝利</span>に終わる。だが本陣まで攻め込まれた家康の損害は大きく、<span class="info-highlight">毛利の大軍はほぼ無傷で残った</span>。天下統一への道は、史実よりずっと険しかったはずだ。' },
+    en: { phase: 'A BLOODY VICTORY', label: 'Outcome', cam: 'CAM · OUTCOME',
+      title: 'The East wins, barely (speculative)',
+      text: `Sekigahara ends in <span class="info-east">an Eastern victory</span>. But Ieyasu, attacked right up to his HQ, has lost heavily, and <span class="info-highlight">the Mōri army survives largely intact</span>. The road to unifying Japan would have been far harder than in history.` },
+    cam: { pos: [20, 68, 72], look: [6, 0, 0] },
+    units: { ieyasu: [20, 4], honda: [22, 0], mori: [48, -5], kobayakawa: [-12, 10], shimazu: [-16, -6] },
+    defeated: ['otani', 'ukita', 'konishi', 'mitsunari'],
+    traitor: 'kobayakawa',
+    cine: { orbit: 0.03, dolly: -0.05 },
+    moment: { ja: '血の勝利', en: 'A BLOODY VICTORY', subJa: '東軍、辛くも勝つ', subEn: 'The East wins — barely', shake: 0 },
+    mom: 75,
+  }),
+};
+
+const SEG = {
+  moriDown: segOf(SCENARIOS.mori, 5, 6),
+  moriWest: segOf(SCENARIOS.mori, 7, 12),
+  moriEast: SEG_MORI_BETRAYAL,
+  loyal: segOf(SCENARIOS.loyal, 7, 12),
+  wait: SEG_WAIT,
+  shimazuCharge: SEG_SHIMAZU_CHARGE,
+  lastStand: SEG_LAST_STAND,
+};
+
+// ---------- 決断とエンディング ----------
+const DECISIONS = {
+  5: {
+    who: 'mori', applies: () => true,
+    ja: { title: '毛利の決断', situation: '笹尾山に狼煙が上がった。南宮山の毛利3万は、家康の背後を突ける位置にいる。だが吉川広家は、ひそかに東軍と通じている。' },
+    en: { title: "THE MŌRI'S DECISION", situation: "Signal fires rise over Mt. Sasao. The Mōri's 30,000 on Mt. Nangū could strike Ieyasu from behind — but Kikkawa Hiroie is secretly in contact with the East." },
+    options: () => [
+      { id: 'stay', history: true, ja: ['山に留まる', '史実どおり。吉川の言い分に従い、動かない'], en: ['Stay on the mountain', 'As in history: heed Kikkawa and hold position'] },
+      { id: 'descend', ja: ['山を下りる', '吉川を押しのけ、家康の背後を突く'], en: ['Come down the mountain', "Push past Kikkawa and hit Ieyasu's rear"] },
+    ],
+  },
+  7: {
+    who: 'kobayakawa', applies: () => true,
+    ja: { title: '小早川の決断' }, en: { title: "KOBAYAKAWA'S DECISION" },
+    situation: () => decideState.choices[5] === 'descend'
+      ? { ja: '家康の本陣は毛利に背後を突かれている。東軍の不利は明らかだが、家康とは寝返りの約束を交わしている。',
+          en: "Ieyasu's HQ is under attack from the Mōri behind it. The East is clearly in trouble — but you promised Ieyasu you would turn." }
+      : { ja: '家康から催促の銃撃が届く。松尾山の1万5千の動きで、戦の行方が決まる。',
+          en: "Ieyasu's warning shots crack toward Mt. Matsuo. What the 15,000 on the mountain do next will decide the battle." },
+    options: () => decideState.choices[5] === 'descend'
+      ? [
+        { id: 'west', ja: ['西軍に付く', '勝ち馬に乗り、東軍の側面を突く'], en: ['Join the West', "Back the likely winner and hit the East's flank"] },
+        { id: 'east', ja: ['約束を守る', '不利を承知で、西軍を裏切る'], en: ['Keep the promise', 'Turn on the West despite the odds'] },
+      ]
+      : [
+        { id: 'east', history: true, ja: ['東軍に寝返る', '史実どおり。大谷隊へ攻めかかる'], en: ['Turn on the West', "As in history: attack Ōtani's unit"] },
+        { id: 'west', ja: ['西軍として戦う', '東軍の側面を突く'], en: ['Fight for the West', "Strike the East's flank"] },
+        { id: 'wait', ja: ['静観する', 'どちらにも付かず、山に留まる'], en: ['Wait and watch', 'Side with no one; stay on the mountain'] },
+      ],
+  },
+  11: {
+    applies: () => decideState.choices[5] !== 'descend' && (decideState.choices[7] === 'east' || decideState.choices[7] === 'west'),
+    who: () => decideState.choices[7] === 'west' ? 'ieyasu' : 'shimazu',
+    ja: () => decideState.choices[7] === 'west'
+      ? { title: '家康の決断', situation: '小早川の参戦で、東軍の前線は崩れかけている。今なら本隊を温存して退くこともできる。' }
+      : { title: '島津の決断', situation: '西軍は総崩れ。戦場に取り残された島津勢は約1,500。退路の前には東軍の大軍がいる。' },
+    en: () => decideState.choices[7] === 'west'
+      ? { title: "IEYASU'S DECISION", situation: 'With Kobayakawa fighting for the West, the Eastern line is crumbling. Ieyasu could still pull back and save his main army.' }
+      : { title: "SHIMAZU'S DECISION", situation: 'The Western Army has collapsed. About 1,500 Shimazu troops are stranded, with the Eastern army between them and home.' },
+    options: () => decideState.choices[7] === 'west'
+      ? [
+        { id: 'withdraw', ja: ['桃配山へ退く', '本隊を温存し、次の機会を待つ'], en: ['Fall back to Mt. Momokubari', 'Save the main army for another day'] },
+        { id: 'stand', ja: ['最後の決戦を挑む', '自ら前に出て、すべてを賭ける'], en: ['Make a last stand', 'Ride out and risk everything'] },
+      ]
+      : [
+        { id: 'breakout', history: true, ja: ['敵中突破で退く', '史実どおり。捨て奸で薩摩を目指す'], en: ['Break through and retreat', 'As in history: fight through the enemy center to get home'] },
+        { id: 'charge', ja: ['家康本陣へ突撃', '最後に家康の首を狙う'], en: ["Charge Ieyasu's HQ", "Go for Ieyasu's head"] },
+      ],
+  },
+};
+const DECISION_IDX = [5, 7, 11];
+
+const ENDINGS = {
+  E1: { ja: ['史実：東軍勝利', '小早川の寝返りで東軍が勝ち、徳川の世が始まる。'], en: ['History: The East Wins', "Kobayakawa's betrayal hands the East the victory, and the Tokugawa age begins."] },
+  E2: { ja: ['島津、本陣前に散る', '東軍は勝つが、島津家の運命が大きく変わる。'], en: ['Shimazu Falls at the HQ', 'The East still wins, but the fate of the Shimazu changes.'] },
+  E3: { ja: ['西軍、関ヶ原を制す', '家康は退き、天下の行方は持ち越しに。'], en: ['The West Holds the Field', "Ieyasu withdraws, and Japan's fate is left undecided."] },
+  E4: { ja: ['勝者なき関ヶ原', '両軍が壊滅し、時代は再び乱世へ。'], en: ['No Victor at Sekigahara', 'Both armies are shattered, and the warring age returns.'] },
+  E5: { ja: ['日没、引き分け', '決着はつかず、長い戦乱の始まりへ。'], en: ['Nightfall: A Draw', 'Nothing is decided, and a long civil war begins.'] },
+  E6: { ja: ['もうひとつの天下', '毛利と小早川が西軍に付き、徳川の天下は遠のく。'], en: ['A Different Japan', 'With the Mōri and Kobayakawa on the West, Tokugawa rule slips away.'] },
+  E7: { ja: ['血の勝利', '東軍は辛くも勝つが、毛利の大軍は残った。'], en: ['A Bloody Victory', 'The East wins, barely, and the Mōri army survives.'] },
+};
+
+const decideState = { active: false, choices: {}, wasPlaying: false, open: null };
+let altPhaseSet = new Set();
+let lastAppliedPhase = -1;
+let currentScenario = null;
+const isAltPhase = idx => altPhaseSet.has(idx);
+
+function endingId() {
+  const c = decideState.choices;
+  if (c[5] === 'descend') return c[7] === 'west' ? 'E6' : 'E7';
+  if (c[7] === 'wait') return 'E5';
+  if (c[7] === 'west') return c[11] === 'stand' ? 'E4' : 'E3';
+  return c[11] === 'charge' ? 'E2' : 'E1';
+}
+
+function loadEndingsFound() {
+  try { return JSON.parse(localStorage.getItem('sg_endings') || '[]'); } catch (e) { return []; }
+}
+function saveEndingFound(id) {
+  const f = loadEndingsFound();
+  if (!f.includes(id)) f.push(id);
+  try { localStorage.setItem('sg_endings', JSON.stringify(f)); } catch (e) { /* ignore */ }
+  return f;
+}
+
+// 表の差し替え: 史実を土台に、分岐区間だけ上書き
+function setPhaseSlot(i, alt) {
+  phases[i] = alt ? alt.ja : BASE_TABLES.phases[i];
+  EN_PHASES[i] = alt ? alt.en : BASE_TABLES.en[i];
+  PHASE_ARROWS[i] = alt ? alt.arrows : BASE_TABLES.arrows[i];
+  CINE[i] = alt ? alt.cine : BASE_TABLES.cine[i];
+  MOMENTUM[i] = alt ? alt.mom : BASE_TABLES.momentum[i];
+  delete CINE_MOMENTS[i];
+  const m = alt ? alt.moment : BASE_TABLES.moments[i];
+  if (m) CINE_MOMENTS[i] = m;
+  if (alt) altPhaseSet.add(i); else altPhaseSet.delete(i);
+}
+
+function buildTables() {
+  for (let i = 0; i < BASE_TABLES.phases.length; i++) setPhaseSlot(i, null);
+  if (!decideState.active) return;
+  const c = decideState.choices;
+  const put = seg => Object.entries(seg).forEach(([i, ph]) => setPhaseSlot(parseInt(i), ph));
+  if (c[5] === 'descend') put(SEG.moriDown);
+  if (c[7]) {
+    if (c[5] === 'descend') put(c[7] === 'west' ? SEG.moriWest : SEG.moriEast);
+    else if (c[7] === 'west') put(SEG.loyal);
+    else if (c[7] === 'wait') put(SEG.wait);
   }
+  if (c[11] === 'charge') put(SEG.shimazuCharge);
+  if (c[11] === 'stand') put(SEG.lastStand);
+}
+
+function pendingDecision() {
+  if (!decideState.active) return null;
+  for (const d of DECISION_IDX) {
+    if (DECISIONS[d].applies() && !decideState.choices[d]) return d;
+  }
+  return null;
+}
+
+// applyPhase の入口: 未決断の先へ進もうとしたら止めて、決断を求める
+function decisionGate(idx) {
+  const d = pendingDecision();
+  if (d === null || idx < d) return false;
+  decideState.wasPlaying = decideState.wasPlaying || isPlaying;
+  stopPlay();
+  currentPhase = d - 1;
+  if (lastAppliedPhase !== d - 1) applyPhase(d - 1);
+  scrollToPhase(d - 1, false);
+  showDecision(d);
+  return true;
+}
+
+const pick = (v) => (typeof v === 'function' ? v() : v);
+
+function showDecision(d) {
+  const D = DECISIONS[d];
+  const box = document.getElementById('decisionPanel');
+  const who = pick(D.who);
+  const L = pick(LANG === 'en' ? D.en : D.ja);
+  const sit = D.situation ? pick(D.situation)[LANG === 'en' ? 'en' : 'ja'] : L.situation;
+  const kamonSrc = (typeof kamonImages !== 'undefined' && kamonImages[who]) || '';
+  const time = BASE_TABLES.phases[d].time;
+  const opts = D.options();
+  box.querySelector('.dp-head').innerHTML =
+    `<span class="dp-tag">${t('dm.decide')} ${DECISION_IDX.indexOf(d) + 1}/3</span><span class="dp-time">${time}</span>`;
+  box.querySelector('.dp-who').innerHTML =
+    (kamonSrc ? `<img src="${kamonSrc}" alt="">` : '') + `<span>${L.title}</span>`;
+  box.querySelector('.dp-sit').textContent = sit;
+  const list = box.querySelector('.dp-opts');
+  list.innerHTML = '';
+  opts.forEach(o => {
+    const [name, hint] = LANG === 'en' ? o.en : o.ja;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'dp-opt' + (o.history ? ' history' : '');
+    b.innerHTML = `<span class="dp-opt-name">${name}${o.history ? `<em>${t('dm.history_tag')}</em>` : ''}</span><span class="dp-opt-hint">${hint}</span>`;
+    b.addEventListener('click', () => chooseDecision(d, o.id));
+    list.appendChild(b);
+  });
+  decideState.open = d;
+  document.getElementById('sim-container').classList.add('deciding');
+  box.classList.add('active');
+  if (typeof taiko === 'function') { taiko(0.4, 0); taiko(0.3, 0.35); }
+}
+
+function hideDecision() {
+  document.getElementById('decisionPanel').classList.remove('active');
+  document.getElementById('sim-container').classList.remove('deciding');
+  decideState.open = null;
+}
+
+function chooseDecision(d, optId) {
+  decideState.choices[d] = optId;
+  hideDecision();
+  buildTables();
+  refreshSimText();
+  refreshScenarioUI();
+  currentPhase = d;
+  applyPhase(d);
+  scrollToPhase(d);
+  if (decideState.wasPlaying) { decideState.wasPlaying = false; startPlay(); }
+}
+
+let endCardTimer = null;
+function maybeShowEnding(idx) {
+  clearTimeout(endCardTimer);
+  if (!decideState.active || idx !== phases.length - 1) return;
+  endCardTimer = setTimeout(() => {
+    if (!decideState.active || currentPhase !== phases.length - 1 || currentScreen !== 'sim') return;
+    showEndCard();
+  }, 4300);
+}
+
+function showEndCard() {
+  const id = endingId();
+  const found = saveEndingFound(id);
+  const E = ENDINGS[id][LANG === 'en' ? 'en' : 'ja'];
+  const card = document.getElementById('endCard');
+  const n = Object.keys(ENDINGS).indexOf(id) + 1;
+  card.querySelector('.ec-label').textContent = `${t('dm.ending')} ${n} / ${Object.keys(ENDINGS).length}`;
+  card.querySelector('.ec-name').textContent = E[0];
+  card.querySelector('.ec-desc').textContent = E[1];
+  card.querySelector('.ec-found').innerHTML = Object.keys(ENDINGS).map(k =>
+    `<span class="ec-dot${found.includes(k) ? ' on' : ''}${k === id ? ' now' : ''}"></span>`).join('') +
+    `<span class="ec-count">${found.length} / ${Object.keys(ENDINGS).length} ${t('dm.found')}</span>`;
+  card.querySelector('#ecAgain').textContent = t('dm.again');
+  card.querySelector('#ecHistory').textContent = t('dm.history');
+  card.classList.add('active');
+  refreshScenarioUI();
+}
+
+function hideEndCard() { document.getElementById('endCard').classList.remove('active'); }
+
+function restartDecisions() {
+  hideEndCard();
+  decideState.choices = {};
+  decideState.wasPlaying = false;
+  buildTables();
+  Object.values(units).forEach(u => { if (u.troop) u.troop.lastPhase = 999; });
+  refreshSimText();
+  refreshScenarioUI();
+  stopPlay();
+  currentPhase = 4;
+  applyPhase(4);
+  scrollToPhase(4);
+  startPlay();
 }
 
 function refreshScenarioUI() {
-  const sc = currentScenario ? SCENARIOS[currentScenario] : null;
   const banner = document.getElementById('scenarioBanner');
   if (banner) {
-    if (sc) {
-      const L = LANG === 'en' ? sc.en : sc.ja;
-      const at = BASE_TABLES.phases[sc.branch].time;
-      const from = LANG === 'en' ? `${t('wi.from')} ${at}` : `${at}${t('wi.from')}`;
-      banner.innerHTML = `<span class="sb-tag">${t('wi.tag')}</span><span class="sb-name">${L.name}</span><span class="sb-from">${from}</span>`;
+    if (decideState.active) {
+      const found = loadEndingsFound().length;
+      banner.innerHTML = `<span class="sb-tag">${t('dm.tag')}</span><span class="sb-name">${t('dm.bannerName')}</span><span class="sb-from">${found} / ${Object.keys(ENDINGS).length} ${t('dm.found')}</span>`;
       banner.hidden = false;
     } else {
       banner.hidden = true;
     }
   }
   const btn = document.getElementById('whatIfBtn');
-  if (btn) btn.classList.toggle('active', !!sc);
+  if (btn) btn.classList.toggle('active', decideState.active);
+  const pend = pendingDecision();
   document.querySelectorAll('.phase-marker').forEach(m => {
-    m.classList.toggle('alt', isAltPhase(parseInt(m.dataset.idx)));
+    const i = parseInt(m.dataset.idx);
+    const locked = pend !== null && i >= pend;
+    m.classList.toggle('alt', isAltPhase(i) && !locked);
+    m.classList.toggle('locked', locked);
+    const lab = m.querySelector('.phase-marker-label');
+    if (lab) lab.textContent = locked ? '？' : phaseL(phases[i], i).label;
   });
   markAltTitle(currentPhase);
 }
@@ -6000,36 +6619,45 @@ function markAltTitle(idx) {
 }
 
 function setScenario(id, jump = true) {
-  if (id === currentScenario) return;
-  const prev = currentScenario ? SCENARIOS[currentScenario] : null;
-  currentScenario = id;
-  loadScenarioTables(id);
-  // 倒れた兵を起こして隊列を立て直す
+  const want = id === 'decide';
+  if (want === decideState.active && !(want && jump)) return;
+  hideDecision();
+  hideEndCard();
+  clearTimeout(endCardTimer);
+  decideState.active = want;
+  decideState.choices = {};
+  decideState.wasPlaying = false;
+  currentScenario = want ? 'decide' : null;
+  buildTables();
   Object.values(units).forEach(u => { if (u.troop) u.troop.lastPhase = 999; });
   refreshSimText();
   refreshScenarioUI();
   if (!jump) return;
-  const sc = id ? SCENARIOS[id] : null;
-  const target = sc ? sc.branch : (prev ? prev.branch : currentPhase);
   stopPlay();
+  const target = want ? 4 : Math.min(currentPhase, phases.length - 1);
   currentPhase = target;
   applyPhase(target);
   scrollToPhase(target);
+  if (want) startPlay();
 }
 
 function renderWhatIfList() {
   const list = document.getElementById('wiList');
   if (!list) return;
-  const items = [{ id: null, name: t('wi.history'), desc: t('wi.historyDesc') }];
-  Object.entries(SCENARIOS).forEach(([id, sc]) => {
-    const L = LANG === 'en' ? sc.en : sc.ja;
-    items.push({ id, name: L.name, desc: L.desc });
-  });
+  const found = loadEndingsFound().length;
+  const items = [
+    { id: null, name: t('wi.history'), desc: t('wi.historyDesc') },
+    { id: 'decide', name: t('dm.name'),
+      desc: LANG === 'en'
+        ? `${t('dm.desc')} (${found} / ${Object.keys(ENDINGS).length} found)`
+        : `${t('dm.desc')}（発見 ${found} / ${Object.keys(ENDINGS).length}）` },
+  ];
   list.innerHTML = '';
   items.forEach(it => {
     const b = document.createElement('button');
     b.type = 'button';
-    b.className = 'wi-item' + (it.id === currentScenario ? ' active' : '') + (it.id ? ' alt' : '');
+    const active = (it.id === 'decide') === decideState.active;
+    b.className = 'wi-item' + (active ? ' active' : '') + (it.id ? ' alt' : '');
     b.innerHTML = `<span class="wi-name">${it.name}</span><span class="wi-desc">${it.desc}</span>`;
     b.addEventListener('click', () => {
       document.getElementById('whatIfModal').classList.remove('active');
@@ -6045,6 +6673,9 @@ function initWhatIf() {
   if (btn) btn.addEventListener('click', () => { renderWhatIfList(); modal.classList.add('active'); });
   document.getElementById('wiClose').addEventListener('click', () => modal.classList.remove('active'));
   modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+  document.getElementById('ecAgain').addEventListener('click', restartDecisions);
+  document.getElementById('ecHistory').addEventListener('click', () => { hideEndCard(); setScenario(null); });
+  document.getElementById('ecClose').addEventListener('click', hideEndCard);
   refreshScenarioUI();
 }
 
@@ -6467,7 +7098,7 @@ function initSekigahara() {
       const i = parseInt(marker.dataset.idx);
       currentPhase = i;
       applyPhase(i);
-      scrollToPhase(i);
+      scrollToPhase(currentPhase);
       stopPlay();
     });
     scrollInner.appendChild(marker);
