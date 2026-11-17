@@ -2183,6 +2183,35 @@ html[lang="en"] .cine-sub { letter-spacing: 0.04em; font-size: 13px; font-style:
 @media (max-height: 640px) {
   .momentum { top: 104px; width: 130px; }
 }
+
+/* ===== 音 v5 ===== */
+.sound-btn {
+  position: absolute;
+  top: 128px;
+  right: 10px;
+  z-index: 9;
+  font-family: inherit;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  color: #8b7355;
+  background: rgba(10, 8, 5, 0.78);
+  border: 1px solid rgba(201, 169, 97, 0.3);
+  padding: 5px 9px;
+  cursor: pointer;
+  transition: opacity 0.5s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.sound-btn.on {
+  color: #f4c542;
+  border-color: rgba(244, 197, 66, 0.7);
+}
+.sound-btn:active { transform: scale(0.95); }
+#sim-container.cinematic .sound-btn { opacity: 0 !important; }
+@media (max-height: 640px) {
+  .sound-btn { top: 158px; }
+}
 </style>
 </head>
 <body>
@@ -2305,6 +2334,7 @@ html[lang="en"] .cine-sub { letter-spacing: 0.04em; font-size: 13px; font-style:
       </div>
       <div class="cam-label" id="camLabel">CAM · OVERVIEW</div>
       <button type="button" class="cam-mode-btn" id="camModeBtn">● AUTO CAM</button>
+      <button type="button" class="sound-btn" id="soundBtn">♪ OFF</button>
       
       <div class="tap-hint" data-i18n="sim.hint">Tap a commander for details</div>
       
@@ -3133,6 +3163,7 @@ document.getElementById('backFromEra').addEventListener('click', () => {
 
 document.getElementById('backFromSim').addEventListener('click', () => {
   endCinematic();
+  audioQuiet();
   stopPlay();
   showScreen('era');
 });
@@ -4886,6 +4917,7 @@ function startCinematic(idx, m) {
   cine.moment = m;
   cine.t = 0;
   cine.pendingMomentum = idx;
+  playMomentSound(idx);
 
   const title = document.getElementById('cineTitle');
   const kanji = document.getElementById('cineKanji');
@@ -4969,6 +5001,278 @@ function setMomentum(idx) {
     box.classList.add('surge');
   }
   lastMomentum = v;
+}
+
+// ========================================================
+// ===== 音 v5: 合成の環境音・効果音(素材ファイルなし) =====
+// ========================================================
+
+const snd = {
+  ctx: null, on: false, master: null, noise: null,
+  rain: null, wind: null, battle: null,
+  lastAmbientDrum: 0, log: [],
+};
+try { snd.on = localStorage.getItem('sg_sound') === 'on'; } catch (e) { /* ignore */ }
+
+function sndLog(name) { snd.log.push(name); if (snd.log.length > 200) snd.log.shift(); }
+
+function ensureAudio() {
+  if (snd.ctx) return snd.ctx;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return null;
+  // iPhone のマナーモード中でも鳴らす(対応ブラウザのみ)
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* ignore */ }
+  const ctx = new AC();
+  snd.ctx = ctx;
+
+  const comp = ctx.createDynamicsCompressor();
+  comp.threshold.value = -14; comp.knee.value = 12; comp.ratio.value = 4;
+  snd.master = ctx.createGain();
+  snd.master.gain.value = 0;
+  snd.master.connect(comp);
+  comp.connect(ctx.destination);
+
+  // 2秒分のホワイトノイズ
+  const len = ctx.sampleRate * 2;
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  snd.noise = buf;
+
+  const loop = (filters, gain0) => {
+    const src = ctx.createBufferSource();
+    src.buffer = buf; src.loop = true;
+    let node = src;
+    filters.forEach(f => { node.connect(f); node = f; });
+    const g = ctx.createGain(); g.gain.value = gain0;
+    node.connect(g); g.connect(snd.master);
+    src.start(0, Math.random() * 1.5);
+    return g;
+  };
+  const filt = (type, freq, q = 0.7) => { const f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q; return f; };
+
+  snd.rain = loop([filt('highpass', 900), filt('lowpass', 7000)], 0);
+  snd.wind = loop([filt('lowpass', 380, 0.5)], 0);
+  snd.battle = loop([filt('bandpass', 650, 0.6), filt('lowpass', 2200)], 0);
+  return ctx;
+}
+
+function setSound(on) {
+  snd.on = on;
+  try { localStorage.setItem('sg_sound', on ? 'on' : 'off'); } catch (e) { /* ignore */ }
+  updateSoundBtn();
+  if (on) {
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    snd.master.gain.setTargetAtTime(0.9, ctx.currentTime, 0.15);
+    // 切り替えの手応えとして太鼓を一打
+    Promise.resolve(ctx.state !== 'running' ? ctx.resume() : null).then(() => taiko(0.35, 0.05));
+  } else if (snd.ctx) {
+    snd.master.gain.setTargetAtTime(0, snd.ctx.currentTime, 0.08);
+    setTimeout(() => { if (!snd.on && snd.ctx) snd.ctx.suspend(); }, 400);
+  }
+}
+
+function updateSoundBtn() {
+  const b = document.getElementById('soundBtn');
+  if (!b) return;
+  b.textContent = snd.on ? '♪ ON' : '♪ OFF';
+  b.classList.toggle('on', snd.on);
+}
+
+function audioQuiet() {
+  if (!snd.ctx) return;
+  const now = snd.ctx.currentTime;
+  [snd.rain, snd.wind, snd.battle].forEach(g => g && g.gain.setTargetAtTime(0, now, 0.2));
+}
+
+const sndReady = () => snd.on && snd.ctx && snd.ctx.state === 'running';
+
+// ---------- 効果音 ----------
+function noiseSrc(ctx) {
+  const s = ctx.createBufferSource();
+  s.buffer = snd.noise;
+  return s;
+}
+
+// 火縄銃: 乾いた破裂音 + 低い衝撃 + 尾を引く残響
+function gunshot(vol = 0.35, delay = 0) {
+  if (!sndReady()) return;
+  sndLog('gunshot');
+  const ctx = snd.ctx, t = ctx.currentTime + delay;
+  const n = noiseSrc(ctx);
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass';
+  lp.frequency.setValueAtTime(3800, t); lp.frequency.exponentialRampToValueAtTime(500, t + 0.4);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.003);
+  g.gain.exponentialRampToValueAtTime(vol * 0.18, t + 0.08);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+  n.connect(lp); lp.connect(g); g.connect(snd.master);
+  n.start(t, Math.random() * 1.5); n.stop(t + 0.75);
+
+  const o = ctx.createOscillator(); o.type = 'sine';
+  o.frequency.setValueAtTime(95, t); o.frequency.exponentialRampToValueAtTime(38, t + 0.14);
+  const og = ctx.createGain();
+  og.gain.setValueAtTime(vol * 0.9, t); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+  o.connect(og); og.connect(snd.master);
+  o.start(t); o.stop(t + 0.22);
+}
+
+// 陣太鼓: 音程が下がる低音 + 打面の音
+function taiko(vol = 0.5, delay = 0) {
+  if (!sndReady()) return;
+  sndLog('taiko');
+  const ctx = snd.ctx, t = ctx.currentTime + delay;
+  const o = ctx.createOscillator(); o.type = 'sine';
+  o.frequency.setValueAtTime(118, t); o.frequency.exponentialRampToValueAtTime(52, t + 0.32);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.006);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
+  o.connect(g); g.connect(snd.master);
+  o.start(t); o.stop(t + 0.95);
+
+  const o2 = ctx.createOscillator(); o2.type = 'triangle';
+  o2.frequency.setValueAtTime(260, t); o2.frequency.exponentialRampToValueAtTime(120, t + 0.1);
+  const g2 = ctx.createGain();
+  g2.gain.setValueAtTime(vol * 0.25, t); g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
+  o2.connect(g2); g2.connect(snd.master);
+  o2.start(t); o2.stop(t + 0.17);
+
+  const n = noiseSrc(ctx);
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1400; bp.Q.value = 0.8;
+  const ng = ctx.createGain();
+  ng.gain.setValueAtTime(vol * 0.35, t); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+  n.connect(bp); bp.connect(ng); ng.connect(snd.master);
+  n.start(t, Math.random()); n.stop(t + 0.06);
+}
+
+// 法螺貝: 倍音の多い持続音 + 揺れ + 息の音
+function horagai(vol = 0.3, delay = 0, dur = 2.6) {
+  if (!sndReady()) return;
+  sndLog('horagai');
+  const ctx = snd.ctx, t = ctx.currentTime + delay;
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 950; lp.Q.value = 2.5;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.35);
+  g.gain.setValueAtTime(vol, t + dur - 0.6);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  lp.connect(g); g.connect(snd.master);
+
+  const lfo = ctx.createOscillator(); lfo.frequency.value = 5.2;
+  const lfoG = ctx.createGain(); lfoG.gain.value = 2.2;
+  lfo.connect(lfoG);
+  [1, 1.006].forEach(detune => {
+    const o = ctx.createOscillator(); o.type = 'sawtooth';
+    o.frequency.setValueAtTime(178 * detune, t);
+    o.frequency.linearRampToValueAtTime(198 * detune, t + 0.45);
+    o.frequency.setValueAtTime(198 * detune, t + dur - 0.7);
+    o.frequency.linearRampToValueAtTime(172 * detune, t + dur);
+    lfoG.connect(o.frequency);
+    o.connect(lp);
+    o.start(t); o.stop(t + dur + 0.05);
+  });
+  lfo.start(t); lfo.stop(t + dur + 0.05);
+
+  const n = noiseSrc(ctx);
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1100; bp.Q.value = 1.2;
+  const ng = ctx.createGain();
+  ng.gain.setValueAtTime(0.0001, t);
+  ng.gain.exponentialRampToValueAtTime(vol * 0.12, t + 0.3);
+  ng.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  n.connect(bp); bp.connect(ng); ng.connect(snd.master);
+  n.loop = true;
+  n.start(t); n.stop(t + dur + 0.05);
+}
+
+// 鬨の声・突撃のどよめき: 帯域を絞ったノイズのうねり
+function crowdSurge(vol = 0.25, delay = 0, dur = 2.8) {
+  if (!sndReady()) return;
+  sndLog('crowd');
+  const ctx = snd.ctx, t = ctx.currentTime + delay;
+  const n = noiseSrc(ctx); n.loop = true;
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.1;
+  bp.frequency.setValueAtTime(420, t); bp.frequency.linearRampToValueAtTime(760, t + dur * 0.4);
+  bp.frequency.linearRampToValueAtTime(520, t + dur);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + dur * 0.3);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  n.connect(bp); bp.connect(g); g.connect(snd.master);
+  n.start(t, Math.random()); n.stop(t + dur + 0.05);
+}
+
+// ---------- 名場面の音 ----------
+function playMomentSound(idx) {
+  if (!sndReady()) return;
+  if (idx === 3) {            // 開戦: 法螺貝 → 陣太鼓 → 銃声
+    horagai(0.32, 0, 2.6);
+    [0.3, 0.8, 1.3, 1.55, 1.8].forEach(d => taiko(0.5, d));
+    for (let i = 0; i < 6; i++) gunshot(0.18 + Math.random() * 0.2, 1.6 + Math.random() * 1.6);
+  } else if (idx === 7) {     // 問鉄砲: 一斉射撃
+    [0.02, 0.14, 0.23, 0.4, 0.52].forEach(d => gunshot(0.42, d));
+    taiko(0.4, 1.0);
+  } else if (idx === 8) {     // 裏切り: 加速する太鼓 + どよめき
+    let d = 0.05;
+    for (let i = 0; i < 12; i++) { taiko(0.32 + i * 0.025, d); d += Math.max(0.09, 0.32 - i * 0.022); }
+    crowdSurge(0.3, 0.5, 3.0);
+  } else if (idx === 11) {    // 島津の退き口: 速い太鼓 + 銃撃
+    for (let i = 0; i < 8; i++) taiko(0.38, 0.05 + i * 0.17);
+    for (let i = 0; i < 5; i++) gunshot(0.25, 0.6 + Math.random() * 1.8);
+  } else if (idx === 12) {    // 勝利: 法螺貝二度 + 鬨の声 + 太鼓
+    horagai(0.3, 0, 2.2);
+    crowdSurge(0.26, 0.6, 2.6);
+    [0.4, 0.9, 1.4].forEach(d => taiko(0.45, d));
+    horagai(0.26, 2.3, 2.4);
+  }
+}
+
+// ---------- 毎フレーム: 環境音と散発的な銃声 ----------
+function updateAudio(dt, t) {
+  if (!sndReady()) return;
+  const ctx = snd.ctx, now = ctx.currentTime;
+  const nBattle = Math.min(5, (activeBattlePoints || []).length);
+  snd.rain.gain.setTargetAtTime(atmoCur.rain * 0.2, now, 0.4);
+  snd.wind.gain.setTargetAtTime(0.05 + atmoCur.fogBank * 0.04 + atmoCur.night * 0.03, now, 0.6);
+  const swell = 0.75 + 0.25 * Math.sin(t * 0.7) * Math.sin(t * 0.23 + 1);
+  snd.battle.gain.setTargetAtTime(nBattle * 0.022 * swell, now, 0.5);
+
+  // 戦闘中は散発的に銃声(演出中は控えめに)
+  const rate = nBattle * 0.45 * Math.max(0.5, playSpeed) * (cine.t >= 0 ? 0.3 : 1);
+  if (Math.random() < rate * dt) gunshot(0.08 + Math.random() * 0.18);
+
+  // 本格的な戦闘中(開戦〜膠着)は、遠くで陣太鼓
+  if (currentPhase >= 3 && currentPhase <= 6 && cine.t < 0 && t - snd.lastAmbientDrum > 3.2) {
+    taiko(0.16, 0); taiko(0.12, 0.45);
+    snd.lastAmbientDrum = t;
+  }
+}
+
+function initSoundUI() {
+  const b = document.getElementById('soundBtn');
+  if (b) b.addEventListener('click', (e) => { e.stopPropagation(); setSound(!snd.on); });
+  updateSoundBtn();
+}
+
+// 以前オンにしていた人は、最初のタップで音を準備する(ブラウザの決まりでタップが必要)
+{
+  const prime = () => {
+    if (snd.on) {
+      const ctx = ensureAudio();
+      if (ctx && ctx.state !== 'running') ctx.resume();
+      if (snd.master) snd.master.gain.setTargetAtTime(0.9, ctx.currentTime, 0.15);
+    }
+    document.removeEventListener('pointerdown', prime, true);
+  };
+  document.addEventListener('pointerdown', prime, true);
+  // 別のタブに切り替えたら止める
+  document.addEventListener('visibilitychange', () => {
+    if (!snd.ctx) return;
+    if (document.hidden) snd.ctx.suspend();
+    else if (snd.on) snd.ctx.resume();
+  });
 }
 
 // ========= 初期化 =========
@@ -5357,6 +5661,7 @@ function initSekigahara() {
   
   initPlaceLabels();
   initAtmosphereFx();
+  initSoundUI();
   initCameraControls();
   
   // カメラ
@@ -5448,6 +5753,7 @@ function initSekigahara() {
     updateCinematic(dtRaw);
     updateArrows(dt, t);
     updateAtmosphereAndFx(dt, t);
+    updateAudio(dtRaw, t);
     updateLabels();
     updatePlaceLabels();
     
