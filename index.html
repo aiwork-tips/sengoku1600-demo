@@ -4085,34 +4085,34 @@ function createArrow(def) {
   bodyGeo.setIndex(idx);
   const bodyMat = new THREE.MeshBasicMaterial({
     color, map: getArrowTexture(style.tex), transparent: true, opacity: 0,
-    depthWrite: false, side: THREE.DoubleSide, fog: false,
+    depthWrite: false, depthTest: false, side: THREE.DoubleSide, fog: false,
   });
   const body = new THREE.Mesh(bodyGeo, bodyMat);
   body.frustumCulled = false;
-  body.renderOrder = 6;
+  body.renderOrder = 21;
 
   const headGeo = new THREE.BufferGeometry();
   headGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(9), 3));
   const headMat = new THREE.MeshBasicMaterial({
-    color, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide, fog: false,
+    color, transparent: true, opacity: 0, depthWrite: false, depthTest: false, side: THREE.DoubleSide, fog: false,
   });
   const head = new THREE.Mesh(headGeo, headMat);
   head.frustumCulled = false;
-  head.renderOrder = 6;
+  head.renderOrder = 22;
 
   // 暗い縁取り(明るい地面でも見えるように)
   const outGeo = new THREE.BufferGeometry();
   outGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(n * 2 * 3), 3));
   outGeo.setIndex(idx);
-  const outMat = new THREE.MeshBasicMaterial({ color: 0x120c06, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide, fog: false });
+  const outMat = new THREE.MeshBasicMaterial({ color: 0x120c06, transparent: true, opacity: 0, depthWrite: false, depthTest: false, side: THREE.DoubleSide, fog: false });
   const outline = new THREE.Mesh(outGeo, outMat);
   outline.frustumCulled = false;
-  outline.renderOrder = 5;
+  outline.renderOrder = 20;
   const outHeadGeo = new THREE.BufferGeometry();
   outHeadGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(9), 3));
   const outHead = new THREE.Mesh(outHeadGeo, outMat);
   outHead.frustumCulled = false;
-  outHead.renderOrder = 5;
+  outHead.renderOrder = 20;
 
   scene.add(outline);
   scene.add(outHead);
@@ -4162,7 +4162,7 @@ function updateArrow(a, dt, time) {
   const w = st.width;
   const headLen = Math.min(w * 2.8 * st.head, len * 0.4);
   const tBodyEnd = Math.max(0.05, 1 - headLen / len);
-  const lift = 0.9;
+  const lift = 1.2;
   const heightAt = (x, z, t) => getTerrainHeight(x, z) + lift + st.arch * Math.sin(Math.PI * t);
 
   const pos = a.body.geometry.attributes.position.array;
@@ -4310,10 +4310,10 @@ const ATMO_KEYS = {
              hSky: C(0x7888a4), hGround: C(0x24201a), hI: 0.5, exp: 1.05,
              fogBank: 0.22, rain: 0.25, night: 0.55 },
   // 朝霧: 遠くはかすむが、部隊は見える濃さに
-  fog:     { top: C(0xa2aab0), bottom: C(0xcfcbc1), fog: C(0xb9b9b1), near: 32, far: 125,
+  fog:     { top: C(0xa2aab0), bottom: C(0xcfcbc1), fog: C(0xadada6), near: 55, far: 165,
              sun: C(0xfff0d8), sunI: 0.85, sunPos: [80, 28, 20], amb: C(0xc4c8cc), ambI: 0.66,
              hSky: C(0xd0d8e0), hGround: C(0x5a5040), hI: 0.5, exp: 0.98,
-             fogBank: 0.5, rain: 0, night: 0 },
+             fogBank: 0.28, rain: 0, night: 0 },
   lifting: { top: C(0x88a2ba), bottom: C(0xd4ccb4), fog: C(0xaeb4b2), near: 55, far: 175,
              sun: C(0xfff0d0), sunI: 1.15, sunPos: [70, 42, 25], amb: C(0xbcc6d0), ambI: 0.56,
              hSky: C(0xc8d8e8), hGround: C(0x4a4028), hI: 0.5, exp: 0.95,
