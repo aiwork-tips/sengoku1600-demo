@@ -2676,6 +2676,17 @@ setTimeout(updateAppHeight, 1000);
 
 
 // ========= データ定義 =========
+// ----- どの合戦を表示するか(?battle=okehazama で桶狭間) -----
+const BATTLE_ID = (() => {
+  try { return new URLSearchParams(location.search).get('battle') === 'okehazama' ? 'okehazama' : 'sekigahara'; }
+  catch (e) { return 'sekigahara'; }
+})();
+const IS_OKE = BATTLE_ID === 'okehazama';
+const GENERAL_IDS = IS_OKE ? ['nobunaga', 'yoshimoto'] : ['ieyasu', 'mitsunari'];
+const GENERAL_SIDE = IS_OKE ? { nobunaga: 'left', yoshimoto: 'right' } : { ieyasu: 'right', mitsunari: 'left' };
+const DM_START = IS_OKE ? 5 : 4;
+const ENDINGS_KEY = IS_OKE ? 'sg_endings_okehazama' : 'sg_endings';
+
 const eras = [
   {
     id: 'heian',
@@ -2712,7 +2723,7 @@ const eras = [
     years: '1467 — 1573',
     desc: '群雄割拠、下克上の乱世',
     battles: [
-      { id: 'okehazama', year: '1560', name: '桶狭間の戦い', east: { name: '織田軍', force: '約3千' }, west: { name: '今川軍', force: '約2万5千' }, winner: 'east', winnerName: '織田軍', implemented: false },
+      { id: 'okehazama', year: '1560', name: '桶狭間の戦い', east: { name: '織田軍', force: '約3千' }, west: { name: '今川軍', force: '約2万5千' }, winner: 'east', winnerName: '織田軍', implemented: true },
       { id: 'kawanakajima', year: '1561', name: '川中島の戦い', east: { name: '武田軍', force: '約2万' }, west: { name: '上杉軍', force: '約1万3千' }, winner: 'draw', winnerName: '痛み分け', implemented: false },
       { id: 'nagashino', year: '1575', name: '長篠の戦い', east: { name: '織田・徳川連合', force: '約3万8千' }, west: { name: '武田軍', force: '約1万5千' }, winner: 'east', winnerName: '織田・徳川', implemented: false },
       { id: 'mikatagahara', year: '1572', name: '三方ヶ原の戦い', east: { name: '徳川軍', force: '約1万1千' }, west: { name: '武田軍', force: '約3万' }, winner: 'west', winnerName: '武田軍', implemented: false },
@@ -3347,22 +3358,66 @@ document.getElementById('backFromSim').addEventListener('click', () => {
   showScreen('era');
 });
 
-// ========= シミュレーション: 関ヶ原 =========
+// ========= シミュレーション =========
+const PLAYABLE_BATTLES = ['sekigahara', 'okehazama'];
 function openSimulation(battleId) {
-  if (battleId === 'sekigahara') {
-    showScreen('sim');
-    if (!sim3DInitialized) {
-      initSekigahara();
-      sim3DInitialized = true;
-    } else {
-      // 再開: フェーズ0に戻し、自動カメラへ
-      setCamMode('auto');
-      currentPhase = 0;
-      applyPhase(0);
-      scrollToPhase(0, false);
-      setTimeout(() => startPlay(), 500);
-    }
+  if (!PLAYABLE_BATTLES.includes(battleId)) return;
+  if (battleId !== BATTLE_ID) {
+    // 合戦ごとに地形や部隊が違うので、ページを読み込み直して切り替える
+    const q = new URLSearchParams(location.search);
+    if (battleId === 'sekigahara') q.delete('battle'); else q.set('battle', battleId);
+    q.set('open', '1');
+    q.set('lang', LANG);
+    location.search = q.toString();
+    return;
   }
+  showScreen('sim');
+  if (!sim3DInitialized) {
+    initSekigahara();
+    sim3DInitialized = true;
+  } else {
+    // 再開: フェーズ0に戻し、自動カメラへ
+    setCamMode('auto');
+    currentPhase = 0;
+    applyPhase(0);
+    scrollToPhase(0, false);
+    setTimeout(() => startPlay(), 500);
+  }
+}
+
+// 合戦ごとに画面の一部(総大将の表示・凡例)を合わせる
+function prepareBattleDom() {
+  document.body.dataset.battle = BATTLE_ID;
+  if (!IS_OKE) return;
+  const kick = document.querySelector('.sim-title-jp');
+  if (kick) kick.textContent = 'OKEHAZAMA · 3D';
+  const yr = document.querySelector('.sim-date-badge > div:last-child');
+  if (yr) yr.textContent = '1560';
+  [['ieyasu', 'nobunaga'], ['mitsunari', 'yoshimoto']].forEach(([from, to]) => {
+    const el = document.getElementById('gi-' + from);
+    if (!el) return;
+    el.id = 'gi-' + to;
+    el.dataset.unitId = to;
+    const k = document.getElementById('gi-kamon-' + from);
+    if (k) k.id = 'gi-kamon-' + to;
+    const n = el.querySelector('.gi-name');
+    if (n) n.dataset.i18n = 'name.' + to;
+  });
+  const tr = document.querySelector('.legend-dot.traitor');
+  if (tr && tr.parentElement) tr.parentElement.style.display = 'none';
+}
+
+// ?open=1 で読み込まれたら、その合戦をすぐに開く
+function autoOpenBattle() {
+  let q;
+  try { q = new URLSearchParams(location.search); } catch (e) { return; }
+  if (q.get('open') !== '1') return;
+  const era = eras.find(e => e.battles.some(b => b.id === BATTLE_ID));
+  if (era) openEra(era.id);
+  openSimulation(BATTLE_ID);
+  q.delete('open');
+  const qs = q.toString();
+  try { history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash); } catch (e) { /* ignore */ }
 }
 
 // ========================================================
@@ -3408,6 +3463,7 @@ function __fbm(x, y, octaves) {
 }
 
 function getTerrainHeight(x, z) {
+  if (IS_OKE) return okeTerrainHeight(x, z);
   let h = 0;
   h += Math.exp(-((x + 35) ** 2 + (z + 30) ** 2) / 280) * 11;
   h += Math.exp(-((x + 30) ** 2 + (z - 30) ** 2) / 300) * 14;
@@ -4003,7 +4059,7 @@ function updateLabels() {
   });
   
   // 総大将インジケーター制御
-  ['ieyasu', 'mitsunari'].forEach(id => {
+  GENERAL_IDS.forEach(id => {
     const u = units[id];
     const indicator = document.getElementById('gi-' + id);
     if (!u || !indicator) return;
@@ -4029,7 +4085,7 @@ function updateLabels() {
       let side;
       if (!p.inFrustum) {
         // カメラの背後 — ワールド座標で判定
-        side = (id === 'ieyasu') ? 'right' : 'left';
+        side = GENERAL_SIDE[id] || 'left';
       } else if (p.rawX < 0) {
         side = 'left';
       } else {
@@ -4111,7 +4167,7 @@ function applyPhase(idx) {
   if (p.traitor && units[p.traitor]) {
     units[p.traitor].setFaction('traitor');
   } else {
-    if (units['kobayakawa'].faction === 'traitor' && !p.traitor) {
+    if (units['kobayakawa'] && units['kobayakawa'].faction === 'traitor' && !p.traitor) {
       units['kobayakawa'].setFaction('west');
     }
   }
@@ -4997,6 +5053,7 @@ function smokeColor(base) {
 
 let lastSignalT = 0, lastShotT = 0;
 function updateSpecialFx(t) {
+  if (IS_OKE) { okeSpecialFx(t); return; }
   // 狼煙(フェーズ6: 笹尾山から黒い煙が立ちのぼる)
   if (currentPhase === 5 && units.mitsunari && t - lastSignalT > 0.12) {
     const p = units.mitsunari.group.position;
@@ -5390,6 +5447,7 @@ function crowdSurge(vol = 0.25, delay = 0, dur = 2.8) {
 // ---------- 名場面の音 ----------
 function playMomentSound(idx) {
   if (!sndReady()) return;
+  if (IS_OKE) { okeMomentSound(idx); return; }
   if (idx === 3) {            // 開戦: 法螺貝 → 陣太鼓 → 銃声
     horagai(0.32, 0, 2.6);
     [0.3, 0.8, 1.3, 1.55, 1.8].forEach(d => taiko(0.5, d));
@@ -5427,7 +5485,7 @@ function updateAudio(dt, t) {
   if (Math.random() < rate * dt) gunshot(0.08 + Math.random() * 0.18);
 
   // 本格的な戦闘中(開戦〜膠着)は、遠くで陣太鼓
-  if (currentPhase >= 3 && currentPhase <= 6 && cine.t < 0 && t - snd.lastAmbientDrum > 3.2) {
+  if ((IS_OKE ? (currentPhase >= 10 && currentPhase <= 11) : (currentPhase >= 3 && currentPhase <= 6)) && cine.t < 0 && t - snd.lastAmbientDrum > 3.2) {
     taiko(0.16, 0); taiko(0.12, 0.45);
     snd.lastAmbientDrum = t;
   }
@@ -5546,7 +5604,7 @@ function makeNoboriTexture(unit, colorHex, done) {
 
 function parseForce(id) {
   const d = generalsData[id];
-  const n = d ? parseInt(String(d.force).replace(/[^0-9]/g, ''), 10) : 3000;
+  const n = d ? (d.troops || parseInt(String(d.force).replace(/[^0-9]/g, ''), 10)) : 3000;
   return isFinite(n) && n > 0 ? n : 3000;
 }
 
@@ -5758,6 +5816,565 @@ Object.assign(STR.ja, {
   'wi.from': 'から分岐',
 });
 
+
+// ========================================================
+// ===== 2戦目: 桶狭間の戦い(?battle=okehazama のとき差し替え) =====
+// ========================================================
+// 座標: x が東、z が南(画面奥が北)。
+const OKE_POS = {
+  kiyosu: [-70, -60], atsuta: [-58, -26], zen: [-8, -22], naka: [-2, -6], narumi: [-24, -17],
+  washizu: [-34, 14], marune: [-26, 24], odaka: [-46, 28], kutsu: [62, -8], okeyama: [27, 17],
+};
+// 川(扇川・手越川)
+const OKE_RIVERS = [
+  [[78, -22], [52, -17], [30, -13], [12, -11], [-2, -10.5], [-14, -9], [-30, -7], [-52, -4], [-78, -2]],
+  [[70, 9], [50, 5], [32, 2], [16, -1], [4, -3.5], [-8, -8.5]],
+];
+function _segDist(x, z, a, b) {
+  const dx = b[0] - a[0], dz = b[1] - a[1];
+  let t = ((x - a[0]) * dx + (z - a[1]) * dz) / (dx * dx + dz * dz);
+  t = Math.max(0, Math.min(1, t));
+  const px = a[0] + dx * t - x, pz = a[1] + dz * t - z;
+  return Math.sqrt(px * px + pz * pz);
+}
+function okeRiverDist(x, z) {
+  let m = 1e9;
+  OKE_RIVERS.forEach(line => {
+    for (let i = 0; i < line.length - 1; i++) m = Math.min(m, _segDist(x, z, line[i], line[i + 1]));
+  });
+  return m;
+}
+function okeTerrainHeight(x, z) {
+  const hill = (cx, cz, s, a) => Math.exp(-((x - cx) ** 2 + (z - cz) ** 2) / s) * a;
+  let h = 0;
+  h += hill(27, 17, 230, 11);    // 桶狭間山
+  h += hill(40, 32, 300, 7.5);   // 南東の丘陵
+  h += hill(12, 33, 260, 6);     // 南の丘陵
+  h += hill(48, 0, 220, 6);      // 東の丘陵
+  h += hill(34, -32, 320, 6);    // 北東の丘陵(迂回路)
+  h += hill(14, -30, 200, 3.5);
+  h += hill(-34, 14, 60, 4.2);   // 鷲津
+  h += hill(-26, 24, 60, 4.2);   // 丸根
+  h += hill(-46, 28, 80, 3.6);   // 大高
+  h += hill(-8, -22, 70, 3.8);   // 善照寺
+  h += hill(-24, -17, 50, 2.6);  // 鳴海
+  h += hill(62, -8, 90, 3.5);    // 沓掛
+  h += hill(-12, 46, 420, 5);
+  h += hill(66, 30, 500, 6);
+  h += __fbm(x * 0.05, z * 0.05, 3) * 3.0 - 1.0;
+  h += __fbm(x * 0.15, z * 0.15, 4) * 1.1;
+  h += __fbm(x * 0.5, z * 0.5, 2) * 0.3;
+  // 北西(熱田・清洲方面)は低い平地
+  h -= Math.max(0, -x - z * 0.5 - 34) * 0.07;
+  // 川の谷(川沿いは低く平らに)
+  const rd = okeRiverDist(x, z);
+  const k = Math.exp(-(rd * rd) / 10);
+  h = h * (1 - k * 0.92) - k * 0.5;
+  // 中島砦の周りは深田(低湿地)
+  h -= hill(-3, -6, 60, 0.6);
+  return Math.max(-0.5, h);
+}
+
+// 砦・城と川の見た目
+function buildOkeDecor() {
+  const rmat = new THREE.MeshStandardMaterial({ color: 0x6888a8, transparent: true, opacity: 0.75, roughness: 0.2, metalness: 0.3 });
+  OKE_RIVERS.forEach((line, i) => {
+    const pts = line.map(([x, z]) => new THREE.Vector3(x, 0.12, z));
+    const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 60, i === 0 ? 1.5 : 1.1, 6, false), rmat);
+    tube.scale.y = 0.15;
+    scene.add(tube);
+  });
+  // 深田(中島砦のまわり)
+  const paddy = new THREE.Mesh(new THREE.CircleGeometry(7, 24), new THREE.MeshStandardMaterial({ color: 0x5d6a4a, roughness: 0.6, metalness: 0.1, transparent: true, opacity: 0.55 }));
+  paddy.rotation.x = -Math.PI / 2;
+  paddy.position.set(-3, getTerrainHeight(-3, -6) + 0.08, -6);
+  scene.add(paddy);
+
+  const wood = new THREE.MeshStandardMaterial({ color: 0x5a4028, roughness: 0.95 });
+  const wall = new THREE.MeshStandardMaterial({ color: 0xd8d0bc, roughness: 0.9 });
+  const roof = new THREE.MeshStandardMaterial({ color: 0x3a3a3e, roughness: 0.8, flatShading: true });
+  const stakeGeo = new THREE.CylinderGeometry(0.09, 0.11, 1.3, 5);
+  function fort(x, z, r, castle) {
+    const g = new THREE.Group();
+    const gy = getTerrainHeight(x, z);
+    g.position.set(x, 0, z);
+    const n = Math.round(r * 9);
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2;
+      if (Math.abs(a - Math.PI * 0.5) < 0.18) continue;     // 門
+      const sx = Math.cos(a) * r, sz = Math.sin(a) * r;
+      const st = new THREE.Mesh(stakeGeo, wood);
+      st.position.set(sx, getTerrainHeight(x + sx, z + sz) + 0.55, sz);
+      st.castShadow = true;
+      g.add(st);
+    }
+    // 櫓
+    const tw = new THREE.Mesh(new THREE.BoxGeometry(1.1, castle ? 1.6 : 2.0, 1.1), castle ? wall : wood);
+    tw.position.set(r * 0.35, gy + (castle ? 0.8 : 1.0), -r * 0.3);
+    tw.castShadow = true;
+    g.add(tw);
+    const rf = new THREE.Mesh(new THREE.ConeGeometry(1.0, 0.7, 4), roof);
+    rf.rotation.y = Math.PI / 4;
+    rf.position.set(r * 0.35, gy + (castle ? 1.95 : 2.35), -r * 0.3);
+    g.add(rf);
+    if (castle) {
+      const hall = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.0, 1.6), wall);
+      hall.position.set(-r * 0.25, gy + 0.5, r * 0.2);
+      hall.castShadow = true;
+      g.add(hall);
+      const hr = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 1.7, 0.8, 4, 1), roof);
+      hr.rotation.y = Math.PI / 4;
+      hr.scale.set(1.15, 1, 0.75);
+      hr.position.set(-r * 0.25, gy + 1.4, r * 0.2);
+      g.add(hr);
+    }
+    scene.add(g);
+  }
+  fort(...OKE_POS.zen, 2.6, false);
+  fort(...OKE_POS.naka, 2.2, false);
+  fort(...OKE_POS.washizu, 2.4, false);
+  fort(...OKE_POS.marune, 2.4, false);
+  fort(...OKE_POS.narumi, 3.2, true);
+  fort(...OKE_POS.odaka, 3.2, true);
+  fort(...OKE_POS.kutsu, 3.2, true);
+}
+const OKE_ROCKS = [[27, 17, 16], [40, 32, 10], [48, 0, 8], [34, -32, 8]];
+const OKE_TREES = [[27, 17, 22, 7, 15], [40, 32, 32, 4, 15], [12, 33, 40, 3, 13], [48, 0, 35, 3, 12],
+  [34, -32, 45, 3, 15], [14, -30, 20, 2, 10], [-12, 46, 30, 4, 16], [66, 30, 30, 4, 16]];
+
+function makeOkeUnits() {
+  return {
+    nobunaga:  new Unit('nobunaga',  '織', 'east', -70, -60, '織田信長', 1.3, true),
+    hattori:   new Unit('hattori',   '服', 'east', -73, -57, '服部小平太', 0.6),
+    shinsuke:  new Unit('shinsuke',  '毛', 'east', -67, -63, '毛利新介', 0.6),
+    sakuma:    new Unit('sakuma',    '佐', 'east', -26, 24,  '佐久間盛重', 0.75),
+    iio:       new Unit('iio',       '飯', 'east', -34, 14,  '飯尾定宗', 0.75),
+    nobumori:  new Unit('nobumori',  '信', 'east', -8, -22,  '佐久間信盛', 0.8),
+    kajikawa:  new Unit('kajikawa',  '梶', 'east', -6, -8,   '梶川高秀', 0.65),
+    sassa:     new Unit('sassa',     '佐々', 'east', -5, -16, '佐々・千秋', 0.65),
+    yoshimoto: new Unit('yoshimoto', '今', 'west', 62, -6,   '今川義元', 1.5, true),
+    matsui:    new Unit('matsui',    '松', 'west', 57, -1,   '松井宗信', 0.9),
+    ii:        new Unit('ii',        '井', 'west', 54, -12,  '井伊直盛', 0.9),
+    motoyasu:  new Unit('motoyasu',  '松平', 'west', -50, 33, '松平元康', 1.0),
+    asahina:   new Unit('asahina',   '朝', 'west', -45, 6,   '朝比奈泰朝', 1.0),
+    okabe:     new Unit('okabe',     '岡', 'west', -24, -17, '岡部元信', 0.85),
+  };
+}
+
+// 特殊効果: 砦の炎上・雷
+let okeLastT = 0, okeLastSmoke = 0, okeBolt = 0, okeNextBolt = 0;
+function okeSpecialFx(t) {
+  const dt = Math.min(0.1, Math.max(0, t - okeLastT));
+  okeLastT = t;
+  // 丸根・鷲津が落ちて煙が上がる(陥落〜昼前まで)
+  const smoking = currentPhase >= 3 && currentPhase <= 6;
+  if (smoking && t - okeLastSmoke > (currentPhase === 3 ? 0.14 : 0.4)) {
+    [OKE_POS.marune, OKE_POS.washizu].forEach(([x, z]) => {
+      const y = getTerrainHeight(x, z);
+      addFx('smoke', x - 1 + Math.random() * 2, y + 1.2, z - 1 + Math.random() * 2,
+        { color: smokeColor(0x403a36), life: 8, s0: 2.2, s1: 12, vy: 2.6, vx: 1.6 + Math.random() * 0.6, vz: -0.8, op: currentPhase === 3 ? 0.9 : 0.5 });
+      if (currentPhase === 3 && Math.random() < 0.6) addFx('flash', x - 1 + Math.random() * 2, y + 0.8, z - 1 + Math.random() * 2, { s0: 1.4, s1: 2.4, life: 0.35, color: 0xff7a2a });
+    });
+    okeLastSmoke = t;
+  }
+  // 豪雨の雷(雨が強いあいだ)
+  if (atmoCur.rain > 0.9) {
+    if (t > okeNextBolt) {
+      okeBolt = 1;
+      okeNextBolt = t + 2.2 + Math.random() * 3.5;
+      if (typeof thunder === 'function') thunder(0.32 + Math.random() * 0.2, 0.25 + Math.random() * 0.9);
+    }
+  }
+  if (okeBolt > 0) {
+    const flick = okeBolt > 0.6 ? 1 : (Math.random() < 0.5 ? 0.6 : 0.15);
+    renderer.toneMappingExposure += okeBolt * flick * 1.1;
+    okeBolt = Math.max(0, okeBolt - dt * 3.2);
+  }
+}
+
+// 雷鳴
+function thunder(vol = 0.4, delay = 0) {
+  if (!sndReady()) return;
+  sndLog('thunder');
+  const ctx = snd.ctx, t = ctx.currentTime + delay;
+  const n = noiseSrc(ctx); n.loop = true;
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass';
+  lp.frequency.setValueAtTime(1100, t); lp.frequency.exponentialRampToValueAtTime(110, t + 2.8);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol, t + 0.04);
+  g.gain.exponentialRampToValueAtTime(vol * 0.35, t + 0.5);
+  g.gain.exponentialRampToValueAtTime(vol * 0.5, t + 0.9);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 3.4);
+  n.connect(lp); lp.connect(g); g.connect(snd.master);
+  n.start(t, Math.random() * 1.5); n.stop(t + 3.5);
+}
+
+function okeMomentSound(idx) {
+  if (idx === 2) {            // 出陣: 法螺貝 + 早い太鼓
+    horagai(0.3, 0, 2.4);
+    [0.5, 0.75, 1.0, 1.25].forEach(d => taiko(0.4, d));
+  } else if (idx === 3) {     // 砦炎上: 銃声とどよめき
+    for (let i = 0; i < 6; i++) gunshot(0.15 + Math.random() * 0.15, 0.2 + Math.random() * 2);
+    crowdSurge(0.18, 0.4, 2.4);
+  } else if (idx === 9) {     // 豪雨: 雷鳴
+    thunder(0.5, 0.1);
+  } else if (idx === 10) {    // 突撃: 法螺貝 → 加速する太鼓 + 鬨の声
+    horagai(0.32, 0, 2.0);
+    let d = 0.3;
+    for (let i = 0; i < 10; i++) { taiko(0.34 + i * 0.02, d); d += Math.max(0.1, 0.3 - i * 0.022); }
+    crowdSurge(0.3, 0.6, 3.0);
+  } else if (idx === 12) {    // 討ち取り
+    [0.05, 0.6].forEach(d => taiko(0.55, d));
+    crowdSurge(0.28, 0.9, 2.6);
+  } else if (idx === 13) {    // 終幕
+    horagai(0.28, 0, 2.2);
+    crowdSurge(0.22, 0.5, 2.4);
+    horagai(0.24, 2.3, 2.4);
+  }
+}
+
+// 中身の差し替え(配列・オブジェクトはそのまま使い回す)
+const _replaceArr = (a, b) => { a.length = 0; b.forEach(x => a.push(x)); };
+const _replaceObj = (o, n) => { Object.keys(o).forEach(k => delete o[k]); Object.assign(o, n); };
+
+if (IS_OKE) {
+  const P = OKE_POS;
+  const ALL0 = {
+    nobunaga: [-70, -60], hattori: [-73, -57], shinsuke: [-67, -63],
+    sakuma: [-26, 24], iio: [-34, 14], nobumori: [-8, -22], kajikawa: [-6, -8], sassa: [-5, -16],
+    yoshimoto: [62, -6], matsui: [57, -1], ii: [54, -12],
+    motoyasu: [-50, 33], asahina: [-45, 6], okabe: [-24, -17],
+  };
+  const U = (o) => Object.assign({}, ALL0, o);
+  const NOB_ZEN = { nobunaga: [-10, -25], hattori: [-13, -23], shinsuke: [-7, -27] };
+  const IMA_HILL = { yoshimoto: [27, 17], matsui: [21, 13], ii: [12, 3] };
+  const FORTS_TAKEN = { motoyasu: [-46, 28], asahina: [-34, 16], sakuma: [-26, 24], iio: [-34, 14] };
+
+  _replaceArr(phases, [
+    { time: '22:00', phase: '前夜', label: '前夜',
+      title: '今川の大軍、尾張の国境へ',
+      text: '5月18日、<span class="info-west">今川義元</span>は約2万5千の大軍で沓掛城に入った。<span class="info-west">松平元康</span>は夜のうちに<span class="info-highlight">大高城へ兵糧を運び込む</span>。今川方の鳴海城・大高城を、織田方の砦が取り囲んでいる。',
+      camera: { pos: [0, 74, 78], look: [-4, 0, -4], label: 'CAM · 俯瞰' },
+      units: U({}), battles: [], battling: [], defeated: [], traitor: null, fog: 0.08 },
+    { time: '03:00', phase: '砦攻め', label: '砦攻め',
+      title: '丸根砦・鷲津砦への攻撃が始まる',
+      text: '19日の夜明け前、<span class="info-west">松平元康</span>が丸根砦、<span class="info-west">朝比奈泰朝</span>が鷲津砦に攻めかかる。守るのは<span class="info-east">佐久間盛重</span>と<span class="info-east">飯尾定宗</span>ら。<span class="info-highlight">今川軍の進撃が始まった</span>。',
+      camera: { pos: [-6, 44, 58], look: [-30, 0, 18], label: 'CAM · 丸根・鷲津' },
+      units: U({ motoyasu: [-31, 28], asahina: [-39, 10] }),
+      battles: [{ x: -28, z: 26 }, { x: -36, z: 12 }], battling: ['motoyasu', 'sakuma', 'asahina', 'iio'], defeated: [], traitor: null, fog: 0.08 },
+    { time: '04:00', phase: '信長出陣', label: '出陣',
+      title: '信長、「敦盛」を舞って清洲を出る',
+      text: '知らせを受けた<span class="info-east">織田信長</span>は、幸若舞「敦盛」を舞うと、立ったまま食事をとり、具足を着けて<span class="info-highlight">清洲城を飛び出した</span>。従うのは小姓ら、わずか5〜6騎だったという。',
+      camera: { pos: [-30, 44, -4], look: [-58, 0, -40], label: 'CAM · 清洲方面' },
+      units: U({ nobunaga: [-60, -42], hattori: [-63, -40], shinsuke: [-57, -45], motoyasu: [-29, 26], asahina: [-37, 12] }),
+      battles: [{ x: -27, z: 25 }, { x: -35, z: 13 }], battling: ['motoyasu', 'sakuma', 'asahina', 'iio'], defeated: [], traitor: null, fog: 0.08 },
+    { time: '08:00', phase: '砦陥落', label: '砦陥落',
+      title: '丸根・鷲津が落ち、煙が上がる',
+      text: '丸根砦の<span class="info-east">佐久間盛重</span>、鷲津砦の<span class="info-east">織田秀敏・飯尾定宗</span>らが討死し、<span class="info-highlight">二つの砦は落ちた</span>。熱田まで来た信長は、東の空に上がる煙を見て、砦が落ちたことを知る。',
+      camera: { pos: [-8, 46, 56], look: [-34, 0, 14], label: 'CAM · 丸根・鷲津' },
+      units: U(Object.assign({ nobunaga: [-58, -26], hattori: [-60, -23], shinsuke: [-56, -29] }, FORTS_TAKEN, { motoyasu: [-27, 26], asahina: [-35, 15] })),
+      battles: [], battling: [], defeated: ['sakuma', 'iio'], traitor: null, fog: 0.05 },
+    { time: '10:00', phase: '善照寺砦', label: '善照寺',
+      title: '信長、善照寺砦に入る',
+      text: '信長は善照寺砦に入り、兵を集めた。その数はおよそ<span class="info-east">2千</span>。同じころ、<span class="info-west">今川義元</span>の本隊は沓掛城を出て、西へ進んでいた。',
+      camera: { pos: [16, 56, 44], look: [6, 0, -8], label: 'CAM · 善照寺砦' },
+      units: U(Object.assign({}, NOB_ZEN, FORTS_TAKEN, { nobumori: [-5, -19], sassa: [-3, -14], yoshimoto: [45, 5], matsui: [41, 9], ii: [35, 0] })),
+      battles: [], battling: [], defeated: ['sakuma', 'iio'], traitor: null },
+    { time: '11:00', phase: '桶狭間山', label: '桶狭間山',
+      title: '義元、桶狭間山に本陣を置く',
+      text: '<span class="info-west">今川義元</span>は桶狭間山に本陣を置いた。前方には<span class="info-west">井伊直盛</span>らの先手。<span class="info-west">松平元康</span>は大高城に入って守りにつく。今川軍は全体で<span class="info-highlight">約2万5千</span>。',
+      camera: { pos: [50, 46, 58], look: [24, 0, 12], label: 'CAM · 桶狭間山' },
+      units: U(Object.assign({}, NOB_ZEN, FORTS_TAKEN, IMA_HILL, { nobumori: [-5, -19], sassa: [-3, -14] })),
+      battles: [], battling: [], defeated: ['sakuma', 'iio'], traitor: null },
+    { time: '11:30', phase: '本陣の休息', label: '謡',
+      title: '義元、勝ち戦を喜び謡をうたわせる',
+      text: '二つの砦が落ちた知らせに、義元は「わが矛先には天魔鬼神もかなうまい」と喜び、<span class="info-highlight">陣で謡をうたわせた</span>と『信長公記』は伝える。今川勢は昼の休息に入る。',
+      camera: { pos: [50, 38, 52], look: [27, 3, 16], label: 'CAM · 今川本陣' },
+      units: U(Object.assign({}, NOB_ZEN, FORTS_TAKEN, IMA_HILL, { nobumori: [-5, -19], sassa: [-3, -14] })),
+      battles: [], battling: [], defeated: ['sakuma', 'iio'], traitor: null },
+    { time: '12:00', phase: '佐々・千秋の突撃', label: '先駆け',
+      title: '佐々政次・千秋季忠の300が打ちかかる',
+      text: '信長が善照寺に着いたのを見て、<span class="info-east">佐々政次・千秋季忠</span>の約300が今川の先手に打ちかかった。だが<span class="info-highlight">多勢に無勢</span>。二人は50騎ほどとともに討たれた。',
+      camera: { pos: [24, 38, 42], look: [9, 0, 2], label: 'CAM · 今川の先手' },
+      units: U(Object.assign({}, NOB_ZEN, FORTS_TAKEN, IMA_HILL, { nobumori: [-5, -19], sassa: [8, 1] })),
+      battles: [{ x: 10, z: 2 }], battling: ['sassa', 'ii'], defeated: ['sakuma', 'iio'], traitor: null },
+    { time: '12:30', phase: '中島砦へ', label: '中島砦',
+      title: '家老が止めるのを振り切り、中島砦へ',
+      text: '信長は善照寺から<span class="info-east">中島砦</span>へ移る。両側は深田で、一騎ずつしか通れない一本道。敵から<span class="info-highlight">兵の少なさが丸見え</span>になると、家老たちは馬の轡にすがって止めたが、信長は聞かなかった。',
+      camera: { pos: [14, 40, 30], look: [-3, 0, -7], label: 'CAM · 中島砦' },
+      units: U(Object.assign({}, FORTS_TAKEN, IMA_HILL, { nobunaga: [-2, -3], hattori: [-5, -1], shinsuke: [1, -5], nobumori: [-8, -22], sassa: [7, 1] })),
+      battles: [], battling: [], defeated: ['sakuma', 'iio', 'sassa'], traitor: null },
+    { time: '13:30', phase: '豪雨', label: '豪雨',
+      title: '石や氷を投げつけるような豪雨',
+      text: '中島砦を出た織田勢が山際まで進んだとき、にわかに<span class="info-highlight">石や氷を投げつけるような激しい雨</span>が降りだした。雨は今川勢の顔に吹きつけ、沓掛の峠では大きな楠が倒れたという。',
+      camera: { pos: [0, 38, 40], look: [8, 0, 2], label: 'CAM · 山際' },
+      units: U(Object.assign({}, FORTS_TAKEN, IMA_HILL, { nobunaga: [6, -1], hattori: [3, 1], shinsuke: [8, -4], nobumori: [-8, -22], sassa: [7, 1], ii: [13, 4] })),
+      battles: [], battling: [], defeated: ['sakuma', 'iio', 'sassa'], traitor: null, fog: 0.1 },
+    { time: '14:00', phase: '総攻撃', label: 'かかれ',
+      title: '「それ、かかれ」——織田勢が突撃',
+      text: '空が晴れると、信長は槍を取り「<span class="info-highlight">それ、かかれ</span>」と大声で命じた。織田勢が一気に打ちかかると、<span class="info-west">今川勢は水をまくように崩れ</span>、弓・槍・鉄砲や旗、さらには輿まで捨てて退いた。',
+      camera: { pos: [8, 38, 44], look: [17, 0, 9], label: 'CAM · 今川の先手' },
+      units: U(Object.assign({}, FORTS_TAKEN, { nobunaga: [13, 5], hattori: [17, 10], shinsuke: [15, 2], nobumori: [-8, -22], sassa: [7, 1], yoshimoto: [27, 17], matsui: [20, 12], ii: [15, 6] })),
+      battles: [{ x: 14, z: 5 }, { x: 19, z: 11 }], battling: ['nobunaga', 'hattori', 'shinsuke', 'ii', 'matsui'], defeated: ['sakuma', 'iio', 'sassa'], traitor: null },
+    { time: '14:15', phase: '本陣崩壊', label: '本陣崩壊',
+      title: '義元の旗本、300騎から50騎へ',
+      text: '<span class="info-west">義元</span>は旗本300騎ほどに囲まれて東へ退く。何度も切り合ううちに、まわりは<span class="info-highlight">50騎ほどに減った</span>。信長も馬を下り、若武者たちと先を争って戦う。<span class="info-west">井伊直盛・松井宗信</span>らもここで討死した。',
+      camera: { pos: [24, 40, 52], look: [28, 2, 17], label: 'CAM · 今川本陣' },
+      units: U(Object.assign({}, FORTS_TAKEN, { nobunaga: [25, 14], hattori: [29, 17], shinsuke: [27, 21], nobumori: [-8, -22], sassa: [7, 1], yoshimoto: [32, 19], matsui: [20, 12], ii: [15, 6] })),
+      battles: [{ x: 30, z: 18 }], battling: ['nobunaga', 'hattori', 'shinsuke', 'yoshimoto'], defeated: ['sakuma', 'iio', 'sassa', 'ii', 'matsui'], traitor: null },
+    { time: '14:30', phase: '義元討死', label: '義元討死',
+      title: '毛利新介、今川義元を討ち取る',
+      text: '<span class="info-east">服部小平太</span>が義元に一番に槍をつけたが、膝を斬られて倒れた。続いて<span class="info-east">毛利新介</span>が義元を組み伏せ、<span class="info-highlight">首を取った</span>。今川義元、数え42歳。',
+      camera: { pos: [46, 38, 50], look: [32, 3, 19], label: 'CAM · 今川本陣' },
+      units: U(Object.assign({}, FORTS_TAKEN, { nobunaga: [27, 15], hattori: [31, 18], shinsuke: [33, 22], nobumori: [-8, -22], sassa: [7, 1], yoshimoto: [34, 21], matsui: [20, 12], ii: [15, 6] })),
+      battles: [{ x: 33, z: 21 }], battling: ['hattori', 'shinsuke'], defeated: ['sakuma', 'iio', 'sassa', 'ii', 'matsui', 'yoshimoto'], traitor: null },
+    { time: '16:00', phase: '戦の後', label: '戦の後',
+      title: '総大将を失い、今川軍は退く',
+      text: '総大将を失った今川軍は退いた。鳴海城の<span class="info-west">岡部元信</span>は城を守り抜き、のちに<span class="info-highlight">義元の首と引き換えに</span>城を明け渡した。大高城の<span class="info-west">松平元康</span>は岡崎へ戻って独立し、やがて信長と手を結ぶ。',
+      camera: { pos: [6, 72, 76], look: [-2, 0, 0], label: 'CAM · 俯瞰' },
+      units: U(Object.assign({}, FORTS_TAKEN, { nobunaga: [22, 11], hattori: [25, 16], shinsuke: [28, 18], nobumori: [-8, -22], sassa: [7, 1], yoshimoto: [34, 21], matsui: [20, 12], ii: [15, 6], motoyasu: [-47, 29], asahina: [-30, 38] })),
+      battles: [], battling: [], defeated: ['sakuma', 'iio', 'sassa', 'ii', 'matsui', 'yoshimoto'], traitor: null },
+  ]);
+
+  _replaceArr(EN_PHASES, [
+    { phase: 'THE NIGHT BEFORE', label: 'Night before', cam: 'CAM · OVERVIEW',
+      title: 'A huge Imagawa army reaches the Owari border',
+      text: `On June 11, 1560, <span class="info-west">Imagawa Yoshimoto</span> entered Kutsukake Castle with some 25,000 men. That night <span class="info-west">Matsudaira Motoyasu</span> <span class="info-highlight">ran supplies into Ōdaka Castle</span>. Imagawa-held Narumi and Ōdaka are ringed by small Oda forts.` },
+    { phase: 'FORTS ATTACKED', label: 'Forts attacked', cam: 'CAM · MARUNE · WASHIZU',
+      title: 'The attacks on the Marune and Washizu forts begin',
+      text: `Before dawn on the 12th, <span class="info-west">Matsudaira Motoyasu</span> storms Marune fort and <span class="info-west">Asahina Yasutomo</span> hits Washizu. Defending them are <span class="info-east">Sakuma Morishige</span> and <span class="info-east">Iio Sadamune</span>. <span class="info-highlight">The Imagawa offensive has begun</span>.` },
+    { phase: 'NOBUNAGA RIDES OUT', label: 'Rides out', cam: 'CAM · TOWARD KIYOSU',
+      title: 'Nobunaga dances "Atsumori" and leaves Kiyosu',
+      text: `When the news arrives, <span class="info-east">Oda Nobunaga</span> dances the Kōwaka piece "Atsumori," eats standing up, straps on his armor and <span class="info-highlight">gallops out of Kiyosu Castle</span> — with only five or six riders behind him, the story goes.` },
+    { phase: 'FORTS FALL', label: 'Forts fall', cam: 'CAM · MARUNE · WASHIZU',
+      title: 'Marune and Washizu fall, and smoke rises',
+      text: `<span class="info-east">Sakuma Morishige</span> at Marune and <span class="info-east">Oda Hidetoshi and Iio Sadamune</span> at Washizu are killed. <span class="info-highlight">Both forts are lost</span>. Nobunaga, now at Atsuta, sees smoke climbing in the eastern sky and knows what it means.` },
+    { phase: 'ZENSHŌJI FORT', label: 'Zenshōji', cam: 'CAM · ZENSHŌJI FORT',
+      title: 'Nobunaga reaches Zenshōji fort',
+      text: `Nobunaga gathers his men at Zenshōji fort — about <span class="info-east">2,000</span> in all. Meanwhile <span class="info-west">Imagawa Yoshimoto</span>'s main body has left Kutsukake and is moving west.` },
+    { phase: 'OKEHAZAMA HILL', label: 'Okehazama', cam: 'CAM · OKEHAZAMA HILL',
+      title: 'Yoshimoto sets up his HQ on Okehazama hill',
+      text: `<span class="info-west">Imagawa Yoshimoto</span> makes camp on Okehazama hill, with <span class="info-west">Ii Naomori</span> and others in the vanguard ahead of him. <span class="info-west">Matsudaira Motoyasu</span> takes over the defense of Ōdaka. The whole Imagawa force numbers <span class="info-highlight">about 25,000</span>.` },
+    { phase: 'A REST AT HQ', label: 'Noh chant', cam: 'CAM · IMAGAWA HQ',
+      title: 'Pleased with his victories, Yoshimoto has songs chanted',
+      text: `Delighted that both forts have fallen, Yoshimoto boasts that not even demons could stand before his spear, and <span class="info-highlight">has Noh songs chanted in camp</span>, according to the "Chronicle of Lord Nobunaga." His army settles in for a midday rest.` },
+    { phase: 'SASSA AND SENSHŪ', label: 'Early charge', cam: 'CAM · IMAGAWA VANGUARD',
+      title: 'Sassa and Senshū charge with 300 men',
+      text: `Seeing Nobunaga arrive at Zenshōji, <span class="info-east">Sassa Masatsugu and Senshū Suetada</span> lead about 300 men against the Imagawa vanguard. <span class="info-highlight">They are hopelessly outnumbered</span>: both fall, along with some fifty riders.` },
+    { phase: 'TO NAKAJIMA', label: 'Nakajima', cam: 'CAM · NAKAJIMA FORT',
+      title: 'Ignoring his elders, Nobunaga moves to Nakajima fort',
+      text: `Nobunaga moves from Zenshōji to <span class="info-east">Nakajima fort</span>. The road is a single file path between deep paddies, where the enemy <span class="info-highlight">can count every man</span>. His senior retainers grab his horse's bridle to stop him; he will not listen.` },
+    { phase: 'THE STORM', label: 'Storm', cam: 'CAM · FOOT OF THE HILLS',
+      title: 'Rain like hurled stones and ice',
+      text: `As the Oda force leaves Nakajima and nears the hills, <span class="info-highlight">a violent storm breaks, like stones and ice being thrown</span>. The rain drives into the faces of the Imagawa troops; at the Kutsukake pass, it is said, a great camphor tree is blown down.` },
+    { phase: 'THE ATTACK', label: 'Attack', cam: 'CAM · IMAGAWA VANGUARD',
+      title: '"Now — attack!" The Oda force charges',
+      text: `The moment the sky clears, Nobunaga grabs a spear and roars, "<span class="info-highlight">Now — attack!</span>" The Oda troops crash into the enemy, and <span class="info-west">the Imagawa line scatters like splashed water</span>, abandoning bows, spears, guns, banners — even the lord's palanquin.` },
+    { phase: 'HQ COLLAPSES', label: 'HQ collapses', cam: 'CAM · IMAGAWA HQ',
+      title: "Yoshimoto's guard falls from 300 riders to 50",
+      text: `<span class="info-west">Yoshimoto</span> pulls back east inside a ring of some 300 guards. Clash after clash, <span class="info-highlight">only about fifty are left</span>. Nobunaga himself dismounts and fights alongside his young warriors. <span class="info-west">Ii Naomori and Matsui Munenobu</span> are killed here.` },
+    { phase: 'YOSHIMOTO FALLS', label: 'Yoshimoto falls', cam: 'CAM · IMAGAWA HQ',
+      title: 'Mōri Shinsuke takes the head of Imagawa Yoshimoto',
+      text: `<span class="info-east">Hattori Koheita</span> reaches Yoshimoto first, but goes down with a slashed knee. Then <span class="info-east">Mōri Shinsuke</span> wrestles Yoshimoto to the ground and <span class="info-highlight">takes his head</span>. Imagawa Yoshimoto was 41.` },
+    { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · OVERVIEW',
+      title: 'Leaderless, the Imagawa army withdraws',
+      text: `With their commander dead, the Imagawa forces pull back. <span class="info-west">Okabe Motonobu</span> holds Narumi Castle to the end and later hands it over <span class="info-highlight">in exchange for Yoshimoto's head</span>. At Ōdaka, <span class="info-west">Matsudaira Motoyasu</span> goes home to Okazaki, breaks free of the Imagawa, and soon allies with Nobunaga.` },
+  ]);
+
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  _replaceArr(PHASE_ARROWS, [
+    [ { from: [-36, 42], to: [-46, 31], side: W, style: 'move' } ],
+    [ at('motoyasu', 'sakuma', W), at('asahina', 'iio', W) ],
+    [ { from: [-68, -58], to: [-59, -34], side: E, style: 'move' }, at('motoyasu', 'sakuma', W), at('asahina', 'iio', W) ],
+    [],
+    [ { from: [-56, -26], to: [-13, -24], side: E, style: 'move' }, { from: [60, -6], to: [36, 8], side: W, style: 'move' } ],
+    [ { from: [43, 5], to: [29, 15], side: W, style: 'move' }, { from: [-29, 26], to: [-44, 28], side: W, style: 'move' } ],
+    [],
+    [ at('sassa', 'ii', E) ],
+    [ { from: [-9, -23], to: [-3, -5], side: E, style: 'move' } ],
+    [ { from: [-2, -5], to: [6, 0], side: E, style: 'move' } ],
+    [ at('nobunaga', 'ii', E), at('hattori', 'matsui', E), at('shinsuke', 'ii', E) ],
+    [ at('nobunaga', 'yoshimoto', E), at('hattori', 'yoshimoto', E), { from: [27, 17], to: [33, 20], side: W, style: 'move' } ],
+    [ at('shinsuke', 'yoshimoto', E) ],
+    [ { from: [-32, 18], to: [-30, 40], side: W, style: 'move' }, { from: [34, 21], to: [50, 26], side: W, style: 'move' } ],
+  ]);
+
+  _replaceArr(CINE, [
+    { orbit: 0.020, dolly: 0.08 },
+    { focus: ['motoyasu', 'sakuma', 'asahina', 'iio'], blend: 0.7, orbit: 0.025, dolly: 0.10 },
+    { focus: ['nobunaga'], blend: 0.8, orbit: -0.020, dolly: 0.10 },
+    { focus: ['motoyasu', 'asahina'], blend: 0.55, orbit: 0.020, dolly: 0.05 },
+    { focus: ['nobunaga', 'yoshimoto'], blend: 0.45, orbit: -0.020, dolly: 0.05 },
+    { focus: ['yoshimoto', 'ii'], blend: 0.7, orbit: 0.020, dolly: 0.10 },
+    { focus: ['yoshimoto'], blend: 0.85, orbit: 0.030, dolly: 0.10 },
+    { focus: ['sassa', 'ii'], blend: 0.85, orbit: -0.025, dolly: 0.10 },
+    { focus: ['nobunaga'], blend: 0.8, orbit: 0.020, dolly: 0.12 },
+    { focus: ['nobunaga', 'ii'], blend: 0.7, orbit: -0.015, dolly: 0.10 },
+    { focus: ['nobunaga', 'ii', 'matsui'], blend: 0.85, orbit: 0.030, dolly: 0.10 },
+    { focus: ['yoshimoto', 'nobunaga'], blend: 0.85, orbit: -0.030, dolly: 0.10 },
+    { focus: ['yoshimoto', 'shinsuke'], blend: 0.9, orbit: 0.030, dolly: 0.10 },
+    { orbit: 0.020, dolly: -0.05 },
+  ]);
+
+  _replaceObj(CINE_MOMENTS, {
+    2:  { ja: '出陣', en: 'NOBUNAGA RIDES OUT',
+          subJa: '「人間五十年…」敦盛を舞い、清洲を発つ', subEn: '"Fifty years of human life…" — he dances, then rides', shake: 0.3 },
+    3:  { ja: '砦、炎上', en: 'THE FORTS BURN',
+          subJa: '丸根・鷲津が落ち、煙が上がる', subEn: 'Marune and Washizu fall in smoke', shake: 0.4 },
+    9:  { ja: '豪雨', en: 'THE STORM',
+          subJa: '石や氷を投げつけるような雨', subEn: 'Rain like hurled stones and ice', shake: 0.5, flash: true },
+    10: { ja: 'それ、かかれ', en: 'NOW — ATTACK!',
+          subJa: '雨が上がり、織田勢が突撃', subEn: 'The rain stops, and the Oda troops charge', shake: 1.0, accent: 'gold' },
+    12: { ja: '義元討死', en: 'YOSHIMOTO FALLS',
+          subJa: '毛利新介、義元の首を取る', subEn: 'Mōri Shinsuke takes his head', shake: 0.6 },
+    13: { ja: '織田軍勝利', en: 'VICTORY FOR THE ODA',
+          subJa: '信長の名が知れわたる', subEn: "Nobunaga's name spreads across Japan", shake: 0 },
+  });
+
+  _replaceArr(MOMENTUM, [30, 28, 26, 22, 24, 22, 20, 18, 20, 32, 60, 80, 93, 95]);
+  _replaceArr(PHASE_ATMO, ['night', 'night', 'predawn', 'morning', 'morning', 'noon', 'noon', 'noon', 'gather', 'storm', 'clearing', 'after', 'after', 'late']);
+
+  ATMO_KEYS.gather = { top: C(0x52606f), bottom: C(0x9c9a8c), fog: C(0x828a8c), near: 75, far: 210,
+    sun: C(0xe4dccc), sunI: 0.8, sunPos: [10, 70, 25], amb: C(0x9ea8b0), ambI: 0.56,
+    hSky: C(0xa2acb6), hGround: C(0x3a3426), hI: 0.5, exp: 0.92, fogBank: 0.05, rain: 0.06, night: 0.05 };
+  ATMO_KEYS.storm = { top: C(0x222a34), bottom: C(0x4e545c), fog: C(0x50585e), near: 45, far: 150,
+    sun: C(0xbcc4d0), sunI: 0.36, sunPos: [-20, 70, 10], amb: C(0x66727e), ambI: 0.6,
+    hSky: C(0x72808e), hGround: C(0x24221c), hI: 0.5, exp: 0.88, fogBank: 0.24, rain: 1.35, night: 0.18 };
+  ATMO_KEYS.clearing = { top: C(0x6b92b8), bottom: C(0xd6d0bc), fog: C(0xa8b4ba), near: 85, far: 225,
+    sun: C(0xfff2da), sunI: 1.35, sunPos: [-15, 70, 25], amb: C(0xb8c4d0), ambI: 0.5,
+    hSky: C(0xc8d8e8), hGround: C(0x3e3622), hI: 0.5, exp: 0.93, fogBank: 0.1, rain: 0.06, night: 0 };
+
+  _replaceArr(PLACES, [
+    { x: 27, z: 17, ja: '桶狭間山', en: 'Okehazama hill', lift: 6 },
+    { x: -8, z: -22, ja: '善照寺砦', en: 'Zenshōji fort', lift: 4.5 },
+    { x: -2, z: -6, ja: '中島砦', en: 'Nakajima fort', lift: 3.5 },
+    { x: -24, z: -17, ja: '鳴海城', en: 'Narumi Castle', lift: 4.5 },
+    { x: -34, z: 14, ja: '鷲津砦', en: 'Washizu fort', lift: 4.5 },
+    { x: -26, z: 24, ja: '丸根砦', en: 'Marune fort', lift: 4.5 },
+    { x: -46, z: 28, ja: '大高城', en: 'Ōdaka Castle', lift: 4.5 },
+    { x: 62, z: -8, ja: '沓掛城', en: 'Kutsukake Castle', lift: 4.5 },
+    { x: -58, z: -30, ja: '熱田', en: 'Atsuta', lift: 3, minor: true },
+    { x: -68, z: -66, ja: '清洲方面', en: 'Toward Kiyosu', lift: 3, minor: true },
+  ]);
+
+  const gen = (o) => o;
+  _replaceObj(generalsData, {
+    nobunaga: gen({ name: '織田信長', yomi: 'ODA NOBUNAGA', faction: 'east', factionLabel: '織田軍 総大将',
+      force: '2,000', base: '清洲城', birth: '1534', koku: '尾張の一部',
+      bio: '尾張の大名。この年数え27歳。尾張の統一を進めている最中に、今川の大軍を迎えた。桶狭間の勝利で名を上げ、のちに天下統一へ向かう。',
+      episode: '出陣の前に幸若舞「敦盛」を舞い、立ったまま食事をとって清洲を飛び出したと『信長公記』は伝える。熱田神宮で戦勝を祈ったともいう。' }),
+    hattori: gen({ name: '服部小平太', yomi: 'HATTORI KOHEITA', faction: 'east', factionLabel: '織田軍 馬廻',
+      force: '馬廻', troops: 120, base: '信長の旗本', birth: '不詳', koku: '—',
+      bio: '信長の馬廻(主君の身辺を守る騎馬の武士)。名は一忠とも。',
+      episode: '義元に一番に槍をつけたが、膝を斬られて倒れた。のちに豊臣秀吉に仕えたという。' }),
+    shinsuke: gen({ name: '毛利新介', yomi: 'MŌRI SHINSUKE', faction: 'east', factionLabel: '織田軍 馬廻',
+      force: '馬廻', troops: 120, base: '信長の旗本', birth: '不詳', koku: '—',
+      bio: '信長の馬廻。名は良勝とも。中国地方の毛利家とは別の家。',
+      episode: '服部小平太に続いて義元を組み伏せ、首を取った。その時、義元に指を食いちぎられたという話も残る。' }),
+    sakuma: gen({ name: '佐久間盛重', yomi: 'SAKUMA MORISHIGE', faction: 'east', factionLabel: '織田軍',
+      force: '400', base: '丸根砦', birth: '不詳', koku: '—',
+      bio: '織田家の重臣。今川方の大高城を見張る丸根砦を守った。',
+      episode: '松平元康の攻撃を受け、砦から打って出て討死した。' }),
+    iio: gen({ name: '飯尾定宗', yomi: 'IIO SADAMUNE', faction: 'east', factionLabel: '織田軍',
+      force: '500', base: '鷲津砦', birth: '不詳', koku: '—',
+      bio: '織田一族の織田秀敏とともに鷲津砦を守った。',
+      episode: '朝比奈泰朝の攻撃で砦は落ち、定宗は討死した。子の尚清は生き延びた。' }),
+    nobumori: gen({ name: '佐久間信盛', yomi: 'SAKUMA NOBUMORI', faction: 'east', factionLabel: '織田軍',
+      force: '500', base: '善照寺砦', birth: '1528', koku: '—',
+      bio: '織田家の重臣。弟とともに鳴海城を見張る善照寺砦を守った。',
+      episode: 'のちに退却戦の名手として「退き佐久間」と呼ばれる。晩年、信長から追放された。' }),
+    kajikawa: gen({ name: '梶川高秀', yomi: 'KAJIKAWA TAKAHIDE', faction: 'east', factionLabel: '織田軍',
+      force: '300', base: '中島砦', birth: '不詳', koku: '—',
+      bio: '中島砦を守った織田方の武将。',
+      episode: '中島砦は川の合流点の低地にあり、信長は合戦の直前ここに入って兵をまとめた。' }),
+    sassa: gen({ name: '佐々政次・千秋季忠', yomi: 'SASSA MASATSUGU · SENSHŪ SUETADA', faction: 'east', factionLabel: '織田軍',
+      force: '300', base: '善照寺砦付近', birth: '不詳', koku: '—',
+      bio: '佐々政次は佐々成政の兄。千秋季忠は熱田神宮の大宮司。',
+      episode: '信長の到着を見て今川の先手に打ちかかり、二人とも討死した。' }),
+    yoshimoto: gen({ name: '今川義元', yomi: 'IMAGAWA YOSHIMOTO', faction: 'west', factionLabel: '今川軍 総大将',
+      force: '5,000', base: '桶狭間山', birth: '1519', koku: '駿河・遠江・三河',
+      bio: '駿河・遠江・三河を治め、「海道一の弓取り」と呼ばれた大名。約2万5千の大軍で尾張へ進み、織田方の砦を次々に落とした。',
+      episode: '輿に乗って出陣したことから公家かぶれと語られがちだが、輿は家格の高さを示すものだった。桶狭間で毛利新介に討たれた。' }),
+    matsui: gen({ name: '松井宗信', yomi: 'MATSUI MUNENOBU', faction: 'west', factionLabel: '今川軍',
+      force: '不詳', troops: 1200, base: '本陣の近く', birth: '不詳', koku: '—',
+      bio: '遠江・二俣城主。今川家の重臣。',
+      episode: '義元の本陣を守って奮戦し、討死した。' }),
+    ii: gen({ name: '井伊直盛', yomi: 'II NAOMORI', faction: 'west', factionLabel: '今川軍 先手',
+      force: '不詳', troops: 1000, base: '今川の先手', birth: '不詳', koku: '—',
+      bio: '遠江・井伊谷の領主。今川軍の先手として出陣した。',
+      episode: '桶狭間で討死した。のちに徳川四天王となる井伊直政は、同じ井伊家の出身。' }),
+    motoyasu: gen({ name: '松平元康', yomi: 'MATSUDAIRA MOTOYASU', faction: 'west', factionLabel: '今川軍',
+      force: '2,500', base: '大高城', birth: '1543', koku: '—',
+      bio: '三河の松平家の当主。この時数え18歳で、今川家に従っていた。のちの徳川家康。',
+      episode: '前夜に大高城へ兵糧を運び入れ、19日未明に丸根砦を落とした。義元の死後は岡崎城に戻って今川から独立し、のちに信長と同盟を結ぶ。' }),
+    asahina: gen({ name: '朝比奈泰朝', yomi: 'ASAHINA YASUTOMO', faction: 'west', factionLabel: '今川軍',
+      force: '2,000', base: '鷲津砦攻め', birth: '不詳', koku: '—',
+      bio: '今川家の重臣。遠江・掛川城主。',
+      episode: '鷲津砦を落とした。義元の死後も今川氏真に仕え、最後まで今川家を支えた。' }),
+    okabe: gen({ name: '岡部元信', yomi: 'OKABE MOTONOBU', faction: 'west', factionLabel: '今川軍',
+      force: '不詳', troops: 800, base: '鳴海城', birth: '不詳', koku: '—',
+      bio: '今川家の武将。鳴海城の守将。',
+      episode: '義元の死後も鳴海城を守り続け、義元の首を返してもらうのと引き換えに城を明け渡したと伝わる。' }),
+  });
+
+  _replaceObj(EN_GEN, {
+    nobunaga: { name: 'Oda Nobunaga', yomi: '織田信長', factionLabel: 'ODA · COMMANDER', force: '2,000', base: 'Kiyosu Castle', birth: '1534', koku: 'Part of Owari',
+      bio: 'Lord of Owari, aged 26, still fighting to unite his own province when the Imagawa army arrived. Okehazama made his name, and he went on to begin the unification of Japan.',
+      episode: 'According to the "Chronicle of Lord Nobunaga," he danced "Atsumori," ate standing up and rode out of Kiyosu. He is also said to have prayed for victory at Atsuta Shrine.' },
+    hattori: { name: 'Hattori Koheita', yomi: '服部小平太', factionLabel: 'ODA · HORSE GUARD', force: 'Horse guard', base: "Nobunaga's escort", birth: 'Unknown', koku: '—',
+      bio: "One of Nobunaga's umamawari — mounted bodyguards around the lord. Also known as Kazutada.",
+      episode: 'He was the first to reach Yoshimoto with a spear, but went down with a slashed knee. He is said to have served Toyotomi Hideyoshi later.' },
+    shinsuke: { name: 'Mōri Shinsuke', yomi: '毛利新介', factionLabel: 'ODA · HORSE GUARD', force: 'Horse guard', base: "Nobunaga's escort", birth: 'Unknown', koku: '—',
+      bio: "One of Nobunaga's mounted bodyguards, also known as Yoshikatsu. No relation to the Mōri clan of western Japan.",
+      episode: 'Following Hattori, he pinned Yoshimoto down and took his head. One story says Yoshimoto bit off one of his fingers in the struggle.' },
+    sakuma: { name: 'Sakuma Morishige', yomi: '佐久間盛重', factionLabel: 'ODA', force: '400', base: 'Marune fort', birth: 'Unknown', koku: '—',
+      bio: 'A senior Oda retainer who held Marune fort, one of the posts watching Imagawa-held Ōdaka Castle.',
+      episode: "Attacked by Matsudaira Motoyasu, he sallied out of the fort and was killed." },
+    iio: { name: 'Iio Sadamune', yomi: '飯尾定宗', factionLabel: 'ODA', force: '500', base: 'Washizu fort', birth: 'Unknown', koku: '—',
+      bio: 'Defended Washizu fort together with Oda Hidetoshi, a member of the Oda family.',
+      episode: "Washizu fell to Asahina Yasutomo and Sadamune was killed. His son Hisakiyo survived." },
+    nobumori: { name: 'Sakuma Nobumori', yomi: '佐久間信盛', factionLabel: 'ODA', force: '500', base: 'Zenshōji fort', birth: '1528', koku: '—',
+      bio: 'A senior Oda retainer who held Zenshōji fort, watching Narumi Castle, with his younger brother.',
+      episode: 'Later nicknamed "Sakuma the Rearguard" for his skill at fighting retreats. Late in life he was banished by Nobunaga.' },
+    kajikawa: { name: 'Kajikawa Takahide', yomi: '梶川高秀', factionLabel: 'ODA', force: '300', base: 'Nakajima fort', birth: 'Unknown', koku: '—',
+      bio: 'The Oda commander of Nakajima fort.',
+      episode: 'Nakajima sat on low ground where two rivers met. Nobunaga gathered his men here just before the battle.' },
+    sassa: { name: 'Sassa Masatsugu · Senshū Suetada', yomi: '佐々政次・千秋季忠', factionLabel: 'ODA', force: '300', base: 'Near Zenshōji fort', birth: 'Unknown', koku: '—',
+      bio: 'Sassa Masatsugu was the elder brother of Sassa Narimasa. Senshū Suetada was the high priest of Atsuta Shrine.',
+      episode: 'When Nobunaga arrived, they charged the Imagawa vanguard. Both were killed.' },
+    yoshimoto: { name: 'Imagawa Yoshimoto', yomi: '今川義元', factionLabel: 'IMAGAWA · COMMANDER', force: '5,000', base: 'Okehazama hill', birth: '1519', koku: 'Suruga, Tōtōmi, Mikawa',
+      bio: 'Ruler of Suruga, Tōtōmi and Mikawa, called "the finest archer of the Tōkaidō." He marched into Owari with about 25,000 men and took the Oda border forts one by one.',
+      episode: 'Often mocked as a courtly lord because he rode in a palanquin — but the palanquin was a mark of his high rank. He was killed at Okehazama by Mōri Shinsuke.' },
+    matsui: { name: 'Matsui Munenobu', yomi: '松井宗信', factionLabel: 'IMAGAWA', force: 'Unknown', base: 'Near the HQ', birth: 'Unknown', koku: '—',
+      bio: 'Lord of Futamata Castle in Tōtōmi and a senior Imagawa retainer.',
+      episode: "He fought hard to protect Yoshimoto's HQ and was killed." },
+    ii: { name: 'Ii Naomori', yomi: '井伊直盛', factionLabel: 'IMAGAWA · VANGUARD', force: 'Unknown', base: 'Imagawa vanguard', birth: 'Unknown', koku: '—',
+      bio: 'Lord of Iinoya in Tōtōmi, who marched in the Imagawa vanguard.',
+      episode: 'Killed at Okehazama. Ii Naomasa, later one of the Tokugawa "Four Heavenly Kings," came from the same Ii family.' },
+    motoyasu: { name: 'Matsudaira Motoyasu', yomi: '松平元康', factionLabel: 'IMAGAWA', force: '2,500', base: 'Ōdaka Castle', birth: '1543', koku: '—',
+      bio: 'Head of the Matsudaira of Mikawa, 17 years old and serving the Imagawa. He would later be known as Tokugawa Ieyasu.',
+      episode: 'He ran supplies into Ōdaka the night before and took Marune fort at dawn. After Yoshimoto died he returned to Okazaki, broke with the Imagawa, and later allied with Nobunaga.' },
+    asahina: { name: 'Asahina Yasutomo', yomi: '朝比奈泰朝', factionLabel: 'IMAGAWA', force: '2,000', base: 'Attack on Washizu', birth: 'Unknown', koku: '—',
+      bio: 'A senior Imagawa retainer and lord of Kakegawa Castle in Tōtōmi.',
+      episode: "He took Washizu fort. After Yoshimoto's death he stayed loyal to his heir Ujizane to the very end." },
+    okabe: { name: 'Okabe Motonobu', yomi: '岡部元信', factionLabel: 'IMAGAWA', force: 'Unknown', base: 'Narumi Castle', birth: 'Unknown', koku: '—',
+      bio: 'An Imagawa commander in charge of Narumi Castle.',
+      episode: "He kept holding Narumi after Yoshimoto's death and, the story goes, gave up the castle only in exchange for his lord's head." },
+  });
+
+  _replaceObj(LBL_EN, {
+    nobunaga: 'Oda Nobunaga', hattori: 'Hattori', shinsuke: 'Mōri Shinsuke', sakuma: 'Sakuma Morishige', iio: 'Iio',
+    nobumori: 'Sakuma Nobumori', kajikawa: 'Kajikawa', sassa: 'Sassa · Senshū', yoshimoto: 'Imagawa Yoshimoto',
+    matsui: 'Matsui', ii: 'Ii Naomori', motoyasu: 'Matsudaira', asahina: 'Asahina', okabe: 'Okabe',
+  });
+
+  kamonImages.motoyasu = kamonImages.ieyasu;
+  kamonImages.nobunaga = "data:image/png;base64,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";
+  kamonImages.yoshimoto = "data:image/png;base64,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";
+}
+
 // 史実の表を保存しておく(切り替えで元に戻せるように)
 const BASE_TABLES = {
   phases: phases.slice(),
@@ -5770,7 +6387,7 @@ const BASE_TABLES = {
 
 // 分岐フェーズを短く書くための補助
 function altPhase(idx, o) {
-  const base = BASE_TABLES.phases[idx];
+  const base = BASE_TABLES.phases[idx] || BASE_TABLES.phases[0];
   return {
     ja: {
       time: base.time, phase: o.ja.phase, label: o.ja.label, title: o.ja.title, text: o.ja.text,
@@ -6417,6 +7034,338 @@ const ENDINGS = {
   E7: { ja: ['血の勝利', '東軍は辛くも勝つが、毛利の大軍は残った。'], en: ['A Bloody Victory', 'The East wins, barely, and the Mōri army survives.'] },
 };
 
+
+// ---------- 桶狭間: 決断モード ----------
+function okeEndingId(c) {
+  if (c[8] === 'hold') return 'E5';
+  if (c[7] === 'guard') return 'E4';
+  if (c[11] === 'flee') return 'E3';
+  if (c[8] === 'detour') return 'E2';
+  return 'E1';
+}
+let OKE_SEG = null;
+function okeBuildSegments(c, put) {
+  if (!OKE_SEG) return;
+  if (c[7] === 'guard') put(OKE_SEG.guard);
+  if (c[8] === 'hold') { put(OKE_SEG.hold); return; }
+  if (c[8] === 'detour') put(OKE_SEG.detour);
+  if (c[8] && c[7] === 'guard') put(OKE_SEG.repulse);
+  if (c[11] === 'flee') put(OKE_SEG.flee);
+}
+
+if (IS_OKE) {
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
+  const DEF = ['sakuma', 'iio'];
+  const DEF2 = ['sakuma', 'iio', 'sassa'];
+
+  OKE_SEG = {
+    // 義元が守りを固める(12:00)
+    guard: {
+      7: altPhase(7, {
+        ja: { phase: '本陣の守り', label: '守り固め', cam: 'CAM · 今川本陣',
+          title: '義元、物見を出して本陣の守りを固める',
+          text: '義元は勝ち戦に気をゆるめず、<span class="info-highlight">物見(偵察)を四方に出し</span>、<span class="info-west">井伊直盛・松井宗信</span>の隊を本陣の近くへ呼び戻した。そこへ<span class="info-east">佐々・千秋</span>の300が打ちかかるが、討たれる。' },
+        en: { phase: 'HQ ON GUARD', label: 'On guard', cam: 'CAM · IMAGAWA HQ',
+          title: 'Yoshimoto sends out scouts and tightens his guard',
+          text: `Yoshimoto does not relax. He <span class="info-highlight">sends scouts in every direction</span> and pulls <span class="info-west">Ii Naomori and Matsui Munenobu</span> back close to his HQ. <span class="info-east">Sassa and Senshū</span> charge with 300 men and are cut down.` },
+        cam: { pos: [38, 38, 48], look: [22, 2, 12] },
+        units: { ii: [18, 9], matsui: [23, 12], sassa: [15, 7] },
+        battles: [{ x: 16, z: 8 }], battling: ['sassa', 'ii'], defeated: DEF,
+        arrows: [at('sassa', 'ii', E), mvp([12, 3], [18, 9], W)],
+        cine: { focus: ['yoshimoto', 'ii', 'matsui'], blend: 0.75, orbit: 0.02, dolly: 0.1 },
+        mom: 14,
+      }),
+    },
+    // 信長が北の丘陵を迂回する(12:30〜14:00)
+    detour: {
+      8: altPhase(8, {
+        ja: { phase: '北の丘陵へ', label: '迂回', cam: 'CAM · 北の丘陵',
+          title: '信長、中島砦へは向かわず北の丘陵へ',
+          text: '信長は中島砦への一本道を避け、<span class="info-highlight">北の丘陵を東へまわる</span>ことにした。敵の目にはつきにくいが、山道は遠く、時間がかかる。' },
+        en: { phase: 'INTO THE HILLS', label: 'Detour', cam: 'CAM · NORTHERN HILLS',
+          title: 'Nobunaga skips Nakajima and heads into the northern hills',
+          text: `Nobunaga avoids the exposed path to Nakajima and <span class="info-highlight">swings east through the northern hills</span>. The enemy is less likely to see him, but the hill track is long and slow.` },
+        cam: { pos: [20, 40, 6], look: [10, 0, -22] },
+        units: { nobunaga: [12, -24], hattori: [9, -22], shinsuke: [14, -27], sassa: [7, 1] },
+        defeated: DEF2,
+        arrows: [mvp([-8, -24], [11, -24], E)],
+        cine: { focus: ['nobunaga'], blend: 0.8, orbit: 0.02, dolly: 0.1 },
+        mom: 20,
+      }),
+      9: altPhase(9, {
+        ja: { phase: '豪雨の山道', label: '豪雨', cam: 'CAM · 北の尾根',
+          title: '豪雨の中、今川本陣の北の尾根へ',
+          text: '山道を進むうちに、<span class="info-highlight">石や氷を投げつけるような雨</span>が降りだした。雨音にまぎれて、織田勢は今川本陣の北の尾根に出る。' },
+        en: { phase: 'STORM IN THE HILLS', label: 'Storm', cam: 'CAM · NORTHERN RIDGE',
+          title: 'Through the storm to the ridge north of the Imagawa HQ',
+          text: `On the hill track, <span class="info-highlight">a storm breaks like hurled stones and ice</span>. Hidden by the roar of the rain, the Oda troops come out on the ridge just north of the Imagawa HQ.` },
+        cam: { pos: [48, 40, -20], look: [32, 0, 0] },
+        units: { nobunaga: [33, -5], hattori: [30, -3], shinsuke: [36, -8], sassa: [7, 1] },
+        defeated: DEF2,
+        arrows: [mvp([12, -24], [32, -6], E)],
+        cine: { focus: ['nobunaga', 'yoshimoto'], blend: 0.6, orbit: -0.015, dolly: 0.1 },
+        moment: { ja: '豪雨', en: 'THE STORM', subJa: '雨音が足音を消す', subEn: 'The rain drowns out their footsteps', shake: 0.5, flash: true },
+        mom: 30,
+      }),
+      10: altPhase(10, {
+        ja: { phase: '背後から', label: 'かかれ', cam: 'CAM · 今川本陣',
+          title: '尾根から今川本陣へ駆け下りる',
+          text: '雨が上がると同時に、信長は「<span class="info-highlight">それ、かかれ</span>」と命じ、尾根から今川本陣へ駆け下りた。前を向いていた今川勢は、<span class="info-west">背後からの攻撃</span>に不意を突かれる。' },
+        en: { phase: 'FROM BEHIND', label: 'Attack', cam: 'CAM · IMAGAWA HQ',
+          title: 'Down the ridge into the Imagawa HQ',
+          text: `As the rain stops, Nobunaga shouts "<span class="info-highlight">Now — attack!</span>" and charges down the ridge into the Imagawa HQ. Facing the other way, the Imagawa troops are <span class="info-west">caught from behind</span>.` },
+        cam: { pos: [46, 38, -6], look: [27, 2, 14] },
+        units: { nobunaga: [28, 9], hattori: [32, 11], shinsuke: [25, 8], ii: [13, 4], matsui: [22, 13], yoshimoto: [27, 17], sassa: [7, 1] },
+        battles: [{ x: 27, z: 12 }, { x: 24, z: 11 }], battling: ['nobunaga', 'hattori', 'shinsuke', 'yoshimoto', 'matsui'], defeated: DEF2,
+        arrows: [at('nobunaga', 'yoshimoto', E), at('hattori', 'yoshimoto', E), at('shinsuke', 'matsui', E)],
+        cine: { focus: ['nobunaga', 'yoshimoto'], blend: 0.85, orbit: 0.03, dolly: 0.2 },
+        moment: { ja: 'それ、かかれ', en: 'NOW — ATTACK!', subJa: '尾根から本陣へ', subEn: 'Down the ridge and into the HQ', shake: 1.0, accent: 'gold' },
+        mom: 62,
+      }),
+    },
+    // 本陣が持ちこたえる(14:15〜)
+    repulse: {
+      11: altPhase(11, {
+        ja: { phase: '旗本の反撃', label: '反撃', cam: 'CAM · 今川本陣',
+          title: '備えていた本陣は崩れない',
+          text: '物見の知らせで備えていた今川本陣は、<span class="info-highlight">崩れなかった</span>。<span class="info-west">井伊・松井</span>の隊が左右から織田勢を押し包み、2千の織田勢はしだいに囲まれていく。' },
+        en: { phase: 'THE GUARD HOLDS', label: 'Counterattack', cam: 'CAM · IMAGAWA HQ',
+          title: 'Warned by its scouts, the HQ does not break',
+          text: `Warned by its scouts, the Imagawa HQ <span class="info-highlight">holds firm</span>. <span class="info-west">Ii and Matsui</span> close in from both sides, and Nobunaga's 2,000 men start to be surrounded.` },
+        cam: { pos: [14, 38, 46], look: [21, 2, 11] },
+        units: { nobunaga: [20, 9], hattori: [22, 13], shinsuke: [18, 6], ii: [16, 11], matsui: [24, 9], yoshimoto: [27, 17] },
+        battles: [{ x: 20, z: 10 }, { x: 23, z: 11 }], battling: ['nobunaga', 'hattori', 'shinsuke', 'ii', 'matsui'], defeated: DEF2,
+        arrows: [at('ii', 'nobunaga', W), at('matsui', 'hattori', W), at('nobunaga', 'yoshimoto', E)],
+        cine: { focus: ['nobunaga', 'ii', 'matsui'], blend: 0.85, orbit: -0.025, dolly: 0.10 },
+        mom: 42,
+      }),
+      12: altPhase(12, {
+        ja: { phase: '織田勢、退く', label: '退却', cam: 'CAM · 中島砦',
+          title: '囲まれる前に、信長は兵を引く',
+          text: '囲まれる前に、信長は中島砦へ兵を引いた。<span class="info-east">服部小平太</span>らが殿(しんがり)となって踏みとどまり、多くの兵が討たれた。' },
+        en: { phase: 'THE ODA FALL BACK', label: 'Retreat', cam: 'CAM · NAKAJIMA FORT',
+          title: 'Before he is surrounded, Nobunaga pulls back',
+          text: `Before the trap closes, Nobunaga pulls back toward Nakajima fort. <span class="info-east">Hattori Koheita</span> and others hold the rear, and many of them are cut down.` },
+        cam: { pos: [20, 40, 36], look: [8, 0, 2] },
+        units: { nobunaga: [0, -3], hattori: [14, 6], shinsuke: [3, -1], ii: [12, 6], matsui: [18, 9], yoshimoto: [27, 17] },
+        battles: [{ x: 13, z: 6 }], battling: ['hattori', 'ii'], defeated: DEF2.concat(['hattori']),
+        arrows: [mvp([18, 8], [1, -3], E), at('ii', 'hattori', W)],
+        cine: { focus: ['nobunaga', 'hattori'], blend: 0.7, orbit: 0.02, dolly: 0.08 },
+        mom: 24,
+      }),
+      13: altPhase(13, {
+        ja: { phase: '今川、鳴海へ', label: '今川前進', cam: 'CAM · 俯瞰',
+          title: '今川軍、鳴海城との連絡をつける',
+          text: '信長は善照寺砦へ引き上げた。<span class="info-west">今川義元</span>は本陣を前へ進め、鳴海城の<span class="info-west">岡部元信</span>と連絡をつける。尾張の東部は、今川の手に落ちていく。' },
+        en: { phase: 'IMAGAWA ADVANCE', label: 'Imagawa advance', cam: 'CAM · OVERVIEW',
+          title: 'The Imagawa link up with Narumi Castle',
+          text: `Nobunaga falls back to Zenshōji fort. <span class="info-west">Imagawa Yoshimoto</span> moves his HQ forward and links up with <span class="info-west">Okabe Motonobu</span> at Narumi. Eastern Owari begins to slip into Imagawa hands.` },
+        cam: { pos: [6, 72, 76], look: [-2, 0, 0] },
+        units: { nobunaga: [-10, -25], hattori: [14, 6], shinsuke: [-7, -27], ii: [4, -2], matsui: [12, 4], yoshimoto: [16, 8] },
+        defeated: DEF2.concat(['hattori']),
+        arrows: [mvp([27, 17], [17, 9], W), mvp([0, -3], [-9, -23], E)],
+        cine: { orbit: 0.02, dolly: -0.05 },
+        moment: { ja: '本陣、崩れず', en: 'THE LINE HOLDS', subJa: '今川軍、尾張へ', subEn: 'The Imagawa push into Owari', shake: 0 },
+        mom: 16,
+      }),
+    },
+    // 義元が馬で逃れる(14:15〜)
+    flee: {
+      11: altPhase(11, {
+        ja: { phase: '義元、逃れる', label: '脱出', cam: 'CAM · 今川本陣',
+          title: '義元、輿を捨てて馬で東へ',
+          text: '義元は輿を捨てて馬に乗りかえ、<span class="info-highlight">わずかな騎馬だけで東へ走った</span>。<span class="info-west">松井宗信・井伊直盛</span>らが盾となって、織田勢を食い止める。' },
+        en: { phase: 'YOSHIMOTO RUNS', label: 'Escape', cam: 'CAM · IMAGAWA HQ',
+          title: 'Yoshimoto drops the palanquin and rides east',
+          text: `Yoshimoto abandons his palanquin, takes a horse and <span class="info-highlight">races east with only a few riders</span>. <span class="info-west">Matsui Munenobu and Ii Naomori</span> turn to hold back the Oda troops.` },
+        cam: { pos: [24, 40, 52], look: [32, 2, 14] },
+        units: { yoshimoto: [42, 11], matsui: [26, 15], ii: [22, 11], nobunaga: [22, 13], hattori: [25, 17], shinsuke: [21, 9] },
+        battles: [{ x: 24, z: 13 }], battling: ['nobunaga', 'hattori', 'shinsuke', 'matsui', 'ii'], defeated: DEF2,
+        arrows: [mvp([28, 17], [42, 11], W), at('matsui', 'hattori', W), at('nobunaga', 'ii', E)],
+        cine: { focus: ['yoshimoto', 'matsui'], blend: 0.75, orbit: 0.03, dolly: 0.1 },
+        mom: 66,
+      }),
+      12: altPhase(12, {
+        ja: { phase: '追撃', label: '追撃', cam: 'CAM · 東の丘陵',
+          title: 'ぬかるみが追っ手を阻む',
+          text: '<span class="info-west">松井・井伊</span>は討死した。<span class="info-east">服部小平太・毛利新介</span>らが義元を追うが、雨上がりのぬかるみに足を取られ、<span class="info-highlight">あと一歩届かない</span>。' },
+        en: { phase: 'THE CHASE', label: 'Chase', cam: 'CAM · EASTERN HILLS',
+          title: 'Mud slows the pursuers',
+          text: `<span class="info-west">Matsui and Ii</span> are killed. <span class="info-east">Hattori Koheita and Mōri Shinsuke</span> chase Yoshimoto, but the mud left by the storm slows them, and <span class="info-highlight">they fall just short</span>.` },
+        cam: { pos: [34, 40, 36], look: [48, 0, 4] },
+        units: { yoshimoto: [55, -3], matsui: [26, 15], ii: [22, 11], nobunaga: [32, 14], hattori: [44, 8], shinsuke: [42, 4] },
+        defeated: DEF2.concat(['matsui', 'ii']),
+        arrows: [mvp([42, 11], [55, -3], W), mvp([30, 14], [43, 6], E)],
+        cine: { focus: ['yoshimoto', 'hattori', 'shinsuke'], blend: 0.8, orbit: -0.02, dolly: 0.12 },
+        moment: { ja: '追撃', en: 'THE CHASE', subJa: '義元はまだ生きている', subEn: 'Yoshimoto is still alive', shake: 0.3 },
+        mom: 68,
+      }),
+      13: altPhase(13, {
+        ja: { phase: '沓掛城へ', label: '生還', cam: 'CAM · 俯瞰',
+          title: '義元、沓掛城へ逃げ込む',
+          text: '<span class="info-west">今川義元</span>は沓掛城に逃げ込んだ。戦場は織田勢のものになったが、<span class="info-highlight">今川家の総大将は生きている</span>。尾張をめぐる戦いは、まだ終わらない。' },
+        en: { phase: 'BACK TO KUTSUKAKE', label: 'Escaped', cam: 'CAM · OVERVIEW',
+          title: 'Yoshimoto reaches Kutsukake Castle',
+          text: `<span class="info-west">Imagawa Yoshimoto</span> makes it into Kutsukake Castle. The field belongs to the Oda, but <span class="info-highlight">the Imagawa lord is still alive</span>, and the fight for Owari is far from over.` },
+        cam: { pos: [14, 70, 76], look: [10, 0, 0] },
+        units: { yoshimoto: [62, -7], matsui: [26, 15], ii: [22, 11], nobunaga: [27, 15], hattori: [45, 7], shinsuke: [43, 3] },
+        defeated: DEF2.concat(['matsui', 'ii']),
+        arrows: [mvp([55, -3], [61, -7], W)],
+        cine: { orbit: 0.02, dolly: -0.05 },
+        moment: { ja: '義元、生還', en: 'YOSHIMOTO ESCAPES', subJa: '戦いは続く', subEn: 'The war goes on', shake: 0 },
+        mom: 70,
+      }),
+    },
+    // 信長が善照寺砦で待つ(12:30〜)
+    hold: {
+      8: altPhase(8, {
+        ja: { phase: '善照寺で待つ', label: '待機', cam: 'CAM · 善照寺砦',
+          title: '信長、家老の意見を入れて砦にとどまる',
+          text: '信長は家老たちの意見を入れ、<span class="info-highlight">善照寺砦にとどまった</span>。今川の先手は勢いに乗り、中島砦の目の前まで迫ってくる。' },
+        en: { phase: 'WAITING AT ZENSHŌJI', label: 'Waiting', cam: 'CAM · ZENSHŌJI FORT',
+          title: 'Nobunaga listens to his elders and stays put',
+          text: `Nobunaga takes his elders' advice and <span class="info-highlight">stays at Zenshōji fort</span>. Flush with success, the Imagawa vanguard pushes right up to Nakajima fort.` },
+        cam: { pos: [14, 40, 22], look: [-4, 0, -12] },
+        units: { nobunaga: [-10, -25], hattori: [-13, -23], shinsuke: [-7, -27], ii: [6, 0], sassa: [7, 1] },
+        defeated: DEF2,
+        arrows: [mvp([12, 3], [6, 0], W)],
+        cine: { focus: ['nobunaga', 'ii'], blend: 0.6, orbit: 0.02, dolly: 0.08 },
+        mom: 16,
+      }),
+      9: altPhase(9, {
+        ja: { phase: '豪雨', label: '豪雨', cam: 'CAM · 善照寺砦',
+          title: '激しい雨。だが織田勢は動かない',
+          text: '<span class="info-highlight">激しい雨</span>が降りだした。敵に近づく好機かもしれない。だが織田勢は砦にこもったまま動かない。' },
+        en: { phase: 'THE STORM', label: 'Storm', cam: 'CAM · ZENSHŌJI FORT',
+          title: 'A violent storm — but the Oda stay inside',
+          text: `<span class="info-highlight">A violent storm</span> breaks. It might be the chance to close in unseen, but the Oda troops stay behind their palisade.` },
+        cam: { pos: [10, 40, 14], look: [-6, 0, -16] },
+        units: { nobunaga: [-10, -25], hattori: [-13, -23], shinsuke: [-7, -27], ii: [6, 0], sassa: [7, 1] },
+        defeated: DEF2,
+        cine: { focus: ['nobunaga'], blend: 0.7, orbit: -0.015, dolly: 0.08 },
+        moment: { ja: '豪雨', en: 'THE STORM', subJa: '信長は動かない', subEn: 'Nobunaga does not move', shake: 0.4, flash: true },
+        mom: 15,
+      }),
+      10: altPhase(10, {
+        ja: { phase: '中島砦攻め', label: '中島攻め', cam: 'CAM · 中島砦',
+          title: '雨が上がり、今川の先手が中島砦へ',
+          text: '雨が上がると、<span class="info-west">井伊直盛</span>らの先手が<span class="info-highlight">中島砦に攻めかかった</span>。砦を守る<span class="info-east">梶川高秀</span>の兵はわずか。' },
+        en: { phase: 'ATTACK ON NAKAJIMA', label: 'Nakajima', cam: 'CAM · NAKAJIMA FORT',
+          title: 'The rain stops, and the Imagawa vanguard hits Nakajima',
+          text: `When the rain stops, <span class="info-west">Ii Naomori</span> and the vanguard <span class="info-highlight">storm Nakajima fort</span>. <span class="info-east">Kajikawa Takahide</span> has only a handful of men inside.` },
+        cam: { pos: [14, 38, 22], look: [-2, 0, -6] },
+        units: { nobunaga: [-10, -25], hattori: [-13, -23], shinsuke: [-7, -27], ii: [1, -3], matsui: [9, 4], kajikawa: [-6, -8] },
+        battles: [{ x: -2, z: -5 }], battling: ['ii', 'kajikawa'], defeated: DEF2,
+        arrows: [at('ii', 'kajikawa', W), mvp([20, 12], [9, 4], W)],
+        cine: { focus: ['ii', 'kajikawa'], blend: 0.8, orbit: 0.025, dolly: 0.10 },
+        mom: 13,
+      }),
+      11: altPhase(11, {
+        ja: { phase: '中島砦陥落', label: '中島陥落', cam: 'CAM · 中島砦',
+          title: '中島砦が落ちる',
+          text: '<span class="info-highlight">中島砦は落ちた</span>。<span class="info-west">義元</span>は本陣を前へ進め、鳴海城の<span class="info-west">岡部元信</span>と連絡をつける。' },
+        en: { phase: 'NAKAJIMA FALLS', label: 'Nakajima falls', cam: 'CAM · NAKAJIMA FORT',
+          title: 'Nakajima fort falls',
+          text: `<span class="info-highlight">Nakajima fort falls</span>. <span class="info-west">Yoshimoto</span> moves his HQ forward and opens contact with <span class="info-west">Okabe Motonobu</span> in Narumi Castle.` },
+        cam: { pos: [24, 40, 34], look: [6, 0, 0] },
+        units: { nobunaga: [-10, -25], hattori: [-13, -23], shinsuke: [-7, -27], ii: [-2, -6], matsui: [6, 1], yoshimoto: [14, 7], kajikawa: [-6, -8] },
+        defeated: DEF2.concat(['kajikawa']),
+        arrows: [mvp([27, 17], [15, 8], W)],
+        cine: { focus: ['yoshimoto', 'ii'], blend: 0.6, orbit: -0.02, dolly: 0.08 },
+        mom: 10,
+      }),
+      12: altPhase(12, {
+        ja: { phase: '信長、清洲へ', label: '清洲へ', cam: 'CAM · 善照寺砦',
+          title: '信長は佐久間信盛を残し、清洲へ戻る',
+          text: '鳴海城の囲みは破られた。信長は善照寺砦に<span class="info-east">佐久間信盛</span>を残し、<span class="info-highlight">清洲へ引き上げる</span>。' },
+        en: { phase: 'BACK TO KIYOSU', label: 'To Kiyosu', cam: 'CAM · ZENSHŌJI FORT',
+          title: 'Nobunaga leaves Sakuma Nobumori behind and returns to Kiyosu',
+          text: `The ring around Narumi is broken. Nobunaga leaves <span class="info-east">Sakuma Nobumori</span> at Zenshōji and <span class="info-highlight">pulls back to Kiyosu</span>.` },
+        cam: { pos: [-10, 40, 10], look: [-30, 0, -34] },
+        units: { nobunaga: [-42, -40], hattori: [-45, -38], shinsuke: [-40, -43], ii: [-2, -6], matsui: [6, 1], yoshimoto: [10, 3], kajikawa: [-6, -8] },
+        defeated: DEF2.concat(['kajikawa']),
+        arrows: [mvp([-10, -25], [-40, -40], E)],
+        cine: { focus: ['nobunaga'], blend: 0.6, orbit: 0.02, dolly: 0.05 },
+        mom: 8,
+      }),
+      13: altPhase(13, {
+        ja: { phase: '尾張の東', label: '今川前進', cam: 'CAM · 俯瞰',
+          title: '今川軍、尾張の東を固める',
+          text: '今川軍は鳴海・大高を足がかりに、<span class="info-highlight">尾張の東部を固めた</span>。織田家にとって、長い守りの戦いが始まる。' },
+        en: { phase: 'EASTERN OWARI', label: 'Imagawa hold', cam: 'CAM · OVERVIEW',
+          title: 'The Imagawa secure eastern Owari',
+          text: `Using Narumi and Ōdaka as footholds, the Imagawa <span class="info-highlight">secure eastern Owari</span>. For the Oda, a long defensive war begins.` },
+        cam: { pos: [6, 72, 76], look: [-6, 0, -4] },
+        units: { nobunaga: [-62, -52], hattori: [-65, -50], shinsuke: [-60, -55], ii: [-4, -8], matsui: [4, 0], yoshimoto: [-2, 2], kajikawa: [-6, -8] },
+        defeated: DEF2.concat(['kajikawa']),
+        arrows: [mvp([10, 3], [-1, 1], W)],
+        cine: { orbit: 0.02, dolly: -0.05 },
+        moment: { ja: '動かぬ信長', en: 'NOBUNAGA WAITS', subJa: '今川軍、尾張へ', subEn: 'The Imagawa take eastern Owari', shake: 0 },
+        mom: 6,
+      }),
+    },
+  };
+
+  _replaceObj(SEG, OKE_SEG);
+  _replaceArr(DECISION_IDX, [7, 8, 11]);
+  _replaceObj(DECISIONS, {
+    7: {
+      who: 'yoshimoto', applies: () => true,
+      ja: { title: '義元の決断', situation: '丸根・鷲津の砦は落ち、本陣は勝ち戦の空気に包まれている。信長は善照寺砦に入ったらしい。本陣のまわりの守りは手薄だ。' },
+      en: { title: "YOSHIMOTO'S DECISION", situation: 'Both forts have fallen and the HQ is in a victorious mood. Word is that Nobunaga has reached Zenshōji fort. The guard around the HQ is thin.' },
+      options: () => [
+        { id: 'rest', history: true, ja: ['このまま休む', '史実どおり。勝ち戦を祝い、兵を休ませる'], en: ['Keep resting', 'As in history: celebrate and let the men rest'] },
+        { id: 'guard', ja: ['守りを固める', '物見を出し、先手を本陣の近くへ呼び戻す'], en: ['Tighten the guard', 'Send out scouts and pull the vanguard back to the HQ'] },
+      ],
+    },
+    8: {
+      who: 'nobunaga', applies: () => true,
+      ja: { title: '信長の決断', situation: '佐々・千秋の300が討たれた。今川の本陣は東の桶狭間山にある。中島砦へ進めば、敵から丸見えの一本道を通ることになる。' },
+      en: { title: "NOBUNAGA'S DECISION", situation: "Sassa and Senshū's 300 men have been wiped out. The Imagawa HQ is on Okehazama hill to the east. The road to Nakajima fort is a single, exposed path." },
+      options: () => [
+        { id: 'front', history: true, ja: ['中島砦へ進む', '史実(『信長公記』)どおり。正面から敵に向かう'], en: ['Advance to Nakajima', 'As in history (per the Chronicle): head straight at the enemy'] },
+        { id: 'detour', ja: ['北の丘陵をまわる', '本陣の背後を突く。明治以来の「迂回奇襲説」'], en: ['Swing through the hills', 'Hit the HQ from behind — the old "flank attack" theory'] },
+        { id: 'hold', ja: ['善照寺砦で待つ', '家老たちの言うとおり、無理をしない'], en: ['Wait at Zenshōji', 'Do as the elders say and take no risks'] },
+      ],
+    },
+    11: {
+      who: 'yoshimoto', applies: () => decideState.choices[7] === 'rest' && decideState.choices[8] !== 'hold',
+      ja: { title: '義元の決断', situation: '雨が上がった直後、織田勢が本陣になだれ込んできた。まわりの旗本は300騎ほど。輿では速く動けない。' },
+      en: { title: "YOSHIMOTO'S DECISION", situation: 'The rain has just stopped and the Oda troops are pouring into the HQ. About 300 guards surround him. The palanquin is too slow.' },
+      options: () => [
+        { id: 'stay', history: true, ja: ['旗本とともに退く', '史実どおり。300騎に囲まれて東へ下がる'], en: ['Fall back with the guard', 'As in history: withdraw east inside a ring of 300'] },
+        { id: 'flee', ja: ['馬で一気に逃げる', '旗本を盾に、少数の騎馬で沓掛城へ走る'], en: ['Ride for it', 'Leave the guard as a shield and race for Kutsukake'] },
+      ],
+    },
+  });
+  _replaceObj(ENDINGS, {
+    E1: { ja: ['史実：信長、義元を討つ', '2千の兵が2万5千の大軍の総大将を討ち、信長の名が知れわたる。'], en: ['History: Nobunaga Takes Yoshimoto', "2,000 men bring down the commander of 25,000, and Nobunaga's name spreads."] },
+    E2: { ja: ['伝説の迂回奇襲', '山をまわって背後を突き、義元を討つ。明治の陸軍参謀本部がまとめた通説の筋書き。'], en: ['The Legendary Flank Attack', "A swing through the hills and a strike from behind — the version told by the Meiji army's General Staff."] },
+    E3: { ja: ['義元、生還', '戦場は信長のものになったが、義元は生き延びた。尾張をめぐる戦いは続く。'], en: ['Yoshimoto Escapes', 'Nobunaga wins the field, but Yoshimoto survives. The fight for Owari goes on.'] },
+    E4: { ja: ['本陣、崩れず', '守りを固めた本陣は崩れず、信長は退く。尾張の東は今川のものに。'], en: ['The Imagawa Line Holds', 'The well-guarded HQ holds, Nobunaga retreats, and eastern Owari falls to the Imagawa.'] },
+    E5: { ja: ['動かぬ信長', '信長は砦にこもり、今川軍は鳴海一帯を固める。織田家は守りの戦いへ。'], en: ['Nobunaga Waits', 'Nobunaga stays behind his walls, the Imagawa take the Narumi area, and the Oda are forced onto the defensive.'] },
+  });
+
+  Object.assign(STR.en, {
+    'sim.title': 'Okehazama', 'sim.sub': 'The Storm and the Upset', 'sim.d1': 'Eiroku 3', 'sim.d2': 'Jun 12',
+    'legend.east': 'Oda', 'legend.west': 'Imagawa',
+    'sim.loading': 'Deploying the armies...',
+    'name.nobunaga': 'Oda Nobunaga', 'name.yoshimoto': 'Imagawa Yoshimoto',
+    'wi.historyDesc': 'What actually happened on June 12, 1560.',
+    'dm.desc': 'Make the calls at 12:00, 12:30 and 14:15. Five endings to discover.',
+  });
+  Object.assign(STR.ja, {
+    'sim.title': '桶狭間', 'sim.sub': '嵐の中の大逆転', 'sim.d1': '永禄三年', 'sim.d2': '五月十九日',
+    'legend.east': '織田軍', 'legend.west': '今川軍',
+    'sim.loading': '桶狭間の布陣図を展開中',
+    'name.nobunaga': '織田信長', 'name.yoshimoto': '今川義元',
+    'wi.historyDesc': '永禄三年五月十九日に実際に起きたこと。',
+    'dm.desc': '12:00・12:30・14:15の決断で展開が変わる。エンディングは全5種。',
+  });
+}
+
 const decideState = { active: false, choices: {}, wasPlaying: false, open: null };
 let altPhaseSet = new Set();
 let lastAppliedPhase = -1;
@@ -6424,6 +7373,7 @@ let currentScenario = null;
 const isAltPhase = idx => altPhaseSet.has(idx);
 
 function endingId() {
+  if (IS_OKE) return okeEndingId(decideState.choices);
   const c = decideState.choices;
   if (c[5] === 'descend') return c[7] === 'west' ? 'E6' : 'E7';
   if (c[7] === 'wait') return 'E5';
@@ -6432,12 +7382,12 @@ function endingId() {
 }
 
 function loadEndingsFound() {
-  try { return JSON.parse(localStorage.getItem('sg_endings') || '[]'); } catch (e) { return []; }
+  try { return JSON.parse(localStorage.getItem(ENDINGS_KEY) || '[]'); } catch (e) { return []; }
 }
 function saveEndingFound(id) {
   const f = loadEndingsFound();
   if (!f.includes(id)) f.push(id);
-  try { localStorage.setItem('sg_endings', JSON.stringify(f)); } catch (e) { /* ignore */ }
+  try { localStorage.setItem(ENDINGS_KEY, JSON.stringify(f)); } catch (e) { /* ignore */ }
   return f;
 }
 
@@ -6459,6 +7409,7 @@ function buildTables() {
   if (!decideState.active) return;
   const c = decideState.choices;
   const put = seg => Object.entries(seg).forEach(([i, ph]) => setPhaseSlot(parseInt(i), ph));
+  if (IS_OKE) { okeBuildSegments(c, put); return; }
   if (c[5] === 'descend') put(SEG.moriDown);
   if (c[7]) {
     if (c[5] === 'descend') put(c[7] === 'west' ? SEG.moriWest : SEG.moriEast);
@@ -6502,7 +7453,7 @@ function showDecision(d) {
   const time = BASE_TABLES.phases[d].time;
   const opts = D.options();
   box.querySelector('.dp-head').innerHTML =
-    `<span class="dp-tag">${t('dm.decide')} ${DECISION_IDX.indexOf(d) + 1}/3</span><span class="dp-time">${time}</span>`;
+    `<span class="dp-tag">${t('dm.decide')} ${DECISION_IDX.indexOf(d) + 1}/${DECISION_IDX.length}</span><span class="dp-time">${time}</span>`;
   box.querySelector('.dp-who').innerHTML =
     (kamonSrc ? `<img src="${kamonSrc}" alt="">` : '') + `<span>${L.title}</span>`;
   box.querySelector('.dp-sit').textContent = sit;
@@ -6580,9 +7531,9 @@ function restartDecisions() {
   refreshSimText();
   refreshScenarioUI();
   stopPlay();
-  currentPhase = 4;
-  applyPhase(4);
-  scrollToPhase(4);
+  currentPhase = DM_START;
+  applyPhase(DM_START);
+  scrollToPhase(DM_START);
   startPlay();
 }
 
@@ -6634,7 +7585,7 @@ function setScenario(id, jump = true) {
   refreshScenarioUI();
   if (!jump) return;
   stopPlay();
-  const target = want ? 4 : Math.min(currentPhase, phases.length - 1);
+  const target = want ? DM_START : Math.min(currentPhase, phases.length - 1);
   currentPhase = target;
   applyPhase(target);
   scrollToPhase(target);
@@ -6769,7 +7720,7 @@ function initSekigahara() {
   for (let i = 0; i < gpos.count; i++) {
     const x = gpos.getX(i);
     const y = gpos.getY(i);
-    gpos.setZ(i, getTerrainHeight(x, y));
+    gpos.setZ(i, getTerrainHeight(x, -y));
   }
   groundGeo.computeVertexNormals();
   
@@ -6867,28 +7818,16 @@ function initSekigahara() {
     rock.receiveShadow = true;
     scene.add(rock);
   }
-  for (let i = 0; i < 18; i++) {
-    const ang = Math.random() * Math.PI * 2;
-    const r = 10 + Math.random() * 8;
-    const x = -30 + Math.cos(ang) * r;
-    const z = -30 + Math.sin(ang) * r;
-    if (getTerrainHeight(x, z) > 3) addRock(x, z, 0.6 + Math.random() * 0.6);
-  }
-  for (let i = 0; i < 15; i++) {
-    const ang = Math.random() * Math.PI * 2;
-    const r = 10 + Math.random() * 8;
-    const x = -30 + Math.cos(ang) * r;
-    const z = 30 + Math.sin(ang) * r;
-    if (getTerrainHeight(x, z) > 3) addRock(x, z, 0.6 + Math.random() * 0.6);
-  }
-  for (let i = 0; i < 15; i++) {
-    const ang = Math.random() * Math.PI * 2;
-    const r = 10 + Math.random() * 8;
-    const x = 40 + Math.cos(ang) * r;
-    const z = -5 + Math.sin(ang) * r;
-    if (getTerrainHeight(x, z) > 3) addRock(x, z, 0.6 + Math.random() * 0.6);
-  }
-  
+  (IS_OKE ? OKE_ROCKS : [[-30, -30, 18], [-30, 30, 15], [40, -5, 15]]).forEach(([cx, cz, n]) => {
+    for (let i = 0; i < n; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const r = 10 + Math.random() * 8;
+      const x = cx + Math.cos(ang) * r;
+      const z = cz + Math.sin(ang) * r;
+      if (getTerrainHeight(x, z) > 3) addRock(x, z, 0.6 + Math.random() * 0.6);
+    }
+  });
+
   // 朝霧(薄め・明るめ)
   const fogPlaneGeo = new THREE.PlaneGeometry(160, 160);
   const fogPlaneMat = new THREE.MeshBasicMaterial({ color: 0xe8e0cc, transparent: true, opacity: 0.06 });
@@ -6897,6 +7836,8 @@ function initSekigahara() {
   fogPlane.position.y = 2.0;
   scene.add(fogPlane);
   
+  if (IS_OKE) buildOkeDecor();
+  else {
   // 川(明るい青、蛇行を表現するため複数セグメント)
   const riverPath = [];
   for (let i = 0; i <= 30; i++) {
@@ -6917,6 +7858,7 @@ function initSekigahara() {
   const river = new THREE.Mesh(riverGeo, riverMat);
   river.scale.y = 0.15;
   scene.add(river);
+  }
   
   // 木(より自然な広葉樹・針葉樹ミックス)
   function addTree(x, z, type = 'pine') {
@@ -6999,9 +7941,8 @@ function initSekigahara() {
       scene.add(t);
     }
   }
-  scatterTrees(-35, -30, 55, 4, 15);  // 笹尾山
-  scatterTrees(-30, 30, 50, 4, 15);   // 松尾山
-  scatterTrees(40, -5, 50, 4, 15);    // 南宮山
+  (IS_OKE ? OKE_TREES : [[-35, -30, 55, 4, 15], [-30, 30, 50, 4, 15], [40, -5, 50, 4, 15]])
+    .forEach(([cx, cz, n, r0, r1]) => scatterTrees(cx, cz, n, r0, r1));
   // 疎らに散在する木
   for (let i = 0; i < 30; i++) {
     const x = (Math.random() - 0.5) * 120;
@@ -7017,7 +7958,7 @@ function initSekigahara() {
   }
   
   // 部隊
-  units = {
+  units = IS_OKE ? makeOkeUnits() : {
     ieyasu:     new Unit('ieyasu',     '徳', 'east', 45, 0,    '徳川家康', 1.5, true),
     fukushima:  new Unit('fukushima',  '福', 'east', 12, 8,    '福島正則', 1.0),
     kuroda:     new Unit('kuroda',     '黒', 'east', 10, -5,   '黒田長政', 1.0),
@@ -7049,7 +7990,7 @@ function initSekigahara() {
   });
   
   // 総大将オフスクリーンインジケーターのクリックイベント+家紋注入
-  ['ieyasu', 'mitsunari'].forEach(id => {
+  GENERAL_IDS.forEach(id => {
     const indicator = document.getElementById('gi-' + id);
     if (indicator) {
       indicator.addEventListener('click', (e) => {
@@ -7192,8 +8133,10 @@ function initSekigahara() {
 
 // ========= 初期レンダリング =========
 initConfig();
+prepareBattleDom();
 applyStaticI18n();
 renderEras();
+autoOpenBattle();
 document.querySelectorAll('.lang-toggle [data-lang]').forEach(btn => {
   btn.addEventListener('click', () => setLang(btn.dataset.lang));
 });
