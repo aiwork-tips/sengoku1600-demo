@@ -6107,30 +6107,14 @@ function initSoundUI() {
 }
 
 // ========================================================
-// ===== 兵の見た目 v6: 兵の集団・家紋入りの幟・押し合い・敗走 =====
+// ===== 兵の見た目 v12: 歩く・走る・槍で突く・倒れる・逃げる =====
 // ========================================================
 
 const TROOP_COLORS = { east: 0x3f7cc4, west: 0xc43c3c, traitor: 0xe0a030 };
 const sideOf = f => (f === 'east' || f === 'traitor') ? 'E' : 'W';
 
-// 体・兜・指物(背中の旗)をひとつの形にまとめ、色の濃淡は頂点色で付ける
-function buildSoldierGeometry() {
-  const parts = [];
-  const body = new THREE.BoxGeometry(0.17, 0.32, 0.13); body.translate(0, 0.16, 0);
-  parts.push([body, [0.62, 0.62, 0.62]]);
-  const legs = new THREE.BoxGeometry(0.15, 0.12, 0.1); legs.translate(0, 0.02, 0);
-  parts.push([legs, [0.2, 0.18, 0.16]]);
-  const head = new THREE.BoxGeometry(0.13, 0.12, 0.13); head.translate(0, 0.38, 0);
-  parts.push([head, [0.16, 0.14, 0.12]]);
-  const helmet = new THREE.ConeGeometry(0.12, 0.08, 6); helmet.translate(0, 0.47, 0);
-  parts.push([helmet, [0.22, 0.2, 0.17]]);
-  const sashi = new THREE.PlaneGeometry(0.1, 0.26); sashi.translate(0, 0.62, -0.08);
-  parts.push([sashi, [1.25, 1.25, 1.25]]);
-  const pole = new THREE.BoxGeometry(0.015, 0.4, 0.015); pole.translate(0, 0.55, -0.075);
-  parts.push([pole, [0.15, 0.1, 0.06]]);
-  const spear = new THREE.BoxGeometry(0.018, 0.9, 0.018); spear.rotateX(-0.35); spear.translate(0.1, 0.38, 0.12);
-  parts.push([spear, [0.25, 0.2, 0.15]]);
-
+// いくつかの箱をひとつの形にまとめる(色の濃淡は頂点色)
+function mergeColoredParts(parts) {
   const pos = [], nor = [], col = [];
   parts.forEach(([g, c]) => {
     const ng = g.index ? g.toNonIndexed() : g;
@@ -6148,6 +6132,36 @@ function buildSoldierGeometry() {
   return geo;
 }
 
+// 体(胴・頭・兜・背中の旗)。足の付け根は y=0.16
+const HIP_Y = 0.16;
+function buildSoldierUpper() {
+  const parts = [];
+  const body = new THREE.BoxGeometry(0.17, 0.28, 0.13); body.translate(0, 0.30, 0);
+  parts.push([body, [0.62, 0.62, 0.62]]);
+  const waist = new THREE.BoxGeometry(0.16, 0.05, 0.12); waist.translate(0, 0.18, 0);
+  parts.push([waist, [0.3, 0.28, 0.26]]);
+  const head = new THREE.BoxGeometry(0.12, 0.11, 0.12); head.translate(0, 0.505, 0);
+  parts.push([head, [0.16, 0.14, 0.12]]);
+  const helmet = new THREE.ConeGeometry(0.12, 0.08, 6); helmet.translate(0, 0.6, 0);
+  parts.push([helmet, [0.22, 0.2, 0.17]]);
+  const sashi = new THREE.PlaneGeometry(0.1, 0.26); sashi.translate(0, 0.76, -0.08);
+  parts.push([sashi, [1.25, 1.25, 1.25]]);
+  const pole = new THREE.BoxGeometry(0.015, 0.42, 0.015); pole.translate(0, 0.66, -0.075);
+  parts.push([pole, [0.15, 0.1, 0.06]]);
+  return mergeColoredParts(parts);
+}
+// 足(1本)。上端が回転の中心
+function buildSoldierLeg() {
+  const leg = new THREE.BoxGeometry(0.065, HIP_Y, 0.075); leg.translate(0, -HIP_Y / 2, 0);
+  return mergeColoredParts([[leg, [0.22, 0.2, 0.18]]]);
+}
+// 槍。握りの位置が回転の中心
+function buildSpear() {
+  const shaft = new THREE.BoxGeometry(0.02, 1.0, 0.02); shaft.translate(0, 0.2, 0);
+  const tip = new THREE.ConeGeometry(0.03, 0.12, 4); tip.translate(0, 0.76, 0);
+  return mergeColoredParts([[shaft, [0.36, 0.26, 0.16]], [tip, [0.88, 0.88, 0.92]]]);
+}
+
 // 幟(のぼり)のテクスチャ: 陣営色の地に白抜きの家紋
 function makeNoboriTexture(unit, colorHex, done) {
   const c = document.createElement('canvas');
@@ -6159,9 +6173,9 @@ function makeNoboriTexture(unit, colorHex, done) {
     g.fillStyle = col;
     g.fillRect(0, 0, 64, 192);
     g.fillStyle = 'rgba(255,255,255,0.9)';
-    g.fillRect(0, 0, 64, 10);           // 上の白い乳(ちち)
+    g.fillRect(0, 0, 64, 10);
     g.fillStyle = 'rgba(0,0,0,0.18)';
-    g.fillRect(56, 0, 8, 192);          // 竿側の影
+    g.fillRect(56, 0, 8, 192);
     if (img) {
       const o = document.createElement('canvas'); o.width = o.height = 48;
       const og = o.getContext('2d');
@@ -6198,22 +6212,31 @@ function parseForce(id) {
   return isFinite(n) && n > 0 ? n : 3000;
 }
 
-let soldierGeo = null;
+let soldierGeo = null, legGeo = null, spearGeo = null, spearMat = null;
 const _m4 = new THREE.Matrix4();
+const _mb = new THREE.Matrix4();
+const _ml = new THREE.Matrix4();
 const _q = new THREE.Quaternion();
+const _ql = new THREE.Quaternion();
 const _e = new THREE.Euler();
 const _s3 = new THREE.Vector3(1.3, 1.3, 1.3); // 俯瞰でも見えるよう少し大きめ
+const _one = new THREE.Vector3(1, 1, 1);
 const _p3 = new THREE.Vector3();
+const _pl = new THREE.Vector3();
+const _ax = new THREE.Vector3(1, 0, 0);
 
 function initTroops() {
-  soldierGeo = buildSoldierGeometry();
+  soldierGeo = buildSoldierUpper();
+  legGeo = buildSoldierLeg();
+  spearGeo = buildSpear();
+  spearMat = new THREE.MeshLambertMaterial({ vertexColors: true });
+  initBattleFxV12();
   Object.values(units).forEach(u => {
-    // 旧来の丸・点・小旗は隠す(足元の輪だけ薄く残す)
     u.baseCircle.visible = false;
     u.soldiers.forEach(s => { s.visible = false; });
     u.group.children.forEach(ch => {
       const gp = ch.geometry && ch.geometry.parameters;
-      if (gp && gp.radiusTop === 0.05 && gp.radiusBottom === 0.05) ch.visible = false; // 旧ポール
+      if (gp && gp.radiusTop === 0.05 && gp.radiusBottom === 0.05) ch.visible = false;
     });
 
     const force = parseForce(u.id);
@@ -6223,9 +6246,9 @@ function initTroops() {
     const sp = 0.56;
     const mat = new THREE.MeshLambertMaterial({ vertexColors: true, color: TROOP_COLORS[u.faction] || 0x888888, side: THREE.DoubleSide });
     const mesh = new THREE.InstancedMesh(soldierGeo, mat, count);
-    mesh.castShadow = true;
-    mesh.frustumCulled = false;
-    u.group.add(mesh);
+    const legs = new THREE.InstancedMesh(legGeo, mat, count * 2);
+    const spears = new THREE.InstancedMesh(spearGeo, spearMat, count);
+    [mesh, legs, spears].forEach(m => { m.castShadow = true; m.frustumCulled = false; u.group.add(m); });
 
     const men = [];
     for (let i = 0; i < count; i++) {
@@ -6233,12 +6256,11 @@ function initTroops() {
       men.push({
         lx: (cIdx - (cols - 1) / 2) * sp + (Math.random() - 0.5) * 0.14,
         lz: ((rows - 1) / 2 - r) * sp + (Math.random() - 0.5) * 0.14,   // 前(敵側)が +z
-        row: r, seed: Math.random() * 10,
-        fallen: false, fallRot: 0, ox: 0, oz: 0, rvx: 0, rvz: 0,
+        row: r, seed: Math.random() * 10, gait: 0.85 + Math.random() * 0.3,
+        fallen: false, fallRot: 0, fallDir: 1, ox: 0, oz: 0, rvx: 0, rvz: 0, yaw: 0,
       });
     }
 
-    // 幟: 後列に並べる(兵力に応じて2〜6本)
     const nNobori = Math.max(2, Math.min(6, Math.round(count / 14)));
     const noboriMat = new THREE.MeshLambertMaterial({ side: THREE.DoubleSide, transparent: true });
     noboriMat.map = makeNoboriTexture(u, TROOP_COLORS[u.faction], () => { noboriMat.needsUpdate = true; });
@@ -6256,14 +6278,14 @@ function initTroops() {
     }
 
     u.troop = {
-      mesh, men, count, rows, cols, nobori, noboriMat,
+      mesh, legs, spears, men, count, rows, cols, nobori, noboriMat,
       faction: u.faction, facing: u.faction === 'east' ? -Math.PI / 2 : Math.PI / 2,
-      wasDefeated: false, lastPhase: -1,
+      wasDefeated: false, wasBattling: false, lastPhase: -1, anim: Math.random() * 10,
+      lastDust: 0, lastClash: 0, lastVolley: 0, prevX: 0, prevZ: 0, speed: 0,
     };
   });
 }
 
-// 部隊の向き: その場面の攻撃矢印の相手、なければ最寄りの敵
 function troopFacingTarget(u) {
   const arrowsNow = (PHASE_ARROWS[currentPhase] || []);
   const a = arrowsNow.find(d => d.from === u.id && typeof d.to === 'string' && units[d.to]);
@@ -6277,6 +6299,10 @@ function troopFacingTarget(u) {
   });
   return best;
 }
+function troopAttackTarget(u) {
+  const a = (PHASE_ARROWS[currentPhase] || []).find(d => d.from === u.id && d.style === 'attack' && typeof d.to === 'string' && units[d.to]);
+  return a ? units[a.to] : null;
+}
 
 function recolorTroop(u) {
   const T = u.troop;
@@ -6287,27 +6313,58 @@ function recolorTroop(u) {
   if (old) old.dispose();
 }
 
+// 1人分の行列: 体 → 足2本 → 槍
+function placeMan(T, i, wx, wy, wz, yaw, pitch, roll, legA, legB, spearPitch, spearFwd, spearUp) {
+  _e.set(pitch, yaw, roll, 'YXZ');
+  _q.setFromEuler(_e);
+  _p3.set(wx, wy, wz);
+  _mb.compose(_p3, _q, _s3);
+  T.mesh.setMatrixAt(i, _mb);
+  // 足
+  _pl.set(-0.045, HIP_Y, 0);
+  _ql.setFromAxisAngle(_ax, legA);
+  _ml.compose(_pl, _ql, _one);
+  _m4.multiplyMatrices(_mb, _ml);
+  T.legs.setMatrixAt(i * 2, _m4);
+  _pl.set(0.045, HIP_Y, 0);
+  _ql.setFromAxisAngle(_ax, legB);
+  _ml.compose(_pl, _ql, _one);
+  _m4.multiplyMatrices(_mb, _ml);
+  T.legs.setMatrixAt(i * 2 + 1, _m4);
+  // 槍(右手)
+  _pl.set(0.11, 0.3 + spearUp, 0.05 + spearFwd);
+  _ql.setFromAxisAngle(_ax, spearPitch);
+  _ml.compose(_pl, _ql, _one);
+  _m4.multiplyMatrices(_mb, _ml);
+  T.spears.setMatrixAt(i, _m4);
+}
+
 function updateTroops(dt, t) {
   Object.values(units).forEach(u => {
     const T = u.troop;
     if (!T) return;
-    // 旧来の小旗・玉は常に隠す(setDefeated が戻すため)
     u.flag.visible = false;
     u.topBall.visible = false;
     u.ring.material.opacity = u.defeated ? 0.1 : 0.32;
-
     if (T.faction !== u.faction) recolorTroop(u);
 
-    // 最初の場面に戻ったら隊列を立て直す
     if (currentPhase < T.lastPhase) {
       T.men.forEach(m => { m.fallen = false; m.ox = m.oz = 0; m.rvx = m.rvz = 0; m.fallRot = 0; });
       T.wasDefeated = false;
     }
     T.lastPhase = currentPhase;
+    T.anim += dt;
+    const A = T.anim;
 
-    // 向きをなめらかに合わせる
     const tgt = troopFacingTarget(u);
     const gp = u.group.position;
+    // 実際の移動の速さ(見た目の足の速さに使う)
+    if (dt > 0) {
+      const v = Math.hypot(gp.x - T.prevX, gp.z - T.prevZ) / dt;
+      T.speed += (Math.min(v, 12) - T.speed) * Math.min(1, dt * 4);
+    }
+    T.prevX = gp.x; T.prevZ = gp.z;
+
     if (tgt && !u.defeated) {
       const want = Math.atan2(tgt.x - gp.x, tgt.z - gp.z);
       let d = want - T.facing;
@@ -6316,69 +6373,316 @@ function updateTroops(dt, t) {
     }
     const cs = Math.cos(T.facing), sn = Math.sin(T.facing);
 
-    // 敗走の始まり: 敵と反対方向へ散る
+    // 敗走の始まり: 敵と反対へ散り散りに逃げる
     if (u.defeated && !T.wasDefeated) {
       const away = tgt ? Math.atan2(gp.x - tgt.x, gp.z - tgt.z) : T.facing + Math.PI;
       T.men.forEach(m => {
         const a = away + (Math.random() - 0.5) * 2.0;
-        const v = 0.6 + Math.random() * 1.6;
+        const v = 0.9 + Math.random() * 1.8;
         m.rvx = Math.sin(a) * v; m.rvz = Math.cos(a) * v;
-        if (Math.random() < 0.4) m.fallen = true;
+        if (Math.random() < 0.4) { m.fallen = true; m.fallDir = Math.random() < 0.5 ? 1 : -1; }
       });
     }
     T.wasDefeated = u.defeated;
 
-    const moving = Math.hypot(u.targetX - gp.x, u.targetZ - gp.z) > 0.8;
+    const moving = T.speed > 0.35 && !u.defeated;
     const fighting = u.battling && !u.defeated;
+    const attacker = !!troopAttackTarget(u);
+    const charging = moving && (attacker || fighting) && T.speed > 0.8;
+
+    // ぶつかった瞬間: 土煙と火花が一気に上がる
+    if (fighting && !T.wasBattling && T.anim > 0.5) clashBurst(u);
+    T.wasBattling = fighting;
+
+    const stride = charging ? 13 : 9;
+    const swing = charging ? 0.9 : 0.55;
 
     for (let i = 0; i < T.count; i++) {
       const m = T.men[i];
-      let lx = m.lx, lz = m.lz, bob = 0, sway = 0;
+      let lx = m.lx, lz = m.lz, bob = 0, yawOff = 0, pitch = 0, roll = 0;
+      let legA = 0, legB = 0, spP = 0.18, spF = 0, spU = 0;
+      const ph = A * stride * m.gait + m.seed;
 
       if (u.defeated) {
-        if (!m.fallen) { m.ox += m.rvx * dt; m.oz += m.rvz * dt; m.rvx *= 0.985; m.rvz *= 0.985; }
+        if (!m.fallen) {
+          m.ox += m.rvx * dt; m.oz += m.rvz * dt;
+          m.rvx *= Math.pow(0.6, dt); m.rvz *= Math.pow(0.6, dt);
+          const sp = Math.hypot(m.rvx, m.rvz);
+          if (sp > 0.05) {
+            const run = A * 15 * m.gait + m.seed;
+            legA = Math.sin(run) * 0.95 * Math.min(1, sp);
+            legB = -legA;
+            bob = Math.abs(Math.sin(run)) * 0.05 * Math.min(1, sp);
+            pitch = 0.22;
+            spP = -0.6 + Math.sin(run) * 0.2;   // 槍を後ろに引きずる
+            // 逃げる向きを向く
+            yawOff = Math.atan2(m.rvx, m.rvz) - T.facing;
+          }
+        }
       } else if (fighting) {
-        // 前の列ほど激しく押し合い、少しずつ倒れる
         const front = 1 - m.row / Math.max(1, T.rows - 1);
-        lz += front * (0.25 + Math.sin(t * 9 + m.seed) * 0.16);
-        lx += Math.sin(t * 6 + m.seed * 2) * 0.05;
-        sway = Math.sin(t * 11 + m.seed) * 0.25 * front;
-        if (!m.fallen && front > 0.5 && Math.random() < 0.025 * dt) m.fallen = true;
+        if (front > 0.45) {
+          // 前列: 踏み込んで槍を突く
+          const thrust = Math.max(0, Math.sin(A * 6.5 + m.seed * 3));
+          lz += front * (0.22 + thrust * 0.16);
+          lx += Math.sin(A * 4 + m.seed * 2) * 0.05;
+          legA = 0.45; legB = -0.35;
+          pitch = 0.12 + thrust * 0.12;
+          spP = 1.38;
+          spF = thrust * 0.18;
+          spU = -0.04;
+          yawOff = Math.sin(A * 3 + m.seed) * 0.12;
+          if (!m.fallen && Math.random() < 0.03 * dt * (1 + front)) {
+            m.fallen = true; m.fallDir = -1;   // 後ろへ倒れる
+            m.rvx = -sn * 0.8; m.rvz = -cs * 0.8;
+          }
+        } else {
+          // 後列: 槍を立てて押し合う
+          lz += 0.12 + Math.sin(A * 2.5 + m.seed) * 0.06;
+          legA = Math.sin(A * 5 + m.seed) * 0.25; legB = -legA;
+          spP = 0.35 + Math.sin(A * 3 + m.seed) * 0.12;
+          yawOff = Math.sin(A * 2 + m.seed) * 0.1;
+        }
       } else if (moving) {
-        bob = Math.abs(Math.sin(t * 10 + m.seed)) * 0.06;
+        // 行進・突撃: 足を交互に出す
+        legA = Math.sin(ph) * swing; legB = -legA;
+        bob = Math.abs(Math.cos(ph)) * (charging ? 0.07 : 0.04);
+        if (charging) { pitch = 0.2; spP = 1.2; spU = -0.02; }
+        else { spP = 0.22 + Math.sin(ph) * 0.05; }
+        roll = Math.sin(ph) * 0.04;
       } else {
-        sway = Math.sin(t * 1.5 + m.seed) * 0.05;
+        // 待機: 少しだけ体が揺れる
+        yawOff = Math.sin(A * 0.8 + m.seed) * 0.06;
+        spP = 0.16 + Math.sin(A * 1.1 + m.seed) * 0.03;
+        bob = Math.sin(A * 1.6 + m.seed) * 0.008;
       }
 
-      // 隊列の向きに回して、地面の高さに合わせる
+      // 倒れた兵は少し滑ってから止まる
+      if (m.fallen && (m.rvx || m.rvz) && !u.defeated) {
+        m.ox += m.rvx * dt; m.oz += m.rvz * dt;
+        m.rvx *= Math.pow(0.05, dt); m.rvz *= Math.pow(0.05, dt);
+      }
+
       const wx = lx * cs + lz * sn + m.ox;
       const wz = -lx * sn + lz * cs + m.oz;
       const gy = getTerrainHeight(gp.x + wx, gp.z + wz) - gp.y;
 
       if (m.fallen) {
-        m.fallRot = Math.min(Math.PI / 2, m.fallRot + dt * 4);
-        _e.set(m.fallRot, T.facing + m.seed, 0, 'YXZ');
+        m.fallRot = Math.min(Math.PI / 2, m.fallRot + dt * 5);
+        const k = m.fallRot / (Math.PI / 2);
+        placeMan(T, i, wx, gy + 0.03 + Math.sin(k * Math.PI) * 0.08, wz, T.facing + m.seed, m.fallRot * m.fallDir, 0,
+          0.3 * k, -0.2 * k, 0.6, 0, 0);
       } else {
-        _e.set(0, T.facing + sway, 0, 'YXZ');
+        placeMan(T, i, wx, gy + bob, wz, T.facing + yawOff, pitch, roll, legA, legB, spP, spF, spU);
       }
-      _q.setFromEuler(_e);
-      _p3.set(wx, gy + bob + (m.fallen ? 0.04 : 0), wz);
-      _m4.compose(_p3, _q, _s3);
-      T.mesh.setMatrixAt(i, _m4);
     }
     T.mesh.instanceMatrix.needsUpdate = true;
+    T.legs.instanceMatrix.needsUpdate = true;
+    T.spears.instanceMatrix.needsUpdate = true;
 
     // 幟: 風になびき、敗走すると倒れる
     T.nobori.forEach(nb => {
       const wx = nb.lx * cs + nb.lz * sn;
       const wz = -nb.lx * sn + nb.lz * cs;
-      nb.grp.position.set(wx, getTerrainHeight(gp.x + wx, gp.z + wz) - gp.y, wz);
+      nb.grp.position.set(wx, getTerrainHeight(gp.x + wx, gp.z + wz) - gp.y + (moving ? Math.abs(Math.sin(A * 9 + nb.seed)) * 0.05 : 0), wz);
       nb.grp.rotation.y = T.facing + Math.PI / 2;
-      nb.flag.rotation.y = Math.sin(t * 2.2 + nb.seed) * 0.25;
+      nb.flag.rotation.y = Math.sin(t * (moving ? 4 : 2.2) + nb.seed) * (moving ? 0.4 : 0.25);
       const fall = u.defeated ? 1.25 : 0;
       nb.grp.rotation.z += (fall - nb.grp.rotation.z) * Math.min(1, dt * 2);
     });
+
+    troopFx(u, T, dt, moving, charging, fighting);
   });
+  updateBattleFxV12(dt);
+}
+
+// ========================================================
+// ===== 戦いの演出 v12: 火花・土煙・矢の雨・炎 =====
+// ========================================================
+const SPARK_N = 900;
+let sparkSys = null;
+const ARROW_N = 360;
+let arrowSys = null;
+const _v3a = new THREE.Vector3();
+
+function initBattleFxV12() {
+  if (sparkSys) return;
+  // 火花・火の粉: 加算合成の点(黒に近づくと消える)
+  const g = new THREE.BufferGeometry();
+  const pos = new Float32Array(SPARK_N * 3);
+  const col = new Float32Array(SPARK_N * 3);
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  const mat = new THREE.PointsMaterial({ size: 0.38, map: softTexture('glow'), vertexColors: true, transparent: true,
+    depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true });
+  const pts = new THREE.Points(g, mat);
+  pts.frustumCulled = false;
+  pts.renderOrder = 5;
+  scene.add(pts);
+  sparkSys = { pts, pos, col, p: [], next: 0 };
+  for (let i = 0; i < SPARK_N; i++) {
+    sparkSys.p.push({ life: 0, max: 1, vx: 0, vy: 0, vz: 0, g: 0, r: 1, gg: 1, b: 1, drag: 1 });
+    pos[i * 3 + 1] = -999;
+  }
+  // 矢: 細い線
+  const ag = new THREE.BufferGeometry();
+  const apos = new Float32Array(ARROW_N * 6);
+  for (let i = 0; i < ARROW_N * 6; i += 3) apos[i + 1] = -999;
+  ag.setAttribute('position', new THREE.BufferAttribute(apos, 3));
+  const amat = new THREE.LineBasicMaterial({ color: 0x2a2018, transparent: true, opacity: 0.85 });
+  const lines = new THREE.LineSegments(ag, amat);
+  lines.frustumCulled = false;
+  scene.add(lines);
+  arrowSys = { lines, pos: apos, a: [], next: 0 };
+  for (let i = 0; i < ARROW_N; i++) arrowSys.a.push({ t: 1, dur: 1, sx: 0, sy: 0, sz: 0, ex: 0, ey: 0, ez: 0, h: 0 });
+}
+
+function emitSpark(x, y, z, o) {
+  if (!sparkSys) return;
+  const i = sparkSys.next; sparkSys.next = (i + 1) % SPARK_N;
+  const s = sparkSys.p[i];
+  const sp = o.speed || 3;
+  const a = Math.random() * Math.PI * 2;
+  const up = o.up !== undefined ? o.up : 0.6;
+  s.vx = Math.cos(a) * sp * (1 - up) + (o.vx || 0);
+  s.vz = Math.sin(a) * sp * (1 - up) + (o.vz || 0);
+  s.vy = sp * up * (0.5 + Math.random()) + (o.vy || 0);
+  s.g = o.gravity !== undefined ? o.gravity : -9;
+  s.drag = o.drag || 1;
+  s.max = s.life = (o.life || 0.5) * (0.6 + Math.random() * 0.8);
+  const c = o.color || [1, 0.85, 0.5];
+  s.r = c[0]; s.gg = c[1]; s.b = c[2];
+  sparkSys.pos[i * 3] = x; sparkSys.pos[i * 3 + 1] = y; sparkSys.pos[i * 3 + 2] = z;
+}
+// 炎: 下は黄色、上へ行くほど赤くなって消える
+function emitFire(x, y, z, k = 1) {
+  for (let n = 0; n < Math.ceil(3 * k); n++) {
+    const hot = Math.random();
+    emitSpark(x + (Math.random() - 0.5) * 1.6, y + Math.random() * 0.4, z + (Math.random() - 0.5) * 1.6,
+      { speed: 0.5, up: 1, vy: 1.4 + Math.random() * 1.6, gravity: 0.6, life: 0.9, drag: 0.6,
+        color: hot > 0.6 ? [1, 0.82, 0.35] : [1, 0.42 + hot * 0.3, 0.12] });
+  }
+  if (Math.random() < 0.35 * k) {
+    emitSpark(x + (Math.random() - 0.5) * 1.2, y + 0.8, z + (Math.random() - 0.5) * 1.2,
+      { speed: 0.8, up: 1, vy: 2.5 + Math.random() * 2, gravity: 0.2, life: 2.2, drag: 0.7, color: [1, 0.55, 0.18] });
+  }
+}
+
+function launchArrow(sx, sy, sz, ex, ey, ez) {
+  if (!arrowSys) return;
+  const i = arrowSys.next; arrowSys.next = (i + 1) % ARROW_N;
+  const a = arrowSys.a[i];
+  const d = Math.hypot(ex - sx, ez - sz);
+  Object.assign(a, { t: 0, dur: 0.7 + d * 0.04 + Math.random() * 0.25, sx, sy, sz, ex, ey, ez, h: 2 + d * 0.22 });
+}
+
+function arrowAt(a, t, out) {
+  out.set(a.sx + (a.ex - a.sx) * t, a.sy + (a.ey - a.sy) * t + Math.sin(Math.PI * t) * a.h, a.sz + (a.ez - a.sz) * t);
+  return out;
+}
+
+const _v3b = new THREE.Vector3();
+function updateBattleFxV12(dt) {
+  if (!sparkSys) return;
+  const P = sparkSys.pos, C = sparkSys.col;
+  for (let i = 0; i < SPARK_N; i++) {
+    const s = sparkSys.p[i];
+    if (s.life <= 0) { if (P[i * 3 + 1] > -900) { P[i * 3 + 1] = -999; C[i * 3] = C[i * 3 + 1] = C[i * 3 + 2] = 0; } continue; }
+    s.life -= dt;
+    s.vy += s.g * dt;
+    const dr = Math.pow(s.drag, dt);
+    s.vx *= dr; s.vz *= dr;
+    P[i * 3] += s.vx * dt; P[i * 3 + 1] += s.vy * dt; P[i * 3 + 2] += s.vz * dt;
+    const k = Math.max(0, s.life / s.max);
+    const f = k * k;
+    C[i * 3] = s.r * f; C[i * 3 + 1] = s.gg * f; C[i * 3 + 2] = s.b * f;
+    if (s.life <= 0) P[i * 3 + 1] = -999;
+  }
+  sparkSys.pts.geometry.attributes.position.needsUpdate = true;
+  sparkSys.pts.geometry.attributes.color.needsUpdate = true;
+
+  const AP = arrowSys.pos;
+  for (let i = 0; i < ARROW_N; i++) {
+    const a = arrowSys.a[i];
+    if (a.t >= 1) { if (AP[i * 6 + 1] > -900) { AP[i * 6 + 1] = -999; AP[i * 6 + 4] = -999; } continue; }
+    a.t = Math.min(1, a.t + dt / a.dur);
+    const head = arrowAt(a, a.t, _v3a);
+    const tail = arrowAt(a, Math.max(0, a.t - 0.045), _v3b);
+    AP[i * 6] = head.x; AP[i * 6 + 1] = head.y; AP[i * 6 + 2] = head.z;
+    AP[i * 6 + 3] = tail.x; AP[i * 6 + 4] = tail.y; AP[i * 6 + 5] = tail.z;
+    if (a.t >= 1) {
+      // 着地: 小さな土ぼこり
+      if (Math.random() < 0.25) addFx('smoke', a.ex, a.ey + 0.1, a.ez, { color: smokeColor(0xb8a888), life: 0.9, s0: 0.3, s1: 1.3, vy: 0.3, op: 0.5 });
+      AP[i * 6 + 1] = -999; AP[i * 6 + 4] = -999;
+    }
+  }
+  arrowSys.lines.geometry.attributes.position.needsUpdate = true;
+  arrowSys.lines.material.color.setHex(atmoCur.night > 0.5 ? 0x8a8070 : 0x2a2018);
+}
+
+// 兵1人の今いる場所(地面の上)
+function manWorld(u, T, m, out) {
+  const cs = Math.cos(T.facing), sn = Math.sin(T.facing);
+  const gp = u.group.position;
+  const x = gp.x + m.lx * cs + m.lz * sn + m.ox;
+  const z = gp.z - m.lx * sn + m.lz * cs + m.oz;
+  return out.set(x, getTerrainHeight(x, z), z);
+}
+
+const _v3c = new THREE.Vector3();
+function troopFx(u, T, dt, moving, charging, fighting) {
+  if (!sparkSys) return;
+  const A = T.anim;
+  // 走ると足元に土煙
+  if (moving && A - T.lastDust > (charging ? 0.07 : 0.22)) {
+    T.lastDust = A;
+    const m = T.men[Math.floor(Math.random() * T.count)];
+    const p = manWorld(u, T, m, _v3c);
+    addFx('smoke', p.x, p.y + 0.15, p.z, { color: smokeColor(0xc9b896), life: charging ? 1.6 : 1.2, s0: 0.6, s1: charging ? 3.2 : 2.2,
+      vy: 0.35, vx: -Math.sin(T.facing) * 0.6, vz: -Math.cos(T.facing) * 0.6, op: charging ? 0.55 : 0.35 });
+  }
+  if (fighting) {
+    // 前列で刃がぶつかる火花
+    if (A - T.lastClash > 0.06) {
+      T.lastClash = A;
+      const m = T.men[Math.floor(Math.random() * Math.min(T.count, T.cols * 2))];
+      const p = manWorld(u, T, m, _v3c);
+      const fx = p.x + Math.sin(T.facing) * 0.6, fz = p.z + Math.cos(T.facing) * 0.6;
+      const n = 3 + Math.floor(Math.random() * 4);
+      for (let k = 0; k < n; k++) emitSpark(fx, p.y + 0.7, fz, { speed: 2.5 + Math.random() * 2, up: 0.45, life: 0.35, color: [1, 0.92, 0.65] });
+      if (Math.random() < 0.18) addFx('smoke', fx, p.y + 0.3, fz, { color: smokeColor(0xc2b393), life: 1.4, s0: 0.8, s1: 3, vy: 0.4, op: 0.4 });
+    }
+  }
+  // 矢の雨: 攻めかかる部隊の後列から相手へ
+  const target = troopAttackTarget(u);
+  if (target && u.id !== 'teppo' && !u.defeated && !target.defeated && (fighting || moving || u.battling) && A - T.lastVolley > 0.9 + Math.random() * 0.6) {
+    const gp = u.group.position, tp = target.group.position;
+    const d = Math.hypot(tp.x - gp.x, tp.z - gp.z);
+    if (d > 3 && d < 45) {
+      T.lastVolley = A;
+      const n = Math.min(14, 4 + Math.floor(T.count / 7));
+      for (let k = 0; k < n; k++) {
+        const m = T.men[T.count - 1 - Math.floor(Math.random() * Math.min(T.count, T.cols * 2))];
+        const s = manWorld(u, T, m, _v3c);
+        const ex = tp.x + (Math.random() - 0.5) * 4.5, ez = tp.z + (Math.random() - 0.5) * 4.5;
+        launchArrow(s.x, s.y + 0.9, s.z, ex, getTerrainHeight(ex, ez) + 0.1, ez);
+      }
+    }
+  }
+}
+
+// ぶつかった瞬間の土煙の輪と火花
+function clashBurst(u) {
+  const gp = u.group.position;
+  const T = u.troop;
+  const fx = gp.x + Math.sin(T.facing) * 1.5, fz = gp.z + Math.cos(T.facing) * 1.5;
+  const y = getTerrainHeight(fx, fz);
+  for (let k = 0; k < 10; k++) {
+    const a = (k / 10) * Math.PI * 2;
+    addFx('smoke', fx + Math.cos(a) * 1.2, y + 0.3, fz + Math.sin(a) * 1.2,
+      { color: smokeColor(0xc9b896), life: 2.2, s0: 1.2, s1: 5, vx: Math.cos(a) * 2.2, vz: Math.sin(a) * 2.2, vy: 0.5, op: 0.55 });
+  }
+  for (let k = 0; k < 40; k++) emitSpark(fx, y + 0.8, fz, { speed: 4 + Math.random() * 3, up: 0.5, life: 0.5, color: [1, 0.9, 0.6] });
 }
 
 // ========================================================
@@ -6563,7 +6867,7 @@ function okeSpecialFx(t) {
       const y = getTerrainHeight(x, z);
       addFx('smoke', x - 1 + Math.random() * 2, y + 1.2, z - 1 + Math.random() * 2,
         { color: smokeColor(0x403a36), life: 8, s0: 2.2, s1: 12, vy: 2.6, vx: 1.6 + Math.random() * 0.6, vz: -0.8, op: currentPhase === 3 ? 0.9 : 0.5 });
-      if (currentPhase === 3 && Math.random() < 0.6) addFx('flash', x - 1 + Math.random() * 2, y + 0.8, z - 1 + Math.random() * 2, { s0: 1.4, s1: 2.4, life: 0.35, color: 0xff7a2a });
+      for (let f = 0; f < (currentPhase === 3 ? 4 : 1); f++) emitFire(x, y + 0.5, z, 1.2);
     });
     okeLastSmoke = t;
   }
@@ -7207,7 +7511,7 @@ function nagaSpecialFx(t) {
     const y = getTerrainHeight(x, z);
     addFx('smoke', x - 1 + Math.random() * 2, y + 1.2, z - 1 + Math.random() * 2,
       { color: smokeColor(0x403a36), life: 8, s0: 2.2, s1: 12, vy: 2.6, vx: -1.2, vz: -0.6, op: currentPhase === 3 ? 0.9 : 0.5 });
-    if (currentPhase === 3 && Math.random() < 0.6) addFx('flash', x - 1 + Math.random() * 2, y + 0.8, z - 1 + Math.random() * 2, { s0: 1.4, s1: 2.4, life: 0.35, color: 0xff7a2a });
+    for (let f = 0; f < (currentPhase === 3 ? 4 : 1); f++) emitFire(x, y + 0.5, z, 1.2);
     nagaLastSmoke = t;
   }
   void dt;
