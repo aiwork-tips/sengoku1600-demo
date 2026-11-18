@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Sengoku Simulation | Japanese Historical Battles in 3D</title>
-<meta name="description" content="Watch the Battle of Sekigahara (1600) unfold in 3D, phase by phase, with commander profiles and a timeline. Free, runs in your browser.">
+<meta name="description" content="Watch Okehazama, Nagashino and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Sengoku Simulation | Japanese Historical Battles in 3D">
 <meta property="og:description" content="Watch the Battle of Sekigahara (1600) unfold in 3D, phase by phase, with commander profiles and a timeline.">
 <meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;600;700;800&family=Noto+Serif+JP:wght@700;900&family=Cormorant+Garamond:wght@600;700&family=Source+Serif+4:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;600;700;800&family=Noto+Serif+JP:wght@700;900&family=Cormorant+Garamond:wght@600;700&family=Source+Serif+4:wght@400;600;700&family=Dela+Gothic+One&family=M+PLUS+Rounded+1c:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -2360,6 +2360,392 @@ html[lang="en"] .ec-name { font-family: 'Cormorant Garamond', serif; font-size: 
 .ec-btns button { font-family: inherit; font-size: 11px; letter-spacing: 0.12em; font-weight: 700; padding: 9px; cursor: pointer; }
 #ecAgain { background: linear-gradient(135deg, #8b1a1a, #5a0f0f); border: 1px solid #c93030; color: #fff; }
 #ecHistory { background: rgba(10,8,5,0.6); border: 1px solid rgba(201,169,97,0.4); color: #c9a961; }
+
+/* =========================================================
+   v11: 明るい配色(史実)とポップ(もしも)
+   ========================================================= */
+
+/* ---------- 明るい配色(和紙) ---------- */
+body, .app { background: #f3ecdd; color: #2b241d; }
+.bg-gradient {
+  background:
+    radial-gradient(ellipse at 20% 8%, rgba(255,255,255,0.95) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 92%, rgba(214,170,110,0.22) 0%, transparent 55%),
+    linear-gradient(165deg, #fbf7ee 0%, #f3ecdd 55%, #ece2cf 100%);
+}
+.bg-grain { opacity: 0.07; mix-blend-mode: multiply; }
+.home-deco-crest { opacity: 0.05; }
+.home-hero::before, .home-hero::after { background: linear-gradient(90deg, transparent, #c2412f, transparent); }
+.home-eyebrow, .era-section-label, .era-header-label, .battle-list-label { color: #a8781f; }
+.home-title-jp, .era-header-title { color: #2b241d; text-shadow: none; }
+.home-title-jp .sim { color: #c2412f; }
+.home-subtitle { color: #5a4e40; }
+.home-subtitle-en { color: #8a7c69; }
+.era-section-label::before, .era-section-label::after,
+.battle-list-label::before, .battle-list-label::after { background: linear-gradient(90deg, transparent, rgba(168,120,31,0.45), transparent); }
+.scroll-hint { color: #8a6418; background: rgba(255,252,245,0.96); border-color: rgba(168,120,31,0.35); box-shadow: 0 2px 8px rgba(80,60,30,0.15); }
+.era-card { background: #fffaf0; border: 1px solid rgba(110,85,50,0.18); box-shadow: 0 2px 8px rgba(80,60,30,0.07); }
+.era-card:not(.coming) { background: #fffdf8; border-color: rgba(194,65,47,0.4); box-shadow: 0 3px 12px rgba(120,70,30,0.12); }
+.era-card:active { background: #f6eddc; }
+.era-card::before { background: linear-gradient(to bottom, #c2412f, #e0a838); }
+.era-card::after { color: #a8781f; }
+.era-card.coming::before { background: #d6ccba; opacity: 1; }
+.era-card.coming { opacity: 0.62; }
+.era-card.coming::after { color: #a89c88; }
+.era-card-name { color: #2b241d; }
+.era-card-years { color: #8a7c69; }
+.era-card-desc { color: #5a4e40; }
+.era-card-count { color: #8a6418; background: rgba(168,120,31,0.08); border-color: rgba(168,120,31,0.3); }
+.era-card-badge { color: #fff; background: #c2412f; border-color: #c2412f; box-shadow: none; }
+.back-btn, .sim-back-btn { background: #fffaf0; border: 1px solid rgba(110,85,50,0.3); color: #5a4e40; box-shadow: 0 1px 4px rgba(80,60,30,0.1); }
+.back-btn:active, .sim-back-btn:active { background: #f1e6d0; }
+.era-header-years { color: #8a7c69; }
+.era-header-desc { color: #5a4e40; }
+.battle-card { background: #fffdf8; border-color: rgba(110,85,50,0.18); box-shadow: 0 2px 8px rgba(80,60,30,0.07); }
+.battle-card:active, .battle-card.coming:active { background: #f6eddc; }
+.battle-card.implemented { border-color: rgba(194,65,47,0.45); box-shadow: 0 4px 14px rgba(120,60,30,0.14); }
+.battle-card::before { background: linear-gradient(90deg, transparent, #c2412f, transparent); }
+.battle-year { color: #a8781f; }
+.battle-name { color: #2b241d; }
+.battle-vs { background: rgba(243,236,221,0.75); border-color: rgba(110,85,50,0.2); }
+.battle-side.east .battle-side-name, .battle-winner-name.east { color: #2b62a6; }
+.battle-side.west .battle-side-name, .battle-winner-name.west { color: #bd3b30; }
+.battle-side-force, .battle-winner-label { color: #8a7c69; }
+.battle-vs-icon, .battle-winner-name.draw { color: #a8781f; }
+.battle-winner { border-top-color: rgba(110,85,50,0.15); }
+.battle-cta { background: #c2412f; border-color: #c2412f; color: #fff; }
+.battle-card.implemented:active .battle-cta { background: #a83525; }
+.battle-cta.coming { background: #ece3d2; border-color: rgba(110,85,50,0.2); color: #8a7c69; }
+.lang-toggle { background: rgba(255,252,245,0.94); border-color: rgba(110,85,50,0.3); }
+.lang-toggle button { color: #8a7c69; }
+.lang-toggle button.active { color: #fff; background: #2b241d; }
+.support-link { color: #8a6418; border-color: rgba(168,120,31,0.5); background: rgba(168,120,31,0.06); }
+.home-note, .compact-tag, .general-note { color: #8a7c69; }
+.loading { background: #f3ecdd; color: #8a6418; }
+.loading-bar { background: rgba(168,120,31,0.2); }
+.loading-bar::after { background: linear-gradient(90deg, transparent, #c2412f, transparent); }
+
+/* モーダル・武将カード */
+.modal-overlay, .general-modal { background: rgba(40,30,20,0.42); }
+.modal-content, .general-card { background: #fffdf8; border-color: rgba(110,85,50,0.25); box-shadow: 0 12px 36px rgba(60,40,20,0.3); }
+.modal-content::before, .general-card::before { background: linear-gradient(90deg, transparent, #c2412f, #e0a838, #c2412f, transparent); }
+.modal-icon { color: #a8781f; }
+.modal-title { color: #2b241d; }
+.modal-text { color: #5a4e40; }
+.modal-close { background: #c2412f; border-color: #c2412f; color: #fff; }
+.modal-close:active { background: #a83525; }
+.general-card-header { border-bottom-color: rgba(110,85,50,0.15); }
+.general-card-header.east { background: linear-gradient(180deg, rgba(43,98,166,0.12) 0%, transparent 100%); }
+.general-card-header.west { background: linear-gradient(180deg, rgba(189,59,48,0.12) 0%, transparent 100%); }
+.general-card-header.traitor { background: linear-gradient(180deg, rgba(200,140,40,0.14) 0%, transparent 100%); }
+.general-faction-badge.east { background: rgba(43,98,166,0.1); color: #2b62a6; border-color: rgba(43,98,166,0.35); }
+.general-faction-badge.west { background: rgba(189,59,48,0.1); color: #bd3b30; border-color: rgba(189,59,48,0.35); }
+.general-faction-badge.traitor { background: rgba(200,140,40,0.12); color: #8a5a08; border-color: rgba(200,140,40,0.4); }
+.general-name, .general-stat-value { color: #2b241d; }
+.general-yomi, .general-stat-label { color: #8a7c69; }
+.general-stat { background: #f6efe1; border-left-color: rgba(168,120,31,0.45); }
+.general-bio { color: #3d342a; background: #f6efe1; border-left-color: #a8781f; }
+.general-episode { color: #5a4e40; border-top-color: rgba(110,85,50,0.2); }
+.general-episode-label { color: #a8781f; }
+.general-close { background: #fffaf0; border-color: rgba(110,85,50,0.3); color: #5a4e40; }
+/* 家紋の色(白地でも見えるように濃いめ) */
+.unit-label.east .kamon img, .general-indicator.east .gi-kamon img, .general-card-header.east .general-modal-kamon img {
+  filter: brightness(0) saturate(100%) invert(30%) sepia(62%) saturate(900%) hue-rotate(188deg) brightness(92%);
+}
+.unit-label.west .kamon img, .general-indicator.west .gi-kamon img, .general-card-header.west .general-modal-kamon img {
+  filter: brightness(0) saturate(100%) invert(26%) sepia(80%) saturate(1800%) hue-rotate(347deg) brightness(88%);
+}
+.unit-label.traitor .kamon img, .general-card-header.traitor .general-modal-kamon img {
+  filter: brightness(0) saturate(100%) invert(48%) sepia(80%) saturate(700%) hue-rotate(10deg) brightness(90%);
+}
+
+/* シミュレーターの表示(明るいガラス) */
+.sim-vignette { background: radial-gradient(ellipse at center, transparent 65%, rgba(60,40,20,0.16) 100%); }
+.sim-header { background: linear-gradient(180deg, rgba(251,247,238,0.94) 0%, rgba(251,247,238,0.62) 60%, transparent 100%); }
+.sim-title-jp, .sim-title-sub, .sim-date-badge { color: #8a7c69; }
+.sim-title-main { color: #2b241d; }
+.sim-title-main::before { background: #c2412f; box-shadow: none; }
+.sim-date-badge .year { color: #a8781f; }
+.time-main { color: #2b241d; text-shadow: 0 0 10px rgba(255,252,245,0.95), 0 0 3px rgba(255,252,245,1); }
+.time-colon { color: #c2412f; }
+.time-phase, .cam-label, .legend, .momentum, .cam-mode-btn, .sound-btn, .tap-hint {
+  background: rgba(255,252,245,0.9); color: #5a4e40; border-color: rgba(110,85,50,0.25); box-shadow: 0 1px 6px rgba(60,40,20,0.12);
+}
+.legend { border-left: 2px solid #c2412f; }
+.time-phase { color: #8a6418; }
+.cam-label { color: #8a6418; }
+.cam-mode-btn.free, .sound-btn.on { color: #c2412f; border-color: rgba(194,65,47,0.6); box-shadow: none; }
+.mom-east { color: #2b62a6; }
+.mom-west { color: #bd3b30; }
+.mom-title { color: #8a7c69; }
+.controls {
+  background: linear-gradient(180deg, rgba(251,247,238,0) 0%, rgba(251,247,238,0.9) 12%, rgba(251,247,238,0.98) 35%, #fbf7ee 100%);
+  border-top-color: rgba(110,85,50,0.2);
+}
+.controls::before { background: linear-gradient(90deg, transparent, #c2412f, transparent); }
+.ctrl-header { border-bottom-color: rgba(110,85,50,0.2); }
+.info-marker { background: #c2412f; box-shadow: none; }
+.info-title { color: #2b241d; }
+.info-phase-num, .phase-counter { color: #a8781f; }
+.info-text { color: #3d342a; }
+.info-highlight { color: #c0560f; font-weight: 700; }
+.info-east { color: #2b62a6; }
+.info-west { color: #bd3b30; }
+.scroll-track-wrap::before { background: linear-gradient(to right, #fbf7ee, transparent); }
+.scroll-track-wrap::after { background: linear-gradient(to left, #fbf7ee, transparent); }
+.scroll-indicator { background: linear-gradient(to bottom, #e0a838, #c2412f); box-shadow: 0 0 6px rgba(194,65,47,0.45); }
+.scroll-indicator::before { border-top-color: #c2412f; filter: none; }
+.scroll-inner::before { background: rgba(110,85,50,0.25); }
+.phase-marker-dot { background: #fbf7ee; border-color: rgba(110,85,50,0.45); }
+.phase-marker.active .phase-marker-dot { background: #c2412f; border-color: #fff; box-shadow: 0 0 0 2px rgba(194,65,47,0.35); }
+.phase-marker-time { color: #8a7c69; }
+.phase-marker.active .phase-marker-time { color: #c2412f; }
+.phase-marker-label { color: #a89c88; }
+.phase-marker.active .phase-marker-label { color: #2b241d; }
+.progress-bar-wrap { background: rgba(110,85,50,0.12); }
+.progress-bar { background: linear-gradient(90deg, #c2412f, #e0a838); box-shadow: none; }
+.controls-row { border-bottom-color: rgba(110,85,50,0.15); }
+.speed-btn, .btn { background: #fffaf0; border-color: rgba(110,85,50,0.25); color: #5a4e40; }
+.speed-btn.active { background: #2b241d; border-color: #2b241d; color: #fff; box-shadow: none; }
+.btn:active { background: #f1e6d0; }
+.btn-primary { background: #c2412f; border-color: #c2412f; color: #fff; }
+.btn-primary:active { background: #a83525; }
+.wi-btn { color: #c2412f; border-color: rgba(194,65,47,0.45); }
+.unit-label { color: #2b241d; text-shadow: none; background: rgba(255,252,245,0.92); border: 1px solid rgba(110,85,50,0.25); box-shadow: 0 1px 3px rgba(40,30,20,0.25); }
+.unit-label:active { background: #f1e6d0; }
+.unit-label.east { border-left: 3px solid #2b62a6; }
+.unit-label.west { border-left: 3px solid #bd3b30; }
+.unit-label.traitor { border-left: 3px solid #d09020; }
+.place-label { color: #2b241d; text-shadow: 0 0 4px rgba(255,252,245,0.95), 0 0 2px #fffaf0, 0 0 8px rgba(255,252,245,0.7); }
+.place-label .pl-mark { color: #c2412f; }
+.place-label.minor { color: rgba(60,50,40,0.75); }
+.general-indicator { background: rgba(255,252,245,0.96); border-color: #a8781f; }
+.general-indicator .gi-name { color: #2b241d; }
+.general-indicator.east .arrow { color: #2b62a6; }
+.general-indicator.west .arrow { color: #bd3b30; }
+.scenario-banner { color: #2b241d; border-color: rgba(194,65,47,0.45); background: rgba(194,65,47,0.06); }
+.sb-from { color: #8a7c69; }
+.info-title.alt::after { color: #c2412f; border-color: rgba(194,65,47,0.6); }
+.phase-marker.alt .phase-marker-dot { border-color: #c2412f; }
+.phase-marker.alt .phase-marker-label { color: #a8781f; }
+.wi-item { background: #fffaf0; border-color: rgba(110,85,50,0.3); color: #2b241d; }
+.wi-item.alt { border-color: rgba(194,65,47,0.45); }
+.wi-item.active { border-color: #c2412f; box-shadow: inset 3px 0 0 #c2412f; }
+.wi-name { color: #2b241d; }
+.wi-desc, .wi-note { color: #6e6254; }
+
+/* ---------- タイトル画面 ---------- */
+#screen-title { align-items: center; justify-content: center; padding: 56px 20px max(28px, env(safe-area-inset-bottom)); overflow-y: auto; }
+.title-wrap { width: 100%; max-width: 420px; text-align: center; position: relative; z-index: 2; margin: auto 0; }
+.title-seal {
+  width: 46px; height: 46px; margin: 0 auto 16px; background: #c2412f; color: #fff;
+  font-family: 'Noto Serif JP', serif; font-weight: 900; font-size: 25px;
+  display: flex; align-items: center; justify-content: center; border-radius: 6px;
+  transform: rotate(-4deg); box-shadow: inset 0 0 0 2px rgba(255,255,255,0.35), 0 3px 10px rgba(194,65,47,0.3);
+}
+.title-eyebrow { font-size: 10px; letter-spacing: 0.4em; color: #a8781f; margin-bottom: 10px; }
+.title-logo { font-family: 'Noto Serif JP', serif; font-weight: 900; font-size: 46px; line-height: 1.05; color: #2b241d; display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 0; }
+html[lang="en"] .title-logo { font-family: 'Cormorant Garamond', 'Noto Serif JP', serif; font-size: 48px; }
+.title-logo .sim { font-size: 13px; letter-spacing: 0.55em; color: #c2412f; font-family: 'Cormorant Garamond', serif; font-weight: 700; padding-left: 0.55em; }
+.title-sub { margin: 16px auto 28px; font-size: 13px; color: #5a4e40; line-height: 1.8; max-width: 320px; }
+.title-choices { display: flex; flex-direction: column; gap: 18px; }
+.title-btn {
+  display: grid; grid-template-columns: 56px 1fr; grid-template-rows: auto auto; text-align: left; align-items: center;
+  column-gap: 14px; padding: 16px; cursor: pointer; font-family: inherit; position: relative; width: 100%;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.title-btn .tb-kanji { grid-row: 1 / span 2; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+.title-btn .tb-main { font-size: 19px; font-weight: 800; align-self: end; }
+.title-btn .tb-desc { font-size: 11.5px; line-height: 1.6; margin-top: 3px; align-self: start; }
+.title-btn.history { background: #fffdf8; border: 1px solid rgba(110,85,50,0.3); box-shadow: 0 4px 14px rgba(80,60,30,0.12); color: #2b241d; border-radius: 4px; }
+.title-btn.history .tb-kanji { background: #2b241d; color: #fbf7ee; font-family: 'Noto Serif JP', serif; font-weight: 900; border-radius: 4px; }
+.title-btn.history .tb-desc { color: #6e6254; }
+.title-btn.history:active { transform: translateY(2px); }
+.title-btn.ifmode {
+  background: #ffd23f; border: 3px solid #1b1b1f; border-radius: 18px; box-shadow: 5px 5px 0 #1b1b1f; color: #1b1b1f;
+  font-family: 'M PLUS Rounded 1c', 'Shippori Mincho B1', sans-serif; transform: rotate(-1deg);
+}
+.title-btn.ifmode .tb-kanji { background: #ff4f9a; color: #fff; border: 2.5px solid #1b1b1f; border-radius: 50%; font-family: 'Dela Gothic One', sans-serif; font-size: 22px; }
+.title-btn.ifmode .tb-main { font-family: 'Dela Gothic One', 'M PLUS Rounded 1c', sans-serif; font-weight: 400; font-size: 21px; }
+.title-btn.ifmode .tb-desc { color: #3a3320; font-weight: 700; }
+.title-btn.ifmode:active { transform: rotate(-1deg) translate(3px, 3px); box-shadow: 2px 2px 0 #1b1b1f; }
+.tb-count {
+  position: absolute; top: -13px; right: 12px; background: #23c4f8; color: #1b1b1f; border: 2px solid #1b1b1f;
+  border-radius: 999px; font-size: 11px; font-weight: 900; padding: 3px 10px; transform: rotate(3deg); box-shadow: 2px 2px 0 #1b1b1f;
+  font-family: 'M PLUS Rounded 1c', sans-serif; white-space: nowrap;
+}
+.title-note { margin-top: 28px; font-size: 10.5px; color: #8a7c69; line-height: 1.7; }
+#screen-home .back-btn { top: 12px; }
+#screen-home .home-hero { padding-top: 46px; }
+
+/* ---------- ポップ(もしも) ---------- */
+#screen-if {
+  display: block; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  background-color: #ffd23f;
+  background-image: radial-gradient(rgba(27,27,31,0.13) 1.6px, transparent 1.7px);
+  background-size: 14px 14px;
+  padding: 58px 16px max(44px, env(safe-area-inset-bottom));
+  font-family: 'M PLUS Rounded 1c', sans-serif; color: #1b1b1f;
+}
+#screen-if .back-btn {
+  background: #fff; color: #1b1b1f; border: 2px solid #1b1b1f; border-radius: 999px; box-shadow: 2px 2px 0 #1b1b1f;
+  font-weight: 800; letter-spacing: 0.05em; font-family: 'M PLUS Rounded 1c', sans-serif; font-size: 11px;
+}
+.if-head { text-align: center; margin-bottom: 24px; position: relative; }
+.if-badge {
+  display: inline-block; background: #ff4f9a; color: #fff; font-family: 'Dela Gothic One', sans-serif; font-size: 13px;
+  padding: 4px 14px; border: 2.5px solid #1b1b1f; border-radius: 999px; transform: rotate(-4deg); box-shadow: 3px 3px 0 #1b1b1f;
+}
+.if-title {
+  font-family: 'Dela Gothic One', sans-serif; font-weight: 400; font-size: 46px; line-height: 1.1; margin: 14px 0 10px;
+  color: #fff; -webkit-text-stroke: 2.5px #1b1b1f; paint-order: stroke fill; text-shadow: 5px 5px 0 #1b1b1f;
+}
+.if-sub { font-size: 13px; font-weight: 800; }
+.if-total { display: inline-block; margin-top: 14px; background: #fff; border: 2px solid #1b1b1f; border-radius: 999px; padding: 4px 14px; font-size: 12px; font-weight: 900; box-shadow: 2px 2px 0 #1b1b1f; }
+.if-list { display: flex; flex-direction: column; gap: 22px; max-width: 460px; margin: 0 auto; }
+.if-card {
+  position: relative; display: block; width: 100%; text-align: left; background: #fff; border: 3px solid #1b1b1f; border-radius: 20px;
+  box-shadow: 6px 6px 0 #1b1b1f; padding: 0 0 16px; font-family: inherit; color: #1b1b1f; cursor: pointer; overflow: hidden;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.if-card:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0 #1b1b1f; }
+.ifc-top { display: flex; align-items: center; gap: 10px; padding: 12px 16px 11px; border-bottom: 3px solid #1b1b1f; }
+.if-card.c-pink .ifc-top { background: #ff4f9a; color: #fff; }
+.if-card.c-cyan .ifc-top { background: #23c4f8; color: #1b1b1f; }
+.if-card.c-violet .ifc-top { background: #7b5cff; color: #fff; }
+.ifc-year { font-family: 'Dela Gothic One', sans-serif; font-size: 13px; background: #fff; color: #1b1b1f; border: 2px solid #1b1b1f; border-radius: 8px; padding: 1px 8px; }
+.ifc-name { font-family: 'Dela Gothic One', sans-serif; font-size: 21px; line-height: 1.2; }
+.ifc-q { display: block; font-size: 17px; font-weight: 900; padding: 14px 16px 6px; line-height: 1.45; }
+.ifc-vs { display: block; padding: 0 16px; font-size: 12px; font-weight: 800; color: #555; }
+.ifc-vs .e { color: #1f6fe0; }
+.ifc-vs .w { color: #e8325b; }
+.ifc-foot { display: flex; align-items: center; gap: 8px; padding: 12px 120px 0 16px; font-size: 11px; font-weight: 900; flex-wrap: wrap; }
+.ifc-dec { background: #ffd23f; border: 2px solid #1b1b1f; border-radius: 999px; padding: 2px 9px; }
+.ifc-dots { display: flex; gap: 4px; }
+.ifc-dots i { width: 11px; height: 11px; border-radius: 50%; border: 2px solid #1b1b1f; background: #fff; display: block; }
+.ifc-dots i.on { background: #23c4f8; }
+.ifc-found { color: #555; }
+.ifc-start {
+  position: absolute; right: 14px; bottom: 14px; background: #1b1b1f; color: #ffd23f; font-family: 'Dela Gothic One', sans-serif;
+  font-size: 13px; padding: 8px 14px; border-radius: 999px;
+}
+
+/* 切り替えの演出 */
+.pop-burst { position: absolute; inset: 0; z-index: 200; pointer-events: none; display: flex; align-items: center; justify-content: center; opacity: 0; overflow: hidden; }
+.pop-burst::before {
+  content: ''; position: absolute; left: 50%; top: 50%; width: 220vmax; height: 220vmax; margin: -110vmax 0 0 -110vmax;
+  background: repeating-conic-gradient(#ffd23f 0deg 9deg, #ff4f9a 9deg 18deg);
+  transform: scale(0.15) rotate(0deg);
+}
+.pop-burst span {
+  position: relative; font-family: 'Dela Gothic One', sans-serif; font-size: 62px; color: #fff; white-space: nowrap;
+  -webkit-text-stroke: 3px #1b1b1f; paint-order: stroke fill; text-shadow: 6px 6px 0 #1b1b1f; transform: scale(0.3) rotate(-8deg);
+}
+.pop-burst.go { animation: popBurstFade 1.05s ease-out forwards; }
+.pop-burst.go::before { animation: popBurstRays 1.05s ease-out forwards; }
+.pop-burst.go span { animation: popBurstText 1.05s cubic-bezier(.2,1.6,.4,1) forwards; }
+@keyframes popBurstFade { 0% { opacity: 0; } 8% { opacity: 1; } 68% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes popBurstRays { 0% { transform: scale(0.15) rotate(0deg); } 100% { transform: scale(1) rotate(35deg); } }
+@keyframes popBurstText { 0% { transform: scale(0.3) rotate(-8deg); } 45% { transform: scale(1.12) rotate(-6deg); } 100% { transform: scale(1) rotate(-6deg); } }
+@media (prefers-reduced-motion: reduce) { .pop-burst.go { animation: none; } }
+
+/* 決断モード中のシミュレーター */
+.app.pop #screen-sim { font-family: 'M PLUS Rounded 1c', sans-serif; }
+.app.pop .sim-header { background: linear-gradient(180deg, rgba(255,210,63,0.96) 0%, rgba(255,210,63,0.6) 62%, transparent 100%); }
+.app.pop .sim-title-main { color: #1b1b1f; font-family: 'Dela Gothic One', sans-serif; font-weight: 400; }
+.app.pop .sim-title-main::before { background: #ff4f9a; }
+.app.pop .sim-title-jp, .app.pop .sim-title-sub, .app.pop .sim-date-badge, .app.pop .sim-date-badge .year { color: #1b1b1f; }
+.app.pop .time-main { color: #1b1b1f; font-family: 'Dela Gothic One', sans-serif; text-shadow: 3px 3px 0 #fff, 0 0 10px rgba(255,255,255,0.9); }
+.app.pop .time-colon { color: #ff4f9a; }
+.app.pop .time-phase, .app.pop .cam-label, .app.pop .legend, .app.pop .momentum, .app.pop .cam-mode-btn,
+.app.pop .sound-btn, .app.pop .btn, .app.pop .speed-btn, .app.pop .sim-back-btn, .app.pop .tap-hint {
+  background: #fff; color: #1b1b1f; border: 2px solid #1b1b1f; border-radius: 10px; box-shadow: 3px 3px 0 #1b1b1f; font-weight: 800;
+}
+.app.pop .legend { border-left: 2px solid #1b1b1f; }
+.app.pop .speed-btn.active, .app.pop .wi-btn, .app.pop .cam-mode-btn.free, .app.pop .sound-btn.on { background: #ffd23f; color: #1b1b1f; }
+.app.pop .btn-primary { background: #ff4f9a; color: #fff; }
+.app.pop .btn:active, .app.pop .speed-btn:active, .app.pop .sim-back-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #1b1b1f; }
+.app.pop .mom-east { color: #1f6fe0; }
+.app.pop .mom-west { color: #e8325b; }
+.app.pop .mom-title { color: #1b1b1f; }
+.app.pop .controls { background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.93) 12%, #fff 35%); border-top: 3px solid #1b1b1f; }
+.app.pop .controls::before { left: 0; right: 0; top: -7px; height: 5px; background: repeating-linear-gradient(90deg, #ffd23f 0 14px, #ff4f9a 14px 28px, #23c4f8 28px 42px); }
+.app.pop .info-marker { background: #ff4f9a; }
+.app.pop .info-title { color: #1b1b1f; font-weight: 900; }
+.app.pop .info-text { color: #2a2a2e; }
+.app.pop .info-highlight { color: #fff; background: #ff4f9a; padding: 0 4px; border-radius: 4px; }
+.app.pop .info-east { color: #1f6fe0; font-weight: 800; }
+.app.pop .info-west { color: #e8325b; font-weight: 800; }
+.app.pop .info-title.alt::after { color: #fff; background: #7b5cff; border: 2px solid #1b1b1f; border-radius: 6px; }
+.app.pop .scroll-track-wrap::before { background: linear-gradient(to right, #fff, transparent); }
+.app.pop .scroll-track-wrap::after { background: linear-gradient(to left, #fff, transparent); }
+.app.pop .scroll-indicator { background: #ff4f9a; box-shadow: none; }
+.app.pop .scroll-indicator::before { border-top-color: #ff4f9a; }
+.app.pop .phase-marker-dot { border: 2px solid #1b1b1f; background: #fff; }
+.app.pop .phase-marker.active .phase-marker-dot { background: #ff4f9a; border-color: #1b1b1f; box-shadow: 0 0 0 3px #ffd23f; }
+.app.pop .phase-marker.alt .phase-marker-dot { background: #23c4f8; border-style: solid; }
+.app.pop .phase-marker.alt .phase-marker-label { color: #7b5cff; font-weight: 800; }
+.app.pop .phase-marker-time { color: #555; }
+.app.pop .phase-marker.active .phase-marker-time { color: #ff4f9a; }
+.app.pop .progress-bar { background: linear-gradient(90deg, #ff4f9a, #ffd23f, #23c4f8); }
+.app.pop .scenario-banner { background: #ffd23f; border: 2px solid #1b1b1f; border-radius: 10px; color: #1b1b1f; box-shadow: 3px 3px 0 #1b1b1f; font-weight: 800; }
+.app.pop .sb-tag { background: #ff4f9a; color: #fff; border-radius: 6px; }
+.app.pop .sb-from { color: #1b1b1f; }
+.app.pop .unit-label { border: 2px solid #1b1b1f; border-radius: 8px; box-shadow: 2px 2px 0 #1b1b1f; font-weight: 800; }
+.app.pop .unit-label.east { background: #dcefff; border-left-width: 2px; }
+.app.pop .unit-label.west { background: #ffe0ea; border-left-width: 2px; }
+.app.pop .general-indicator { background: #fff; border: 2px solid #1b1b1f; }
+.app.pop .letterbox { background: #ffd23f; }
+.app.pop .letterbox.top { box-shadow: 0 3px 0 #1b1b1f; }
+.app.pop .letterbox.bottom { box-shadow: 0 -3px 0 #1b1b1f; }
+.app.pop .cine-brush { background: radial-gradient(ellipse at center, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.25) 45%, rgba(255,255,255,0) 70%); }
+.app.pop .cine-kanji { background: #ff4f9a; color: #fff; border: 2px solid #1b1b1f; box-shadow: 3px 3px 0 #1b1b1f; }
+.app.pop .cine-main { font-family: 'Dela Gothic One', sans-serif; font-weight: 400; color: #fff; -webkit-text-stroke: 2px #1b1b1f; paint-order: stroke fill; text-shadow: 4px 4px 0 #1b1b1f; }
+.app.pop .cine-title.gold .cine-main { color: #ffd23f; }
+.app.pop .cine-main::after { background: repeating-linear-gradient(90deg, #ffd23f 0 12px, #ff4f9a 12px 24px, #23c4f8 24px 36px); height: 4px; }
+.app.pop .cine-sub { color: #1b1b1f; text-shadow: 0 0 6px #fff, 0 0 2px #fff; font-weight: 800; }
+/* 決断パネル・エンディング */
+.app.pop .decision-panel, .app.pop .end-card { background: #fff; border: 3px solid #1b1b1f; border-radius: 18px; box-shadow: 6px 6px 0 #1b1b1f; color: #1b1b1f; overflow: hidden; }
+.app.pop .decision-panel::before, .app.pop .end-card::before { height: 8px; background: repeating-linear-gradient(90deg, #ffd23f 0 16px, #ff4f9a 16px 32px, #23c4f8 32px 48px); }
+.app.pop .decision-panel { padding-top: 18px; }
+.app.pop .end-card { padding-top: 22px; }
+.app.pop .dp-tag { background: #ff4f9a; color: #fff; border-radius: 999px; border: 2px solid #1b1b1f; letter-spacing: 0.08em; }
+.app.pop .dp-time { color: #7b5cff; font-weight: 900; }
+.app.pop .dp-who { color: #1b1b1f; font-family: 'Dela Gothic One', sans-serif; font-weight: 400; }
+.app.pop .dp-who img { filter: brightness(0); }
+.app.pop .dp-sit { background: #fff7cf; color: #1b1b1f; border-left: 4px solid #ffd23f; border-radius: 8px; font-weight: 700; }
+.app.pop .dp-opt { background: #23c4f8; border: 2.5px solid #1b1b1f; border-radius: 14px; color: #1b1b1f; box-shadow: 4px 4px 0 #1b1b1f; font-family: 'M PLUS Rounded 1c', sans-serif; }
+.app.pop .dp-opts .dp-opt:nth-child(2) { background: #ff4f9a; color: #fff; }
+.app.pop .dp-opts .dp-opt:nth-child(3) { background: #7b5cff; color: #fff; }
+.app.pop .dp-opts .dp-opt.history { background: #fff; color: #1b1b1f; }
+.app.pop .dp-opt:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 #1b1b1f; }
+.app.pop .dp-opt-name { font-weight: 900; }
+.app.pop .dp-opt-name em { color: #1b1b1f; background: #ffd23f; border: 1.5px solid #1b1b1f; border-radius: 6px; font-style: normal; }
+.app.pop .dp-opt-hint { color: inherit; opacity: 0.88; font-weight: 700; }
+.app.pop .ec-label { color: #ff4f9a; font-weight: 900; }
+.app.pop .ec-name { color: #1b1b1f; font-family: 'Dela Gothic One', sans-serif; font-weight: 400; }
+.app.pop .ec-desc { color: #333; font-weight: 700; }
+.app.pop .ec-dot { border: 2px solid #1b1b1f; }
+.app.pop .ec-dot.on { background: #23c4f8; }
+.app.pop .ec-dot.now { background: #ff4f9a; box-shadow: 0 0 0 3px #ffd23f; }
+.app.pop .ec-count { color: #555; font-weight: 800; }
+.app.pop .ec-close { background: #fff; border: 2px solid #1b1b1f; color: #1b1b1f; }
+.app.pop #ecAgain { background: #ff4f9a; border: 2.5px solid #1b1b1f; border-radius: 12px; color: #fff; box-shadow: 3px 3px 0 #1b1b1f; font-weight: 900; }
+.app.pop #ecHistory { background: #fff; border: 2.5px solid #1b1b1f; border-radius: 12px; color: #1b1b1f; box-shadow: 3px 3px 0 #1b1b1f; font-weight: 900; }
+.app.pop .modal-content { background: #fff; border: 3px solid #1b1b1f; border-radius: 18px; box-shadow: 6px 6px 0 #1b1b1f; }
+.app.pop .modal-content::before { display: none; }
+.app.pop .wi-item { background: #fff; border: 2px solid #1b1b1f; border-radius: 12px; color: #1b1b1f; box-shadow: 3px 3px 0 #1b1b1f; }
+.app.pop .wi-item.active { background: #ffd23f; box-shadow: 3px 3px 0 #1b1b1f; }
+.app.pop .wi-name { color: #1b1b1f; font-weight: 900; }
+.app.pop .wi-desc { color: #444; }
+.app.pop .modal-close { background: #ff4f9a; border: 2px solid #1b1b1f; border-radius: 10px; }
+.bg-sumi {
+  background-image:
+    radial-gradient(ellipse at 8% 95%, rgba(194,65,47,0.07) 0%, transparent 45%),
+    radial-gradient(ellipse at 92% 6%, rgba(168,120,31,0.08) 0%, transparent 45%);
+}
+.title-sub { max-width: 340px; }
+
 </style>
 </head>
 <body>
@@ -2373,13 +2759,51 @@ html[lang="en"] .ec-name { font-family: 'Cormorant Garamond', serif; font-size: 
   </div>
 
   <!-- 言語切り替え -->
+  <div class="pop-burst" id="popBurst"><span></span></div>
   <div class="lang-toggle" id="langToggle">
     <button type="button" data-lang="en">EN</button>
     <button type="button" data-lang="ja">日本語</button>
   </div>
 
   <!-- ===== トップ画面 ===== -->
-  <section class="screen active" id="screen-home">
+  <!-- ===== タイトル ===== -->
+  <section class="screen active" id="screen-title">
+    <div class="title-wrap">
+      <div class="title-seal">戦</div>
+      <div class="title-eyebrow">HISTORY · BATTLE · 3D</div>
+      <h1 class="title-logo"><span data-i18n="home.title">SENGOKU</span><span class="sim">SIMULATION</span></h1>
+      <div class="title-sub" data-i18n="title.sub">Famous battles in 3D</div>
+      <div class="title-choices">
+        <button type="button" class="title-btn history" id="titleHistory">
+          <span class="tb-kanji">史</span>
+          <span class="tb-main" data-i18n="title.history">Watch History</span>
+          <span class="tb-desc" data-i18n="title.historyDesc">—</span>
+        </button>
+        <button type="button" class="title-btn ifmode" id="titleIf">
+          <span class="tb-kanji">if</span>
+          <span class="tb-main" data-i18n="title.if">Rewrite History</span>
+          <span class="tb-desc" data-i18n="title.ifDesc">—</span>
+          <span class="tb-count" id="titleIfCount"></span>
+        </button>
+      </div>
+      <div class="title-note" data-i18n="home.note">Troop numbers and other figures are approximate and vary by source.</div>
+    </div>
+  </section>
+
+  <!-- ===== もしも合戦 ===== -->
+  <section class="screen" id="screen-if">
+    <button class="back-btn" id="backFromIf" data-i18n="if.back">◀ Title</button>
+    <div class="if-head">
+      <span class="if-badge">IF!</span>
+      <h2 class="if-title" data-i18n="if.title">WHAT IF?</h2>
+      <div class="if-sub" data-i18n="if.sub">—</div>
+      <div class="if-total" id="ifTotal"></div>
+    </div>
+    <div class="if-list" id="ifList"></div>
+  </section>
+
+  <section class="screen" id="screen-home">
+    <button class="back-btn" id="backFromHome" data-i18n="home.back">◀ Title</button>
     <div class="home-decoration">
       <div class="home-deco-crest"></div>
     </div>
@@ -2788,8 +3212,22 @@ try {
 const STR = {
   en: {
     'meta.title': 'Sengoku Simulation | Japanese Historical Battles in 3D',
-    'meta.desc': 'Watch the Battle of Sekigahara (1600) unfold in 3D, phase by phase, with commander profiles and a timeline. Free, runs in your browser.',
+    'meta.desc': 'Watch Okehazama, Nagashino and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.',
     'home.title': 'SENGOKU',
+    'title.sub': 'Famous battles of Japan in 3D. Watch them unfold — or change how they end.',
+    'title.history': 'Watch History',
+    'title.historyDesc': 'Follow each battle as it really happened, scene by scene.',
+    'title.if': 'Rewrite History',
+    'title.ifDesc': 'Make the key calls yourself and discover other endings.',
+    'title.count': 'Endings',
+    'home.back': '◀ Title',
+    'if.back': '◀ Title',
+    'if.title': 'WHAT IF?',
+    'if.sub': 'Pick a battle. Your decisions change how it ends.',
+    'if.total': 'Endings found',
+    'if.decisions': '3 decisions',
+    'if.start': 'START ▶',
+    'if.burst': 'WHAT IF!',
     'home.subtitle': 'Unfold the battles that shaped Japan',
     'home.choose': 'CHOOSE AN ERA',
     'home.coming': 'COMING SOON',
@@ -2825,8 +3263,22 @@ const STR = {
   },
   ja: {
     'meta.title': '戦国シミュレーション',
-    'meta.desc': '関ヶ原の戦い(1600年)を3Dで再現。時系列とフェーズごとの解説、武将プロフィール付き。無料・ブラウザで動作。',
+    'meta.desc': '桶狭間・長篠・関ヶ原を3Dで再現。史実をたどるだけでなく、自分で決断して別の結末も探せる。無料・ブラウザで動作。',
     'home.title': '戦国',
+    'title.sub': '日本の合戦を3Dで。史実をたどるか、歴史を変えるか。',
+    'title.history': '史実を見る',
+    'title.historyDesc': '実際に起きた合戦を、場面ごとにたどる。',
+    'title.if': 'もしもに挑む',
+    'title.ifDesc': '分かれ道の決断をあなたが選び、別の結末を探す。',
+    'title.count': 'エンディング',
+    'home.back': '◀ タイトルへ',
+    'if.back': '◀ タイトルへ',
+    'if.title': 'もしも合戦',
+    'if.sub': '合戦を選ぼう。あなたの決断で結末が変わる。',
+    'if.total': '発見したエンディング',
+    'if.decisions': '決断 3回',
+    'if.start': 'はじめる ▶',
+    'if.burst': 'もしも！',
     'home.subtitle': '時代を越え、合戦を紐解く',
     'home.choose': '時代区分を選ぶ',
     'home.coming': '準備中',
@@ -3087,6 +3539,8 @@ function setLang(l) {
   try { localStorage.setItem('sg_lang', l); } catch (e) { /* ignore */ }
   applyStaticI18n();
   renderEras();
+  renderTitle();
+  renderIfList();
   if (currentScreen === 'era' && currentEra) openEra(currentEra.id);
   refreshSimText();
   if (typeof refreshScenarioUI === 'function' && sim3DInitialized) refreshScenarioUI();
@@ -3116,12 +3570,14 @@ function initConfig() {
 
 // ========= 画面遷移管理 =========
 const screens = {
+  title: document.getElementById('screen-title'),
+  if: document.getElementById('screen-if'),
   home: document.getElementById('screen-home'),
   era: document.getElementById('screen-era'),
   sim: document.getElementById('screen-sim'),
 };
 
-let currentScreen = 'home';
+let currentScreen = 'title';
 let currentEra = null;
 let sim3DInitialized = false;
 
@@ -3132,6 +3588,98 @@ function showScreen(name) {
   currentScreen = name;
   const appEl = document.querySelector('.app');
   if (appEl) appEl.classList.toggle('in-sim', name === 'sim');
+  updatePopMode();
+}
+
+// ========= もしも(ポップ)モード =========
+let entryMode = 'history';   // 'history' | 'if'
+let pendingDecide = false;   // 読み込み後に決断モードで始める
+let popOn = false;
+function updatePopMode() {
+  const appEl = document.querySelector('.app');
+  if (!appEl) return;
+  const on = currentScreen === 'if' || (currentScreen === 'sim' && decideState.active);
+  appEl.classList.toggle('pop', on);
+  if (on && !popOn) popBurst();
+  popOn = on;
+}
+function popBurst() {
+  const el = document.getElementById('popBurst');
+  if (!el) return;
+  el.querySelector('span').textContent = t('if.burst');
+  el.classList.remove('go');
+  void el.offsetWidth;
+  el.classList.add('go');
+}
+
+const IF_BATTLES = [
+  { id: 'okehazama', endings: 5, key: 'sg_endings_okehazama', color: 'pink',
+    q: { ja: 'もしも義元が、本陣の守りを固めていたら？', en: 'What if Yoshimoto had stayed on guard?' } },
+  { id: 'nagashino', endings: 5, key: 'sg_endings_nagashino', color: 'cyan',
+    q: { ja: 'もしも勝頼が、柵の端を回り込んでいたら？', en: 'What if Katsuyori had gone around the fence?' } },
+  { id: 'sekigahara', endings: 7, key: 'sg_endings', color: 'violet',
+    q: { ja: 'もしも小早川秀秋が、寝返らなかったら？', en: 'What if Kobayakawa had never switched sides?' } },
+];
+function endingsFoundFor(key) {
+  try { const a = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(a) ? a.length : 0; }
+  catch (e) { return 0; }
+}
+function endingTotals() {
+  let found = 0, total = 0;
+  IF_BATTLES.forEach(b => { found += Math.min(b.endings, endingsFoundFor(b.key)); total += b.endings; });
+  return { found, total };
+}
+function findBattle(id) {
+  for (const e of eras) { const b = e.battles.find(x => x.id === id); if (b) return { era: e, battle: b }; }
+  return null;
+}
+function renderTitle() {
+  const el = document.getElementById('titleIfCount');
+  if (!el) return;
+  const { found, total } = endingTotals();
+  el.textContent = `${t('title.count')} ${found} / ${total}`;
+}
+function renderIfList() {
+  const list = document.getElementById('ifList');
+  if (!list) return;
+  const { found, total } = endingTotals();
+  document.getElementById('ifTotal').textContent = `${t('if.total')} ${found} / ${total}`;
+  list.innerHTML = '';
+  IF_BATTLES.forEach(cfg => {
+    const fb = findBattle(cfg.id);
+    if (!fb) return;
+    const bl = battleL(fb.battle);
+    const n = Math.min(cfg.endings, endingsFoundFor(cfg.key));
+    const dots = Array.from({ length: cfg.endings }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('');
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = `if-card c-${cfg.color}`;
+    b.dataset.id = cfg.id;
+    b.innerHTML = `<span class="ifc-top"><span class="ifc-year">${fb.battle.year}</span><span class="ifc-name">${bl.name}</span></span>`
+      + `<span class="ifc-q">${cfg.q[LANG] || cfg.q.en}</span>`
+      + `<span class="ifc-vs"><span class="e">${bl.east.name}</span> VS <span class="w">${bl.west.name}</span></span>`
+      + `<span class="ifc-foot"><span class="ifc-dec">${t('if.decisions')}</span><span class="ifc-dots">${dots}</span><span class="ifc-found">${n} / ${cfg.endings}</span></span>`
+      + `<span class="ifc-start">${t('if.start')}</span>`;
+    b.addEventListener('click', () => startIf(cfg.id));
+    list.appendChild(b);
+  });
+}
+// もしも合戦を始める(別の合戦なら読み込み直す)
+function startIf(id) {
+  entryMode = 'if';
+  if (id !== BATTLE_ID) {
+    const q = new URLSearchParams(location.search);
+    if (id === 'sekigahara') q.delete('battle'); else q.set('battle', id);
+    q.set('open', '1');
+    q.set('mode', 'decide');
+    q.set('lang', LANG);
+    location.search = q.toString();
+    return;
+  }
+  const fb = findBattle(id);
+  if (fb) currentEra = fb.era;
+  pendingDecide = true;
+  openSimulation(id);
 }
 
 // ========= トップページ: 時代一覧を生成 =========
@@ -3354,13 +3902,35 @@ document.getElementById('generalModal').addEventListener('click', (e) => {
 document.getElementById('backFromEra').addEventListener('click', () => {
   showScreen('home');
 });
+document.getElementById('backFromHome').addEventListener('click', () => {
+  renderTitle();
+  showScreen('title');
+});
+document.getElementById('backFromIf').addEventListener('click', () => {
+  renderTitle();
+  showScreen('title');
+});
+document.getElementById('titleHistory').addEventListener('click', () => {
+  entryMode = 'history';
+  showScreen('home');
+});
+document.getElementById('titleIf').addEventListener('click', () => {
+  renderIfList();
+  showScreen('if');
+});
 
 document.getElementById('backFromSim').addEventListener('click', () => {
   endCinematic();
   setScenario(null, false);
   audioQuiet();
   stopPlay();
-  showScreen('era');
+  if (entryMode === 'if') {
+    renderIfList();
+    showScreen('if');
+  } else {
+    if (currentEra) openEra(currentEra.id);
+    showScreen('era');
+  }
 });
 
 // ========= シミュレーション =========
@@ -3386,7 +3956,10 @@ function openSimulation(battleId) {
     currentPhase = 0;
     applyPhase(0);
     scrollToPhase(0, false);
-    setTimeout(() => startPlay(), 500);
+    setTimeout(() => {
+      if (pendingDecide) { pendingDecide = false; setScenario('decide'); }
+      else startPlay();
+    }, 500);
   }
 }
 
@@ -3419,9 +3992,16 @@ function autoOpenBattle() {
   try { q = new URLSearchParams(location.search); } catch (e) { return; }
   if (q.get('open') !== '1') return;
   const era = eras.find(e => e.battles.some(b => b.id === BATTLE_ID));
-  if (era) openEra(era.id);
+  if (q.get('mode') === 'decide') {
+    entryMode = 'if';
+    pendingDecide = true;
+    if (era) currentEra = era;
+  } else if (era) {
+    openEra(era.id);
+  }
   openSimulation(BATTLE_ID);
   q.delete('open');
+  q.delete('mode');
   const qs = q.toString();
   try { history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash); } catch (e) { /* ignore */ }
 }
@@ -8414,6 +8994,7 @@ function refreshScenarioUI() {
     if (lab) lab.textContent = locked ? '？' : phaseL(phases[i], i).label;
   });
   markAltTitle(currentPhase);
+  updatePopMode();
 }
 
 function markAltTitle(idx) {
@@ -8981,7 +9562,10 @@ function initSekigahara() {
   setTimeout(() => {
     document.getElementById('loading').classList.add('hidden');
     scrollToPhase(0, false);
-    setTimeout(() => startPlay(), 800);
+    setTimeout(() => {
+      if (pendingDecide) { pendingDecide = false; setScenario('decide'); }
+      else startPlay();
+    }, 800);
   }, 1200);
 }
 
@@ -8990,6 +9574,7 @@ initConfig();
 prepareBattleDom();
 applyStaticI18n();
 renderEras();
+renderTitle();
 autoOpenBattle();
 document.querySelectorAll('.lang-toggle [data-lang]').forEach(btn => {
   btn.addEventListener('click', () => setLang(btn.dataset.lang));
