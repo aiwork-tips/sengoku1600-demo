@@ -2678,14 +2678,19 @@ setTimeout(updateAppHeight, 1000);
 // ========= データ定義 =========
 // ----- どの合戦を表示するか(?battle=okehazama で桶狭間) -----
 const BATTLE_ID = (() => {
-  try { return new URLSearchParams(location.search).get('battle') === 'okehazama' ? 'okehazama' : 'sekigahara'; }
-  catch (e) { return 'sekigahara'; }
+  try {
+    const b = new URLSearchParams(location.search).get('battle');
+    return ['okehazama', 'nagashino'].includes(b) ? b : 'sekigahara';
+  } catch (e) { return 'sekigahara'; }
 })();
 const IS_OKE = BATTLE_ID === 'okehazama';
-const GENERAL_IDS = IS_OKE ? ['nobunaga', 'yoshimoto'] : ['ieyasu', 'mitsunari'];
-const GENERAL_SIDE = IS_OKE ? { nobunaga: 'left', yoshimoto: 'right' } : { ieyasu: 'right', mitsunari: 'left' };
-const DM_START = IS_OKE ? 5 : 4;
-const ENDINGS_KEY = IS_OKE ? 'sg_endings_okehazama' : 'sg_endings';
+const IS_NAGA = BATTLE_ID === 'nagashino';
+// 合戦ごとの差し替え口(関ヶ原では空のまま)
+const BX = {};
+const GENERAL_IDS = { sekigahara: ['ieyasu', 'mitsunari'], okehazama: ['nobunaga', 'yoshimoto'], nagashino: ['nobunaga', 'katsuyori'] }[BATTLE_ID];
+const GENERAL_SIDE = { sekigahara: { ieyasu: 'right', mitsunari: 'left' }, okehazama: { nobunaga: 'left', yoshimoto: 'right' }, nagashino: { nobunaga: 'left', katsuyori: 'right' } }[BATTLE_ID];
+const DM_START = { sekigahara: 4, okehazama: 5, nagashino: 0 }[BATTLE_ID];
+const ENDINGS_KEY = BATTLE_ID === 'sekigahara' ? 'sg_endings' : 'sg_endings_' + BATTLE_ID;
 
 const eras = [
   {
@@ -2725,7 +2730,7 @@ const eras = [
     battles: [
       { id: 'okehazama', year: '1560', name: '桶狭間の戦い', east: { name: '織田軍', force: '約3千' }, west: { name: '今川軍', force: '約2万5千' }, winner: 'east', winnerName: '織田軍', implemented: true },
       { id: 'kawanakajima', year: '1561', name: '川中島の戦い', east: { name: '武田軍', force: '約2万' }, west: { name: '上杉軍', force: '約1万3千' }, winner: 'draw', winnerName: '痛み分け', implemented: false },
-      { id: 'nagashino', year: '1575', name: '長篠の戦い', east: { name: '織田・徳川連合', force: '約3万8千' }, west: { name: '武田軍', force: '約1万5千' }, winner: 'east', winnerName: '織田・徳川', implemented: false },
+      { id: 'nagashino', year: '1575', name: '長篠の戦い', east: { name: '織田・徳川連合', force: '約3万8千' }, west: { name: '武田軍', force: '約1万5千' }, winner: 'east', winnerName: '織田・徳川', implemented: true },
       { id: 'mikatagahara', year: '1572', name: '三方ヶ原の戦い', east: { name: '徳川軍', force: '約1万1千' }, west: { name: '武田軍', force: '約3万' }, winner: 'west', winnerName: '武田軍', implemented: false },
     ],
   },
@@ -3359,7 +3364,7 @@ document.getElementById('backFromSim').addEventListener('click', () => {
 });
 
 // ========= シミュレーション =========
-const PLAYABLE_BATTLES = ['sekigahara', 'okehazama'];
+const PLAYABLE_BATTLES = ['sekigahara', 'okehazama', 'nagashino'];
 function openSimulation(battleId) {
   if (!PLAYABLE_BATTLES.includes(battleId)) return;
   if (battleId !== BATTLE_ID) {
@@ -3388,12 +3393,13 @@ function openSimulation(battleId) {
 // 合戦ごとに画面の一部(総大将の表示・凡例)を合わせる
 function prepareBattleDom() {
   document.body.dataset.battle = BATTLE_ID;
-  if (!IS_OKE) return;
+  const dom = BX.dom;
+  if (!dom) return;
   const kick = document.querySelector('.sim-title-jp');
-  if (kick) kick.textContent = 'OKEHAZAMA · 3D';
+  if (kick) kick.textContent = dom.kicker;
   const yr = document.querySelector('.sim-date-badge > div:last-child');
-  if (yr) yr.textContent = '1560';
-  [['ieyasu', 'nobunaga'], ['mitsunari', 'yoshimoto']].forEach(([from, to]) => {
+  if (yr) yr.textContent = dom.year;
+  dom.rename.forEach(([from, to]) => {
     const el = document.getElementById('gi-' + from);
     if (!el) return;
     el.id = 'gi-' + to;
@@ -3463,7 +3469,7 @@ function __fbm(x, y, octaves) {
 }
 
 function getTerrainHeight(x, z) {
-  if (IS_OKE) return okeTerrainHeight(x, z);
+  if (BX.terrain) return BX.terrain(x, z);
   let h = 0;
   h += Math.exp(-((x + 35) ** 2 + (z + 30) ** 2) / 280) * 11;
   h += Math.exp(-((x + 30) ** 2 + (z - 30) ** 2) / 300) * 14;
@@ -5053,7 +5059,7 @@ function smokeColor(base) {
 
 let lastSignalT = 0, lastShotT = 0;
 function updateSpecialFx(t) {
-  if (IS_OKE) { okeSpecialFx(t); return; }
+  if (BX.fx) { BX.fx(t); return; }
   // 狼煙(フェーズ6: 笹尾山から黒い煙が立ちのぼる)
   if (currentPhase === 5 && units.mitsunari && t - lastSignalT > 0.12) {
     const p = units.mitsunari.group.position;
@@ -5447,7 +5453,7 @@ function crowdSurge(vol = 0.25, delay = 0, dur = 2.8) {
 // ---------- 名場面の音 ----------
 function playMomentSound(idx) {
   if (!sndReady()) return;
-  if (IS_OKE) { okeMomentSound(idx); return; }
+  if (BX.sound) { BX.sound(idx); return; }
   if (idx === 3) {            // 開戦: 法螺貝 → 陣太鼓 → 銃声
     horagai(0.32, 0, 2.6);
     [0.3, 0.8, 1.3, 1.55, 1.8].forEach(d => taiko(0.5, d));
@@ -5485,7 +5491,7 @@ function updateAudio(dt, t) {
   if (Math.random() < rate * dt) gunshot(0.08 + Math.random() * 0.18);
 
   // 本格的な戦闘中(開戦〜膠着)は、遠くで陣太鼓
-  if ((IS_OKE ? (currentPhase >= 10 && currentPhase <= 11) : (currentPhase >= 3 && currentPhase <= 6)) && cine.t < 0 && t - snd.lastAmbientDrum > 3.2) {
+  if ((BX.drum ? (currentPhase >= BX.drum[0] && currentPhase <= BX.drum[1]) : (currentPhase >= 3 && currentPhase <= 6)) && cine.t < 0 && t - snd.lastAmbientDrum > 3.2) {
     taiko(0.16, 0); taiko(0.12, 0.45);
     snd.lastAmbientDrum = t;
   }
@@ -6039,6 +6045,11 @@ const _replaceArr = (a, b) => { a.length = 0; b.forEach(x => a.push(x)); };
 const _replaceObj = (o, n) => { Object.keys(o).forEach(k => delete o[k]); Object.assign(o, n); };
 
 if (IS_OKE) {
+  Object.assign(BX, {
+    terrain: okeTerrainHeight, decor: buildOkeDecor, rocks: OKE_ROCKS, trees: OKE_TREES,
+    units: makeOkeUnits, fx: okeSpecialFx, sound: okeMomentSound, drum: [10, 11],
+    dom: { kicker: 'OKEHAZAMA · 3D', year: '1560', rename: [['ieyasu', 'nobunaga'], ['mitsunari', 'yoshimoto']] },
+  });
   const P = OKE_POS;
   const ALL0 = {
     nobunaga: [-70, -60], hattori: [-73, -57], shinsuke: [-67, -63],
@@ -6373,6 +6384,564 @@ if (IS_OKE) {
   kamonImages.motoyasu = kamonImages.ieyasu;
   kamonImages.nobunaga = "data:image/png;base64,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";
   kamonImages.yoshimoto = "data:image/png;base64,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";
+}
+
+
+// ========================================================
+// ===== 3戦目: 長篠・設楽原の戦い(?battle=nagashino) =====
+// ========================================================
+// 座標: x が東、z が南。1単位 ≒ 50m。
+const NAGA_POS = {
+  chausu: [-36, -12], takamatsu: [-24, 16], shinmido: [-48, -34], maruyama: [-1, -28],
+  sainokami: [22, -2], castle: [60, 6], tobinosu: [63, 27], allied_s: [-22, 34],
+};
+const NAGA_RIVERS = [
+  // 連吾川(設楽原を南へ)
+  [[-6, -80], [-8, -48], [-6, -18], [-8, 6], [-7, 30], [-10, 56], [-9, 80]],
+  // 寒狭川(北から長篠城へ)
+  [[44, -80], [46, -40], [49, -8], [55, 10]],
+  // 宇連川(東から長篠城へ)
+  [[80, 4], [68, 9], [55, 10]],
+  // 豊川(合流して南西へ)
+  [[55, 10], [46, 34], [30, 60], [16, 80]],
+];
+// 馬防柵の位置(連吾川の西岸)
+function nagaRiverX(z) {
+  const line = NAGA_RIVERS[0];
+  for (let i = 0; i < line.length - 1; i++) {
+    const a = line[i], b = line[i + 1];
+    if (z >= a[1] && z <= b[1]) return a[0] + (b[0] - a[0]) * (z - a[1]) / (b[1] - a[1]);
+  }
+  return -8;
+}
+const NAGA_FENCE = { z0: -36, z1: 34, off: 4.2 };
+const nagaFenceX = (z) => nagaRiverX(z) - NAGA_FENCE.off;
+
+function nagaTerrainHeight(x, z) {
+  const hill = (cx, cz, s, a) => Math.exp(-((x - cx) ** 2 + (z - cz) ** 2) / s) * a;
+  let h = 0;
+  h += hill(-36, -12, 160, 7);     // 茶臼山(信長)
+  h += hill(-24, 16, 140, 5.5);    // 高松山・弾正山(家康)
+  h += hill(-48, -34, 180, 7);     // 新御堂山(信忠)
+  h += hill(-52, 6, 260, 6);       // 極楽寺山
+  h += hill(-1, -28, 50, 3.6);     // 丸山
+  h += hill(22, -2, 140, 6);       // 才ノ神(勝頼)
+  h += hill(63, 27, 150, 11);      // 鳶ヶ巣山
+  h += hill(74, 40, 260, 9);
+  h += hill(60, 6, 40, 3);         // 長篠城の台地
+  h += hill(-40, 50, 400, 8);      // 南の山(酒井隊の山越え)
+  h += hill(10, 62, 360, 9);
+  h += hill(36, -50, 500, 8);
+  h += hill(-30, -64, 400, 7);
+  // 武田側の台地(信玄台地)
+  h += Math.exp(-((x - 14) ** 2) / 160) * 3.2 * (1 - Math.exp(-((z - 60) ** 2) / 300));
+  h += __fbm(x * 0.05, z * 0.05, 3) * 2.6 - 0.9;
+  h += __fbm(x * 0.15, z * 0.15, 4) * 0.9;
+  h += __fbm(x * 0.5, z * 0.5, 2) * 0.3;
+  // 川の谷
+  let rd = 1e9;
+  NAGA_RIVERS.forEach(line => { for (let i = 0; i < line.length - 1; i++) rd = Math.min(rd, _segDist(x, z, line[i], line[i + 1])); });
+  const k = Math.exp(-(rd * rd) / 9);
+  h = h * (1 - k * 0.92) - k * 0.5;
+  // 連吾川沿いの湿地は平らに
+  const rx = nagaRiverX(z);
+  const flat = Math.exp(-((x - rx) ** 2) / 50);
+  h = h * (1 - flat * 0.55);
+  return Math.max(-0.5, h);
+}
+
+function buildNagaDecor() {
+  const rmat = new THREE.MeshStandardMaterial({ color: 0x6888a8, transparent: true, opacity: 0.75, roughness: 0.2, metalness: 0.3 });
+  NAGA_RIVERS.forEach((line, i) => {
+    const pts = line.map(([x, z]) => new THREE.Vector3(x, 0.12, z));
+    const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 60, i === 0 ? 0.9 : 1.6, 6, false), rmat);
+    tube.scale.y = 0.15;
+    scene.add(tube);
+  });
+  const wood = new THREE.MeshStandardMaterial({ color: 0x5a4028, roughness: 0.95 });
+  const pale = new THREE.MeshStandardMaterial({ color: 0x7a5c3a, roughness: 0.95 });
+  const wall = new THREE.MeshStandardMaterial({ color: 0xd8d0bc, roughness: 0.9 });
+  const roof = new THREE.MeshStandardMaterial({ color: 0x3a3a3e, roughness: 0.8, flatShading: true });
+
+  // 馬防柵: 二重の柵(ところどころに出入り口)。1本ずつだと重いのでまとめて InstancedMesh にする
+  const posts = [];
+  const rails = [];
+  for (let row = 0; row < 2; row++) {
+    const dx = -row * 1.6;
+    for (let z = NAGA_FENCE.z0; z <= NAGA_FENCE.z1; z += 0.9) {
+      const gap = ((z - NAGA_FENCE.z0) % 9) > 7.4;
+      if (gap && row === 0) continue;
+      if (((z - NAGA_FENCE.z0 + 4.5) % 9) > 7.4 && row === 1) continue;
+      const x = nagaFenceX(z) + dx;
+      posts.push([x, getTerrainHeight(x, z), z]);
+    }
+  }
+  const postGeo = new THREE.CylinderGeometry(0.07, 0.09, 1.5, 5);
+  const postMesh = new THREE.InstancedMesh(postGeo, wood, posts.length);
+  const m4 = new THREE.Matrix4();
+  posts.forEach(([x, y, z], i) => { m4.makeTranslation(x, y + 0.65, z); postMesh.setMatrixAt(i, m4); });
+  postMesh.castShadow = true;
+  scene.add(postMesh);
+  // 横木
+  for (let row = 0; row < 2; row++) {
+    const dx = -row * 1.6;
+    for (let z = NAGA_FENCE.z0; z < NAGA_FENCE.z1; z += 2.2) {
+      const za = z, zb = Math.min(NAGA_FENCE.z1, z + 2.2);
+      const xa = nagaFenceX(za) + dx, xb = nagaFenceX(zb) + dx;
+      const ya = getTerrainHeight(xa, za), yb = getTerrainHeight(xb, zb);
+      [0.55, 1.1].forEach(hh => rails.push([xa, ya + hh, za, xb, yb + hh, zb]));
+    }
+  }
+  const railGeo = new THREE.BoxGeometry(0.06, 0.06, 1);
+  const railMesh = new THREE.InstancedMesh(railGeo, pale, rails.length);
+  const v1 = new THREE.Vector3(), v2 = new THREE.Vector3(), q = new THREE.Quaternion(), sc = new THREE.Vector3();
+  rails.forEach(([xa, ya, za, xb, yb, zb], i) => {
+    v1.set(xa, ya, za); v2.set(xb, yb, zb);
+    const len = v1.distanceTo(v2);
+    const mid = v1.clone().add(v2).multiplyScalar(0.5);
+    q.setFromUnitVectors(new THREE.Vector3(0, 0, 1), v2.clone().sub(v1).normalize());
+    sc.set(1, 1, len);
+    m4.compose(mid, q, sc);
+    railMesh.setMatrixAt(i, m4);
+  });
+  scene.add(railMesh);
+
+  // 長篠城・鳶ヶ巣山砦
+  const stakeGeo = new THREE.CylinderGeometry(0.09, 0.11, 1.3, 5);
+  function fort(x, z, r, castle) {
+    const g = new THREE.Group();
+    const gy = getTerrainHeight(x, z);
+    g.position.set(x, 0, z);
+    const n = Math.round(r * 9);
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2;
+      if (Math.abs(a - Math.PI) < 0.2) continue;
+      const sx = Math.cos(a) * r, sz = Math.sin(a) * r;
+      const st = new THREE.Mesh(stakeGeo, wood);
+      st.position.set(sx, getTerrainHeight(x + sx, z + sz) + 0.55, sz);
+      g.add(st);
+    }
+    const tw = new THREE.Mesh(new THREE.BoxGeometry(1.1, castle ? 1.6 : 2.0, 1.1), castle ? wall : wood);
+    tw.position.set(r * 0.35, gy + (castle ? 0.8 : 1.0), -r * 0.3);
+    tw.castShadow = true;
+    g.add(tw);
+    const rf = new THREE.Mesh(new THREE.ConeGeometry(1.0, 0.7, 4), roof);
+    rf.rotation.y = Math.PI / 4;
+    rf.position.set(r * 0.35, gy + (castle ? 1.95 : 2.35), -r * 0.3);
+    g.add(rf);
+    if (castle) {
+      const hall = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.0, 1.6), wall);
+      hall.position.set(-r * 0.25, gy + 0.5, r * 0.2);
+      hall.castShadow = true;
+      g.add(hall);
+      const hr = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 1.7, 0.8, 4, 1), roof);
+      hr.rotation.y = Math.PI / 4;
+      hr.scale.set(1.15, 1, 0.75);
+      hr.position.set(-r * 0.25, gy + 1.4, r * 0.2);
+      g.add(hr);
+    }
+    scene.add(g);
+  }
+  fort(...NAGA_POS.castle, 3.4, true);
+  fort(...NAGA_POS.tobinosu, 2.8, false);
+}
+const NAGA_ROCKS = [[63, 27, 14], [22, -2, 8], [-48, -34, 8]];
+const NAGA_TREES = [[-48, -34, 34, 5, 15], [-52, 6, 30, 4, 15], [63, 27, 40, 5, 16], [74, 40, 30, 3, 14],
+  [-40, 50, 40, 4, 18], [10, 62, 40, 4, 16], [36, -50, 40, 4, 18], [-30, -64, 30, 4, 16], [30, 20, 14, 3, 10]];
+
+function makeNagaUnits() {
+  return {
+    nobunaga:  new Unit('nobunaga',  '織', 'east', -36, -12, '織田信長', 1.4, true),
+    nobutada:  new Unit('nobutada',  '忠', 'east', -48, -34, '織田信忠', 1.0),
+    ieyasu:    new Unit('ieyasu',    '徳', 'east', -24, 16,  '徳川家康', 1.2),
+    okubo:     new Unit('okubo',     '大', 'east', -15, 26,  '大久保忠世', 0.7),
+    nobumori:  new Unit('nobumori',  '佐', 'east', -1, -28,  '佐久間信盛', 0.9),
+    shibata:   new Unit('shibata',   '柴', 'east', -18, -22, '柴田勝家', 0.9),
+    hideyoshi: new Unit('hideyoshi', '羽', 'east', -18, -6,  '羽柴秀吉', 0.9),
+    teppo:     new Unit('teppo',     '鉄', 'east', -15, 4,   '鉄砲隊', 0.9),
+    sakai:     new Unit('sakai',     '酒', 'east', -22, 34,  '酒井忠次', 0.95),
+    okudaira:  new Unit('okudaira',  '奥', 'east', 60, 6,    '奥平貞昌', 0.6),
+    katsuyori: new Unit('katsuyori', '武', 'west', 30, -2,   '武田勝頼', 1.4, true),
+    baba:      new Unit('baba',      '馬', 'west', 22, -30,  '馬場信春', 1.0),
+    sanada:    new Unit('sanada',    '真', 'west', 20, -18,  '真田信綱', 0.95),
+    tsuchiya:  new Unit('tsuchiya',  '土', 'west', 22, -9,   '土屋昌続', 0.8),
+    naito:     new Unit('naito',     '内', 'west', 20, 2,    '内藤昌豊', 1.0),
+    nobukado:  new Unit('nobukado',  '廉', 'west', 22, 11,   '武田信廉', 0.9),
+    yamagata:  new Unit('yamagata',  '山', 'west', 20, 21,   '山県昌景', 1.05),
+    nobutoyo:  new Unit('nobutoyo',  '豊', 'west', 22, 30,   '武田信豊', 0.85),
+    nobuzane:  new Unit('nobuzane',  '実', 'west', 63, 27,   '武田信実', 0.8),
+    siege:     new Unit('siege',     '囲', 'west', 50, -2,   '長篠城の包囲勢', 0.85),
+  };
+}
+
+// 特殊効果: 柵ごしの鉄砲、砦の炎上
+let nagaLastT = 0, nagaLastShot = 0, nagaLastSmoke = 0, nagaRipple = -1, nagaRipplePhase = -1, nagaLastCrack = 0;
+function nagaShot(z, big) {
+  const x = nagaFenceX(z) - 0.6;
+  const y = getTerrainHeight(x, z) + 1.0;
+  addFx('flash', x + 0.5, y, z, { s0: big ? 3.0 : 2.2, s1: big ? 5.0 : 3.6, life: 0.22, color: 0xffd890 });
+  addFx('smoke', x + 0.6, y, z, { color: smokeColor(0xd6d8dc), life: 4.5, s0: 2.6, s1: big ? 13 : 10, vy: 0.7, vx: 1.6, vz: 0.2, op: 0.95 });
+}
+function nagaSpecialFx(t) {
+  const dt = Math.min(0.1, Math.max(0, t - nagaLastT));
+  nagaLastT = t;
+  const p = phases[currentPhase];
+  if (!p) return;
+  // 一斉射撃: 北から南へ波のように
+  if (currentPhase === 5 && nagaRipplePhase !== 5 && !altPhaseSet.has(5)) { nagaRipple = t; }
+  nagaRipplePhase = currentPhase;
+  if (nagaRipple >= 0) {
+    const k = (t - nagaRipple) / 1.6;
+    if (k > 1.05) nagaRipple = -1;
+    else {
+      for (let i = 0; i < 4; i++) {
+        const z = NAGA_FENCE.z0 + (NAGA_FENCE.z1 - NAGA_FENCE.z0) * Math.min(1, k + Math.random() * 0.06);
+        nagaShot(z, true);
+      }
+    }
+  }
+  // 柵の前の戦闘地点で絶え間ない射撃
+  const nearFence = (p.battles || []).filter(b => Math.abs(b.x - nagaRiverX(b.z)) < 12 && b.z > NAGA_FENCE.z0 - 4 && b.z < NAGA_FENCE.z1 + 4);
+  if (nearFence.length && t - nagaLastShot > 0.06) {
+    const b = nearFence[Math.floor(Math.random() * nearFence.length)];
+    // 半分は戦っている場所の近く、半分は柵全体から
+    const z = Math.random() < 0.5
+      ? Math.max(NAGA_FENCE.z0, Math.min(NAGA_FENCE.z1, b.z + (Math.random() - 0.5) * 16))
+      : NAGA_FENCE.z0 + Math.random() * (NAGA_FENCE.z1 - NAGA_FENCE.z0);
+    nagaShot(z, false);
+    nagaShot(Math.max(NAGA_FENCE.z0, Math.min(NAGA_FENCE.z1, z + (Math.random() - 0.5) * 6)), false);
+    nagaLastShot = t;
+    if (sndReady() && t - nagaLastCrack > 0.35 + Math.random() * 0.5 && cine.t < 0) {
+      gunshot(0.06 + Math.random() * 0.08, 0);
+      nagaLastCrack = t;
+    }
+  }
+  // 鳶ヶ巣山砦の炎上
+  const burning = currentPhase >= 3 && currentPhase <= 5 && !(decideState.active && decideState.choices[1] === 'noraid');
+  if (burning && t - nagaLastSmoke > (currentPhase === 3 ? 0.14 : 0.45)) {
+    const [x, z] = NAGA_POS.tobinosu;
+    const y = getTerrainHeight(x, z);
+    addFx('smoke', x - 1 + Math.random() * 2, y + 1.2, z - 1 + Math.random() * 2,
+      { color: smokeColor(0x403a36), life: 8, s0: 2.2, s1: 12, vy: 2.6, vx: -1.2, vz: -0.6, op: currentPhase === 3 ? 0.9 : 0.5 });
+    if (currentPhase === 3 && Math.random() < 0.6) addFx('flash', x - 1 + Math.random() * 2, y + 0.8, z - 1 + Math.random() * 2, { s0: 1.4, s1: 2.4, life: 0.35, color: 0xff7a2a });
+    nagaLastSmoke = t;
+  }
+  void dt;
+}
+
+function nagaMomentSound(idx) {
+  if (idx === 3) {            // 鳶ヶ巣山: 夜明けの奇襲
+    for (let i = 0; i < 10; i++) gunshot(0.12 + Math.random() * 0.15, 0.1 + Math.random() * 2.2);
+    crowdSurge(0.2, 0.5, 2.4);
+  } else if (idx === 4) {     // 開戦: 法螺貝と太鼓
+    horagai(0.3, 0, 2.4);
+    [0.6, 1.0, 1.4, 1.8, 2.2].forEach(d => taiko(0.42, d));
+  } else if (idx === 5) {     // 一斉射撃
+    for (let i = 0; i < 26; i++) gunshot(0.16 + Math.random() * 0.16, 0.05 + i * 0.06 + Math.random() * 0.05);
+    crowdSurge(0.18, 1.6, 2.2);
+  } else if (idx === 8) {     // 赤備え散る
+    for (let i = 0; i < 8; i++) gunshot(0.14 + Math.random() * 0.12, Math.random() * 1.4);
+    [0.4, 1.0].forEach(d => taiko(0.5, d));
+  } else if (idx === 10) {    // 総崩れ
+    crowdSurge(0.3, 0.2, 3.0);
+    horagai(0.26, 0.4, 2.2);
+  } else if (idx === 11) {    // 殿
+    [0.05, 0.7].forEach(d => taiko(0.55, d));
+    crowdSurge(0.22, 0.6, 2.4);
+  } else if (idx === 12) {    // 終幕
+    horagai(0.28, 0, 2.2);
+    crowdSurge(0.22, 0.5, 2.4);
+    horagai(0.24, 2.3, 2.4);
+  }
+}
+
+if (IS_NAGA) {
+  Object.assign(BX, {
+    terrain: nagaTerrainHeight, decor: buildNagaDecor, rocks: NAGA_ROCKS, trees: NAGA_TREES,
+    units: makeNagaUnits, fx: nagaSpecialFx, sound: nagaMomentSound, drum: [4, 9],
+    dom: { kicker: 'NAGASHINO · 3D', year: '1575', rename: [['ieyasu', 'nobunaga'], ['mitsunari', 'katsuyori']] },
+  });
+
+  const ALL0 = {
+    nobunaga: [-36, -12], nobutada: [-48, -34], ieyasu: [-24, 16], okubo: [-15, 26], nobumori: [-1, -28],
+    shibata: [-18, -22], hideyoshi: [-18, -6], teppo: [-15, 4], sakai: [-22, 34], okudaira: [60, 6],
+    katsuyori: [30, -2], baba: [22, -30], sanada: [20, -18], tsuchiya: [22, -9], naito: [20, 2],
+    nobukado: [22, 11], yamagata: [20, 21], nobutoyo: [22, 30], nobuzane: [63, 27], siege: [50, -2],
+  };
+  const U = (o) => Object.assign({}, ALL0, o);
+  // 夜明けに台地へ並んだ武田軍
+  const TK = { katsuyori: [22, -2], baba: [12, -30], sanada: [10, -19], tsuchiya: [11, -10], naito: [10, 0], nobukado: [12, 9], yamagata: [10, 20], nobutoyo: [12, 29] };
+  const SAK_DONE = { sakai: [60, 20], okudaira: [56, 4], siege: [50, -2] };
+  const D3 = ['nobuzane', 'siege'];
+  const ph = (time, ja, units, extra) => Object.assign({ time, units, battles: [], battling: [], defeated: [], traitor: null }, ja, extra || {});
+
+  _replaceArr(phases, [
+    ph('20:00', { phase: '前夜', label: '前夜', title: '長篠城を救え——両軍、設楽原へ',
+      text: '武田勝頼の約1万5千に囲まれた長篠城は、<span class="info-east">奥平貞昌</span>ら約500で持ちこたえていた。援軍を呼びに城を抜けた<span class="info-east">鳥居強右衛門</span>は、帰り道で捕まり、「援軍は来る」と城に叫んで殺された。織田・徳川の<span class="info-highlight">約3万8千</span>は設楽原に着き、連吾川沿いに<span class="info-highlight">馬防柵</span>を築く。',
+      camera: { pos: [10, 76, 80], look: [6, 0, -2], label: 'CAM · 俯瞰' } }, U({})),
+    ph('22:00', { phase: '別働隊', label: '別働隊', title: '酒井忠次の別働隊、夜の山へ',
+      text: '信長の命で、徳川の重臣<span class="info-east">酒井忠次</span>が約4千を率いて陣を出た。鉄砲500挺を含む部隊は、南の山を大きくまわり、<span class="info-highlight">長篠城を見張る鳶ヶ巣山の砦</span>をめざす。',
+      camera: { pos: [-6, 46, 72], look: [-10, 0, 40], label: 'CAM · 南の山' } }, U({ sakai: [-6, 54] })),
+    ph('04:00', { phase: '武田軍の布陣', label: '布陣', title: '武田軍、連吾川の東に並ぶ',
+      text: '重臣たちは退くよう勧めたが、勝頼は決戦を選んだ。包囲に約3千を残し、<span class="info-west">約1万2千</span>が連吾川の東の台地に並ぶ。北に<span class="info-west">馬場信春・真田信綱</span>、中央に<span class="info-west">内藤昌豊</span>、南に<span class="info-west">山県昌景</span>。',
+      camera: { pos: [44, 44, 46], look: [12, 0, 0], label: 'CAM · 信玄台地' } }, U(Object.assign({}, TK, { sakai: [30, 66] }))),
+    ph('05:00', { phase: '鳶ヶ巣山奇襲', label: '鳶ヶ巣山', title: '夜明けの奇襲、鳶ヶ巣山の砦が落ちる',
+      text: '夜明けとともに、<span class="info-east">酒井隊</span>が鳶ヶ巣山の砦に襲いかかった。守将の<span class="info-west">武田信実</span>(勝頼の叔父)は討死。長篠城の<span class="info-east">奥平勢</span>も打って出て、<span class="info-highlight">城の包囲は解けた</span>。武田軍は背後を断たれた。',
+      camera: { pos: [36, 40, 56], look: [58, 0, 16], label: 'CAM · 鳶ヶ巣山' } },
+      U(Object.assign({}, TK, { sakai: [60, 25], okudaira: [55, 3], nobuzane: [64, 28], siege: [52, 0] })),
+      { battles: [{ x: 62, z: 26 }, { x: 53, z: 2 }], battling: ['sakai', 'nobuzane', 'okudaira', 'siege'], defeated: D3 }),
+    ph('06:00', { phase: '開戦', label: '開戦', title: '山県昌景の赤備え、徳川勢へ',
+      text: '武田軍が動いた。南では<span class="info-west">山県昌景</span>の部隊が、柵の前に出ていた徳川の<span class="info-east">大久保忠世・忠佐</span>兄弟に打ちかかる。大久保兄弟は引いては返し、武田勢を<span class="info-highlight">柵の前へ誘い込む</span>。',
+      camera: { pos: [18, 50, 58], look: [-6, 0, 20], label: 'CAM · 徳川の前線' } },
+      U(Object.assign({}, TK, SAK_DONE, { yamagata: [-3, 24], okubo: [-6, 27] })),
+      { battles: [{ x: -5, z: 25 }], battling: ['yamagata', 'okubo'], defeated: D3 }),
+    ph('07:00', { phase: '鉄砲', label: '鉄砲', title: '柵の内から鉄砲が火を噴く',
+      text: '武田勢が柵に迫ると、柵の内側から<span class="info-highlight">鉄砲がいっせいに火を噴いた</span>。『信長公記』では、柵の前に出した鉄砲はおよそ千挺。有名な「三段撃ち」は、のちの書物が広めた話と考えられている。',
+      camera: { pos: [28, 54, 46], look: [-10, 0, 0], label: 'CAM · 馬防柵' } },
+      U(Object.assign({}, TK, SAK_DONE, { yamagata: [-1, 18], okubo: [-14, 24], naito: [4, 4], nobutoyo: [2, 28] })),
+      { battles: [{ x: -7, z: 18 }, { x: -8, z: 4 }], battling: ['yamagata', 'teppo', 'ieyasu', 'naito'], defeated: D3 }),
+    ph('08:00', { phase: '中央の突撃', label: '中央', title: '内藤昌豊・武田信廉、中央を攻める',
+      text: '中央から<span class="info-west">内藤昌豊・武田信廉</span>の隊が押し寄せる。武田勢は入れかわり立ちかわり攻めかかるが、柵と鉄砲に阻まれ、<span class="info-highlight">柵の向こうへ届かない</span>。',
+      camera: { pos: [28, 50, 40], look: [-6, 0, 2], label: 'CAM · 中央' } },
+      U(Object.assign({}, TK, SAK_DONE, { naito: [-1, 0], nobukado: [0, 9], yamagata: [0, 20], okubo: [-14, 24] })),
+      { battles: [{ x: -7, z: 0 }, { x: -7, z: 10 }, { x: -7, z: 20 }], battling: ['naito', 'nobukado', 'yamagata', 'teppo', 'hideyoshi', 'ieyasu'], defeated: D3 }),
+    ph('09:00', { phase: '丸山', label: '丸山', title: '馬場信春、丸山を奪う',
+      text: '北では<span class="info-west">馬場信春</span>が、柵の外の丸山に陣取っていた<span class="info-east">佐久間信盛</span>を追い払った。<span class="info-west">真田信綱・昌輝</span>兄弟と<span class="info-west">土屋昌続</span>は、その勢いで北の柵へ突き進む。',
+      camera: { pos: [30, 50, 6], look: [-4, 0, -22], label: 'CAM · 丸山' } },
+      U(Object.assign({}, TK, SAK_DONE, { baba: [-1, -29], nobumori: [-16, -30], sanada: [-1, -18], tsuchiya: [0, -10], naito: [-1, 0], nobukado: [0, 9], yamagata: [0, 20], okubo: [-14, 24] })),
+      { battles: [{ x: -1, z: -28 }, { x: -7, z: -18 }, { x: -7, z: 2 }], battling: ['baba', 'nobumori', 'sanada', 'tsuchiya', 'shibata', 'naito', 'teppo'], defeated: D3 }),
+    ph('10:00', { phase: '赤備え散る', label: '討死', title: '山県昌景、真田兄弟が討たれる',
+      text: '鉄砲の弾が<span class="info-west">山県昌景</span>を撃ち抜いた。北の柵では<span class="info-west">真田信綱・昌輝</span>兄弟、<span class="info-west">土屋昌続</span>も討死する。武田の名だたる武将が、<span class="info-highlight">柵の前で次々に倒れていく</span>。',
+      camera: { pos: [30, 54, 40], look: [-4, 0, -2], label: 'CAM · 馬防柵' } },
+      U(Object.assign({}, TK, SAK_DONE, { baba: [-1, -29], nobumori: [-16, -30], sanada: [-2, -18], tsuchiya: [-2, -10], naito: [1, 0], nobukado: [2, 9], yamagata: [-2, 19], okubo: [-14, 24] })),
+      { battles: [{ x: -7, z: -16 }, { x: -7, z: 18 }], battling: ['teppo', 'shibata', 'ieyasu', 'naito', 'nobukado'], defeated: D3.concat(['yamagata', 'sanada', 'tsuchiya']) }),
+    ph('12:00', { phase: '柵から出る', label: '反撃', title: '連合軍、柵を出て押し返す',
+      text: '昼になると武田勢の勢いは尽きた。今度は織田・徳川の兵が<span class="info-highlight">柵から出て押し返す</span>。<span class="info-east">柴田勝家・羽柴秀吉</span>らの隊が、川を越えて武田の陣へ迫る。',
+      camera: { pos: [32, 54, 46], look: [4, 0, 0], label: 'CAM · 連吾川' } },
+      U(Object.assign({}, TK, SAK_DONE, { shibata: [2, -22], hideyoshi: [3, -6], teppo: [-6, 4], ieyasu: [-4, 14], okubo: [0, 24], baba: [8, -26], naito: [7, 2], nobukado: [9, 10], nobutoyo: [9, 28], sanada: [-2, -18], tsuchiya: [-2, -10], yamagata: [-2, 19] })),
+      { battles: [{ x: 5, z: -24 }, { x: 5, z: -4 }, { x: 4, z: 14 }], battling: ['shibata', 'baba', 'hideyoshi', 'naito', 'ieyasu', 'nobukado'], defeated: D3.concat(['yamagata', 'sanada', 'tsuchiya']) }),
+    ph('13:00', { phase: '総崩れ', label: '総崩れ', title: '武田軍、総崩れ',
+      text: '武田軍は<span class="info-highlight">総崩れ</span>となり、北東へ向かって逃げ出した。連合軍はそれを追う。中央を支えた<span class="info-west">内藤昌豊</span>も、退く途中で討たれた。',
+      camera: { pos: [42, 46, 38], look: [16, 0, -4], label: 'CAM · 信玄台地' } },
+      U(Object.assign({}, SAK_DONE, { katsuyori: [32, -18], baba: [18, -22], naito: [14, -2], nobukado: [24, 4], nobutoyo: [26, 20], shibata: [10, -22], hideyoshi: [10, -6], ieyasu: [6, 12], okubo: [8, 22], teppo: [-2, 4], sanada: [-2, -18], tsuchiya: [-2, -10], yamagata: [-2, 19] })),
+      { battles: [{ x: 14, z: -4 }, { x: 16, z: -20 }], battling: ['naito', 'hideyoshi', 'baba', 'shibata'], defeated: D3.concat(['yamagata', 'sanada', 'tsuchiya', 'naito']) }),
+    ph('14:00', { phase: '馬場の殿', label: '殿', title: '馬場信春、勝頼を逃がして討死',
+      text: '<span class="info-west">馬場信春</span>は退く勝頼の後ろを守る<span class="info-highlight">殿(しんがり)</span>となり、勝頼が逃げ切ったのを見届けて討死した。60歳を超えた老将で、生涯一度も傷を負わなかったと伝わる。',
+      camera: { pos: [52, 38, 2], look: [32, 0, -22], label: 'CAM · 北東の山道' } },
+      U(Object.assign({}, SAK_DONE, { katsuyori: [46, -38], baba: [32, -24], naito: [14, -2], nobukado: [40, -14], nobutoyo: [42, -4], shibata: [26, -22], hideyoshi: [28, -16], ieyasu: [18, 6], okubo: [20, 14], teppo: [-2, 4], sanada: [-2, -18], tsuchiya: [-2, -10], yamagata: [-2, 19] })),
+      { battles: [{ x: 30, z: -23 }], battling: ['baba', 'shibata', 'hideyoshi'], defeated: D3.concat(['yamagata', 'sanada', 'tsuchiya', 'naito', 'baba']) }),
+    ph('15:00', { phase: '戦の後', label: '戦の後', title: '勝頼、わずかな兵で甲斐へ',
+      text: '<span class="info-west">武田勝頼</span>はわずかな供回りとともに信濃へ逃れた。武田家は多くの重臣を失い、長篠城は救われた。城を守った<span class="info-east">奥平貞昌</span>は信長から「信」の字を与えられ、<span class="info-highlight">信昌</span>と名を改める。',
+      camera: { pos: [12, 76, 80], look: [6, 0, -2], label: 'CAM · 俯瞰' } },
+      U(Object.assign({}, SAK_DONE, { katsuyori: [52, -58], baba: [32, -24], naito: [14, -2], nobukado: [50, -46], nobutoyo: [56, -40], shibata: [28, -26], hideyoshi: [30, -18], ieyasu: [18, 6], okubo: [20, 14], teppo: [-2, 4], nobunaga: [-24, -8], sanada: [-2, -18], tsuchiya: [-2, -10], yamagata: [-2, 19] })),
+      { defeated: D3.concat(['yamagata', 'sanada', 'tsuchiya', 'naito', 'baba']) }),
+  ]);
+
+  _replaceArr(EN_PHASES, [
+    { phase: 'THE NIGHT BEFORE', label: 'Night before', cam: 'CAM · OVERVIEW',
+      title: 'Save Nagashino Castle — both armies head for Shitaragahara',
+      text: `Besieged by Takeda Katsuyori's 15,000, Nagashino Castle was holding out with about 500 men under <span class="info-east">Okudaira Sadamasa</span>. <span class="info-east">Torii Sune'emon</span> slipped out to call for help, was caught on his way back, and was killed after shouting to the castle that help was coming. Now some <span class="info-highlight">38,000</span> Oda and Tokugawa troops have reached Shitaragahara and are building <span class="info-highlight">horse-stopping fences</span> along the Rengo River.` },
+    { phase: 'THE FLYING COLUMN', label: 'Flying column', cam: 'CAM · SOUTHERN HILLS',
+      title: 'Sakai Tadatsugu leads a column into the night hills',
+      text: `On Nobunaga's orders, the senior Tokugawa retainer <span class="info-east">Sakai Tadatsugu</span> slips out with about 4,000 men, including 500 guns. They swing wide through the southern hills toward <span class="info-highlight">the Takeda forts on Mount Tobinosu that watch Nagashino Castle</span>.` },
+    { phase: 'THE TAKEDA DEPLOY', label: 'Deployment', cam: 'CAM · SHINGEN PLATEAU',
+      title: 'The Takeda line up east of the Rengo River',
+      text: `His senior men urged him to withdraw, but Katsuyori chose to fight. Leaving about 3,000 at the siege, he lines up <span class="info-west">about 12,000</span> on the plateau east of the river: <span class="info-west">Baba Nobuharu and Sanada Nobutsuna</span> in the north, <span class="info-west">Naitō Masatoyo</span> in the center, <span class="info-west">Yamagata Masakage</span> in the south.` },
+    { phase: 'DAWN RAID', label: 'Tobinosu', cam: 'CAM · MOUNT TOBINOSU',
+      title: 'A dawn raid takes the forts on Mount Tobinosu',
+      text: `At first light <span class="info-east">Sakai's column</span> storms the Tobinosu forts. Their commander, <span class="info-west">Takeda Nobuzane</span> — Katsuyori's uncle — is killed. The <span class="info-east">Okudaira garrison</span> sallies out, and <span class="info-highlight">the siege of the castle is broken</span>. The Takeda army's rear is now cut.` },
+    { phase: 'THE BATTLE OPENS', label: 'Opening', cam: 'CAM · TOKUGAWA FRONT',
+      title: "Yamagata's red-armored troops hit the Tokugawa",
+      text: `The Takeda move. In the south, <span class="info-west">Yamagata Masakage</span> attacks the Tokugawa brothers <span class="info-east">Ōkubo Tadayo and Tadasuke</span>, who are skirmishing outside the fence. The Ōkubo fall back and turn again, <span class="info-highlight">drawing the Takeda onto the fence</span>.` },
+    { phase: 'THE GUNS', label: 'Guns', cam: 'CAM · THE FENCE',
+      title: 'Guns blaze from behind the fence',
+      text: `As the Takeda close in, <span class="info-highlight">guns open fire all along the fence</span>. The "Chronicle of Lord Nobunaga" puts the number sent to the front at about 1,000. The famous "three-rank rotating volley" is now thought to be a story added by later writers.` },
+    { phase: 'CENTER ATTACK', label: 'Center', cam: 'CAM · CENTER',
+      title: 'Naitō Masatoyo and Takeda Nobukado hit the center',
+      text: `<span class="info-west">Naitō Masatoyo and Takeda Nobukado</span> surge forward in the center. Wave after wave of Takeda troops attacks, but the fence and the guns hold them, and <span class="info-highlight">they cannot get across</span>.` },
+    { phase: 'MARUYAMA', label: 'Maruyama', cam: 'CAM · MARUYAMA',
+      title: 'Baba Nobuharu takes Maruyama hill',
+      text: `In the north, <span class="info-west">Baba Nobuharu</span> drives <span class="info-east">Sakuma Nobumori</span> off Maruyama, a low hill outside the fence. Riding that momentum, <span class="info-west">Sanada Nobutsuna and Masateru</span> and <span class="info-west">Tsuchiya Masatsugu</span> charge the northern fence.` },
+    { phase: 'THE GENERALS FALL', label: 'Generals fall', cam: 'CAM · THE FENCE',
+      title: 'Yamagata and the Sanada brothers are killed',
+      text: `A bullet brings down <span class="info-west">Yamagata Masakage</span>. At the northern fence <span class="info-west">Sanada Nobutsuna and Masateru</span> and <span class="info-west">Tsuchiya Masatsugu</span> are killed as well. One famous Takeda general after another <span class="info-highlight">falls in front of the fence</span>.` },
+    { phase: 'OUT OF THE FENCE', label: 'Counterattack', cam: 'CAM · RENGO RIVER',
+      title: 'The allies come out from behind the fence',
+      text: `By noon the Takeda attack is spent. Now the Oda and Tokugawa troops <span class="info-highlight">come out from behind the fence</span>. <span class="info-east">Shibata Katsuie and Hashiba Hideyoshi</span> cross the river and press into the Takeda line.` },
+    { phase: 'ROUT', label: 'Rout', cam: 'CAM · SHINGEN PLATEAU',
+      title: 'The Takeda army breaks',
+      text: `<span class="info-highlight">The Takeda army collapses</span> and flees north-east, with the allies on its heels. <span class="info-west">Naitō Masatoyo</span>, who had held the center, is cut down in the retreat.` },
+    { phase: "BABA'S REARGUARD", label: 'Rearguard', cam: 'CAM · NORTH-EAST ROAD',
+      title: 'Baba Nobuharu dies covering the retreat',
+      text: `<span class="info-west">Baba Nobuharu</span> takes the <span class="info-highlight">rearguard</span> behind the fleeing Katsuyori, and only after seeing him get away is he killed. He was over 60, and legend says he had never been wounded in a lifetime of battles.` },
+    { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · OVERVIEW',
+      title: 'Katsuyori escapes to Kai with a handful of men',
+      text: `<span class="info-west">Takeda Katsuyori</span> escapes into Shinano with only a few riders. The Takeda have lost many of their senior generals, and Nagashino Castle is saved. Its defender, <span class="info-east">Okudaira Sadamasa</span>, receives the character "Nobu" from Nobunaga and takes the name <span class="info-highlight">Nobumasa</span>.` },
+  ]);
+
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
+  _replaceArr(PHASE_ARROWS, [
+    [ mvp([36, -4], [24, -4], W) ],
+    [ mvp([-22, 36], [-6, 54], E) ],
+    [ mvp([-4, 56], [30, 66], E), mvp([32, -2], [14, -2], W) ],
+    [ at('sakai', 'nobuzane', E), at('okudaira', 'siege', E) ],
+    [ at('yamagata', 'okubo', W), mvp([-4, 28], [-12, 25], E) ],
+    [ at('teppo', 'naito', E), at('ieyasu', 'yamagata', E), at('yamagata', 'ieyasu', W) ],
+    [ at('naito', 'teppo', W), at('nobukado', 'teppo', W), at('hideyoshi', 'naito', E) ],
+    [ at('baba', 'nobumori', W), at('sanada', 'shibata', W), at('tsuchiya', 'shibata', W) ],
+    [ at('teppo', 'yamagata', E), at('shibata', 'sanada', E) ],
+    [ at('shibata', 'baba', E), at('hideyoshi', 'naito', E), at('ieyasu', 'nobukado', E) ],
+    [ mvp([22, -2], [32, -18], W), at('hideyoshi', 'naito', E), at('shibata', 'baba', E) ],
+    [ mvp([32, -18], [46, -38], W), at('shibata', 'baba', E) ],
+    [ mvp([46, -38], [52, -58], W) ],
+  ]);
+
+  _replaceArr(CINE, [
+    { orbit: 0.02, dolly: 0.06 },
+    { focus: ['sakai'], blend: 0.6, orbit: -0.02, dolly: 0.08 },
+    { focus: ['katsuyori', 'naito'], blend: 0.5, orbit: 0.02, dolly: 0.08 },
+    { focus: ['sakai', 'nobuzane'], blend: 0.8, orbit: 0.025, dolly: 0.1 },
+    { focus: ['yamagata', 'okubo'], blend: 0.8, orbit: -0.02, dolly: 0.1 },
+    { focus: ['yamagata', 'teppo'], blend: 0.5, orbit: 0.02, dolly: 0.06 },
+    { focus: ['naito', 'nobukado', 'teppo'], blend: 0.55, orbit: -0.02, dolly: 0.08 },
+    { focus: ['baba', 'sanada'], blend: 0.75, orbit: 0.02, dolly: 0.1 },
+    { focus: ['sanada', 'yamagata', 'teppo'], blend: 0.5, orbit: -0.02, dolly: 0.08 },
+    { focus: ['shibata', 'hideyoshi'], blend: 0.6, orbit: 0.02, dolly: 0.08 },
+    { focus: ['katsuyori', 'naito'], blend: 0.6, orbit: -0.02, dolly: 0.08 },
+    { focus: ['baba', 'katsuyori'], blend: 0.75, orbit: 0.025, dolly: 0.1 },
+    { orbit: 0.02, dolly: -0.05 },
+  ]);
+
+  _replaceObj(CINE_MOMENTS, {
+    3:  { ja: '鳶ヶ巣山奇襲', en: 'DAWN RAID', subJa: '武田軍の背後を断つ', subEn: 'The Takeda rear is cut', shake: 0.4 },
+    4:  { ja: '開戦', en: 'THE BATTLE BEGINS', subJa: '武田軍、設楽原へ押し出す', subEn: 'The Takeda advance on Shitaragahara', shake: 0.3 },
+    5:  { ja: '一斉射撃', en: 'VOLLEY FIRE', subJa: '柵の内から鉄砲が火を噴く', subEn: 'Guns blaze from behind the fence', shake: 0.8, flash: true, accent: 'gold' },
+    8:  { ja: '赤備え散る', en: 'THE GENERALS FALL', subJa: '山県昌景・真田兄弟、討死', subEn: 'Yamagata and the Sanada brothers are killed', shake: 0.5 },
+    10: { ja: '総崩れ', en: 'THE TAKEDA BREAK', subJa: '武田軍、北東へ逃れる', subEn: 'The Takeda flee north-east', shake: 0.5 },
+    11: { ja: '馬場信春、討死', en: 'BABA FALLS', subJa: '主君を逃がして散る', subEn: 'He dies so his lord can escape', shake: 0.3 },
+    12: { ja: '連合軍勝利', en: 'VICTORY FOR ODA AND TOKUGAWA', subJa: '長篠城は救われた', subEn: 'Nagashino Castle is saved', shake: 0 },
+  });
+  _replaceArr(MOMENTUM, [52, 54, 50, 60, 52, 62, 64, 58, 70, 78, 88, 92, 95]);
+  _replaceArr(PHASE_ATMO, ['night', 'night', 'predawn', 'lifting', 'morning', 'morning', 'morning', 'noon', 'noon', 'noon', 'after', 'after', 'late']);
+
+  _replaceArr(PLACES, [
+    { x: -36, z: -12, ja: '茶臼山', en: 'Chausuyama', lift: 5 },
+    { x: -24, z: 16, ja: '高松山(弾正山)', en: 'Takamatsu hill', lift: 4.5 },
+    { x: -48, z: -34, ja: '新御堂山', en: 'Shinmidō hill', lift: 5 },
+    { x: -1, z: -28, ja: '丸山', en: 'Maruyama', lift: 3.5 },
+    { x: 22, z: -2, ja: '才ノ神', en: 'Sainokami', lift: 4.5 },
+    { x: -9, z: 40, ja: '連吾川', en: 'Rengo River', lift: 1.5, minor: true },
+    { x: -13, z: -40, ja: '馬防柵', en: 'Horse fence', lift: 2.5, minor: true },
+    { x: 60, z: 6, ja: '長篠城', en: 'Nagashino Castle', lift: 5 },
+    { x: 63, z: 27, ja: '鳶ヶ巣山', en: 'Mount Tobinosu', lift: 7 },
+    { x: 54, z: -64, ja: '甲斐・信濃方面', en: 'Toward Kai', lift: 3, minor: true },
+  ]);
+
+  const g = (o) => o;
+  _replaceObj(generalsData, {
+    nobunaga: g({ name: '織田信長', yomi: 'ODA NOBUNAGA', faction: 'east', factionLabel: '織田軍 総大将', force: '30,000', troops: 7000, base: '茶臼山', birth: '1534', koku: '尾張・美濃ほか',
+      bio: '桶狭間から15年。尾張・美濃を足場に畿内まで勢力を広げた。同盟相手の家康を助けるため、約3万の兵を連れて三河へ来た。',
+      episode: '兵に柵木と縄を持たせて岐阜を出たという。設楽原の低い窪地に陣を敷き、兵の数を武田方に見せないようにしたとされる。' }),
+    nobutada: g({ name: '織田信忠', yomi: 'ODA NOBUTADA', faction: 'east', factionLabel: '織田軍', force: '—', troops: 3000, base: '新御堂山', birth: '1557', koku: '—',
+      bio: '信長の長男。この時19歳(数え)。', episode: 'この年の冬には家督を譲られ、のちに武田家を滅ぼす甲州征伐の総大将となる。' }),
+    ieyasu: g({ name: '徳川家康', yomi: 'TOKUGAWA IEYASU', faction: 'east', factionLabel: '徳川軍', force: '8,000', base: '高松山(弾正山)', birth: '1543', koku: '三河・遠江',
+      bio: '三河・遠江の大名。3年前の三方ヶ原では武田信玄に大敗している。', episode: '連吾川からわずか300mほどの高松山に陣を置いた。背後の川にも柵を設けた、まさに背水の陣だった。' }),
+    okubo: g({ name: '大久保忠世・忠佐', yomi: 'ŌKUBO TADAYO · TADASUKE', faction: 'east', factionLabel: '徳川軍', force: '—', troops: 900, base: '柵の前', birth: '1532', koku: '—',
+      bio: '徳川家の重臣の兄弟。', episode: '柵の外に出て武田勢とわたりあい、その働きを信長にほめられたと伝わる。' }),
+    nobumori: g({ name: '佐久間信盛', yomi: 'SAKUMA NOBUMORI', faction: 'east', factionLabel: '織田軍', force: '—', troops: 2000, base: '丸山', birth: '1528', koku: '—',
+      bio: '織田家の重臣。桶狭間では善照寺砦を守った。', episode: '柵の外の丸山に陣取ったが、馬場信春に追われた。退却戦の名手として「退き佐久間」と呼ばれた。' }),
+    shibata: g({ name: '柴田勝家', yomi: 'SHIBATA KATSUIE', faction: 'east', factionLabel: '織田軍', force: '—', troops: 3000, base: '設楽原の北', birth: '1522?', koku: '—',
+      bio: '織田家の重臣。「鬼柴田」の異名をもつ猛将。', episode: 'この年、越前を任される。のちに本能寺の変の後、羽柴秀吉と賤ヶ岳で戦う。' }),
+    hideyoshi: g({ name: '羽柴秀吉', yomi: 'HASHIBA HIDEYOSHI', faction: 'east', factionLabel: '織田軍', force: '—', troops: 3000, base: '設楽原の中央', birth: '1537', koku: '近江長浜',
+      bio: '織田家の部将。近江長浜の城主になったばかり。', episode: 'のちの豊臣秀吉。長篠では滝川一益・丹羽長秀らと並んで陣を構えた。' }),
+    teppo: g({ name: '鉄砲隊', yomi: 'MATCHLOCK CORPS', faction: 'east', factionLabel: '織田軍 鉄砲奉行', force: '約1,000挺', troops: 1000, base: '馬防柵', birth: '—', koku: '—',
+      bio: '佐々成政・前田利家・野々村正成・福富秀勝・塙直政の5人の奉行が指揮した鉄砲隊。', episode: '『信長公記』では約千挺。のちの写本や書物で「三千挺」「三段撃ち」と語られるようになった。' }),
+    sakai: g({ name: '酒井忠次', yomi: 'SAKAI TADATSUGU', faction: 'east', factionLabel: '徳川軍 別働隊', force: '4,000', base: '鳶ヶ巣山攻め', birth: '1527', koku: '—',
+      bio: '徳川家の筆頭家老。のちに「徳川四天王」に数えられる。', episode: '別働隊を率いて夜の山を越え、鳶ヶ巣山の砦を夜明けに奇襲した。この奇襲を献策して信長にほめられたとも伝わる。' }),
+    okudaira: g({ name: '奥平貞昌', yomi: 'OKUDAIRA SADAMASA', faction: 'east', factionLabel: '長篠城 城主', force: '500', base: '長篠城', birth: '1555', koku: '—',
+      bio: 'もとは武田家に従っていたが、徳川方に移って長篠城を任された。', episode: '約500の兵で武田の大軍から城を守り抜いた。戦の後、信長から「信」の字を与えられて信昌と名乗り、家康の娘を妻に迎えた。' }),
+    katsuyori: g({ name: '武田勝頼', yomi: 'TAKEDA KATSUYORI', faction: 'west', factionLabel: '武田軍 総大将', force: '15,000', troops: 3000, base: '才ノ神', birth: '1546', koku: '甲斐・信濃・駿河ほか',
+      bio: '武田信玄の四男。信玄の死後に家を継ぎ、この前年には信玄も落とせなかった遠江の高天神城を落としている。', episode: '重臣たちは退くよう勧めたが決戦を選んだ。この敗戦の7年後、織田・徳川に攻められて武田家は滅びる。' }),
+    baba: g({ name: '馬場信春', yomi: 'BABA NOBUHARU', faction: 'west', factionLabel: '武田軍 右翼', force: '—', troops: 1200, base: '武田の右翼(北)', birth: '1515?', koku: '—',
+      bio: '武田四天王の一人。信玄の代から仕えた宿老。', episode: '70回を超える戦で一度も傷を負わなかったという。長篠では殿を務め、勝頼を逃がして討死した。' }),
+    sanada: g({ name: '真田信綱・昌輝', yomi: 'SANADA NOBUTSUNA · MASATERU', faction: 'west', factionLabel: '武田軍 右翼', force: '—', troops: 1200, base: '武田の右翼(北)', birth: '1537', koku: '—',
+      bio: '真田幸隆の子の兄弟。弟の昌幸は、のちに上田城で徳川軍を二度退ける。', episode: '兄弟そろって北の柵に攻めかかり、討死した。これで昌幸が真田家を継ぐことになる。' }),
+    tsuchiya: g({ name: '土屋昌続', yomi: 'TSUCHIYA MASATSUGU', faction: 'west', factionLabel: '武田軍', force: '—', troops: 900, base: '武田の右翼', birth: '1544', koku: '—',
+      bio: '信玄の側近として仕えた武将。', episode: '信玄の死の時に殉死しようとして止められたという。長篠で柵に迫り、討死した。' }),
+    naito: g({ name: '内藤昌豊', yomi: 'NAITŌ MASATOYO', faction: 'west', factionLabel: '武田軍 中央', force: '—', troops: 1500, base: '武田の中央', birth: '1522', koku: '—',
+      bio: '武田四天王の一人。上野の箕輪城を任された。', episode: '中央で戦い続け、退く途中で討たれた。' }),
+    nobukado: g({ name: '武田信廉', yomi: 'TAKEDA NOBUKADO', faction: 'west', factionLabel: '武田軍 中央', force: '—', troops: 1200, base: '武田の中央', birth: '1532?', koku: '—',
+      bio: '信玄の弟。顔が信玄によく似ていて、影武者を務めたともいう。', episode: '長篠では生き延びたが、7年後の武田家滅亡のときに捕らえられ、処刑された。' }),
+    yamagata: g({ name: '山県昌景', yomi: 'YAMAGATA MASAKAGE', faction: 'west', factionLabel: '武田軍 左翼', force: '—', troops: 1500, base: '武田の左翼(南)', birth: '1529?', koku: '—',
+      bio: '武田四天王の一人。部隊の装備を赤で揃えた「赤備え」で知られる。', episode: '徳川勢と激しく戦い、鉄砲に撃たれて討死した。赤備えはのちに井伊直政が受け継ぐ。' }),
+    nobutoyo: g({ name: '武田信豊', yomi: 'TAKEDA NOBUTOYO', faction: 'west', factionLabel: '武田軍 左翼', force: '—', troops: 1000, base: '武田の左翼(南)', birth: '1549', koku: '—',
+      bio: '信玄の弟・信繁の子。勝頼のいとこにあたる。', episode: '長篠では生き延び、その後も勝頼を支えた。' }),
+    nobuzane: g({ name: '武田信実', yomi: 'TAKEDA NOBUZANE', faction: 'west', factionLabel: '武田軍 鳶ヶ巣山', force: '—', troops: 1000, base: '鳶ヶ巣山砦', birth: '不詳', koku: '—',
+      bio: '信玄の弟で、勝頼の叔父。長篠城を見張る鳶ヶ巣山の砦を守った。', episode: '酒井忠次の夜明けの奇襲を受けて討死した。' }),
+    siege: g({ name: '長篠城の包囲勢', yomi: 'SIEGE FORCE', faction: 'west', factionLabel: '武田軍', force: '約3,000', troops: 2000, base: '長篠城のまわり', birth: '—', koku: '—',
+      bio: '決戦のあいだも長篠城を囲み続けるために残された武田勢。', episode: '鳶ヶ巣山が落ちると、城から打って出た奥平勢と挟まれて崩れた。' }),
+  });
+
+  _replaceObj(EN_GEN, {
+    nobunaga: { name: 'Oda Nobunaga', yomi: '織田信長', factionLabel: 'ODA · COMMANDER', force: '30,000', base: 'Chausuyama', birth: '1534', koku: 'Owari, Mino and more',
+      bio: 'Fifteen years after Okehazama, he controls Owari and Mino and reaches into the Kyoto region. He came to Mikawa with some 30,000 men to help his ally Ieyasu.',
+      episode: 'He is said to have had his soldiers carry fence posts and rope from Gifu, and to have camped in a low hollow so the Takeda could not see how many men he had.' },
+    nobutada: { name: 'Oda Nobutada', yomi: '織田信忠', factionLabel: 'ODA', force: '—', base: 'Shinmidō hill', birth: '1557', koku: '—',
+      bio: "Nobunaga's eldest son, 18 years old.", episode: 'Later that year he became head of the family, and seven years on he led the campaign that destroyed the Takeda.' },
+    ieyasu: { name: 'Tokugawa Ieyasu', yomi: '徳川家康', factionLabel: 'TOKUGAWA', force: '8,000', base: 'Takamatsu hill', birth: '1543', koku: 'Mikawa, Tōtōmi',
+      bio: 'Lord of Mikawa and Tōtōmi. Three years earlier Takeda Shingen had crushed him at Mikatagahara.', episode: 'He camped on Takamatsu hill, only about 300 m from the river, with a second fence along the stream behind him — his back truly to the water.' },
+    okubo: { name: 'Ōkubo Tadayo · Tadasuke', yomi: '大久保忠世・忠佐', factionLabel: 'TOKUGAWA', force: '—', base: 'In front of the fence', birth: '1532', koku: '—',
+      bio: 'Brothers and senior Tokugawa retainers.', episode: 'They fought the Takeda outside the fence, and Nobunaga is said to have praised them for it.' },
+    nobumori: { name: 'Sakuma Nobumori', yomi: '佐久間信盛', factionLabel: 'ODA', force: '—', base: 'Maruyama', birth: '1528', koku: '—',
+      bio: 'A senior Oda retainer, who had held Zenshōji fort at Okehazama.', episode: 'He held Maruyama outside the fence until Baba Nobuharu drove him off. He was famous for fighting retreats.' },
+    shibata: { name: 'Shibata Katsuie', yomi: '柴田勝家', factionLabel: 'ODA', force: '—', base: 'North Shitaragahara', birth: 'c. 1522', koku: '—',
+      bio: 'A senior Oda retainer nicknamed "Demon Shibata."', episode: 'That year he was given Echizen. After Honnōji he would fight Hideyoshi at Shizugatake.' },
+    hideyoshi: { name: 'Hashiba Hideyoshi', yomi: '羽柴秀吉', factionLabel: 'ODA', force: '—', base: 'Central Shitaragahara', birth: '1537', koku: 'Nagahama, Ōmi',
+      bio: 'An Oda commander, newly made lord of Nagahama Castle.', episode: 'The future Toyotomi Hideyoshi. At Nagashino he camped alongside Takigawa Kazumasu and Niwa Nagahide.' },
+    teppo: { name: 'Matchlock corps', yomi: '鉄砲隊', factionLabel: 'ODA · GUN COMMANDERS', force: 'About 1,000 guns', base: 'The horse fence', birth: '—', koku: '—',
+      bio: 'Gunners led by five commanders: Sassa Narimasa, Maeda Toshiie, Nonomura Masanari, Fukutomi Hidekatsu and Ban Naomasa.', episode: 'The "Chronicle of Lord Nobunaga" gives about 1,000 guns. Later copies and books turned this into "3,000 guns" and a "three-rank volley."' },
+    sakai: { name: 'Sakai Tadatsugu', yomi: '酒井忠次', factionLabel: 'TOKUGAWA · FLYING COLUMN', force: '4,000', base: 'Attack on Tobinosu', birth: '1527', koku: '—',
+      bio: 'The senior Tokugawa retainer, later counted among the "Four Heavenly Kings" of the Tokugawa.', episode: 'He led the column over the hills by night and hit the Tobinosu forts at dawn. One story says the plan was his, and Nobunaga praised him for it.' },
+    okudaira: { name: 'Okudaira Sadamasa', yomi: '奥平貞昌', factionLabel: 'NAGASHINO CASTLE', force: '500', base: 'Nagashino Castle', birth: '1555', koku: '—',
+      bio: 'Once a Takeda vassal, he had switched to the Tokugawa and been given Nagashino Castle.', episode: 'He held the castle with about 500 men. Afterwards Nobunaga gave him the character "Nobu," he became Nobumasa, and he married Ieyasu\'s daughter.' },
+    katsuyori: { name: 'Takeda Katsuyori', yomi: '武田勝頼', factionLabel: 'TAKEDA · COMMANDER', force: '15,000', base: 'Sainokami', birth: '1546', koku: 'Kai, Shinano, Suruga and more',
+      bio: "Takeda Shingen's fourth son and heir. The year before, he had taken Takatenjin Castle, which even Shingen never captured.", episode: 'His senior men urged retreat, but he chose to fight. Seven years after this defeat the Oda and Tokugawa destroyed the Takeda.' },
+    baba: { name: 'Baba Nobuharu', yomi: '馬場信春', factionLabel: 'TAKEDA · RIGHT WING', force: '—', base: 'Takeda right (north)', birth: 'c. 1515', koku: '—',
+      bio: 'One of the "Four Generals" of the Takeda, a veteran from Shingen\'s time.', episode: 'Legend says he fought more than 70 battles without a wound. At Nagashino he led the rearguard and died so Katsuyori could escape.' },
+    sanada: { name: 'Sanada Nobutsuna · Masateru', yomi: '真田信綱・昌輝', factionLabel: 'TAKEDA · RIGHT WING', force: '—', base: 'Takeda right (north)', birth: '1537', koku: '—',
+      bio: 'Sons of Sanada Yukitaka. Their younger brother Masayuki would later beat the Tokugawa twice at Ueda Castle.', episode: 'Both brothers charged the northern fence and were killed — which is how Masayuki came to lead the Sanada.' },
+    tsuchiya: { name: 'Tsuchiya Masatsugu', yomi: '土屋昌続', factionLabel: 'TAKEDA', force: '—', base: 'Takeda right', birth: '1544', koku: '—',
+      bio: "One of Shingen's close attendants.", episode: 'He is said to have tried to follow Shingen in death and been stopped. He was killed attacking the fence.' },
+    naito: { name: 'Naitō Masatoyo', yomi: '内藤昌豊', factionLabel: 'TAKEDA · CENTER', force: '—', base: 'Takeda center', birth: '1522', koku: '—',
+      bio: 'One of the "Four Generals" of the Takeda, in charge of Minowa Castle in Kōzuke.', episode: 'He fought on in the center and was killed during the retreat.' },
+    nobukado: { name: 'Takeda Nobukado', yomi: '武田信廉', factionLabel: 'TAKEDA · CENTER', force: '—', base: 'Takeda center', birth: 'c. 1532', koku: '—',
+      bio: "Shingen's younger brother, said to look so much like him that he served as his double.", episode: 'He survived Nagashino, but was captured and executed when the Takeda fell seven years later.' },
+    yamagata: { name: 'Yamagata Masakage', yomi: '山県昌景', factionLabel: 'TAKEDA · LEFT WING', force: '—', base: 'Takeda left (south)', birth: 'c. 1529', koku: '—',
+      bio: 'One of the "Four Generals" of the Takeda, famous for his "red regiment" in all-red armor.', episode: 'He fought the Tokugawa fiercely and was shot dead. Ii Naomasa later took over the red-armor tradition.' },
+    nobutoyo: { name: 'Takeda Nobutoyo', yomi: '武田信豊', factionLabel: 'TAKEDA · LEFT WING', force: '—', base: 'Takeda left (south)', birth: '1549', koku: '—',
+      bio: "Son of Shingen's brother Nobushige, and Katsuyori's cousin.", episode: 'He survived the battle and kept supporting Katsuyori afterwards.' },
+    nobuzane: { name: 'Takeda Nobuzane', yomi: '武田信実', factionLabel: 'TAKEDA · TOBINOSU', force: '—', base: 'Tobinosu forts', birth: 'Unknown', koku: '—',
+      bio: "Shingen's younger brother and Katsuyori's uncle, holding the forts on Mount Tobinosu that watched Nagashino Castle.", episode: "He was killed in Sakai Tadatsugu's dawn raid." },
+    siege: { name: 'Siege force', yomi: '長篠城の包囲勢', factionLabel: 'TAKEDA', force: 'About 3,000', base: 'Around Nagashino Castle', birth: '—', koku: '—',
+      bio: 'Takeda troops left behind to keep Nagashino Castle surrounded during the battle.', episode: 'When Tobinosu fell, the Okudaira garrison sallied out and the besiegers were caught between the two and broke.' },
+  });
+
+  _replaceObj(LBL_EN, {
+    nobunaga: 'Oda Nobunaga', nobutada: 'Oda Nobutada', ieyasu: 'Tokugawa Ieyasu', okubo: 'Ōkubo', nobumori: 'Sakuma',
+    shibata: 'Shibata', hideyoshi: 'Hashiba', teppo: 'Gunners', sakai: 'Sakai', okudaira: 'Okudaira',
+    katsuyori: 'Takeda Katsuyori', baba: 'Baba', sanada: 'Sanada', tsuchiya: 'Tsuchiya', naito: 'Naitō',
+    nobukado: 'Nobukado', yamagata: 'Yamagata', nobutoyo: 'Nobutoyo', nobuzane: 'Nobuzane', siege: 'Siege force',
+  });
+
+  kamonImages.nobunaga = "data:image/png;base64,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";
+  kamonImages.nobutada = "data:image/png;base64,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";
+  kamonImages.katsuyori = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAHj0lEQVR4Xu2dvas1NRDGxy8sREEURCsbbUULBe0EsbTzDxDBUv8B0c7SVhArCz96wcrKxsZSUbBULF4F38pv5TnsyBiSTSZns5tknx9czr33nHvOnU12Jpk8k4gQQgghhBBCCCGEEEIIIYQQQgghhMzFbSJyq4jcMpdZJEes0dEZyAmwDf2WiHwsIvcudt9+AvtPjTbwgyLyqYj8s3x9IyLPLFcGHYQhYTLQoHrno6F/WBr+D5HLFzoCHl8xdjMkTIJtyNdMg/9pPMBfIvL38vO7InI3Q8IcqMu/T0Q+Chpc3b8+ogNop/hSRJ5gSBiX0OV/a9y83ulhB9CfNSTcFJGXGRLGI+XytWFTDW9/b8MDQ8JAqMvHtC7n8nMdIQwJj5txAWcJnWFdPmI3YriO7HMuP9cR1HP8LCIvGruRTCIdYF0+YjZitzZ+rnFLn7ch4W2R/zwNE0cHow2AaRtitTaobbDSRs69zoaEz0XkEU4VjwMuXxvfunw0/LUuP9cRNCTcMCEB4YAhYSfsQs5LjVx+rhOEIUFh9rAxetfjEbG4pcvPdQJ4GmQQ8TqsK2B9AXBc0ADr8hF7EYNx4W0KN9dgrZ7XkID1hecX2xkSNsTGVkzDEHu3HuVf2zlsSHjT2M6QcCV6Ae/owOXnOgm8EUPChmgstS5/j1F+rqFzz6dCArOHFSCm/tShy891AhsSsAStsBMUgIuEuP/6waP8XCPnnrch4QMRuX+xnZ1gBTQ8XP/7S+P/ZuJq7oL3+vyviy1ficgDVCGvo3f/oyLySUdTvdrOpeOBr0XkWZHLYJYZQwdvDBoGrPvHsjQUSSRCKmFif4+5/0gDQU9O4NQJI5skSSVMRpsKeqaAJfZPizbswyLylEmfxkbIPeX/U2MBbxLIY/9U6CAPYI7/47J8+6qxMuYNek4He1x+rf1TYBsW+XK9mzR9isHSWolWakHoyOygZyHoWvuHJqbPtyt5eiFL9Pg2JLxz0CwhVAflloK3tH8o1vT5YTz16PGtKKSVDjAV70MxCOb2IBa6Wtk/BDX6fI8eP6UEbhkSYnIwEEvutLa/a2IuTwUcuayat0QrJQzVsUXu80qet+qfUBC6NnMpKUkLP99rf1esuTyvWDMWEuwo2hJKw3/ZcAXRIwk/yv4usI2AMmtbdl1yl8VeYy8+Bnx2ABhiL/6TIq56wNT/ZzshBKigpBMeYf+hxNywdZu1HQB/t6bH39r96v+ZcsOwc+0zbX3CUfbvyp4DsdYDsJjCOFcY2qv9u2BHvntNxVpNwbTxY+OO1BSvd/uboi7/nh1KstZGySUlWqkkjJ0lwF3XJKNGsH9TwnTsF8tou+XcO+wA4d2KpeKcHj+ck1t3bzOS72W2hxnV/k3ocUHGhgSIR5RUVk5tQIfRjaK0xsCKN0dZkPLYfxU9L8l6S7TsVnGfich3IvL0cnVSu4bOZL+bUUQZNWIMNLjuCBa768GM9hcRyrJ6LMkKxwfetXkllsuf3f5V7N1wdBWuN4kUqnNUkBmr2sWgLpbYOYv9UfSC2O1Ue6jC9XYEDQnYIk63gS3h1PZrZgtK3O83XFDxNt5Wr9eQgOIMVBrdlSnMOJ39YezT3v+YiDy03C4jlzLBPnivOxfxKR7XOLv9F/QiPBdsqrzVXbnX++jdj1DgKdA8u/3/m/pgHKC7cRyR7avtLHZKWLMNvM0VnNH+CyNtzmAVxp5NGtaOjDmD/Vl6TP+WiDVz27SUHhkzq/0uetTjpxTFJRs1eY+Mmc3+anrMh1+zDuA9MmYG+68mdInYQFlX02oHbLV/51kJC8WatUfGjGr/pliXiC3UdWfuPWcJOsqHFkB38E6VWqf0+bVHxoxmfzNSevwWGzXHxJq1aiC8V6xmwKvHH8H+5uyxVXtMrJnbsv0afb5HF9ir/buSUsbiQnqLQXLyL7tDN9iqJGttWblWGXyU/YdhXSK0darpv6ZEy7pl6A/tHv1r+vwjjozpwf7DSQ24PAc2pfT5UOCC1Lq+fvaRR8YcZX9X2NIp5OE9R7bl9Pk5l9+qPsFbH6j/5x72d0tMj58agedKsnBnlZZk4b1azETWStRi7GF/95TMwe1Cjn5fMvDSC9zzkTGt7B+KtSlZ6PJR1p07rXO0I2O2tn9YrEvUPDxmCL8vMwaMFVDWDXIuH+91tFi1dh0CItVa+4fHukS7DeyHZjvV1Cg/ps/vQaxau1OYx/6psLOEF0SG3iMwNmXNaRG89k+L9QY5ff6MR8aU2D89uAijl2SVilNSBSgp+8lS9j3STuGxkOBRJBOzCROPjDkhPDLm5OgImUfGkAs8MuaknOXIGJIhlv3bU3waTvFyP3t2KSGF9KjHDzuC98gY4qTnEi3PtjTkCnos0fIsBJGNGPHIGLIxoxwZQxqy507doXKppD6B7ESPR8aQnenlyBhyIDYkHHFkDOmEGj1+mNjxHhlDOuOaEi3P2YWkY0r0+Ck5182C+gQyCLGQYHP3WsXsOTKGDMZWR8aQgbF6/JojY8gk1BwZQyZDQ0LJkTFkUmyhRmzjCXICUiVphBBCCCGEEEIIIYQQQgghhBBCyMj8CzKw/yvnpxRoAAAAAElFTkSuQmCC";
+  kamonImages.nobukado = "data:image/png;base64,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";
+  kamonImages.nobutoyo = "data:image/png;base64,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";
+  kamonImages.nobuzane = "data:image/png;base64,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";
+  kamonImages.sanada = "data:image/png;base64,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";
 }
 
 // 史実の表を保存しておく(切り替えで元に戻せるように)
@@ -7054,6 +7623,7 @@ function okeBuildSegments(c, put) {
 }
 
 if (IS_OKE) {
+  Object.assign(BX, { endingId: okeEndingId, segments: okeBuildSegments });
   const E = 'east', W = 'west';
   const at = (from, to, side) => ({ from, to, side, style: 'attack' });
   const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
@@ -7366,6 +7936,290 @@ if (IS_OKE) {
   });
 }
 
+
+// ---------- 長篠: 決断モード ----------
+function nagaEndingId(c) {
+  if (c[9] === 'retreat') return c[1] === 'noraid' ? 'E5' : 'E4';
+  if (c[6] === 'flank') return 'E3';
+  if (c[1] === 'noraid') return 'E2';
+  return 'E1';
+}
+let NAGA_SEG = null;
+const NAGA_NORAID_UNITS = (i) => i >= 11
+  ? { sakai: [-16, 30], okudaira: [60, 6], nobuzane: [58, -26], siege: [54, -34] }
+  : { sakai: [-16, 30], okudaira: [60, 6], nobuzane: [63, 27], siege: [50, -2] };
+const NAGA_REAR_IDS = ['sakai', 'okudaira', 'nobuzane', 'siege'];
+
+function nagaBuildSegments(c, put) {
+  if (!NAGA_SEG) return;
+  if (c[1] === 'noraid') put(NAGA_SEG.noraid);
+  if (c[6] === 'flank') put(NAGA_SEG.flank);
+  if (c[9] === 'retreat') {
+    put(NAGA_SEG.retreat);
+    put({ 12: c[1] === 'noraid' ? NAGA_SEG.retreatEndKeep : NAGA_SEG.retreatEndLost });
+  } else if (c[9] === 'fight') {
+    if (c[6] === 'flank') put({ 12: NAGA_SEG.flankEnd });
+    else if (c[1] === 'noraid') put({ 12: NAGA_SEG.noraidEnd });
+  }
+  // 別働隊を出さなかった場合: 鳶ヶ巣山と包囲勢は最後まで残る
+  if (c[1] === 'noraid') {
+    for (let i = 2; i < phases.length; i++) {
+      const p = phases[i];
+      const keep = (id) => !NAGA_REAR_IDS.includes(id);
+      phases[i] = Object.assign({}, p, {
+        units: Object.assign({}, p.units, NAGA_NORAID_UNITS(i)),
+        defeated: p.defeated.filter(keep),
+        battling: p.battling.filter(keep),
+        battles: p.battles.filter(b => b.x < 40),
+      });
+      PHASE_ARROWS[i] = (PHASE_ARROWS[i] || []).filter(a => (typeof a.from !== 'string' || keep(a.from)) && (typeof a.to !== 'string' || keep(a.to))
+        && !(Array.isArray(a.from) && a.from[1] > 50));
+      altPhaseSet.add(i);
+    }
+  }
+}
+
+if (IS_NAGA) {
+  Object.assign(BX, { endingId: nagaEndingId, segments: nagaBuildSegments });
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
+  const D3 = ['nobuzane', 'siege'];
+  const FALLEN = D3.concat(['yamagata', 'sanada', 'tsuchiya']);
+
+  NAGA_SEG = {
+    noraid: {
+      1: altPhase(1, {
+        ja: { phase: '全軍で待つ', label: '待機', cam: 'CAM · 俯瞰',
+          title: '信長、兵を分けずに柵の内で待つ',
+          text: '信長は兵を分けないことにした。<span class="info-east">酒井忠次</span>らも柵の内に残り、全軍で<span class="info-highlight">武田軍が攻めてくるのを待つ</span>。鳶ヶ巣山の砦と長篠城の包囲はそのまま残る。' },
+        en: { phase: 'ALL IN THE LINE', label: 'Waiting', cam: 'CAM · OVERVIEW',
+          title: 'Nobunaga keeps his army together behind the fence',
+          text: `Nobunaga decides not to split his army. <span class="info-east">Sakai Tadatsugu</span> stays behind the fence too, and the whole force <span class="info-highlight">waits for the Takeda to come</span>. The Tobinosu forts and the siege lines around Nagashino are left untouched.` },
+        cam: { pos: [10, 70, 74], look: [4, 0, 0] },
+        units: { sakai: [-16, 30] },
+        cine: { orbit: 0.02, dolly: 0.06 },
+        mom: 50,
+      }),
+      3: altPhase(3, {
+        ja: { phase: '静かな夜明け', label: '夜明け', cam: 'CAM · 長篠城',
+          title: '夜明け。長篠城はまだ囲まれたまま',
+          text: '夜が明けた。鳶ヶ巣山の砦では<span class="info-west">武田信実</span>が長篠城を見張り、包囲勢も持ち場を離れない。武田軍の<span class="info-highlight">背後は無事</span>だ。' },
+        en: { phase: 'A QUIET DAWN', label: 'Dawn', cam: 'CAM · NAGASHINO CASTLE',
+          title: 'Dawn — and Nagashino Castle is still surrounded',
+          text: `Day breaks. On Mount Tobinosu, <span class="info-west">Takeda Nobuzane</span> keeps watch over the castle, and the siege lines hold. <span class="info-highlight">The Takeda rear is safe</span>.` },
+        cam: { pos: [36, 40, 50], look: [56, 0, 12] },
+        units: { sakai: [-16, 30], okudaira: [60, 6], nobuzane: [63, 27], siege: [50, -2] },
+        cine: { focus: ['siege', 'okudaira'], blend: 0.6, orbit: 0.02, dolly: 0.08 },
+        mom: 46,
+      }),
+    },
+    flank: {
+      6: altPhase(6, {
+        ja: { phase: '北へ回り込む', label: '回り込み', cam: 'CAM · 柵の北端',
+          title: '勝頼、右翼を北へまわす',
+          text: '正面からでは柵を越えられない。勝頼は<span class="info-west">馬場・真田・土屋</span>の右翼を北へまわし、<span class="info-highlight">柵の北の端を回り込ませる</span>。気づいた<span class="info-east">柴田勝家</span>が北へ兵を動かす。' },
+        en: { phase: 'AROUND THE NORTH END', label: 'Flanking', cam: 'CAM · NORTH END',
+          title: 'Katsuyori swings his right wing north',
+          text: `The fence cannot be crossed head-on. Katsuyori sends his right wing — <span class="info-west">Baba, Sanada and Tsuchiya</span> — north <span class="info-highlight">to go around the end of the fence</span>. <span class="info-east">Shibata Katsuie</span> spots the move and shifts north to meet it.` },
+        cam: { pos: [22, 40, -6], look: [-8, 0, -36] },
+        units: { baba: [0, -46], sanada: [-4, -42], tsuchiya: [4, -38], shibata: [-18, -38], naito: [4, 2], nobukado: [6, 10] },
+        battles: [{ x: -4, z: 18 }], battling: ['yamagata', 'ieyasu'], defeated: D3,
+        arrows: [mvp([10, -30], [0, -46], W), mvp([10, -19], [-4, -42], W), mvp([-18, -22], [-18, -37], E)],
+        cine: { focus: ['baba', 'sanada', 'shibata'], blend: 0.75, orbit: -0.02, dolly: 0.08 },
+        mom: 52,
+      }),
+      7: altPhase(7, {
+        ja: { phase: '柵の北端', label: '北端の激戦', cam: 'CAM · 柵の北端',
+          title: '柵の切れ目で激しい斬り合い',
+          text: '武田の右翼は柵の北の端を回り込み、<span class="info-east">柴田勝家・佐久間信盛</span>の隊とぶつかった。ここには柵がない。<span class="info-highlight">武田の騎馬武者が初めて織田勢に届く</span>。' },
+        en: { phase: 'THE NORTH END', label: 'North end', cam: 'CAM · NORTH END',
+          title: 'Hand-to-hand fighting where the fence runs out',
+          text: `The Takeda right wing rounds the north end of the fence and slams into <span class="info-east">Shibata Katsuie and Sakuma Nobumori</span>. There is no fence here — <span class="info-highlight">for the first time, Takeda horsemen reach the Oda line</span>.` },
+        cam: { pos: [6, 38, -8], look: [-16, 0, -40] },
+        units: { baba: [-14, -44], sanada: [-16, -40], tsuchiya: [-10, -38], shibata: [-20, -40], nobumori: [-22, -34], naito: [-1, 0], nobukado: [0, 9], yamagata: [0, 20] },
+        battles: [{ x: -16, z: -42 }, { x: -4, z: 2 }], battling: ['baba', 'sanada', 'tsuchiya', 'shibata', 'nobumori', 'naito', 'teppo'], defeated: D3,
+        arrows: [at('baba', 'shibata', W), at('sanada', 'nobumori', W), at('shibata', 'sanada', E)],
+        cine: { focus: ['baba', 'sanada', 'shibata'], blend: 0.85, orbit: 0.025, dolly: 0.1 },
+        moment: { ja: '柵の北端', en: 'AROUND THE FENCE', subJa: '騎馬武者、織田勢に届く', subEn: 'Takeda riders reach the Oda line', shake: 0.6 },
+        mom: 44,
+      }),
+      8: altPhase(8, {
+        ja: { phase: '信長の予備', label: '予備投入', cam: 'CAM · 新御堂山',
+          title: '信長、信忠の隊を北へ送る',
+          text: '北の苦戦を見た信長は、<span class="info-east">織田信忠</span>の隊を山から下ろした。数で押し返された武田の右翼は、<span class="info-west">土屋昌続</span>を失って動きを止める。南では<span class="info-west">山県昌景</span>が鉄砲に倒れた。' },
+        en: { phase: 'THE RESERVE', label: 'Reserve', cam: 'CAM · SHINMIDŌ HILL',
+          title: 'Nobunaga sends Nobutada north',
+          text: `Seeing the trouble in the north, Nobunaga sends <span class="info-east">Oda Nobutada</span> down from the hills. Outnumbered, the Takeda right wing stalls after losing <span class="info-west">Tsuchiya Masatsugu</span>. In the south, <span class="info-west">Yamagata Masakage</span> is shot dead.` },
+        cam: { pos: [-6, 44, -4], look: [-24, 0, -38] },
+        units: { baba: [-10, -44], sanada: [-12, -40], tsuchiya: [-12, -37], shibata: [-20, -40], nobumori: [-22, -34], nobutada: [-24, -42], naito: [1, 0], nobukado: [2, 9], yamagata: [-2, 19] },
+        battles: [{ x: -16, z: -41 }], battling: ['baba', 'sanada', 'shibata', 'nobutada', 'nobumori'], defeated: D3.concat(['yamagata', 'tsuchiya']),
+        arrows: [mvp([-46, -36], [-26, -42], E), at('nobutada', 'sanada', E), at('shibata', 'baba', E)],
+        cine: { focus: ['nobutada', 'baba'], blend: 0.75, orbit: -0.02, dolly: 0.08 },
+        mom: 60,
+      }),
+    },
+    flankEnd: altPhase(12, {
+      ja: { phase: '戦の後', label: '戦の後', cam: 'CAM · 俯瞰',
+        title: '敗れはしたが、北の回り込みは織田勢を慌てさせた',
+        text: '武田軍は敗れて退いた。だが北の端を回り込んだ一撃は、<span class="info-highlight">柵だけでは守り切れないこと</span>を織田勢に見せつけた。勝頼はこの戦いぶりを胸に、甲斐で立て直しをはかる。' },
+      en: { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · OVERVIEW',
+        title: 'Beaten — but the flank attack shook the Oda',
+        text: `The Takeda are beaten and fall back. But the strike around the north end showed the Oda that <span class="info-highlight">a fence alone could not hold every attack</span>. Katsuyori takes that lesson home to Kai to rebuild.` },
+      cam: { pos: [12, 76, 80], look: [6, 0, -2] },
+      units: {}, defeated: FALLEN.concat(['naito', 'baba']),
+      arrows: [mvp([46, -38], [52, -58], W)],
+      cine: { orbit: 0.02, dolly: -0.05 },
+      moment: { ja: '一矢報いる', en: 'A BLOW STRUCK BACK', subJa: '柵の北端を回り込む', subEn: 'Around the end of the fence', shake: 0 },
+      mom: 82,
+    }),
+    noraidEnd: altPhase(12, {
+      ja: { phase: '戦の後', label: '戦の後', cam: 'CAM · 俯瞰',
+        title: '勝頼は敗れたが、背後の兵は無事に退いた',
+        text: '設楽原では武田軍が大敗した。だが<span class="info-west">鳶ヶ巣山の砦と包囲勢</span>は無傷のまま退き、<span class="info-highlight">勝頼の叔父・信実も生き延びた</span>。長篠城の囲みは解けたが、武田の傷は史実より浅い。' },
+      en: { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · OVERVIEW',
+        title: 'Katsuyori is beaten, but his rear guard escapes intact',
+        text: `At Shitaragahara the Takeda are routed. But <span class="info-west">the Tobinosu garrison and the siege force</span> pull out untouched, and <span class="info-highlight">Katsuyori's uncle Nobuzane survives</span>. The siege is lifted, but the Takeda are hurt less than in history.` },
+      cam: { pos: [12, 76, 80], look: [6, 0, -2] },
+      units: {}, defeated: FALLEN.concat(['naito', 'baba']),
+      arrows: [mvp([46, -38], [52, -58], W), mvp([56, -10], [56, -30], W)],
+      cine: { orbit: 0.02, dolly: -0.05 },
+      moment: { ja: '退路は守られた', en: 'THE REAR HOLDS', subJa: '鳶ヶ巣山の兵、無事に退く', subEn: 'The Tobinosu garrison gets away', shake: 0 },
+      mom: 85,
+    }),
+    retreat: {
+      9: altPhase(9, {
+        ja: { phase: '退却を決める', label: '退却', cam: 'CAM · 才ノ神',
+          title: '勝頼、ここで兵を引くと決める',
+          text: '昼を前に、勝頼は<span class="info-highlight">これ以上の突撃をやめ、兵を引く</span>と決めた。<span class="info-west">馬場信春</span>が殿を引き受け、各隊は台地の上へ下がる。' },
+        en: { phase: 'THE CALL TO WITHDRAW', label: 'Withdraw', cam: 'CAM · SAINOKAMI',
+          title: 'Katsuyori decides to pull back now',
+          text: `Before noon, Katsuyori <span class="info-highlight">calls off the attacks and orders a withdrawal</span>. <span class="info-west">Baba Nobuharu</span> takes the rearguard, and each unit falls back up onto the plateau.` },
+        cam: { pos: [44, 42, 34], look: [16, 0, -2] },
+        units: { baba: [8, -24], naito: [14, 0], nobukado: [16, 9], nobutoyo: [16, 26], katsuyori: [24, -6] },
+        defeated: FALLEN,
+        arrows: [mvp([2, 0], [14, 0], W), mvp([2, 10], [16, 9], W), mvp([4, 28], [16, 26], W)],
+        cine: { focus: ['katsuyori', 'baba'], blend: 0.6, orbit: 0.02, dolly: 0.08 },
+        mom: 66,
+      }),
+      10: altPhase(10, {
+        ja: { phase: '整然と退く', label: '退く', cam: 'CAM · 信玄台地',
+          title: '武田軍、隊列を保って北東へ',
+          text: '武田軍は<span class="info-highlight">隊列を崩さずに</span>北東へ退いていく。柵の内にいた連合軍は、追うかどうか迷ううちに時を失った。' },
+        en: { phase: 'AN ORDERLY RETREAT', label: 'Retreat', cam: 'CAM · SHINGEN PLATEAU',
+          title: 'The Takeda pull back north-east in good order',
+          text: `The Takeda fall back north-east <span class="info-highlight">without breaking ranks</span>. The allies behind the fence hesitate over whether to chase them, and the moment passes.` },
+        cam: { pos: [50, 46, 30], look: [26, 0, -14] },
+        units: { katsuyori: [34, -24], baba: [14, -22], naito: [26, -12], nobukado: [30, -6], nobutoyo: [32, 4], shibata: [-6, -24], hideyoshi: [-4, -6] },
+        defeated: FALLEN,
+        arrows: [mvp([24, -6], [34, -24], W), mvp([14, 0], [26, -12], W), mvp([-10, -24], [-6, -24], E)],
+        cine: { focus: ['katsuyori', 'naito'], blend: 0.6, orbit: -0.02, dolly: 0.08 },
+        mom: 62,
+      }),
+      11: altPhase(11, {
+        ja: { phase: '殿', label: '殿', cam: 'CAM · 北東の山道',
+          title: '馬場信春、追っ手を食い止めて退く',
+          text: '追ってきた<span class="info-east">柴田勝家</span>の隊を、殿の<span class="info-west">馬場信春</span>が山道の入り口で食い止める。日が傾くころ、馬場も<span class="info-highlight">生きて山へ入った</span>。' },
+        en: { phase: 'THE REARGUARD', label: 'Rearguard', cam: 'CAM · NORTH-EAST ROAD',
+          title: 'Baba Nobuharu holds off the pursuit — and gets away',
+          text: `When <span class="info-east">Shibata Katsuie</span> comes after them, <span class="info-west">Baba Nobuharu</span> holds him at the mouth of the mountain road. Late in the afternoon Baba, too, <span class="info-highlight">reaches the hills alive</span>.` },
+        cam: { pos: [52, 38, 2], look: [32, 0, -24] },
+        units: { katsuyori: [46, -40], baba: [30, -26], naito: [42, -32], nobukado: [44, -24], nobutoyo: [48, -16], shibata: [22, -24], hideyoshi: [16, -10] },
+        battles: [{ x: 27, z: -25 }], battling: ['baba', 'shibata'], defeated: FALLEN,
+        arrows: [at('baba', 'shibata', W), mvp([34, -24], [46, -40], W)],
+        cine: { focus: ['baba', 'shibata'], blend: 0.75, orbit: 0.02, dolly: 0.08 },
+        mom: 58,
+      }),
+    },
+    retreatEndLost: altPhase(12, {
+      ja: { phase: '戦の後', label: '戦の後', cam: 'CAM · 俯瞰',
+        title: '重臣の多くを残して、勝頼は甲斐へ',
+        text: '勝頼は<span class="info-west">馬場信春・内藤昌豊</span>らを失わずに甲斐へ戻った。ただ鳶ヶ巣山と包囲勢は朝のうちに崩れており、長篠城は救われた。<span class="info-highlight">退き際を見きわめた</span>ことで、武田の傷は史実よりずっと浅い。' },
+      en: { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · OVERVIEW',
+        title: 'Katsuyori returns to Kai with most of his generals',
+        text: `Katsuyori gets back to Kai without losing <span class="info-west">Baba Nobuharu or Naitō Masatoyo</span>. The Tobinosu forts and the siege force were already lost that morning, so Nagashino Castle is saved. But by <span class="info-highlight">knowing when to quit</span>, the Takeda come off far better than in history.` },
+      cam: { pos: [12, 76, 80], look: [6, 0, -2] },
+      units: { katsuyori: [52, -58], baba: [44, -44], naito: [48, -48], nobukado: [50, -40], nobutoyo: [56, -36] },
+      defeated: FALLEN,
+      arrows: [mvp([46, -40], [52, -58], W)],
+      cine: { orbit: 0.02, dolly: -0.05 },
+      moment: { ja: '退き際', en: 'KNOWING WHEN TO QUIT', subJa: '重臣を守って甲斐へ', subEn: 'Home to Kai with his generals', shake: 0 },
+      mom: 64,
+    }),
+    retreatEndKeep: altPhase(12, {
+      ja: { phase: '戦の後', label: '戦の後', cam: 'CAM · 俯瞰',
+        title: '武田軍、ほぼ無傷で甲斐へ',
+        text: '鳶ヶ巣山の砦も包囲勢も無事のまま、武田軍は<span class="info-highlight">ほとんどの兵をまとめて</span>甲斐へ戻った。長篠城の囲みは解けたが、武田家の力は大きくは損なわれていない。' },
+      en: { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · OVERVIEW',
+        title: 'The Takeda return to Kai almost intact',
+        text: `With the Tobinosu forts and the siege force untouched, the Takeda march home to Kai <span class="info-highlight">with nearly all their strength</span>. The siege of Nagashino is over, but the Takeda are far from broken.` },
+      cam: { pos: [12, 76, 80], look: [6, 0, -2] },
+      units: { katsuyori: [52, -58], baba: [44, -44], naito: [48, -48], nobukado: [50, -40], nobutoyo: [56, -36] },
+      defeated: ['yamagata', 'sanada', 'tsuchiya'],
+      arrows: [mvp([46, -40], [52, -58], W), mvp([56, -10], [56, -30], W)],
+      cine: { orbit: 0.02, dolly: -0.05 },
+      moment: { ja: '兵を保つ', en: 'ARMY PRESERVED', subJa: '武田家、力を残す', subEn: 'The Takeda keep their strength', shake: 0 },
+      mom: 56,
+    }),
+  };
+
+  _replaceObj(SEG, NAGA_SEG);
+  _replaceArr(DECISION_IDX, [1, 6, 9]);
+  _replaceObj(DECISIONS, {
+    1: {
+      who: 'nobunaga', applies: () => true,
+      ja: { title: '信長の決断', situation: '武田軍は長篠城を囲んだまま、主力を設楽原へ向けてきた。城を見張る鳶ヶ巣山の砦を夜のうちに襲えば、武田の背後を断てる。ただし兵を分けることになる。' },
+      en: { title: "NOBUNAGA'S DECISION", situation: "The Takeda are still besieging Nagashino while their main army turns toward Shitaragahara. A night attack on the Tobinosu forts that watch the castle would cut off the Takeda rear — but it means splitting the army." },
+      options: () => [
+        { id: 'raid', history: true, ja: ['別働隊を出す', '史実どおり。酒井忠次に約4千を預け、鳶ヶ巣山へ'], en: ['Send the flying column', 'As in history: Sakai Tadatsugu takes 4,000 to Tobinosu'] },
+        { id: 'noraid', ja: ['兵を分けない', '全軍で柵の内に構え、武田を待つ'], en: ['Keep the army together', 'Everyone waits behind the fence'] },
+      ],
+    },
+    6: {
+      who: 'katsuyori', applies: () => true,
+      ja: { title: '勝頼の決断', situation: '柵の内からの鉄砲で、正面の攻撃は止められた。柵は連吾川沿いに南北およそ2km。その北の端の先には、柵のない場所がある。' },
+      en: { title: "KATSUYORI'S DECISION", situation: 'Gunfire from behind the fence has stopped the frontal attack. The fence runs about 2 km north to south along the river — and beyond its northern end, there is no fence at all.' },
+      options: () => [
+        { id: 'press', history: true, ja: ['正面から攻め続ける', '史実どおり。中央・南から波のように攻める'], en: ['Keep attacking head-on', 'As in history: wave after wave at the center and south'] },
+        { id: 'flank', ja: ['北の端を回り込む', '右翼の馬場・真田を北へまわす'], en: ['Go around the north end', 'Swing Baba and Sanada north'] },
+      ],
+    },
+    9: {
+      who: 'katsuyori', applies: () => true,
+      ja: { title: '勝頼の決断', situation: '山県昌景、真田兄弟らが討たれた。兵は疲れ切っている。連合軍は柵から出てこようとしている。' },
+      en: { title: "KATSUYORI'S DECISION", situation: 'Yamagata and the Sanada brothers are dead. The men are exhausted, and the allies are getting ready to come out from behind the fence.' },
+      options: () => [
+        { id: 'fight', history: true, ja: ['踏みとどまる', '史実どおり。台地で戦い続ける'], en: ['Stand and fight', 'As in history: keep fighting on the plateau'] },
+        { id: 'retreat', ja: ['いま兵を引く', '馬場を殿に、隊列を保って退く'], en: ['Withdraw now', 'Baba covers the rear; retreat in good order'] },
+      ],
+    },
+  });
+  _replaceObj(ENDINGS, {
+    E1: { ja: ['史実：武田、設楽原に散る', '柵と鉄砲の前に武田の名将が次々に倒れ、武田家は傾いていく。'], en: ['History: The Takeda Fall at Shitaragahara', 'One great Takeda general after another falls before the fence and the guns, and the clan begins to decline.'] },
+    E2: { ja: ['退路は守られた', '奇襲がなかったため、鳶ヶ巣山の兵は無事に退く。敗れはしたが、傷は浅い。'], en: ['The Rear Holds', 'With no raid, the Tobinosu garrison gets away. A defeat — but a lighter one.'] },
+    E3: { ja: ['一矢報いる', '柵の北の端を回り込み、騎馬武者が初めて織田勢に届いた。'], en: ['A Blow Struck Back', 'Going around the end of the fence, Takeda riders finally reach the Oda line.'] },
+    E4: { ja: ['退き際', '背後の砦は失ったが、重臣たちを連れて甲斐へ帰る。'], en: ['Knowing When to Quit', 'The forts behind them are lost, but Katsuyori brings his generals home.'] },
+    E5: { ja: ['兵を保つ', '奇襲もなく、早めに退いた武田軍は、ほぼ無傷で甲斐へ。'], en: ['Army Preserved', 'No raid, an early withdrawal — the Takeda go home almost intact.'] },
+  });
+
+  Object.assign(STR.en, {
+    'sim.title': 'Nagashino', 'sim.sub': 'Guns Behind the Fence', 'sim.d1': 'Tenshō 3', 'sim.d2': 'Jun 28',
+    'legend.east': 'Oda–Tokugawa', 'legend.west': 'Takeda',
+    'sim.loading': 'Deploying the armies...',
+    'name.nobunaga': 'Oda Nobunaga', 'name.katsuyori': 'Takeda Katsuyori',
+    'wi.historyDesc': 'What actually happened on June 28, 1575.',
+    'dm.desc': 'Make the calls at 22:00, 08:00 and 12:00. Five endings to discover.',
+  });
+  Object.assign(STR.ja, {
+    'sim.title': '長篠', 'sim.sub': '馬防柵と鉄砲', 'sim.d1': '天正三年', 'sim.d2': '五月二十一日',
+    'legend.east': '織田・徳川', 'legend.west': '武田軍',
+    'sim.loading': '設楽原の布陣図を展開中',
+    'name.nobunaga': '織田信長', 'name.katsuyori': '武田勝頼',
+    'wi.historyDesc': '天正三年五月二十一日に実際に起きたこと。',
+    'dm.desc': '22:00・8:00・12:00の決断で展開が変わる。エンディングは全5種。',
+  });
+}
+
 const decideState = { active: false, choices: {}, wasPlaying: false, open: null };
 let altPhaseSet = new Set();
 let lastAppliedPhase = -1;
@@ -7373,7 +8227,7 @@ let currentScenario = null;
 const isAltPhase = idx => altPhaseSet.has(idx);
 
 function endingId() {
-  if (IS_OKE) return okeEndingId(decideState.choices);
+  if (BX.endingId) return BX.endingId(decideState.choices);
   const c = decideState.choices;
   if (c[5] === 'descend') return c[7] === 'west' ? 'E6' : 'E7';
   if (c[7] === 'wait') return 'E5';
@@ -7409,7 +8263,7 @@ function buildTables() {
   if (!decideState.active) return;
   const c = decideState.choices;
   const put = seg => Object.entries(seg).forEach(([i, ph]) => setPhaseSlot(parseInt(i), ph));
-  if (IS_OKE) { okeBuildSegments(c, put); return; }
+  if (BX.segments) { BX.segments(c, put); return; }
   if (c[5] === 'descend') put(SEG.moriDown);
   if (c[7]) {
     if (c[5] === 'descend') put(c[7] === 'west' ? SEG.moriWest : SEG.moriEast);
@@ -7818,7 +8672,7 @@ function initSekigahara() {
     rock.receiveShadow = true;
     scene.add(rock);
   }
-  (IS_OKE ? OKE_ROCKS : [[-30, -30, 18], [-30, 30, 15], [40, -5, 15]]).forEach(([cx, cz, n]) => {
+  (BX.rocks || [[-30, -30, 18], [-30, 30, 15], [40, -5, 15]]).forEach(([cx, cz, n]) => {
     for (let i = 0; i < n; i++) {
       const ang = Math.random() * Math.PI * 2;
       const r = 10 + Math.random() * 8;
@@ -7836,7 +8690,7 @@ function initSekigahara() {
   fogPlane.position.y = 2.0;
   scene.add(fogPlane);
   
-  if (IS_OKE) buildOkeDecor();
+  if (BX.decor) BX.decor();
   else {
   // 川(明るい青、蛇行を表現するため複数セグメント)
   const riverPath = [];
@@ -7941,7 +8795,7 @@ function initSekigahara() {
       scene.add(t);
     }
   }
-  (IS_OKE ? OKE_TREES : [[-35, -30, 55, 4, 15], [-30, 30, 50, 4, 15], [40, -5, 50, 4, 15]])
+  (BX.trees || [[-35, -30, 55, 4, 15], [-30, 30, 50, 4, 15], [40, -5, 50, 4, 15]])
     .forEach(([cx, cz, n, r0, r1]) => scatterTrees(cx, cz, n, r0, r1));
   // 疎らに散在する木
   for (let i = 0; i < 30; i++) {
@@ -7958,7 +8812,7 @@ function initSekigahara() {
   }
   
   // 部隊
-  units = IS_OKE ? makeOkeUnits() : {
+  units = BX.units ? BX.units() : {
     ieyasu:     new Unit('ieyasu',     '徳', 'east', 45, 0,    '徳川家康', 1.5, true),
     fukushima:  new Unit('fukushima',  '福', 'east', 12, 8,    '福島正則', 1.0),
     kuroda:     new Unit('kuroda',     '黒', 'east', 10, -5,   '黒田長政', 1.0),
