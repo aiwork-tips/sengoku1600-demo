@@ -2746,6 +2746,8 @@ html[lang="en"] .title-logo { font-family: 'Cormorant Garamond', 'Noto Serif JP'
 }
 .title-sub { max-width: 340px; }
 
+.app.entry-history #whatIfBtn { display: none; }
+
 </style>
 </head>
 <body>
@@ -3600,6 +3602,8 @@ function updatePopMode() {
   if (!appEl) return;
   const on = currentScreen === 'if' || (currentScreen === 'sim' && decideState.active);
   appEl.classList.toggle('pop', on);
+  // 史実から入ったときは「もしも」ボタンを出さない
+  appEl.classList.toggle('entry-history', entryMode !== 'if');
   if (on && !popOn) popBurst();
   popOn = on;
 }
