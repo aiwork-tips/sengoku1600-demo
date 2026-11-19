@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Sengoku Simulation | Japanese Historical Battles in 3D</title>
-<meta name="description" content="Watch Okehazama, Nagashino and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.">
+<meta name="description" content="Watch Okehazama, Kawanakajima, Nagashino and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Sengoku Simulation | Japanese Historical Battles in 3D">
 <meta property="og:description" content="Watch the Battle of Sekigahara (1600) unfold in 3D, phase by phase, with commander profiles and a timeline.">
@@ -2613,6 +2613,7 @@ html[lang="en"] .title-logo { font-family: 'Cormorant Garamond', 'Noto Serif JP'
 .if-card.c-pink .ifc-top { background: #ff4f9a; color: #fff; }
 .if-card.c-cyan .ifc-top { background: #23c4f8; color: #1b1b1f; }
 .if-card.c-violet .ifc-top { background: #7b5cff; color: #fff; }
+.if-card.c-amber .ifc-top { background: #ffb020; color: #1b1b1f; }
 .ifc-year { font-family: 'Dela Gothic One', sans-serif; font-size: 13px; background: #fff; color: #1b1b1f; border: 2px solid #1b1b1f; border-radius: 8px; padding: 1px 8px; }
 .ifc-name { font-family: 'Dela Gothic One', sans-serif; font-size: 21px; line-height: 1.2; }
 .ifc-q { display: block; font-size: 17px; font-weight: 900; padding: 14px 16px 6px; line-height: 1.45; }
@@ -3125,16 +3126,17 @@ setTimeout(updateAppHeight, 1000);
 const BATTLE_ID = (() => {
   try {
     const b = new URLSearchParams(location.search).get('battle');
-    return ['okehazama', 'nagashino'].includes(b) ? b : 'sekigahara';
+    return ['okehazama', 'nagashino', 'kawanakajima'].includes(b) ? b : 'sekigahara';
   } catch (e) { return 'sekigahara'; }
 })();
 const IS_OKE = BATTLE_ID === 'okehazama';
 const IS_NAGA = BATTLE_ID === 'nagashino';
+const IS_KAWA = BATTLE_ID === 'kawanakajima';
 // 合戦ごとの差し替え口(関ヶ原では空のまま)
 const BX = {};
-const GENERAL_IDS = { sekigahara: ['ieyasu', 'mitsunari'], okehazama: ['nobunaga', 'yoshimoto'], nagashino: ['nobunaga', 'katsuyori'] }[BATTLE_ID];
-const GENERAL_SIDE = { sekigahara: { ieyasu: 'right', mitsunari: 'left' }, okehazama: { nobunaga: 'left', yoshimoto: 'right' }, nagashino: { nobunaga: 'left', katsuyori: 'right' } }[BATTLE_ID];
-const DM_START = { sekigahara: 4, okehazama: 5, nagashino: 0 }[BATTLE_ID];
+const GENERAL_IDS = { sekigahara: ['ieyasu', 'mitsunari'], okehazama: ['nobunaga', 'yoshimoto'], nagashino: ['nobunaga', 'katsuyori'], kawanakajima: ['shingen', 'kenshin'] }[BATTLE_ID];
+const GENERAL_SIDE = { sekigahara: { ieyasu: 'right', mitsunari: 'left' }, okehazama: { nobunaga: 'left', yoshimoto: 'right' }, nagashino: { nobunaga: 'left', katsuyori: 'right' }, kawanakajima: { shingen: 'right', kenshin: 'left' } }[BATTLE_ID];
+const DM_START = { sekigahara: 4, okehazama: 5, nagashino: 0, kawanakajima: 0 }[BATTLE_ID];
 const ENDINGS_KEY = BATTLE_ID === 'sekigahara' ? 'sg_endings' : 'sg_endings_' + BATTLE_ID;
 
 const eras = [
@@ -3174,7 +3176,7 @@ const eras = [
     desc: '群雄割拠、下克上の乱世',
     battles: [
       { id: 'okehazama', year: '1560', name: '桶狭間の戦い', east: { name: '織田軍', force: '約3千' }, west: { name: '今川軍', force: '約2万5千' }, winner: 'east', winnerName: '織田軍', implemented: true },
-      { id: 'kawanakajima', year: '1561', name: '川中島の戦い', east: { name: '武田軍', force: '約2万' }, west: { name: '上杉軍', force: '約1万3千' }, winner: 'draw', winnerName: '痛み分け', implemented: false },
+      { id: 'kawanakajima', year: '1561', name: '川中島の戦い', east: { name: '武田軍', force: '約2万' }, west: { name: '上杉軍', force: '約1万3千' }, winner: 'draw', winnerName: '痛み分け', implemented: true },
       { id: 'nagashino', year: '1575', name: '長篠の戦い', east: { name: '織田・徳川連合', force: '約3万8千' }, west: { name: '武田軍', force: '約1万5千' }, winner: 'east', winnerName: '織田・徳川', implemented: true },
       { id: 'mikatagahara', year: '1572', name: '三方ヶ原の戦い', east: { name: '徳川軍', force: '約1万1千' }, west: { name: '武田軍', force: '約3万' }, winner: 'west', winnerName: '武田軍', implemented: false },
     ],
@@ -3233,7 +3235,7 @@ try {
 const STR = {
   en: {
     'meta.title': 'Sengoku Simulation | Japanese Historical Battles in 3D',
-    'meta.desc': 'Watch Okehazama, Nagashino and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.',
+    'meta.desc': 'Watch Okehazama, Kawanakajima, Nagashino and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.',
     'home.title': 'SENGOKU',
     'title.sub': 'Famous battles of Japan in 3D. Watch them unfold — or change how they end.',
     'title.history': 'Watch History',
@@ -3284,7 +3286,7 @@ const STR = {
   },
   ja: {
     'meta.title': '戦国シミュレーション',
-    'meta.desc': '桶狭間・長篠・関ヶ原を3Dで再現。史実をたどるだけでなく、自分で決断して別の結末も探せる。無料・ブラウザで動作。',
+    'meta.desc': '桶狭間・川中島・長篠・関ヶ原を3Dで再現。史実をたどるだけでなく、自分で決断して別の結末も探せる。無料・ブラウザで動作。',
     'home.title': '戦国',
     'title.sub': '日本の合戦を3Dで。史実をたどるか、歴史を変えるか。',
     'title.history': '史実を見る',
@@ -3640,6 +3642,8 @@ const IF_BATTLES = [
     q: { ja: 'もしも義元が、本陣の守りを固めていたら？', en: 'What if Yoshimoto had stayed on guard?' } },
   { id: 'nagashino', endings: 5, key: 'sg_endings_nagashino', color: 'cyan',
     q: { ja: 'もしも勝頼が、柵の端を回り込んでいたら？', en: 'What if Katsuyori had gone around the fence?' } },
+  { id: 'kawanakajima', endings: 5, key: 'sg_endings_kawanakajima', color: 'amber',
+    q: { ja: 'もしも信玄が、兵を分けなかったら？', en: 'What if Shingen had kept his army together?' } },
   { id: 'sekigahara', endings: 7, key: 'sg_endings', color: 'violet',
     q: { ja: 'もしも小早川秀秋が、寝返らなかったら？', en: 'What if Kobayakawa had never switched sides?' } },
 ];
@@ -3957,7 +3961,7 @@ document.getElementById('backFromSim').addEventListener('click', () => {
 });
 
 // ========= シミュレーション =========
-const PLAYABLE_BATTLES = ['sekigahara', 'okehazama', 'nagashino'];
+const PLAYABLE_BATTLES = ['sekigahara', 'okehazama', 'nagashino', 'kawanakajima'];
 function openSimulation(battleId) {
   if (!PLAYABLE_BATTLES.includes(battleId)) return;
   if (battleId !== BATTLE_ID) {
@@ -6281,6 +6285,7 @@ const HORSE_COATS = [0x6b4428, 0x5a3820, 0x3a2a20, 0x7a5232, 0x2a2420, 0x8a7a68]
 // 騎馬の割合(合戦ごと)。指定がなければ総大将の隊 18%、ほかは 8%
 const CAVALRY_RATIO = {
   nagashino: { katsuyori: 0.3, baba: 0.45, yamagata: 0.5, sanada: 0.45, naito: 0.4, tsuchiya: 0.4, nobukado: 0.35, nobutoyo: 0.35, nobuzane: 0.15, siege: 0.1, teppo: 0, okudaira: 0 },
+  kawanakajima: { shingen: 0.25, kenshin: 0.4, kakizaki: 0.45, murakami: 0.35, kosaka: 0.3, baba: 0.35, nobushige: 0.3, yoshinobu: 0.3, morozumi: 0.25, kansuke: 0.2, amakasu: 0.25, naoe: 0.1 },
   okehazama: { hattori: 0.6, shinsuke: 0.6, nobunaga: 0.3, yoshimoto: 0.2, sassa: 0.3, kajikawa: 0, sakuma: 0.05, iio: 0.05 },
   sekigahara: { shimazu: 0.22, ii: 0.3, honda: 0.25 },
 };
@@ -8043,6 +8048,375 @@ if (IS_NAGA) {
   set('gather',  { near: 105, far: 255, fogBank: 0.02 });
   set('storm',   { top: C(0x3a4450), bottom: C(0x6a7078), fog: C(0x6e767c), near: 85, far: 230, sunI: 0.7, ambI: 0.85, hI: 0.7, exp: 1.05, fogBank: 0.05, rain: 0.75, night: 0.05 });
 })();
+
+// ========================================================
+// ===== 4戦目: 第四次川中島の戦い(?battle=kawanakajima) =====
+// ========================================================
+// 座標: x が東、z が南。北に犀川、南東に千曲川、その南に妻女山と海津城
+const KAWA_POS = {
+  saijo: [8, 42], kaizu: [42, 30], hachiman: [-6, -6], amenomiya: [-14, 22], zenkoji: [-20, -66],
+};
+const KAWA_RIVERS = [
+  // 千曲川(南西から北東へ)
+  [[-80, 44], [-50, 33], [-24, 24], [0, 18], [24, 12], [46, 0], [64, -16], [80, -26]],
+  // 犀川(西から東へ、北東で千曲川に合流)
+  [[-80, -48], [-50, -42], [-20, -38], [10, -34], [40, -30], [64, -26], [80, -26]],
+];
+function kawaTerrainHeight(x, z) {
+  const hill = (cx, cz, s, a) => Math.exp(-((x - cx) ** 2 + (z - cz) ** 2) / s) * a;
+  let h = 0;
+  // 南の山なみ(妻女山から東へ)
+  h += Math.max(0, z - 34) * 0.45 * (0.8 + __fbm(x * 0.05, z * 0.05, 3) * 0.6);
+  h += hill(8, 42, 90, 6);          // 妻女山
+  h += hill(72, 36, 500, 10);       // 東の山
+  h += hill(70, -6, 500, 7);
+  // 北(善光寺の向こう)の山
+  h += Math.max(0, -z - 62) * 0.5;
+  h += hill(-70, -40, 500, 6);
+  h += __fbm(x * 0.05, z * 0.05, 3) * 1.6 - 0.6;
+  h += __fbm(x * 0.15, z * 0.15, 4) * 0.6;
+  h += __fbm(x * 0.5, z * 0.5, 2) * 0.25;
+  // 川の谷
+  let rd = 1e9;
+  KAWA_RIVERS.forEach(line => { for (let i = 0; i < line.length - 1; i++) rd = Math.min(rd, _segDist(x, z, line[i], line[i + 1])); });
+  const k = Math.exp(-(rd * rd) / 12);
+  h = h * (1 - k * 0.92) - k * 0.5;
+  return Math.max(-0.5, h);
+}
+function buildKawaDecor() {
+  const rmat = new THREE.MeshStandardMaterial({ color: 0x6888a8, transparent: true, opacity: 0.75, roughness: 0.2, metalness: 0.3 });
+  KAWA_RIVERS.forEach((line, i) => {
+    const pts = line.map(([x, z]) => new THREE.Vector3(x, 0.12, z));
+    const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 70, i === 0 ? 2.0 : 1.6, 6, false), rmat);
+    tube.scale.y = 0.15;
+    scene.add(tube);
+  });
+  // 海津城
+  const wood = new THREE.MeshStandardMaterial({ color: 0x5a4028, roughness: 0.95 });
+  const wall = new THREE.MeshStandardMaterial({ color: 0xd8d0bc, roughness: 0.9 });
+  const roof = new THREE.MeshStandardMaterial({ color: 0x3a3a3e, roughness: 0.8, flatShading: true });
+  const [x, z] = KAWA_POS.kaizu;
+  const g = new THREE.Group();
+  const gy = getTerrainHeight(x, z);
+  g.position.set(x, 0, z);
+  const stakeGeo = new THREE.CylinderGeometry(0.09, 0.11, 1.3, 5);
+  const r = 3.6;
+  for (let i = 0; i < 32; i++) {
+    const a = (i / 32) * Math.PI * 2;
+    if (Math.abs(a - Math.PI * 1.5) < 0.2) continue;
+    const st = new THREE.Mesh(stakeGeo, wood);
+    st.position.set(Math.cos(a) * r, getTerrainHeight(x + Math.cos(a) * r, z + Math.sin(a) * r) + 0.55, Math.sin(a) * r);
+    g.add(st);
+  }
+  const hall = new THREE.Mesh(new THREE.BoxGeometry(2.8, 1.0, 1.8), wall);
+  hall.position.set(-0.4, gy + 0.5, 0.3); hall.castShadow = true; g.add(hall);
+  const hr = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 1.8, 0.8, 4, 1), roof);
+  hr.rotation.y = Math.PI / 4; hr.scale.set(1.15, 1, 0.75); hr.position.set(-0.4, gy + 1.4, 0.3); g.add(hr);
+  const tw = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.6, 1.1), wall);
+  tw.position.set(1.3, gy + 0.8, -1.1); g.add(tw);
+  const rf = new THREE.Mesh(new THREE.ConeGeometry(1.0, 0.7, 4), roof);
+  rf.rotation.y = Math.PI / 4; rf.position.set(1.3, gy + 1.95, -1.1); g.add(rf);
+  scene.add(g);
+}
+const KAWA_ROCKS = [[8, 42, 12], [64, 30, 10]];
+const KAWA_TREES = [];
+
+function makeKawaUnits() {
+  return {
+    shingen:   new Unit('shingen',   '武', 'east', 40, 28, '武田信玄', 1.5, true),
+    nobushige: new Unit('nobushige', '典', 'east', 36, 26, '武田信繁', 1.0),
+    morozumi:  new Unit('morozumi',  '諸', 'east', 44, 26, '諸角虎定', 0.8),
+    kansuke:   new Unit('kansuke',   '勘', 'east', 42, 32, '山本勘助', 0.7),
+    yoshinobu: new Unit('yoshinobu', '義', 'east', 38, 32, '武田義信', 1.0),
+    kosaka:    new Unit('kosaka',    '高', 'east', 34, 34, '高坂昌信', 1.1),
+    baba:      new Unit('baba',      '馬', 'east', 48, 34, '馬場信春', 1.1),
+    kenshin:   new Unit('kenshin',   '毘', 'west', 8, 40,  '上杉謙信', 1.5, true),
+    kakizaki:  new Unit('kakizaki',  '柿', 'west', 2, 41,  '柿崎景家', 1.1),
+    murakami:  new Unit('murakami',  '村', 'west', 14, 43, '村上義清', 1.0),
+    amakasu:   new Unit('amakasu',   '甘', 'west', -2, 37, '甘粕景持', 0.9),
+    naoe:      new Unit('naoe',      '直', 'west', 10, 47, '直江景綱', 0.8),
+  };
+}
+
+// 特殊効果: 海津城の炊煙(夕方)
+let kawaLastSmoke = 0, kawaLastFire = 0;
+function kawaSpecialFx(t) {
+  // 妻女山に残した篝火(夜)
+  if (currentPhase >= 1 && currentPhase <= 3 && t - kawaLastFire > 0.25) {
+    kawaLastFire = t;
+    const fires = [[4, 40], [8, 43], [12, 41], [6, 46], [14, 45]];
+    const [fx, fz] = fires[Math.floor(Math.random() * fires.length)];
+    addFx('flash', fx, getTerrainHeight(fx, fz) + 0.6, fz, { s0: 0.9, s1: 1.4, life: 0.4, color: 0xffa040 });
+  }
+  if (currentPhase === 0 && t - kawaLastSmoke > 0.35) {
+    kawaLastSmoke = t;
+    const [x, z] = KAWA_POS.kaizu;
+    for (let k = 0; k < 3; k++) {
+      const px = x - 3 + Math.random() * 6, pz = z - 3 + Math.random() * 6;
+      addFx('smoke', px, getTerrainHeight(px, pz) + 0.8, pz, { color: smokeColor(0xd8d4cc), life: 7, s0: 0.8, s1: 5, vy: 1.6, vx: 0.4, op: 0.45 });
+    }
+  }
+}
+function kawaMomentSound(idx) {
+  if (idx === 4) {             // 霧が晴れる: 法螺貝と太鼓
+    horagai(0.3, 0, 2.6);
+    [0.8, 1.2, 1.6, 2.0, 2.4].forEach(d => taiko(0.42, d));
+  } else if (idx === 5) {      // 車懸り
+    crowdSurge(0.3, 0.2, 3.0);
+    let d = 0.2;
+    for (let i = 0; i < 10; i++) { taiko(0.36, d); d += 0.22; }
+  } else if (idx === 6) {      // 信繁討死
+    [0.05, 0.7].forEach(d => taiko(0.55, d));
+  } else if (idx === 7) {      // 一騎打ち
+    crowdSurge(0.24, 0.1, 2.0);
+  } else if (idx === 9) {      // 挟み撃ち
+    horagai(0.32, 0, 2.2);
+    crowdSurge(0.3, 0.5, 3.0);
+  } else if (idx === 11) {     // 終幕
+    horagai(0.26, 0, 2.4);
+  }
+}
+
+if (IS_KAWA) {
+  Object.assign(BX, {
+    terrain: kawaTerrainHeight, decor: buildKawaDecor, rocks: KAWA_ROCKS, trees: KAWA_TREES,
+    units: makeKawaUnits, fx: kawaSpecialFx, sound: kawaMomentSound, drum: [5, 9],
+    dom: { kicker: 'KAWANAKAJIMA · 3D', year: '1561', rename: [['ieyasu', 'shingen'], ['mitsunari', 'kenshin']] },
+  });
+
+  const ALL0 = {
+    shingen: [40, 28], nobushige: [36, 26], morozumi: [44, 26], kansuke: [42, 32], yoshinobu: [38, 32], kosaka: [34, 34], baba: [48, 34],
+    kenshin: [8, 40], kakizaki: [2, 41], murakami: [14, 43], amakasu: [-2, 37], naoe: [10, 47],
+  };
+  const U = (o) => Object.assign({}, ALL0, o);
+  // 八幡原の鶴翼の陣(武田本隊)と、その前に出た上杉勢
+  const TK = { shingen: [-6, -8], nobushige: [-16, -2], morozumi: [-20, 3], kansuke: [-4, -1], yoshinobu: [4, -2] };
+  const UE = { kenshin: [-22, 14], kakizaki: [-28, 10], murakami: [-14, 16], naoe: [-30, -22], amakasu: [-14, 26] };
+  const SEP_TOP = { kosaka: [10, 42], baba: [16, 44] };
+  const DEAD = ['nobushige', 'morozumi', 'kansuke'];
+  const ph = (time, ja, units, extra) => Object.assign({ time, units, battles: [], battling: [], defeated: [], traitor: null }, ja, extra || {});
+
+  _replaceArr(phases, [
+    ph('17:00', { phase: '炊煙', label: '炊煙', title: '海津城から、いつもより多い炊煙',
+      text: '9月9日の夕方。妻女山に陣取る<span class="info-west">上杉政虎(謙信)</span>は、武田方の<span class="info-east">海津城</span>から炊事の煙がいつもより長く上がっているのに気づいた。謙信は、<span class="info-highlight">武田軍が夜のうちに動く</span>と読んだという。',
+      camera: { pos: [-6, 58, -20], look: [24, 0, 30], label: 'CAM · 妻女山・海津城' } }, U({})),
+    ph('22:00', { phase: '啄木鳥', label: '啄木鳥', title: '武田の「啄木鳥(きつつき)の戦法」',
+      text: '『甲陽軍鑑』によれば、武田軍は兵を二手に分けた。<span class="info-east">高坂昌信・馬場信春</span>ら約1万2千が妻女山の背後へまわり、夜明けに攻めかかる。追い落とされた上杉勢を、<span class="info-east">信玄</span>の本隊約8千が<span class="info-highlight">八幡原で待ち受けて挟み撃ちにする</span>作戦だった。',
+      camera: { pos: [50, 46, 64], look: [30, 0, 26], label: 'CAM · 海津城' } },
+      U({ kosaka: [26, 42], baba: [32, 46], shingen: [32, 14], nobushige: [28, 12], morozumi: [34, 10], kansuke: [30, 18], yoshinobu: [36, 16] })),
+    ph('00:00', { phase: '鞭声粛々', label: '夜の渡河', title: '上杉軍、音もなく妻女山を下りる',
+      text: '上杉軍は篝火をそのまま残し、物音を立てずに妻女山を下りた。<span class="info-west">雨宮の渡し</span>で千曲川を渡り、八幡原へ向かう。のちに頼山陽が「<span class="info-highlight">鞭声粛々夜河を渡る</span>」と詠んだ場面だ。',
+      camera: { pos: [10, 40, 56], look: [-10, 0, 24], label: 'CAM · 雨宮の渡し' } },
+      U({ kenshin: [-10, 24], kakizaki: [-16, 22], murakami: [-6, 26], amakasu: [-14, 28], naoe: [-8, 30],
+          kosaka: [16, 46], baba: [22, 48], shingen: [12, 4], nobushige: [8, 6], morozumi: [14, 2], kansuke: [10, 8], yoshinobu: [16, 6] })),
+    ph('04:00', { phase: '霧', label: '霧', title: '八幡原に深い霧',
+      text: '夜明け前、川中島一帯に<span class="info-highlight">深い霧</span>が立ちこめた。<span class="info-east">信玄</span>の本隊は八幡原に鶴が翼を広げたような陣を敷き、妻女山から追われてくる上杉勢を待つ。だがその上杉勢は、すでに霧の向こうにいた。',
+      camera: { pos: [16, 44, 40], look: [-10, 0, 4], label: 'CAM · 八幡原' } },
+      U(Object.assign({}, TK, UE, SEP_TOP))),
+    ph('06:00', { phase: '霧晴れる', label: '霧晴れる', title: '霧が晴れると、目の前に上杉の大軍',
+      text: '霧が晴れたとき、武田の本隊の目の前には<span class="info-west">上杉軍約1万3千</span>が並んでいた。妻女山を攻めた別働隊は、もぬけの殻の山にいる。<span class="info-highlight">8千で1万3千を受け止める</span>ことになった。',
+      camera: { pos: [10, 40, 42], look: [-14, 0, 6], label: 'CAM · 八幡原' } },
+      U(Object.assign({}, TK, UE, SEP_TOP))),
+    ph('07:00', { phase: '車懸り', label: '車懸り', title: '上杉軍の猛攻',
+      text: '<span class="info-west">柿崎景家</span>を先頭に、上杉軍が次々に新手を繰り出して攻めかかる。『甲陽軍鑑』は、車輪が回るように隊を入れかえる「<span class="info-highlight">車懸り</span>」と伝える。<span class="info-east">武田信繁・諸角虎定</span>の隊が必死に支える。',
+      camera: { pos: [6, 34, 36], look: [-18, 0, 6], label: 'CAM · 武田の左翼' } },
+      U(Object.assign({}, TK, UE, SEP_TOP, { kakizaki: [-20, 6], murakami: [-16, 9], kenshin: [-22, 12] })),
+      { battles: [{ x: -18, z: 4 }, { x: -16, z: 7 }], battling: ['kakizaki', 'nobushige', 'murakami', 'morozumi'] }),
+    ph('08:00', { phase: '信繁討死', label: '信繁討死', title: '武田信繁・諸角虎定・山本勘助、討死',
+      text: '信玄の弟<span class="info-east">武田信繁</span>が討たれ、老将<span class="info-east">諸角虎定</span>も倒れた。作戦を立てた責任を感じた<span class="info-east">山本勘助</span>は敵中に斬り込み、討死したと伝わる。武田の本陣が<span class="info-highlight">むき出しになっていく</span>。',
+      camera: { pos: [8, 30, 30], look: [-12, 0, 0], label: 'CAM · 武田本陣' } },
+      U(Object.assign({}, TK, UE, SEP_TOP, { kakizaki: [-16, 0], murakami: [-12, 4], kenshin: [-18, 8], nobushige: [-18, -1], morozumi: [-21, 4], kansuke: [-10, 2] })),
+      { battles: [{ x: -14, z: 0 }, { x: -10, z: 3 }], battling: ['kakizaki', 'murakami', 'yoshinobu', 'shingen'], defeated: DEAD }),
+    ph('09:00', { phase: '一騎打ち', label: '一騎打ち', title: '謙信、信玄の本陣に斬り込む(伝説)',
+      text: '『甲陽軍鑑』によれば、白い頭巾の騎馬武者が<span class="info-west">ただ一騎で信玄の本陣</span>に駆け込み、床几に座る信玄に三度斬りつけた。信玄は<span class="info-highlight">軍配で受け止め</span>、家臣が槍で馬を突いて追い払った。のちにその武者は謙信だったと語られる。',
+      camera: { pos: [6, 22, 22], look: [-6, 1, -6], label: 'CAM · 武田本陣' } },
+      U(Object.assign({}, TK, UE, SEP_TOP, { kenshin: [-8, -4], kakizaki: [-14, -2], murakami: [-10, 4], nobushige: [-18, -1], morozumi: [-21, 4], kansuke: [-10, 2] })),
+      { battles: [{ x: -7, z: -6 }], battling: ['kenshin', 'shingen', 'kakizaki', 'yoshinobu'], defeated: DEAD }),
+    ph('09:30', { phase: '妻女山は空', label: '雨宮の渡し', title: '別働隊、空の妻女山から引き返す',
+      text: '妻女山に攻め上った<span class="info-east">高坂・馬場</span>の別働隊は、上杉軍がいないことに気づいた。八幡原から聞こえる戦の音に、急いで山を下りる。雨宮の渡しでは<span class="info-west">甘粕景持</span>が<span class="info-highlight">千曲川の渡しを守って</span>待ち構えていた。',
+      camera: { pos: [10, 40, 52], look: [-12, 0, 26], label: 'CAM · 雨宮の渡し' } },
+      U(Object.assign({}, TK, UE, { kenshin: [-10, -2], kakizaki: [-14, -2], murakami: [-10, 4], nobushige: [-18, -1], morozumi: [-21, 4], kansuke: [-10, 2],
+        kosaka: [-10, 30], baba: [-18, 31] })),
+      { battles: [{ x: -14, z: 28 }, { x: -9, z: -4 }], battling: ['kosaka', 'baba', 'amakasu', 'kenshin', 'shingen'], defeated: DEAD }),
+    ph('10:00', { phase: '挟み撃ち', label: '挟み撃ち', title: '別働隊が到着し、上杉軍を挟み撃ちに',
+      text: '渡しを破った<span class="info-east">別働隊約1万2千</span>が、上杉軍の背後から襲いかかった。前と後ろから挟まれ、<span class="info-highlight">形勢は一気に武田へ傾く</span>。',
+      camera: { pos: [10, 42, 44], look: [-16, 0, 8], label: 'CAM · 八幡原' } },
+      U(Object.assign({}, TK, UE, { kenshin: [-14, 6], kakizaki: [-18, 2], murakami: [-14, 12], amakasu: [-28, 22], nobushige: [-18, -1], morozumi: [-21, 4], kansuke: [-10, 2],
+        kosaka: [-12, 18], baba: [-20, 20] })),
+      { battles: [{ x: -13, z: 15 }, { x: -19, z: 17 }, { x: -16, z: 2 }], battling: ['kosaka', 'baba', 'murakami', 'kenshin', 'kakizaki', 'yoshinobu'], defeated: DEAD }),
+    ph('11:00', { phase: '上杉退く', label: '退却', title: '謙信、犀川を渡って善光寺へ',
+      text: '挟まれた<span class="info-west">謙信</span>は兵をまとめ、北の<span class="info-highlight">犀川を渡って善光寺へ</span>退いた。武田軍は追ったが、犀川の手前で兵を止めた。',
+      camera: { pos: [20, 52, 30], look: [-16, 0, -24], label: 'CAM · 犀川' } },
+      U(Object.assign({}, TK, { kenshin: [-20, -36], kakizaki: [-26, -32], murakami: [-14, -34], naoe: [-28, -46], amakasu: [-34, -30], nobushige: [-18, -1], morozumi: [-21, 4], kansuke: [-10, 2],
+        kosaka: [-16, -18], baba: [-24, -16], yoshinobu: [-8, -20] })),
+      { battles: [{ x: -20, z: -26 }], battling: ['kosaka', 'baba', 'kakizaki'], defeated: DEAD }),
+    ph('16:00', { phase: '戦の後', label: '戦の後', title: '両軍ともに大きな犠牲',
+      text: '死者は武田方4千あまり、上杉方3千あまりともいわれ、<span class="info-highlight">両軍とも大きな犠牲</span>を出した。どちらも勝ちを名乗ったが、川中島をどちらかがはっきり手に入れることはなかった。',
+      camera: { pos: [12, 78, 82], look: [0, 0, -6], label: 'CAM · 俯瞰' } },
+      U(Object.assign({}, TK, { kenshin: [-20, -64], kakizaki: [-26, -60], murakami: [-14, -62], naoe: [-28, -70], amakasu: [-34, -58], nobushige: [-18, -1], morozumi: [-21, 4], kansuke: [-10, 2],
+        kosaka: [-12, -12], baba: [-20, -10], yoshinobu: [-2, -12] })),
+      { defeated: DEAD }),
+  ]);
+
+  _replaceArr(EN_PHASES, [
+    { phase: 'COOKING SMOKE', label: 'Cooking smoke', cam: 'CAM · SAIJŌSAN · KAIZU',
+      title: 'More cooking smoke than usual over Kaizu Castle',
+      text: `Evening, the 9th day of the 9th month. From his camp on Mount Saijō, <span class="info-west">Uesugi Masatora (Kenshin)</span> notices cooking smoke rising longer than usual from Takeda-held <span class="info-east">Kaizu Castle</span>. He guesses that <span class="info-highlight">the Takeda will move in the night</span>.` },
+    { phase: 'THE WOODPECKER', label: 'Woodpecker', cam: 'CAM · KAIZU CASTLE',
+      title: 'The Takeda "woodpecker" plan',
+      text: `According to the Kōyō Gunkan, the Takeda split their army. About 12,000 under <span class="info-east">Kōsaka Masanobu and Baba Nobuharu</span> circle behind Mount Saijō to attack at dawn, while <span class="info-east">Shingen</span>'s 8,000 wait on the Hachimanbara plain <span class="info-highlight">to catch the Uesugi as they are driven down</span>.` },
+    { phase: 'SILENT CROSSING', label: 'Night crossing', cam: 'CAM · AMENOMIYA FORD',
+      title: 'The Uesugi slip down Mount Saijō in silence',
+      text: `Leaving their campfires burning, the Uesugi creep down the mountain and cross the Chikuma River at the <span class="info-west">Amenomiya ford</span>, heading for Hachimanbara. Centuries later the poet Rai San'yō wrote of <span class="info-highlight">whips falling silent as they crossed the river by night</span>.` },
+    { phase: 'FOG', label: 'Fog', cam: 'CAM · HACHIMANBARA',
+      title: 'Thick fog over Hachimanbara',
+      text: `Before dawn <span class="info-highlight">a thick fog</span> settles over Kawanakajima. <span class="info-east">Shingen</span> spreads his army like a crane's wings on Hachimanbara, waiting for the Uesugi to be chased off the mountain. But the Uesugi are already out there in the fog.` },
+    { phase: 'THE FOG LIFTS', label: 'Fog lifts', cam: 'CAM · HACHIMANBARA',
+      title: 'The fog lifts — and the Uesugi army is right there',
+      text: `When the fog clears, <span class="info-west">some 13,000 Uesugi troops</span> stand in front of the Takeda main body. The flanking force is up on an empty mountain. <span class="info-highlight">8,000 must hold off 13,000</span>.` },
+    { phase: 'WHEELING ATTACK', label: 'Onslaught', cam: 'CAM · TAKEDA LEFT',
+      title: 'The Uesugi onslaught',
+      text: `Led by <span class="info-west">Kakizaki Kageie</span>, the Uesugi throw in fresh units one after another — the Kōyō Gunkan calls it the "<span class="info-highlight">wheeling attack</span>," units rotating like spokes. <span class="info-east">Takeda Nobushige and Morozumi Torasada</span> struggle to hold.` },
+    { phase: 'NOBUSHIGE FALLS', label: 'Nobushige falls', cam: 'CAM · TAKEDA HQ',
+      title: 'Takeda Nobushige, Morozumi and Yamamoto Kansuke are killed',
+      text: `Shingen's brother <span class="info-east">Takeda Nobushige</span> is killed, and the old general <span class="info-east">Morozumi Torasada</span> falls too. <span class="info-east">Yamamoto Kansuke</span>, blaming himself for the plan, is said to have charged into the enemy and died. The Takeda headquarters is <span class="info-highlight">becoming exposed</span>.` },
+    { phase: 'THE DUEL', label: 'Duel', cam: 'CAM · TAKEDA HQ',
+      title: 'Kenshin rides into Shingen\'s camp (legend)',
+      text: `The Kōyō Gunkan says a rider in a white hood charged <span class="info-west">alone into Shingen's camp</span> and slashed at him three times as he sat on his stool. Shingen <span class="info-highlight">blocked with his war fan</span> until a retainer speared the horse and drove the rider off. Later the rider was said to be Kenshin.` },
+    { phase: 'AN EMPTY MOUNTAIN', label: 'Amenomiya', cam: 'CAM · AMENOMIYA FORD',
+      title: 'The flanking force finds Mount Saijō empty',
+      text: `<span class="info-east">Kōsaka and Baba</span> reach the top of Mount Saijō and find no one there. Hearing battle on the plain, they rush back down — but <span class="info-west">Amakasu Kagemochi</span> is <span class="info-highlight">holding the Chikuma ford</span> against them.` },
+    { phase: 'CAUGHT BETWEEN', label: 'Pincer', cam: 'CAM · HACHIMANBARA',
+      title: 'The flanking force arrives and traps the Uesugi',
+      text: `Breaking through at the ford, the <span class="info-east">12,000-strong flanking force</span> slams into the Uesugi from behind. Caught front and rear, <span class="info-highlight">the battle swings back to the Takeda</span>.` },
+    { phase: 'THE UESUGI WITHDRAW', label: 'Withdrawal', cam: 'CAM · SAI RIVER',
+      title: 'Kenshin crosses the Sai River toward Zenkōji',
+      text: `Caught in the pincer, <span class="info-west">Kenshin</span> gathers his men and <span class="info-highlight">retreats across the Sai River to Zenkōji</span>. The Takeda give chase but stop short of the river.` },
+    { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · OVERVIEW',
+      title: 'Heavy losses on both sides',
+      text: `By some accounts the Takeda lost over 4,000 dead and the Uesugi over 3,000 — <span class="info-highlight">terrible losses for both armies</span>. Both claimed victory, yet neither ever gained clear control of Kawanakajima.` },
+  ]);
+
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
+  _replaceArr(PHASE_ARROWS, [
+    [],
+    [ mvp([34, 36], [24, 44], E), mvp([40, 26], [32, 14], E) ],
+    [ mvp([6, 38], [-10, 24], W), mvp([30, 14], [12, 4], E), mvp([26, 44], [16, 46], E) ],
+    [ mvp([-10, 24], [-22, 14], W), mvp([-12, 24], [-30, -20], W) ],
+    [],
+    [ at('kakizaki', 'nobushige', W), at('murakami', 'morozumi', W) ],
+    [ at('kakizaki', 'yoshinobu', W), at('murakami', 'kansuke', W) ],
+    [ at('kenshin', 'shingen', W) ],
+    [ mvp([10, 42], [-8, 30], E), at('kosaka', 'amakasu', E) ],
+    [ at('kosaka', 'murakami', E), at('baba', 'kenshin', E), at('yoshinobu', 'kakizaki', E) ],
+    [ mvp([-14, 6], [-20, -34], W), mvp([-16, 10], [-16, -16], E) ],
+    [ mvp([-20, -36], [-20, -62], W) ],
+  ]);
+  _replaceArr(CINE, [
+    { orbit: 0.015, dolly: 0.04 },
+    { focus: ['kosaka', 'shingen'], blend: 0.5, orbit: -0.02, dolly: 0.06 },
+    { focus: ['kenshin', 'kakizaki'], blend: 0.7, orbit: 0.02, dolly: 0.08 },
+    { focus: ['shingen', 'kenshin'], blend: 0.55, orbit: -0.015, dolly: 0.06 },
+    { focus: ['kenshin', 'shingen'], blend: 0.6, orbit: 0.02, dolly: 0.08 },
+    { focus: ['kakizaki', 'nobushige'], blend: 0.8, orbit: -0.025, dolly: 0.1 },
+    { focus: ['nobushige', 'kakizaki'], blend: 0.8, orbit: 0.02, dolly: 0.1 },
+    { focus: ['kenshin', 'shingen'], blend: 0.9, orbit: 0.03, dolly: 0.12 },
+    { focus: ['kosaka', 'amakasu'], blend: 0.8, orbit: -0.02, dolly: 0.08 },
+    { focus: ['kosaka', 'murakami'], blend: 0.7, orbit: 0.02, dolly: 0.08 },
+    { focus: ['kenshin'], blend: 0.6, orbit: -0.02, dolly: 0.06 },
+    { orbit: 0.02, dolly: -0.05 },
+  ]);
+  _replaceObj(CINE_MOMENTS, {
+    4:  { ja: '霧晴れる', en: 'THE FOG LIFTS', subJa: '目の前に上杉の大軍', subEn: 'The Uesugi army is right there', shake: 0.3 },
+    5:  { ja: '車懸り', en: 'THE ONSLAUGHT', subJa: '上杉軍、次々に新手を繰り出す', subEn: 'Wave after wave of Uesugi troops', shake: 0.8, accent: 'gold' },
+    6:  { ja: '信繁討死', en: 'NOBUSHIGE FALLS', subJa: '信玄の弟、八幡原に散る', subEn: "Shingen's brother dies on the plain", shake: 0.5 },
+    7:  { ja: '一騎打ち', en: 'THE DUEL', subJa: '太刀を軍配で受け止める(伝説)', subEn: 'A sword blocked by a war fan (legend)', shake: 0.6 },
+    9:  { ja: '挟み撃ち', en: 'CAUGHT BETWEEN', subJa: '別働隊、上杉の背後へ', subEn: 'The flanking force strikes from behind', shake: 0.6 },
+    11: { ja: '痛み分け', en: 'A BLOODY DRAW', subJa: '両軍とも大きな犠牲', subEn: 'Terrible losses on both sides', shake: 0 },
+  });
+  _replaceArr(MOMENTUM, [50, 50, 48, 45, 38, 30, 26, 28, 34, 55, 62, 52]);
+  // 川中島の夜は雨なし
+  ATMO_KEYS.kawanight = Object.assign({}, ATMO_KEYS.night, { rain: 0 });
+  _replaceArr(PHASE_ATMO, ['late', 'kawanight', 'kawanight', 'fog', 'lifting', 'morning', 'morning', 'morning', 'morning', 'noon', 'noon', 'late']);
+  _replaceArr(PLACES, [
+    { x: 8, z: 42, ja: '妻女山', en: 'Mount Saijō', lift: 4 },
+    { x: 42, z: 30, ja: '海津城', en: 'Kaizu Castle', lift: 4.5 },
+    { x: -6, z: -6, ja: '八幡原', en: 'Hachimanbara', lift: 3.5 },
+    { x: -14, z: 22, ja: '雨宮の渡し', en: 'Amenomiya ford', lift: 2.5 },
+    { x: 20, z: 13, ja: '千曲川', en: 'Chikuma River', lift: 1.5, minor: true },
+    { x: 10, z: -34, ja: '犀川', en: 'Sai River', lift: 1.5, minor: true },
+    { x: -20, z: -66, ja: '善光寺方面', en: 'Toward Zenkōji', lift: 3, minor: true },
+  ]);
+
+  const g = (o) => o;
+  _replaceObj(generalsData, {
+    shingen: g({ name: '武田信玄', yomi: 'TAKEDA SHINGEN', faction: 'east', factionLabel: '武田軍 総大将', force: '8,000', troops: 3000, base: '八幡原', birth: '1521', koku: '甲斐・信濃',
+      bio: '甲斐の大名。信濃のほとんどを手に入れ、残る北信濃をめぐって上杉と争った。この年、数え41歳。',
+      episode: '謙信の太刀を軍配で受けたという一騎打ちの話は、武田方の軍学書『甲陽軍鑑』に書かれた伝説。八幡原の史跡公園に二人の像が立つ。' }),
+    nobushige: g({ name: '武田信繁', yomi: 'TAKEDA NOBUSHIGE', faction: 'east', factionLabel: '武田軍', force: '—', troops: 1500, base: '八幡原', birth: '1525', koku: '—',
+      bio: '信玄の弟。「典厩(てんきゅう)」とも呼ばれ、家臣の心得をまとめた家訓でも知られる。', episode: '八幡原で上杉軍を食い止めて討死した。弔うために建てられた典厩寺が長野市に残る。' }),
+    morozumi: g({ name: '諸角虎定', yomi: 'MOROZUMI TORASADA', faction: 'east', factionLabel: '武田軍', force: '—', troops: 800, base: '八幡原', birth: '不詳', koku: '—',
+      bio: '武田家に古くから仕えた老将。', episode: '信繁とともに上杉軍の攻撃を受け止め、討死した。長野市に墓が残る。' }),
+    kansuke: g({ name: '山本勘助', yomi: 'YAMAMOTO KANSUKE', faction: 'east', factionLabel: '武田軍', force: '—', troops: 500, base: '八幡原', birth: '不詳', koku: '—',
+      bio: '『甲陽軍鑑』では信玄の軍師として描かれる。かつては実在も疑われたが、のちに「山本菅助」の名がある古文書が見つかった。', episode: '啄木鳥の戦法を立てたのは勘助とされ、作戦が見破られた責任をとって敵中に斬り込み、討死したと伝わる。' }),
+    yoshinobu: g({ name: '武田義信', yomi: 'TAKEDA YOSHINOBU', faction: 'east', factionLabel: '武田軍', force: '—', troops: 1500, base: '八幡原', birth: '1538', koku: '—',
+      bio: '信玄の長男で、跡継ぎとされていた。', episode: 'この戦いでは本陣近くで戦ったという。のちに父と対立し、1567年に亡くなった。' }),
+    kosaka: g({ name: '高坂昌信', yomi: 'KŌSAKA MASANOBU', faction: 'east', factionLabel: '武田軍 別働隊', force: '約1万2千(別働隊)', troops: 3500, base: '海津城 → 妻女山', birth: '1527', koku: '—',
+      bio: '海津城を任された武田の重臣。本名は春日虎綱とされる。武田四天王の一人。', episode: '別働隊を率いて妻女山に向かったが、山は空だった。急いで引き返し、上杉軍の背後を突いた。' }),
+    baba: g({ name: '馬場信春', yomi: 'BABA NOBUHARU', faction: 'east', factionLabel: '武田軍 別働隊', force: '—', troops: 3500, base: '海津城 → 妻女山', birth: '1515?', koku: '—',
+      bio: '武田四天王の一人。信玄の代からの宿老。', episode: '高坂とともに別働隊に加わった。14年後の長篠では、殿を務めて討死する。' }),
+    kenshin: g({ name: '上杉謙信', yomi: 'UESUGI KENSHIN', faction: 'west', factionLabel: '上杉軍 総大将', force: '13,000', troops: 3500, base: '妻女山', birth: '1530', koku: '越後',
+      bio: '越後の大名。この年、関東管領の上杉家を継いで「上杉政虎」と名乗っていた(謙信は後の名)。毘沙門天を信じ、旗に「毘」の字を掲げた。',
+      episode: '信玄に信濃を追われた北信濃の領主たちを助けるため、何度も川中島へ出陣した。' }),
+    kakizaki: g({ name: '柿崎景家', yomi: 'KAKIZAKI KAGEIE', faction: 'west', factionLabel: '上杉軍 先鋒', force: '—', troops: 3000, base: '八幡原', birth: '不詳', koku: '—',
+      bio: '上杉家の猛将として知られる重臣。', episode: '霧が晴れると、先頭に立って武田の本隊へ攻めかかったと伝わる。' }),
+    murakami: g({ name: '村上義清', yomi: 'MURAKAMI YOSHIKIYO', faction: 'west', factionLabel: '上杉軍', force: '—', troops: 2500, base: '八幡原', birth: '1501', koku: '—',
+      bio: '北信濃・葛尾城の城主だったが、信玄に追われて越後の謙信を頼った。', episode: 'かつて上田原などで信玄を二度破った。川中島の戦いは、村上らを助けることから始まった。' }),
+    amakasu: g({ name: '甘粕景持', yomi: 'AMAKASU KAGEMOCHI', faction: 'west', factionLabel: '上杉軍 殿', force: '—', troops: 2000, base: '雨宮の渡し', birth: '不詳', koku: '—',
+      bio: '上杉家の重臣。', episode: '千曲川の雨宮の渡しを守り、妻女山から戻る武田の別働隊を食い止めた。' }),
+    naoe: g({ name: '直江景綱', yomi: 'NAOE KAGETSUNA', faction: 'west', factionLabel: '上杉軍 荷駄', force: '—', troops: 1200, base: '犀川方面', birth: '1509', koku: '—',
+      bio: '上杉家の重臣で、内政も任された。', episode: '兵糧を運ぶ荷駄隊を守って、北の犀川の方へ先に向かったとされる。' }),
+  });
+  _replaceObj(EN_GEN, {
+    shingen: { name: 'Takeda Shingen', yomi: '武田信玄', factionLabel: 'TAKEDA · COMMANDER', force: '8,000', base: 'Hachimanbara', birth: '1521', koku: 'Kai, Shinano',
+      bio: 'Lord of Kai. He had taken most of Shinano and was fighting the Uesugi for the last northern corner of it. He was 40 that year.',
+      episode: 'The story that he blocked Kenshin\'s sword with his war fan comes from the Takeda military chronicle Kōyō Gunkan — a legend. Statues of the two stand at the Hachimanbara battlefield park.' },
+    nobushige: { name: 'Takeda Nobushige', yomi: '武田信繁', factionLabel: 'TAKEDA', force: '—', base: 'Hachimanbara', birth: '1525', koku: '—',
+      bio: 'Shingen\'s younger brother, also called "Tenkyū," known for a set of precepts he wrote for samurai conduct.', episode: 'He died holding back the Uesugi on Hachimanbara. Tenkyūji temple in Nagano was built in his memory.' },
+    morozumi: { name: 'Morozumi Torasada', yomi: '諸角虎定', factionLabel: 'TAKEDA', force: '—', base: 'Hachimanbara', birth: 'Unknown', koku: '—',
+      bio: 'An old general who had served the Takeda for many years.', episode: 'He fell beside Nobushige holding off the Uesugi attack. His grave is in Nagano.' },
+    kansuke: { name: 'Yamamoto Kansuke', yomi: '山本勘助', factionLabel: 'TAKEDA', force: '—', base: 'Hachimanbara', birth: 'Unknown', koku: '—',
+      bio: 'Portrayed as Shingen\'s strategist in the Kōyō Gunkan. His existence was once doubted, until documents naming a "Yamamoto Kansuke" were found.', episode: 'He is credited with the woodpecker plan, and is said to have charged into the enemy and died when it failed.' },
+    yoshinobu: { name: 'Takeda Yoshinobu', yomi: '武田義信', factionLabel: 'TAKEDA', force: '—', base: 'Hachimanbara', birth: '1538', koku: '—',
+      bio: 'Shingen\'s eldest son and heir at the time.', episode: 'He is said to have fought near his father\'s camp. He later fell out with Shingen and died in 1567.' },
+    kosaka: { name: 'Kōsaka Masanobu', yomi: '高坂昌信', factionLabel: 'TAKEDA · FLANKING FORCE', force: 'About 12,000 (flanking force)', base: 'Kaizu → Mount Saijō', birth: '1527', koku: '—',
+      bio: 'Keeper of Kaizu Castle and one of the Takeda "Four Generals." His real name is thought to be Kasuga Toratsuna.', episode: 'He led the flanking force up Mount Saijō, found it empty, and hurried back to strike the Uesugi from behind.' },
+    baba: { name: 'Baba Nobuharu', yomi: '馬場信春', factionLabel: 'TAKEDA · FLANKING FORCE', force: '—', base: 'Kaizu → Mount Saijō', birth: 'c. 1515', koku: '—',
+      bio: 'One of the Takeda "Four Generals," a veteran from the start of Shingen\'s rule.', episode: 'He joined Kōsaka in the flanking force. Fourteen years later, at Nagashino, he would die leading the rearguard.' },
+    kenshin: { name: 'Uesugi Kenshin', yomi: '上杉謙信', factionLabel: 'UESUGI · COMMANDER', force: '13,000', base: 'Mount Saijō', birth: '1530', koku: 'Echigo',
+      bio: 'Lord of Echigo. That year he had inherited the Uesugi name and called himself Uesugi Masatora ("Kenshin" came later). A devotee of the war god Bishamonten, he flew the character 毘 ("Bi") on his banners.',
+      episode: 'He marched to Kawanakajima again and again to help the northern Shinano lords Shingen had driven out.' },
+    kakizaki: { name: 'Kakizaki Kageie', yomi: '柿崎景家', factionLabel: 'UESUGI · VANGUARD', force: '—', base: 'Hachimanbara', birth: 'Unknown', koku: '—',
+      bio: 'A senior Uesugi retainer famed as a fierce fighter.', episode: 'When the fog lifted, he is said to have led the first charge into the Takeda main body.' },
+    murakami: { name: 'Murakami Yoshikiyo', yomi: '村上義清', factionLabel: 'UESUGI', force: '—', base: 'Hachimanbara', birth: '1501', koku: '—',
+      bio: 'Once lord of Katsurao Castle in northern Shinano, he was driven out by Shingen and turned to Kenshin for help.', episode: 'He had beaten Shingen twice before, at Uedahara and elsewhere. The Kawanakajima wars began with Kenshin coming to his aid.' },
+    amakasu: { name: 'Amakasu Kagemochi', yomi: '甘粕景持', factionLabel: 'UESUGI · REARGUARD', force: '—', base: 'Amenomiya ford', birth: 'Unknown', koku: '—',
+      bio: 'A senior Uesugi retainer.', episode: 'He held the Amenomiya ford on the Chikuma River against the Takeda flanking force coming back from Mount Saijō.' },
+    naoe: { name: 'Naoe Kagetsuna', yomi: '直江景綱', factionLabel: 'UESUGI · SUPPLY', force: '—', base: 'Toward the Sai River', birth: '1509', koku: '—',
+      bio: 'A senior Uesugi retainer who also ran the domain\'s affairs.', episode: 'He is said to have taken the supply train ahead toward the Sai River in the north.' },
+  });
+  _replaceObj(LBL_EN, {
+    shingen: 'Takeda Shingen', nobushige: 'Nobushige', morozumi: 'Morozumi', kansuke: 'Yamamoto Kansuke', yoshinobu: 'Yoshinobu',
+    kosaka: 'Kōsaka', baba: 'Baba', kenshin: 'Uesugi Kenshin', kakizaki: 'Kakizaki', murakami: 'Murakami', amakasu: 'Amakasu', naoe: 'Naoe',
+  });
+  kamonImages.shingen = "data:image/png;base64,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";
+  kamonImages.nobushige = "data:image/png;base64,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";
+  kamonImages.yoshinobu = "data:image/png;base64,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";
+  kamonImages.kenshin = "data:image/png;base64,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";
+}
+
 // 史実の表を保存しておく(切り替えで元に戻せるように)
 const BASE_TABLES = {
   phases: phases.slice(),
@@ -9319,6 +9693,462 @@ if (IS_NAGA) {
   });
 }
 
+// ---------- 川中島: 決断モード ----------
+function kawaEndingId(c) {
+  if (c[7] === 'withdraw') return c[1] === 'together' ? 'E4' : 'E3';
+  if (c[10] === 'pursue') return 'E5';
+  if (c[1] === 'together') return 'E2';
+  return 'E1';
+}
+let KAWA_SEG = null;
+// 兵を分けなかった場合の高坂・馬場(本隊の両翼)
+const KAWA_TG_WINGS = { kosaka: [-28, -6], baba: [12, 2] };
+
+function kawaBuildSegments(c, put) {
+  if (!KAWA_SEG) return;
+  const tg = c[1] === 'together';
+  if (tg) put(KAWA_SEG.together);
+  if (c[7] === 'charge' && tg) put(KAWA_SEG.tgCharge);
+  if (c[7] === 'withdraw') put(tg ? KAWA_SEG.tgWithdraw : KAWA_SEG.withdraw);
+  if (c[10] === 'pursue') put(KAWA_SEG.pursue);
+  else if (c[10] === 'stop' && tg) put({ 10: KAWA_SEG.tgStop, 11: KAWA_SEG.tgEnd });
+  // 兵を分けなかった場合: 信繁・勘助は生きている。史実のままの場面も直す
+  if (tg) {
+    for (let i = 1; i < phases.length; i++) {
+      if (altPhaseSet.has(i)) continue;
+      const p = phases[i];
+      phases[i] = Object.assign({}, p, {
+        defeated: p.defeated.filter(id => id === 'morozumi'),
+      });
+      if (i < 10) phases[i].units = Object.assign({}, p.units, KAWA_TG_WINGS);
+      altPhaseSet.add(i);
+    }
+  }
+}
+
+if (IS_KAWA) {
+  Object.assign(BX, { endingId: kawaEndingId, segments: kawaBuildSegments });
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
+  const DEAD = ['nobushige', 'morozumi', 'kansuke'];
+  const TK = { shingen: [-6, -8], nobushige: [-16, -2], morozumi: [-20, 3], kansuke: [-4, -1], yoshinobu: [4, -2] };
+  const UE = { kenshin: [-22, 14], kakizaki: [-28, 10], murakami: [-14, 16], naoe: [-30, -22], amakasu: [-14, 26] };
+  const TG = Object.assign({}, TK, KAWA_TG_WINGS);
+  const FAR = { kenshin: [-20, -64], kakizaki: [-26, -60], murakami: [-14, -62], naoe: [-28, -70], amakasu: [-34, -58] };
+
+  KAWA_SEG = {
+    // ---------- 決断1: 兵を分けない ----------
+    together: {
+      1: altPhase(1, {
+        ja: { phase: '全軍で出る', label: '全軍', cam: 'CAM · 海津城',
+          title: '信玄、兵を分けずに全軍で八幡原へ',
+          text: '信玄は兵を分けないことにした。<span class="info-east">2万の全軍</span>で夜のうちに千曲川を渡り、八幡原に陣を敷く。妻女山の上杉軍の<span class="info-highlight">帰り道をふさぐ</span>構えだ。' },
+        en: { phase: 'ALL TOGETHER', label: 'All in', cam: 'CAM · KAIZU CASTLE',
+          title: 'Shingen takes his whole army to Hachimanbara',
+          text: `Shingen decides not to split his army. <span class="info-east">All 20,000</span> will cross the Chikuma in the night and take position on Hachimanbara — <span class="info-highlight">blocking the Uesugi's road home</span>.` },
+        cam: { pos: [50, 46, 64], look: [30, 0, 26] },
+        units: { kosaka: [26, 16], baba: [38, 12], shingen: [32, 14], nobushige: [28, 12], morozumi: [34, 10], kansuke: [30, 18], yoshinobu: [36, 16] },
+        arrows: [mvp([40, 26], [32, 14], E), mvp([34, 34], [26, 16], E), mvp([48, 34], [38, 12], E)],
+        cine: { focus: ['shingen', 'kosaka'], blend: 0.5, orbit: -0.02, dolly: 0.06 },
+        mom: 52,
+      }),
+      2: altPhase(2, {
+        ja: { phase: '夜の渡河', label: '夜の渡河', cam: 'CAM · 千曲川',
+          title: '両軍とも、闇の中で川を渡る',
+          text: '上杉軍は篝火を残して妻女山を下り、<span class="info-west">雨宮の渡し</span>で千曲川を渡った。同じころ武田の<span class="info-east">全軍</span>も川を越えていた。<span class="info-highlight">どちらも相手の動きを知らない</span>。' },
+        en: { phase: 'CROSSING IN THE DARK', label: 'Night crossing', cam: 'CAM · CHIKUMA RIVER',
+          title: 'Both armies cross the river in the dark',
+          text: `Leaving their fires burning, the Uesugi slip down Mount Saijō and cross at the <span class="info-west">Amenomiya ford</span>. At the same time the <span class="info-east">whole Takeda army</span> is crossing too. <span class="info-highlight">Neither knows what the other is doing</span>.` },
+        cam: { pos: [26, 44, 50], look: [0, 0, 12] },
+        units: { kosaka: [4, 2], baba: [20, 6], shingen: [12, 4], nobushige: [8, 6], morozumi: [14, 2], kansuke: [10, 8], yoshinobu: [16, 6] },
+        arrows: [mvp([6, 38], [-10, 24], W), mvp([30, 14], [12, 4], E), mvp([26, 16], [4, 2], E)],
+        cine: { focus: ['kenshin', 'shingen'], blend: 0.6, orbit: 0.02, dolly: 0.08 },
+        mom: 52,
+      }),
+      3: altPhase(3, {
+        ja: { phase: '霧', label: '霧', cam: 'CAM · 八幡原',
+          title: '霧の中、2万の武田軍が並ぶ',
+          text: '夜明け前、八幡原に<span class="info-highlight">深い霧</span>が立ちこめた。信玄の2万は両翼を広げて並ぶ。左翼に<span class="info-east">高坂昌信</span>、右翼に<span class="info-east">馬場信春</span>。霧の向こうに上杉軍がいるとは、まだ誰も知らない。' },
+        en: { phase: 'FOG', label: 'Fog', cam: 'CAM · HACHIMANBARA',
+          title: '20,000 Takeda in the fog',
+          text: `Before dawn <span class="info-highlight">a thick fog</span> covers Hachimanbara. Shingen's 20,000 spread out with <span class="info-east">Kōsaka</span> on the left wing and <span class="info-east">Baba</span> on the right. No one yet knows the Uesugi are just beyond the fog.` },
+        cam: { pos: [16, 44, 40], look: [-10, 0, 4] },
+        units: Object.assign({}, TG, UE),
+        cine: { focus: ['shingen', 'kenshin'], blend: 0.55, orbit: -0.015, dolly: 0.06 },
+        mom: 52,
+      }),
+      4: altPhase(4, {
+        ja: { phase: '霧晴れる', label: '霧晴れる', cam: 'CAM · 八幡原',
+          title: '霧が晴れ、両軍が向かい合う',
+          text: '霧が晴れると、目の前に敵がいた。だが今度は<span class="info-east">武田の2万</span>が<span class="info-west">上杉の1万3千</span>と向かい合う。数では<span class="info-highlight">武田がはっきり上</span>だ。' },
+        en: { phase: 'THE FOG LIFTS', label: 'Fog lifts', cam: 'CAM · HACHIMANBARA',
+          title: 'The fog lifts — face to face',
+          text: `As the fog clears, the enemy is right there. But this time <span class="info-east">20,000 Takeda</span> face <span class="info-west">13,000 Uesugi</span> — <span class="info-highlight">the Takeda clearly outnumber them</span>.` },
+        cam: { pos: [10, 40, 42], look: [-14, 0, 6] },
+        units: Object.assign({}, TG, UE),
+        cine: { focus: ['kenshin', 'shingen'], blend: 0.6, orbit: 0.02, dolly: 0.08 },
+        moment: { ja: '霧晴れる', en: 'THE FOG LIFTS', subJa: '二万と一万三千が向かい合う', subEn: '20,000 face 13,000', shake: 0.3 },
+        mom: 58,
+      }),
+      5: altPhase(5, {
+        ja: { phase: '車懸り', label: '車懸り', cam: 'CAM · 武田の左翼',
+          title: '上杉の猛攻を、厚い陣が受け止める',
+          text: '<span class="info-west">柿崎景家</span>を先頭に上杉軍が攻めかかる。だが<span class="info-east">高坂昌信</span>の左翼が横から支え、武田の陣は<span class="info-highlight">崩れない</span>。' },
+        en: { phase: 'THE ONSLAUGHT', label: 'Onslaught', cam: 'CAM · TAKEDA LEFT',
+          title: 'A deep line takes the Uesugi charge',
+          text: `Led by <span class="info-west">Kakizaki Kageie</span>, the Uesugi attack. But <span class="info-east">Kōsaka</span>'s left wing props up the line from the side, and the Takeda <span class="info-highlight">hold firm</span>.` },
+        cam: { pos: [6, 34, 36], look: [-18, 0, 6] },
+        units: Object.assign({}, TG, UE, { kakizaki: [-20, 6], murakami: [-16, 9], kenshin: [-22, 12], kosaka: [-26, 2] }),
+        battles: [{ x: -18, z: 4 }, { x: -23, z: 4 }], battling: ['kakizaki', 'nobushige', 'morozumi', 'kosaka', 'murakami'],
+        arrows: [at('kakizaki', 'nobushige', W), at('murakami', 'morozumi', W), at('kosaka', 'kakizaki', E)],
+        cine: { focus: ['kakizaki', 'kosaka'], blend: 0.8, orbit: -0.025, dolly: 0.1 },
+        moment: { ja: '車懸り', en: 'THE ONSLAUGHT', subJa: '厚い陣が受け止める', subEn: 'The deep line holds', shake: 0.6, accent: 'gold' },
+        mom: 54,
+      }),
+      6: altPhase(6, {
+        ja: { phase: '両翼が閉じる', label: '両翼', cam: 'CAM · 八幡原',
+          title: '武田の両翼が、上杉軍を包みはじめる',
+          text: '老将<span class="info-east">諸角虎定</span>が討たれたが、<span class="info-east">武田信繁</span>は踏みとどまった。左右から<span class="info-east">高坂・馬場</span>の翼が回りこみ、上杉軍は<span class="info-highlight">包まれはじめる</span>。' },
+        en: { phase: 'THE WINGS CLOSE', label: 'Wings', cam: 'CAM · HACHIMANBARA',
+          title: 'The Takeda wings start to wrap around the Uesugi',
+          text: `The old general <span class="info-east">Morozumi</span> falls, but <span class="info-east">Takeda Nobushige</span> holds. <span class="info-east">Kōsaka and Baba</span> swing in from both sides, and the Uesugi <span class="info-highlight">begin to be surrounded</span>.` },
+        cam: { pos: [12, 44, 40], look: [-14, 0, 6] },
+        units: Object.assign({}, TG, UE, { kakizaki: [-18, 4], murakami: [-14, 8], kenshin: [-20, 10], morozumi: [-21, 4], kosaka: [-30, 12], baba: [-4, 12] }),
+        battles: [{ x: -17, z: 2 }, { x: -28, z: 11 }, { x: -7, z: 11 }], battling: ['kakizaki', 'nobushige', 'kosaka', 'baba', 'murakami', 'kenshin'],
+        defeated: ['morozumi'],
+        arrows: [mvp([-28, -6], [-30, 11], E), mvp([12, 2], [-4, 11], E), at('baba', 'murakami', E)],
+        cine: { focus: ['baba', 'kosaka'], blend: 0.6, orbit: 0.02, dolly: 0.08 },
+        moment: { ja: '両翼', en: 'THE WINGS CLOSE', subJa: '上杉軍を包みこむ', subEn: 'Wrapping around the Uesugi', shake: 0.4 },
+        mom: 62,
+      }),
+    },
+    tgCharge: {
+      7: altPhase(7, {
+        ja: { phase: '本陣へ', label: '本陣へ', cam: 'CAM · 武田本陣',
+          title: '謙信、信玄の本陣へ迫るが届かない',
+          text: '<span class="info-west">謙信</span>はみずから信玄の本陣をめざした。だが武田の陣は厚い。<span class="info-east">武田義信</span>らの兵が何重にも立ちふさがり、謙信は<span class="info-highlight">本陣にたどり着けない</span>。' },
+        en: { phase: 'FOR THE HQ', label: 'For the HQ', cam: 'CAM · TAKEDA HQ',
+          title: "Kenshin drives for Shingen's camp — and can't reach it",
+          text: `<span class="info-west">Kenshin</span> leads the drive on Shingen's camp himself. But the Takeda lines are deep: <span class="info-east">Takeda Yoshinobu</span>'s men stand rank on rank in his way, and he <span class="info-highlight">cannot get through</span>.` },
+        cam: { pos: [6, 26, 26], look: [-8, 1, -2] },
+        units: Object.assign({}, TG, UE, { kenshin: [-10, 2], kakizaki: [-16, 2], murakami: [-12, 8], morozumi: [-21, 4], kosaka: [-30, 14], baba: [-6, 14], yoshinobu: [-4, -3] }),
+        battles: [{ x: -8, z: 0 }, { x: -16, z: 0 }], battling: ['kenshin', 'yoshinobu', 'kansuke', 'kakizaki', 'nobushige'],
+        defeated: ['morozumi'],
+        arrows: [at('kenshin', 'shingen', W), at('yoshinobu', 'kenshin', E)],
+        cine: { focus: ['kenshin', 'yoshinobu'], blend: 0.85, orbit: 0.03, dolly: 0.12 },
+        moment: { ja: '本陣へ', en: 'FOR THE HQ', subJa: '厚い陣に阻まれる', subEn: 'Stopped by the deep lines', shake: 0.6 },
+        mom: 66,
+      }),
+      8: altPhase(8, {
+        ja: { phase: '包囲', label: '包囲', cam: 'CAM · 八幡原',
+          title: '上杉軍、三方を囲まれる',
+          text: '<span class="info-east">高坂・馬場</span>の翼が上杉軍の後ろへまわった。逃げ道は南の千曲川だけ。<span class="info-west">甘粕景持</span>が雨宮の渡しを守り、<span class="info-highlight">退路を必死に支える</span>。' },
+        en: { phase: 'SURROUNDED', label: 'Surrounded', cam: 'CAM · HACHIMANBARA',
+          title: 'The Uesugi are hemmed in on three sides',
+          text: `The wings under <span class="info-east">Kōsaka and Baba</span> get behind the Uesugi. The only way out is south across the Chikuma, where <span class="info-west">Amakasu Kagemochi</span> <span class="info-highlight">desperately holds the ford open</span>.` },
+        cam: { pos: [12, 46, 44], look: [-16, 0, 8] },
+        units: Object.assign({}, TG, UE, { kenshin: [-14, 8], kakizaki: [-18, 4], murakami: [-12, 12], morozumi: [-21, 4], kosaka: [-26, 18], baba: [-6, 18], amakasu: [-14, 22] }),
+        battles: [{ x: -24, z: 16 }, { x: -8, z: 16 }, { x: -16, z: 2 }], battling: ['kosaka', 'baba', 'kakizaki', 'murakami', 'kenshin', 'nobushige'],
+        defeated: ['morozumi'],
+        arrows: [at('kosaka', 'kenshin', E), at('baba', 'murakami', E), at('nobushige', 'kakizaki', E)],
+        cine: { focus: ['kosaka', 'kenshin'], blend: 0.7, orbit: -0.02, dolly: 0.08 },
+        moment: { ja: '包囲', en: 'SURROUNDED', subJa: '退路は千曲川の渡しだけ', subEn: 'The only way out is the ford', shake: 0.5 },
+        mom: 74,
+      }),
+      9: altPhase(9, {
+        ja: { phase: '上杉崩れる', label: '突破', cam: 'CAM · 八幡原',
+          title: '謙信、包囲を破って北へ',
+          text: '上杉軍は大きな犠牲を出しながら、<span class="info-west">謙信</span>を囲んで北へ突き抜けた。囲みを破られた武田軍は<span class="info-highlight">追いかける</span>。' },
+        en: { phase: 'BREAKOUT', label: 'Breakout', cam: 'CAM · HACHIMANBARA',
+          title: 'Kenshin breaks out to the north',
+          text: `At heavy cost, the Uesugi close around <span class="info-west">Kenshin</span> and punch out to the north. The Takeda <span class="info-highlight">give chase</span>.` },
+        cam: { pos: [14, 48, 34], look: [-16, 0, -10] },
+        units: Object.assign({}, TG, UE, { kenshin: [-18, -18], kakizaki: [-24, -14], murakami: [-12, -16], naoe: [-28, -30], amakasu: [-28, 20], morozumi: [-21, 4], kosaka: [-22, -4], baba: [-6, -6], yoshinobu: [-10, -12] }),
+        battles: [{ x: -20, z: -10 }, { x: -26, z: 18 }], battling: ['kakizaki', 'kosaka', 'amakasu', 'yoshinobu'],
+        defeated: ['morozumi'],
+        arrows: [mvp([-14, 8], [-18, -18], W), mvp([-26, 18], [-22, -4], E), at('yoshinobu', 'murakami', E)],
+        cine: { focus: ['kenshin', 'kakizaki'], blend: 0.7, orbit: 0.02, dolly: 0.08 },
+        mom: 72,
+      }),
+    },
+    tgStop: altPhase(10, {
+      ja: { phase: '上杉退く', label: '退却', cam: 'CAM · 犀川',
+        title: '謙信、犀川を渡って善光寺へ',
+        text: '囲みを破った<span class="info-west">謙信</span>は、北の<span class="info-highlight">犀川を渡って善光寺へ</span>退いた。武田軍は追ったが、犀川の手前で兵を止めた。' },
+      en: { phase: 'THE UESUGI WITHDRAW', label: 'Withdrawal', cam: 'CAM · SAI RIVER',
+        title: 'Kenshin crosses the Sai River toward Zenkōji',
+        text: `Having broken out, <span class="info-west">Kenshin</span> <span class="info-highlight">retreats across the Sai River to Zenkōji</span>. The Takeda give chase but stop short of the river.` },
+      cam: { pos: [20, 52, 30], look: [-16, 0, -24] },
+      units: { nobushige: [-14, -6], kansuke: [-4, -4] },
+      defeated: ['morozumi'],
+      arrows: [mvp([-18, -18], [-20, -34], W), mvp([-16, 10], [-16, -16], E)],
+      cine: { focus: ['kenshin'], blend: 0.6, orbit: -0.02, dolly: 0.06 },
+      mom: 70,
+    }),
+    tgEnd: altPhase(11, {
+      ja: { phase: '戦の後', label: '戦の後', cam: 'CAM · 俯瞰',
+        title: '武田の大勝。川中島は信玄のものに',
+        text: '上杉軍は多くの兵を失って越後へ退いた。<span class="info-east">武田信繁と山本勘助</span>は生きのび、<span class="info-highlight">川中島は武田のもの</span>になった。謙信が再び信濃へ出てくるのは、ずっと先のことになる。' },
+      en: { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · OVERVIEW',
+        title: 'A great Takeda victory — Kawanakajima is Shingen\'s',
+        text: `The Uesugi limp back to Echigo with heavy losses. <span class="info-east">Takeda Nobushige and Yamamoto Kansuke</span> survive, and <span class="info-highlight">Kawanakajima belongs to the Takeda</span>. It will be a long time before Kenshin comes back into Shinano.` },
+      cam: { pos: [12, 78, 82], look: [0, 0, -6] },
+      units: Object.assign({}, TG, FAR, { kosaka: [-12, -12], baba: [-20, -10], yoshinobu: [-2, -12] }),
+      defeated: ['morozumi'],
+      arrows: [mvp([-20, -36], [-20, -62], W)],
+      cine: { orbit: 0.02, dolly: -0.05 },
+      moment: { ja: '武田の大勝', en: 'A TAKEDA TRIUMPH', subJa: '川中島は信玄のものに', subEn: 'Kawanakajima is Shingen\'s', shake: 0 },
+      mom: 82,
+    }),
+    // ---------- 決断2: 謙信、早めに退く(兵を分けた場合) ----------
+    withdraw: {
+      7: altPhase(7, {
+        ja: { phase: '退くと決める', label: '退く', cam: 'CAM · 八幡原',
+          title: '謙信、別働隊が戻る前に兵を引く',
+          text: '武田の左翼は崩した。だが妻女山の別働隊が気づけば、すぐに戻ってくる。<span class="info-west">謙信</span>は深追いせず、<span class="info-highlight">ここで兵を引く</span>と決めた。' },
+        en: { phase: 'THE CALL TO WITHDRAW', label: 'Withdraw', cam: 'CAM · HACHIMANBARA',
+          title: 'Kenshin pulls back before the flanking force returns',
+          text: `The Takeda left is broken. But the force on Mount Saijō will be back as soon as it realizes. <span class="info-west">Kenshin</span> decides not to push his luck and <span class="info-highlight">withdraws now</span>.` },
+        cam: { pos: [10, 42, 34], look: [-16, 0, -6] },
+        units: Object.assign({}, TK, UE, { kenshin: [-18, -8], kakizaki: [-22, -4], murakami: [-12, -6], nobushige: [-18, -1], morozumi: [-21, 4], kansuke: [-10, 2], shingen: [-2, -10], kosaka: [10, 42], baba: [16, 44] }),
+        defeated: DEAD,
+        arrows: [mvp([-16, 0], [-18, -8], W), mvp([-12, 4], [-12, -6], W)],
+        cine: { focus: ['kenshin', 'kakizaki'], blend: 0.6, orbit: 0.02, dolly: 0.08 },
+        moment: { ja: '退き際', en: 'TIME TO GO', subJa: '別働隊が戻る前に', subEn: 'Before the flanking force returns', shake: 0.2 },
+        mom: 38,
+      }),
+      8: altPhase(8, {
+        ja: { phase: '整然と北へ', label: '北へ', cam: 'CAM · 犀川',
+          title: '上杉軍、隊列を保って犀川へ',
+          text: '上杉軍は隊列を崩さずに北の犀川へ向かう。痛手を負った武田の本隊は<span class="info-highlight">追う力が残っていない</span>。妻女山では別働隊が、ようやく山が空だと気づいた。' },
+        en: { phase: 'NORTH IN GOOD ORDER', label: 'North', cam: 'CAM · SAI RIVER',
+          title: 'The Uesugi march for the Sai River in good order',
+          text: `The Uesugi head north for the Sai River without breaking ranks. The battered Takeda main body <span class="info-highlight">has nothing left to chase them with</span>. Up on Mount Saijō, the flanking force has only just found the camp empty.` },
+        cam: { pos: [18, 50, 26], look: [-16, 0, -22] },
+        units: Object.assign({}, TK, UE, { kenshin: [-18, -26], kakizaki: [-24, -22], murakami: [-12, -24], naoe: [-26, -34], amakasu: [-14, 22], nobushige: [-18, -1], morozumi: [-21, 4], kansuke: [-10, 2], shingen: [-4, -10], kosaka: [8, 38], baba: [12, 40] }),
+        defeated: DEAD,
+        arrows: [mvp([-18, -8], [-18, -26], W), mvp([10, 42], [6, 34], E)],
+        cine: { focus: ['kenshin', 'naoe'], blend: 0.55, orbit: -0.02, dolly: 0.06 },
+        mom: 40,
+      }),
+      9: altPhase(9, {
+        ja: { phase: '遅れた別働隊', label: '遅れて', cam: 'CAM · 雨宮の渡し',
+          title: '別働隊が着いたとき、上杉軍はもういない',
+          text: '<span class="info-east">高坂・馬場</span>の別働隊は雨宮の渡しで<span class="info-west">甘粕景持</span>に足止めされ、八幡原に着いたときには<span class="info-highlight">上杉の本隊はもう犀川の向こう</span>だった。' },
+        en: { phase: 'TOO LATE', label: 'Too late', cam: 'CAM · AMENOMIYA FORD',
+          title: 'By the time the flanking force arrives, the Uesugi are gone',
+          text: `<span class="info-west">Amakasu Kagemochi</span> holds <span class="info-east">Kōsaka and Baba</span> at the Amenomiya ford, and by the time they reach Hachimanbara <span class="info-highlight">the Uesugi main body is across the Sai</span>.` },
+        cam: { pos: [12, 44, 46], look: [-12, 0, 10] },
+        units: Object.assign({}, TK, UE, { kenshin: [-20, -40], kakizaki: [-26, -36], murakami: [-14, -38], naoe: [-28, -46], amakasu: [-22, 4], nobushige: [-18, -1], morozumi: [-21, 4], kansuke: [-10, 2], shingen: [-4, -10], kosaka: [-12, 16], baba: [-18, 20] }),
+        battles: [{ x: -20, z: 8 }], battling: ['amakasu', 'kosaka'],
+        defeated: DEAD,
+        arrows: [mvp([-14, 26], [-12, 16], E), mvp([-14, 22], [-22, 4], W)],
+        cine: { focus: ['kosaka', 'amakasu'], blend: 0.7, orbit: 0.02, dolly: 0.08 },
+        mom: 40,
+      }),
+      10: altPhase(10, {
+        ja: { phase: '善光寺へ', label: '善光寺へ', cam: 'CAM · 犀川',
+          title: '上杉軍、ほとんど無傷で善光寺へ',
+          text: '殿の<span class="info-west">甘粕景持</span>も犀川を渡り、上杉軍は<span class="info-highlight">ほとんど兵を失わずに</span>善光寺へ入った。武田軍は犀川の手前で足を止める。' },
+        en: { phase: 'TO ZENKŌJI', label: 'Zenkōji', cam: 'CAM · SAI RIVER',
+          title: 'The Uesugi reach Zenkōji nearly intact',
+          text: `Even the rearguard under <span class="info-west">Amakasu</span> makes it across the Sai, and the Uesugi reach Zenkōji <span class="info-highlight">having lost few men</span>. The Takeda halt at the river.` },
+        cam: { pos: [20, 52, 30], look: [-16, 0, -24] },
+        units: Object.assign({}, TK, FAR, { nobushige: [-18, -1], morozumi: [-21, 4], kansuke: [-10, 2], kosaka: [-16, -18], baba: [-24, -16], yoshinobu: [-8, -20] }),
+        defeated: DEAD,
+        arrows: [mvp([-20, -40], [-20, -62], W), mvp([-12, 16], [-16, -16], E)],
+        cine: { focus: ['kenshin'], blend: 0.6, orbit: -0.02, dolly: 0.06 },
+        mom: 40,
+      }),
+      11: altPhase(11, {
+        ja: { phase: '戦の後', label: '戦の後', cam: 'CAM · 俯瞰',
+          title: '上杉の勝ち逃げ',
+          text: '信玄の弟<span class="info-east">信繁</span>と<span class="info-east">山本勘助</span>を討ち、上杉軍は軽い傷で越後へ帰った。武田にとっては<span class="info-highlight">高くついた一日</span>。謙信の名はいっそう高まった。' },
+        en: { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · OVERVIEW',
+          title: 'The Uesugi strike and get away',
+          text: `Having killed Shingen's brother <span class="info-east">Nobushige</span> and <span class="info-east">Yamamoto Kansuke</span>, the Uesugi go home to Echigo lightly hurt. For the Takeda it was <span class="info-highlight">a costly day</span>, and Kenshin's reputation only grows.` },
+        cam: { pos: [12, 78, 82], look: [0, 0, -6] },
+        units: Object.assign({}, TK, FAR, { nobushige: [-18, -1], morozumi: [-21, 4], kansuke: [-10, 2], kosaka: [-12, -12], baba: [-20, -10], yoshinobu: [-2, -12] }),
+        defeated: DEAD,
+        cine: { orbit: 0.02, dolly: -0.05 },
+        moment: { ja: '勝ち逃げ', en: 'STRIKE AND AWAY', subJa: '上杉軍、軽い傷で越後へ', subEn: 'The Uesugi go home lightly hurt', shake: 0 },
+        mom: 36,
+      }),
+    },
+    // ---------- 決断2: 謙信、早めに退く(兵を分けなかった場合) ----------
+    tgWithdraw: {
+      7: altPhase(7, {
+        ja: { phase: '退くと決める', label: '退く', cam: 'CAM · 八幡原',
+          title: '謙信、包まれる前に兵を引く',
+          text: '武田の陣は崩れず、両翼が迫ってくる。<span class="info-west">謙信</span>は<span class="info-highlight">包まれる前に兵を引く</span>と決め、<span class="info-west">甘粕景持</span>に殿を命じた。' },
+        en: { phase: 'THE CALL TO WITHDRAW', label: 'Withdraw', cam: 'CAM · HACHIMANBARA',
+          title: 'Kenshin pulls out before he is surrounded',
+          text: `The Takeda line won't break, and the wings are closing in. <span class="info-west">Kenshin</span> decides to <span class="info-highlight">get out before he is surrounded</span> and orders <span class="info-west">Amakasu Kagemochi</span> to cover the rear.` },
+        cam: { pos: [10, 42, 34], look: [-16, 0, -6] },
+        units: Object.assign({}, TG, UE, { kenshin: [-22, -10], kakizaki: [-26, -6], murakami: [-16, -8], amakasu: [-18, 8], morozumi: [-21, 4], kosaka: [-30, 12], baba: [-4, 12] }),
+        battles: [{ x: -18, z: 6 }], battling: ['amakasu', 'nobushige'],
+        defeated: ['morozumi'],
+        arrows: [mvp([-20, 10], [-22, -10], W), mvp([-14, 26], [-18, 8], W)],
+        cine: { focus: ['kenshin', 'amakasu'], blend: 0.6, orbit: 0.02, dolly: 0.08 },
+        moment: { ja: '退き際', en: 'TIME TO GO', subJa: '包まれる前に', subEn: 'Before the trap closes', shake: 0.2 },
+        mom: 62,
+      }),
+      8: altPhase(8, {
+        ja: { phase: '殿', label: '殿', cam: 'CAM · 八幡原',
+          title: '甘粕景持、追っ手を食い止める',
+          text: '殿の<span class="info-west">甘粕景持</span>が武田の先手を食い止めるあいだに、上杉の本隊は北の犀川へ向かう。信玄は<span class="info-highlight">無理に追わせなかった</span>。' },
+        en: { phase: 'THE REARGUARD', label: 'Rearguard', cam: 'CAM · HACHIMANBARA',
+          title: 'Amakasu holds off the pursuit',
+          text: `While <span class="info-west">Amakasu Kagemochi</span> holds off the leading Takeda units, the Uesugi main body heads north for the Sai. Shingen <span class="info-highlight">does not push the chase</span>.` },
+        cam: { pos: [18, 50, 26], look: [-16, 0, -18] },
+        units: Object.assign({}, TG, UE, { kenshin: [-18, -28], kakizaki: [-24, -24], murakami: [-12, -26], naoe: [-26, -36], amakasu: [-20, -10], morozumi: [-21, 4], kosaka: [-24, -4], baba: [-8, -4] }),
+        battles: [{ x: -22, z: -7 }], battling: ['amakasu', 'kosaka'],
+        defeated: ['morozumi'],
+        arrows: [mvp([-22, -10], [-18, -28], W), at('kosaka', 'amakasu', E)],
+        cine: { focus: ['amakasu', 'kosaka'], blend: 0.7, orbit: -0.02, dolly: 0.08 },
+        mom: 60,
+      }),
+      9: altPhase(9, {
+        ja: { phase: '犀川を渡る', label: '犀川', cam: 'CAM · 犀川',
+          title: '上杉軍、犀川を渡る',
+          text: '上杉軍は犀川を渡り、殿の<span class="info-west">甘粕</span>も追いついた。武田軍は川岸に並び、<span class="info-highlight">川中島の平らを押さえた</span>。' },
+        en: { phase: 'ACROSS THE SAI', label: 'Sai River', cam: 'CAM · SAI RIVER',
+          title: 'The Uesugi cross the Sai',
+          text: `The Uesugi cross the Sai River, and <span class="info-west">Amakasu</span>'s rearguard catches up. The Takeda line up along the bank — <span class="info-highlight">the Kawanakajima plain is theirs</span>.` },
+        cam: { pos: [20, 52, 30], look: [-16, 0, -24] },
+        units: Object.assign({}, TG, { kenshin: [-20, -42], kakizaki: [-26, -40], murakami: [-14, -42], naoe: [-28, -48], amakasu: [-22, -36], morozumi: [-21, 4], kosaka: [-24, -24], baba: [-8, -24], yoshinobu: [-14, -22] }),
+        defeated: ['morozumi'],
+        arrows: [mvp([-18, -28], [-20, -42], W), mvp([-24, -4], [-24, -24], E)],
+        cine: { focus: ['kenshin'], blend: 0.6, orbit: 0.02, dolly: 0.06 },
+        mom: 62,
+      }),
+      10: altPhase(10, {
+        ja: { phase: '善光寺へ', label: '善光寺へ', cam: 'CAM · 善光寺方面',
+          title: '上杉軍、善光寺から越後へ',
+          text: '上杉軍は善光寺で兵をまとめ、越後へ引き上げていく。武田軍は<span class="info-highlight">ほとんど兵を失わずに</span>戦場を手に入れた。' },
+        en: { phase: 'TO ZENKŌJI', label: 'Zenkōji', cam: 'CAM · TOWARD ZENKŌJI',
+          title: 'From Zenkōji, the Uesugi head home',
+          text: `The Uesugi regroup at Zenkōji and start home to Echigo. The Takeda have won the field <span class="info-highlight">at very little cost</span>.` },
+        cam: { pos: [16, 56, 10], look: [-18, 0, -40] },
+        units: Object.assign({}, TG, FAR, { morozumi: [-21, 4], kosaka: [-24, -26], baba: [-8, -26], yoshinobu: [-14, -24] }),
+        defeated: ['morozumi'],
+        arrows: [mvp([-20, -42], [-20, -62], W)],
+        cine: { focus: ['kenshin'], blend: 0.5, orbit: -0.02, dolly: 0.06 },
+        mom: 64,
+      }),
+      11: altPhase(11, {
+        ja: { phase: '戦の後', label: '戦の後', cam: 'CAM · 俯瞰',
+          title: '大きな戦にならずに、川中島は武田に',
+          text: '両軍とも大きな犠牲は出さなかった。だが戦場に残ったのは<span class="info-east">武田軍</span>。<span class="info-east">信繁</span>も<span class="info-east">勘助</span>も生きている。<span class="info-highlight">信玄は北信濃をしっかり押さえた</span>。' },
+        en: { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · OVERVIEW',
+          title: 'No great slaughter — and Kawanakajima goes to the Takeda',
+          text: `Neither side suffers heavy losses. But it is the <span class="info-east">Takeda</span> who hold the field, with <span class="info-east">Nobushige</span> and <span class="info-east">Kansuke</span> both alive. <span class="info-highlight">Shingen has a firm grip on northern Shinano</span>.` },
+        cam: { pos: [12, 78, 82], look: [0, 0, -6] },
+        units: Object.assign({}, TG, FAR, { morozumi: [-21, 4], kosaka: [-12, -12], baba: [-20, -10], yoshinobu: [-2, -12] }),
+        defeated: ['morozumi'],
+        cine: { orbit: 0.02, dolly: -0.05 },
+        moment: { ja: '戦わずして', en: 'WON WITHOUT A BLOODBATH', subJa: '川中島は武田に', subEn: 'Kawanakajima goes to the Takeda', shake: 0 },
+        mom: 66,
+      }),
+    },
+    // ---------- 決断3: 犀川を越えて追う ----------
+    pursue: {
+      10: altPhase(10, {
+        ja: { phase: '犀川を越えて', label: '追撃', cam: 'CAM · 犀川',
+          title: '武田軍、犀川を越えて追う',
+          text: '信玄は兵を止めず、<span class="info-east">犀川を越えて追え</span>と命じた。川を渡る上杉軍の背に、<span class="info-east">高坂・馬場</span>の隊が襲いかかる。<span class="info-west">直江景綱</span>の荷駄隊が引き返して<span class="info-highlight">川の中で斬り合い</span>になる。' },
+        en: { phase: 'ACROSS THE SAI', label: 'Pursuit', cam: 'CAM · SAI RIVER',
+          title: 'The Takeda chase them across the Sai',
+          text: `Shingen does not stop: he orders his men <span class="info-east">across the Sai after them</span>. <span class="info-east">Kōsaka and Baba</span> fall on the Uesugi as they cross, and <span class="info-west">Naoe Kagetsuna</span>'s supply guard turns back — <span class="info-highlight">the fighting spills into the river</span>.` },
+        cam: { pos: [18, 44, 8], look: [-20, 0, -38] },
+        units: { kenshin: [-20, -48], kakizaki: [-26, -44], murakami: [-14, -46], naoe: [-24, -38], amakasu: [-32, -40], kosaka: [-20, -34], baba: [-28, -32], yoshinobu: [-10, -34] },
+        battles: [{ x: -22, z: -36 }, { x: -30, z: -36 }], battling: ['kosaka', 'naoe', 'baba', 'amakasu'],
+        defeated: DEAD,
+        arrows: [mvp([-16, -18], [-20, -34], E), mvp([-24, -16], [-28, -32], E), at('kosaka', 'naoe', E)],
+        cine: { focus: ['kosaka', 'naoe'], blend: 0.8, orbit: 0.025, dolly: 0.1 },
+        moment: { ja: '追撃', en: 'THE PURSUIT', subJa: '犀川の中で斬り合い', subEn: 'Fighting in the river', shake: 0.5 },
+        mom: 70,
+      }),
+      11: altPhase(11, {
+        ja: { phase: '戦の後', label: '戦の後', cam: 'CAM · 俯瞰',
+          title: '上杉軍、犀川で大きな痛手',
+          text: '川の中で多くの上杉兵が討たれ、<span class="info-west">謙信</span>はわずかな兵とともに越後へ逃れた。武田軍も深追いで傷を重ねたが、<span class="info-highlight">勝ちははっきり武田のもの</span>となった。' },
+        en: { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · OVERVIEW',
+          title: 'The Uesugi are badly mauled at the Sai',
+          text: `Many Uesugi soldiers are cut down in the river, and <span class="info-west">Kenshin</span> escapes to Echigo with only a small band. The chase cost the Takeda dearly too, but <span class="info-highlight">the victory is clearly theirs</span>.` },
+        cam: { pos: [12, 70, 30], look: [-14, 0, -40] },
+        units: { kenshin: [-20, -68], kakizaki: [-26, -64], murakami: [-14, -66], naoe: [-26, -58], amakasu: [-34, -60], kosaka: [-18, -54], baba: [-28, -50], yoshinobu: [-10, -48] },
+        defeated: DEAD,
+        arrows: [mvp([-20, -48], [-20, -66], W), mvp([-20, -34], [-18, -52], E)],
+        cine: { orbit: 0.02, dolly: -0.05 },
+        moment: { ja: '犀川の追撃', en: 'BLOOD IN THE SAI', subJa: '謙信、わずかな兵で越後へ', subEn: 'Kenshin flees with a handful of men', shake: 0 },
+        mom: 74,
+      }),
+    },
+  };
+
+  _replaceObj(SEG, KAWA_SEG);
+  _replaceArr(DECISION_IDX, [1, 7, 10]);
+  _replaceObj(DECISIONS, {
+    1: {
+      who: 'shingen', applies: () => true,
+      ja: { title: '信玄の決断', situation: '上杉軍は妻女山にこもったまま動かない。兵を二手に分け、別働隊に山を攻めさせて、追い落とされた敵を八幡原で挟み撃ちにする策が出ている。' },
+      en: { title: "SHINGEN'S DECISION", situation: 'The Uesugi sit tight on Mount Saijō. The plan on the table: split the army, send one force to attack the mountain, and catch the enemy on Hachimanbara as they are driven down.' },
+      options: () => [
+        { id: 'split', history: true, ja: ['兵を二手に分ける', '史実どおり。啄木鳥の戦法で挟み撃ちをねらう'], en: ['Split the army', 'As in history: the "woodpecker" pincer'] },
+        { id: 'together', ja: ['兵を分けない', '全軍2万で八幡原に出て、上杉の帰り道をふさぐ'], en: ['Keep the army together', 'Take all 20,000 to Hachimanbara and block the way home'] },
+      ],
+    },
+    7: {
+      who: 'kenshin', applies: () => true,
+      ja: { title: '謙信の決断' },
+      en: { title: "KENSHIN'S DECISION" },
+      situation: () => decideState.choices[1] === 'together'
+        ? { ja: '武田の2万は崩れない。高坂・馬場の両翼が、上杉軍を左右から包もうとしている。', en: 'The 20,000 Takeda will not break, and the wings under Kōsaka and Baba are closing in from both sides.' }
+        : { ja: '武田の左翼は崩れ、信繁・勘助は討たれた。信玄の本陣は目の前だ。だが妻女山へ向かった別働隊が、いずれ戻ってくる。', en: "The Takeda left has collapsed and Nobushige and Kansuke are dead. Shingen's camp is right ahead — but the force sent up Mount Saijō will be back before long." },
+      options: () => [
+        { id: 'charge', history: true, ja: ['信玄の本陣へ突き進む', '史実どおり。謙信みずから本陣をめざす'], en: ["Drive for Shingen's camp", 'As in history: Kenshin leads the charge himself'] },
+        { id: 'withdraw', ja: ['いま兵を引く', decideState.choices[1] === 'together' ? '包まれる前に、甘粕を殿にして北へ' : '別働隊が戻る前に、北の犀川へ'],
+          en: ['Withdraw now', decideState.choices[1] === 'together' ? 'Get out before the trap closes, Amakasu covering the rear' : 'Head for the Sai before the flanking force returns'] },
+      ],
+    },
+    10: {
+      who: 'shingen', applies: () => decideState.choices[7] === 'charge',
+      ja: { title: '信玄の決断', situation: '上杉軍が北の犀川へ退いていく。川を越えて追えば大きな戦果が望める。だが兵は朝から戦い続けて疲れ切っている。' },
+      en: { title: "SHINGEN'S DECISION", situation: 'The Uesugi are falling back to the Sai River. Chasing them across could win a crushing victory — but the men have been fighting since dawn and are exhausted.' },
+      options: () => [
+        { id: 'stop', history: true, ja: ['犀川の手前で止める', '史実どおり。深追いはしない'], en: ['Stop at the river', 'As in history: no chase across the Sai'] },
+        { id: 'pursue', ja: ['犀川を越えて追う', '高坂・馬場に、川を渡って追わせる'], en: ['Chase them across', 'Send Kōsaka and Baba over the river'] },
+      ],
+    },
+  });
+  _replaceObj(ENDINGS, {
+    E1: { ja: ['史実：痛み分け', '信繁と勘助を失った武田、多くの兵を失った上杉。どちらも勝ちを名乗った。'], en: ['History: A Bloody Draw', 'The Takeda lose Nobushige and Kansuke, the Uesugi lose thousands. Both claim the win.'] },
+    E2: { ja: ['武田の大勝', '兵を分けなかった信玄が、八幡原で上杉軍を包みこんだ。'], en: ['A Takeda Triumph', 'Keeping his army together, Shingen wraps up the Uesugi on Hachimanbara.'] },
+    E3: { ja: ['上杉の勝ち逃げ', '武田の左翼を崩した謙信は、別働隊が戻る前に引き上げた。'], en: ['Strike and Away', 'Kenshin breaks the Takeda left and is gone before the flanking force returns.'] },
+    E4: { ja: ['戦わずして', '大きな戦にならないまま、川中島は武田のものになった。'], en: ['Won Without a Bloodbath', 'No great battle — and Kawanakajima goes to the Takeda.'] },
+    E5: { ja: ['犀川の追撃', '川を越えて追った武田軍が、上杉軍に大きな痛手を与えた。'], en: ['Blood in the Sai', 'Chasing across the river, the Takeda maul the Uesugi.'] },
+  });
+
+  Object.assign(STR.en, {
+    'sim.title': 'Kawanakajima', 'sim.sub': 'Fog over Hachimanbara', 'sim.d1': 'Eiroku 4', 'sim.d2': 'Oct 18',
+    'legend.east': 'Takeda', 'legend.west': 'Uesugi',
+    'sim.loading': 'Deploying the armies...',
+    'name.shingen': 'Takeda Shingen', 'name.kenshin': 'Uesugi Kenshin',
+    'wi.historyDesc': 'What actually happened on October 18, 1561.',
+    'dm.desc': 'Make the calls at 22:00, 09:00 and 11:00. Five endings to discover.',
+  });
+  Object.assign(STR.ja, {
+    'sim.title': '川中島', 'sim.sub': '霧の八幡原', 'sim.d1': '永禄四年', 'sim.d2': '九月十日',
+    'legend.east': '武田軍', 'legend.west': '上杉軍',
+    'sim.loading': '川中島の布陣図を展開中',
+    'name.shingen': '武田信玄', 'name.kenshin': '上杉謙信',
+    'wi.historyDesc': '永禄四年九月十日に実際に起きたこと。',
+    'dm.desc': '22:00・9:00・11:00の決断で展開が変わる。エンディングは全5種。',
+  });
+}
+
 const decideState = { active: false, choices: {}, wasPlaying: false, open: null };
 let altPhaseSet = new Set();
 let lastAppliedPhase = -1;
@@ -9601,6 +10431,11 @@ const GROUND_ROADS = {
     [[-46, 28], [-30, 24], [-12, 20], [6, 14], [18, 15], [27, 17]],
     [[-2, -6], [-6, -14], [-8, -22]],
   ],
+  kawanakajima: [
+    [[-80, -10], [-50, -8], [-24, -10], [-6, -8], [14, -4], [30, 4], [42, 14]],     // 八幡原を東西に
+    [[-20, -80], [-20, -66], [-18, -50], [-14, -20], [-10, 0], [-14, 22]],           // 善光寺から雨宮の渡しへ
+    [[42, 30], [52, 18], [62, 4], [80, -6]],                                           // 海津城から北東へ
+  ],
   nagashino: [
     [[-80, -8], [-56, -6], [-36, -4], [-14, -2], [6, -2], [22, -2], [40, 2], [55, 6]],
     [[22, -2], [32, -18], [44, -36], [52, -58], [56, -80]],
@@ -9610,6 +10445,7 @@ const GROUND_ROADS = {
 function groundRiverLines() {
   if (IS_OKE) return OKE_RIVERS;
   if (IS_NAGA) return NAGA_RIVERS;
+  if (IS_KAWA) return KAWA_RIVERS;
   const line = [];
   for (let i = 0; i <= 30; i++) {
     const t = i / 30, x = -70 + t * 140;
@@ -9792,6 +10628,7 @@ function buildForest() {
   phases.forEach(p => (p.battles || []).forEach(b => keep.push([b.x, b.z])));
   Object.values(typeof OKE_POS !== 'undefined' && IS_OKE ? OKE_POS : {}).forEach(p => keep.push(p));
   Object.values(typeof NAGA_POS !== 'undefined' && IS_NAGA ? NAGA_POS : {}).forEach(p => keep.push(p));
+  Object.values(typeof KAWA_POS !== 'undefined' && IS_KAWA ? KAWA_POS : {}).forEach(p => keep.push(p));
   const blocked = (x, z) => keep.some(([kx, kz]) => (kx - x) ** 2 + (kz - z) ** 2 < 26);
   const nearFence = (x, z) => IS_NAGA && z > NAGA_FENCE.z0 - 3 && z < NAGA_FENCE.z1 + 3 && Math.abs(x - nagaFenceX(z)) < 4;
   const roads = GROUND_ROADS[BATTLE_ID] || [];
@@ -9946,6 +10783,12 @@ const ACTS = {
     { from: 3, ja: ['第二幕', '朝', '今川の進軍'], en: ['ACT II', 'MORNING', 'The Imagawa Advance'] },
     { from: 7, ja: ['第三幕', '昼', '嵐の前'], en: ['ACT III', 'MIDDAY', 'Before the Storm'] },
     { from: 10, ja: ['第四幕', '午後', '桶狭間'], en: ['ACT IV', 'AFTERNOON', 'Okehazama'] },
+  ],
+  kawanakajima: [
+    { from: 0, ja: ['第一幕', '夜', '啄木鳥'], en: ['ACT I', 'NIGHT', 'The Woodpecker'] },
+    { from: 3, ja: ['第二幕', '夜明け', '霧'], en: ['ACT II', 'DAWN', 'The Fog'] },
+    { from: 5, ja: ['第三幕', '朝', '八幡原'], en: ['ACT III', 'MORNING', 'Hachimanbara'] },
+    { from: 8, ja: ['第四幕', '昼', '挟み撃ち'], en: ['ACT IV', 'MIDDAY', 'The Pincer'] },
   ],
   nagashino: [
     { from: 0, ja: ['第一幕', '夜', '前夜'], en: ['ACT I', 'NIGHT', 'The Night Before'] },
