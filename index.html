@@ -5071,10 +5071,10 @@ function initCameraControls() {
 }
 
 // ---------- 攻撃・移動の矢印 ----------
-const ARROW_COLORS = { east: 0x2f86e8, west: 0xe23333, traitor: 0xf2a516, signal: 0xffd36b };
+const ARROW_COLORS = { east: 0x3f86d8, west: 0xd8443a, traitor: 0xf0a81c, signal: 0xffd36b };
 const ARROW_STYLES = {
-  attack: { width: 1.9, tex: 'chev', opacity: 0.95, speed: 1.1, arch: 0, head: 1, startPad: 2.0, endPad: 2.8, curve: 0.12 },
-  move:   { width: 1.2, tex: 'dash', opacity: 0.85, speed: 0.7, arch: 0, head: 1, startPad: 1.5, endPad: 2.0, curve: 0.08 },
+  attack: { width: 1.05, tex: 'chev', opacity: 0.86, speed: 1.1, arch: 0, head: 0.8, startPad: 2.0, endPad: 2.8, curve: 0.2 },
+  move:   { width: 0.75, tex: 'dash', opacity: 0.78, speed: 0.7, arch: 0, head: 0.75, startPad: 1.5, endPad: 2.0, curve: 0.16 },
   signal: { width: 0.65, tex: 'dash', opacity: 0.95, speed: 1.6, arch: 8, head: 0.8, startPad: 1.5, endPad: 2.5, curve: 0.0 },
   shot:   { width: 0.7, tex: 'dash', opacity: 1.0, speed: 3.0, arch: 4, head: 0.9, startPad: 2.0, endPad: 3.0, curve: 0.0 },
 };
@@ -5304,7 +5304,7 @@ function updateArrow(a, dt, time) {
   const op = st.opacity * a.fade * pulse;
   a.body.material.opacity = op;
   a.head.material.opacity = Math.min(1, op * 1.1);
-  a.outline.material.opacity = 0.42 * a.fade;
+  a.outline.material.opacity = 0.28 * a.fade;
 }
 
 function updateArrows(dt, time) {
@@ -7832,6 +7832,12 @@ if (IS_NAGA) {
   kamonImages.sanada = "data:image/png;base64,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";
 }
 
+// v13: 昼は霞を薄く、少し暗めに(記録映像のような落ち着いた色)
+['lifting', 'morning', 'noon', 'after', 'gather', 'clearing'].forEach(k => {
+  const a = ATMO_KEYS[k];
+  if (!a) return;
+  a.near += 20; a.far += 45; a.exp *= 0.93;
+});
 // 史実の表を保存しておく(切り替えで元に戻せるように)
 const BASE_TABLES = {
   phases: phases.slice(),
@@ -9374,6 +9380,260 @@ function initWhatIf() {
 }
 
 // ========= 初期化 =========
+
+// ========================================================
+// ===== 地面と森 v13: 田畑・道・稜線の陰影、山を埋める森 =====
+// ========================================================
+// 道(飾り)。座標は x が東、z が南
+const GROUND_ROADS = {
+  sekigahara: [
+    [[80, 2], [56, 1], [40, 3], [20, 5], [0, 6], [-20, 8], [-40, 11], [-60, 13], [-80, 15]],   // 東西の街道
+    [[-6, 6], [-12, -12], [-18, -34], [-22, -56], [-26, -80]],                                  // 北へ
+    [[2, 6], [8, 24], [14, 44], [18, 64], [22, 80]],                                            // 南へ
+  ],
+  okehazama: [
+    [[-80, -24], [-56, -20], [-36, -17], [-24, -14], [-10, -15], [10, -14], [32, -11], [62, -8], [80, -6]],
+    [[-46, 28], [-30, 24], [-12, 20], [6, 14], [18, 15], [27, 17]],
+    [[-2, -6], [-6, -14], [-8, -22]],
+  ],
+  nagashino: [
+    [[-80, -8], [-56, -6], [-36, -4], [-14, -2], [6, -2], [22, -2], [40, 2], [55, 6]],
+    [[22, -2], [32, -18], [44, -36], [52, -58], [56, -80]],
+    [[-22, 34], [-12, 50], [-2, 64], [8, 80]],
+  ],
+};
+function groundRiverLines() {
+  if (IS_OKE) return OKE_RIVERS;
+  if (IS_NAGA) return NAGA_RIVERS;
+  const line = [];
+  for (let i = 0; i <= 30; i++) {
+    const t = i / 30, x = -70 + t * 140;
+    line.push([x, 10 - x * 0.05 + Math.sin(t * 4) * 1.2]);
+  }
+  return [line];
+}
+function _lineDist(x, z, lines) {
+  let m = 1e9;
+  lines.forEach(line => {
+    for (let i = 0; i < line.length - 1; i++) {
+      const a = line[i], b = line[i + 1];
+      const dx = b[0] - a[0], dz = b[1] - a[1];
+      let t = ((x - a[0]) * dx + (z - a[1]) * dz) / (dx * dx + dz * dz);
+      t = Math.max(0, Math.min(1, t));
+      const px = a[0] + dx * t - x, pz = a[1] + dz * t - z;
+      m = Math.min(m, px * px + pz * pz);
+    }
+  });
+  return Math.sqrt(m);
+}
+const _sstep = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+const _hash2 = (x, y) => { const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return s - Math.floor(s); };
+
+// 標高・傾斜・ノイズから「森の濃さ」(0〜1)
+function forestAmount(h, slope, n1, n2) {
+  let f = _sstep(2.0, 4.2, h + n1 * 2.6) * 0.95;
+  f = Math.max(f, _sstep(0.16, 0.34, slope) * _sstep(1.0, 2.0, h));
+  // 平地にも小さな林
+  f = Math.max(f, _sstep(0.66, 0.78, n2) * 0.9);
+  return f;
+}
+
+let groundGrid = null;
+function buildGroundGrid() {
+  const GN = 200, S = 160;
+  const H = new Float32Array((GN + 1) * (GN + 1));
+  const N1 = new Float32Array((GN + 1) * (GN + 1));
+  const N2 = new Float32Array((GN + 1) * (GN + 1));
+  const RV = new Float32Array((GN + 1) * (GN + 1));
+  const rivers = groundRiverLines();
+  for (let j = 0; j <= GN; j++) {
+    for (let i = 0; i <= GN; i++) {
+      const x = i / GN * S - 80, z = j / GN * S - 80;
+      const k = j * (GN + 1) + i;
+      H[k] = getTerrainHeight(x, z);
+      N1[k] = __fbm(x * 0.07 + 13.1, z * 0.07 - 7.3, 3);
+      N2[k] = __fbm(x * 0.11 - 31.7, z * 0.11 + 5.9, 3);
+      RV[k] = _lineDist(x, z, rivers);
+    }
+  }
+  groundGrid = { GN, S, H, N1, N2, RV };
+  return groundGrid;
+}
+function sampleGrid(arr, x, z) {
+  const G = groundGrid;
+  const fx = Math.max(0, Math.min(G.GN - 0.001, (x + 80) / G.S * G.GN));
+  const fz = Math.max(0, Math.min(G.GN - 0.001, (z + 80) / G.S * G.GN));
+  const i = Math.floor(fx), j = Math.floor(fz), tx = fx - i, tz = fz - j;
+  const W = G.GN + 1, k = j * W + i;
+  return (arr[k] * (1 - tx) + arr[k + 1] * tx) * (1 - tz) + (arr[k + W] * (1 - tx) + arr[k + W + 1] * tx) * tz;
+}
+function groundSlope(x, z) {
+  const d = 0.8;
+  const hx = sampleGrid(groundGrid.H, x + d, z) - sampleGrid(groundGrid.H, x - d, z);
+  const hz = sampleGrid(groundGrid.H, x, z + d) - sampleGrid(groundGrid.H, x, z - d);
+  const nx = -hx / (2 * d), nz = -hz / (2 * d);
+  const len = Math.sqrt(nx * nx + 1 + nz * nz);
+  return { nx: nx / len, ny: 1 / len, nz: nz / len };
+}
+
+// 地面の絵(1024px)
+function buildGroundTexture(maxAniso) {
+  if (!groundGrid) buildGroundGrid();
+  const G = groundGrid;
+  const N = 1024;
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = N;
+  const ctx = cv.getContext('2d');
+  const img = ctx.createImageData(N, N);
+  const D = img.data;
+  const FIELD = [[0.47, 0.46, 0.27], [0.54, 0.5, 0.31], [0.42, 0.45, 0.24], [0.5, 0.52, 0.29], [0.38, 0.41, 0.22], [0.57, 0.52, 0.34], [0.45, 0.48, 0.28], [0.52, 0.46, 0.3]];
+  const ang = IS_NAGA ? 0.15 : IS_OKE ? -0.35 : 0.22;
+  const ca = Math.cos(ang), sa = Math.sin(ang);
+  // 光は北西の上から(地図の陰影の定番)
+  const lx = -0.45, ly = 0.78, lz = -0.43;
+  const step = G.S / N;
+  for (let py = 0; py < N; py++) {
+    const z = (py + 0.5) * step - 80;
+    for (let px = 0; px < N; px++) {
+      const x = (px + 0.5) * step - 80;
+      const h = sampleGrid(G.H, x, z);
+      const n1 = sampleGrid(G.N1, x, z);
+      const n2 = sampleGrid(G.N2, x, z);
+      const rv = sampleGrid(G.RV, x, z);
+      const nrm = groundSlope(x, z);
+      const slope = 1 - nrm.ny;
+      const grain = _hash2(px, py);
+      let r, g, b;
+      const fA = forestAmount(h, slope, n1, n2);
+      // 草地
+      const gv = 0.9 + n1 * 0.25;
+      r = 0.43 * gv; g = 0.45 * gv; b = 0.26 * gv;
+      // 田畑(低くて平らな所)
+      const flat = _sstep(2.8, 1.6, h) * _sstep(0.12, 0.05, slope) * _sstep(0.64, 0.5, n2);
+      if (flat > 0.01) {
+        const u = (x * ca - z * sa) / 3.4, v = (x * sa + z * ca) / 2.4;
+        const cu = Math.floor(u), cvv = Math.floor(v);
+        const id = _hash2(cu * 1.7 + 3, cvv * 2.3 + 9);
+        const c = FIELD[Math.floor(id * FIELD.length)];
+        const fu = u - cu, fv = v - cvv;
+        const edge = Math.min(fu, 1 - fu, fv, 1 - fv);
+        let fr = c[0], fg = c[1], fb = c[2];
+        // 畦(あぜ)は少し暗い線
+        if (edge < 0.04) { fr *= 0.86; fg *= 0.87; fb *= 0.84; }
+        // 畝の細い縞
+        const stripe = 0.96 + Math.sin(u * 22) * 0.04;
+        fr *= stripe; fg *= stripe; fb *= stripe;
+        const k = flat * (id > 0.12 ? 1 : 0.3);
+        r = r * (1 - k) + fr * k; g = g * (1 - k) + fg * k; b = b * (1 - k) + fb * k;
+      }
+      // 急な斜面は土・岩の色
+      const rock = _sstep(0.32, 0.55, slope);
+      r = r * (1 - rock) + 0.46 * rock; g = g * (1 - rock) + 0.42 * rock; b = b * (1 - rock) + 0.33 * rock;
+      // 森(濃い緑に木々のつぶつぶ)
+      if (fA > 0.01) {
+        const dots = grain < 0.18 ? 0.72 : grain > 0.86 ? 1.22 : 1;
+        const fr = 0.15 * dots * (0.95 + n2 * 0.2), fg = 0.21 * dots * (0.95 + n1 * 0.2), fb = 0.11 * dots;
+        r = r * (1 - fA) + fr * fA; g = g * (1 - fA) + fg * fA; b = b * (1 - fA) + fb * fA;
+      }
+      // 川辺は湿った緑、川そのものは青灰色
+      const bank = _sstep(5, 1.8, rv);
+      r = r * (1 - bank * 0.3) + 0.36 * bank * 0.3; g = g * (1 - bank * 0.3) + 0.44 * bank * 0.3; b = b * (1 - bank * 0.3) + 0.28 * bank * 0.3;
+      const water = _sstep(1.6, 0.9, rv);
+      r = r * (1 - water) + 0.38 * water; g = g * (1 - water) + 0.46 * water; b = b * (1 - water) + 0.5 * water;
+      // 陰影
+      const shade = Math.max(0, nrm.nx * lx + nrm.ny * ly + nrm.nz * lz);
+      const sh = 0.5 + shade * 0.62;
+      const gr = 0.94 + grain * 0.12;
+      const o = (py * N + px) * 4;
+      D[o] = Math.min(255, r * sh * gr * 255);
+      D[o + 1] = Math.min(255, g * sh * gr * 255);
+      D[o + 2] = Math.min(255, b * sh * gr * 255);
+      D[o + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  // 道: 土の色の細い線
+  const toPx = ([x, z]) => [(x + 80) / step, (z + 80) / step];
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  (GROUND_ROADS[BATTLE_ID] || []).forEach(line => {
+    const pts = line.map(toPx);
+    [[6, 'rgba(90,78,52,0.35)'], [3.6, 'rgba(196,182,138,0.92)'], [1.4, 'rgba(222,210,170,0.7)']].forEach(([w, col]) => {
+      ctx.strokeStyle = col;
+      ctx.lineWidth = w;
+      ctx.beginPath();
+      pts.forEach(([px, py], i) => {
+        if (i === 0) ctx.moveTo(px, py);
+        else {
+          const [qx, qy] = pts[i - 1];
+          ctx.quadraticCurveTo(qx, qy, (qx + px) / 2, (qy + py) / 2);
+        }
+      });
+      ctx.lineTo(...pts[pts.length - 1]);
+      ctx.stroke();
+    });
+  });
+  const tex = new THREE.CanvasTexture(cv);
+  tex.anisotropy = maxAniso || 1;
+  return tex;
+}
+
+// 山を埋める細かい森(InstancedMesh 2種類)
+function buildForest() {
+  if (!groundGrid) buildGroundGrid();
+  // 部隊・砦の上には木を置かない
+  const keep = [];
+  phases.forEach(p => Object.values(p.units || {}).forEach(([x, z]) => keep.push([x, z])));
+  Object.values(typeof OKE_POS !== 'undefined' && IS_OKE ? OKE_POS : {}).forEach(p => keep.push(p));
+  Object.values(typeof NAGA_POS !== 'undefined' && IS_NAGA ? NAGA_POS : {}).forEach(p => keep.push(p));
+  const blocked = (x, z) => keep.some(([kx, kz]) => (kx - x) ** 2 + (kz - z) ** 2 < 11);
+  const nearFence = (x, z) => IS_NAGA && z > NAGA_FENCE.z0 - 3 && z < NAGA_FENCE.z1 + 3 && Math.abs(x - nagaFenceX(z)) < 4;
+  const roads = GROUND_ROADS[BATTLE_ID] || [];
+  const conifer = [], broad = [];
+  const MAX = 9000;
+  const st = 0.8;
+  for (let z = -78; z < 78; z += st) {
+    for (let x = -78; x < 78; x += st) {
+      const jx = x + (_hash2(x, z) - 0.5) * st, jz = z + (_hash2(z, x + 3) - 0.5) * st;
+      const h = sampleGrid(groundGrid.H, jx, jz);
+      const slope = 1 - groundSlope(jx, jz).ny;
+      const f = forestAmount(h, slope, sampleGrid(groundGrid.N1, jx, jz), sampleGrid(groundGrid.N2, jx, jz));
+      if (f < 0.35 || _hash2(jx * 3.1, jz * 1.7) > f * 0.92) continue;
+      if (sampleGrid(groundGrid.RV, jx, jz) < 2.2) continue;
+      if (blocked(jx, jz) || nearFence(jx, jz) || _lineDist(jx, jz, roads) < 1.2) continue;
+      (h > 5 || _hash2(jx, jz * 2) > 0.55 ? conifer : broad).push([jx, getTerrainHeight(jx, jz), jz]);
+      if (conifer.length + broad.length >= MAX) break;
+    }
+    if (conifer.length + broad.length >= MAX) break;
+  }
+  const mat = new THREE.MeshStandardMaterial({ roughness: 1, metalness: 0, flatShading: true });
+  const make = (geo, list, base) => {
+    if (!list.length) return;
+    const im = new THREE.InstancedMesh(geo, mat, list.length);
+    const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3(), c = new THREE.Color();
+    list.forEach(([x, y, z], i) => {
+      const k = 0.5 + _hash2(x * 5, z * 7) * 0.32;
+      s.set(k, k * (0.85 + _hash2(z, x) * 0.4), k);
+      q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), _hash2(x, z) * 6.28);
+      p.set(x, y - 0.05, z);
+      m.compose(p, q, s);
+      im.setMatrixAt(i, m);
+      const v = 0.8 + _hash2(x * 2, z * 3) * 0.4;
+      c.setRGB(base[0] * v, base[1] * v, base[2] * v);
+      im.setColorAt(i, c);
+    });
+    im.instanceMatrix.needsUpdate = true;
+    if (im.instanceColor) im.instanceColor.needsUpdate = true;
+    im.castShadow = false;
+    im.receiveShadow = true;
+    scene.add(im);
+  };
+  const cone = new THREE.ConeGeometry(0.42, 1.35, 6); cone.translate(0, 0.62, 0);
+  const blob = new THREE.IcosahedronGeometry(0.52, 0); blob.scale(1, 0.85, 1); blob.translate(0, 0.62, 0);
+  make(cone, conifer, [0.11, 0.17, 0.09]);
+  make(blob, broad, [0.17, 0.22, 0.11]);
+}
+
 function initSekigahara() {
   const canvas = document.getElementById('canvas3d');
   scene = new THREE.Scene();
@@ -9510,7 +9770,7 @@ function initSekigahara() {
   groundGeo.setAttribute('color', new THREE.Float32BufferAttribute(gcolors, 3));
   
   const groundMat = new THREE.MeshStandardMaterial({
-    vertexColors: true,
+    map: buildGroundTexture(renderer.capabilities.getMaxAnisotropy()),
     flatShading: false,
     roughness: 0.95,
     metalness: 0,
@@ -9521,7 +9781,7 @@ function initSekigahara() {
   scene.add(groundMesh);
   
   // 草地(低所にランダムな草の点)
-  const grassCount = 800;
+  const grassCount = 0;   // v13: 地面の絵に置き換え
   const grassGeo = new THREE.BufferGeometry();
   const grassPositions = [];
   const grassColors = [];
@@ -9567,7 +9827,7 @@ function initSekigahara() {
       const r = 10 + Math.random() * 8;
       const x = cx + Math.cos(ang) * r;
       const z = cz + Math.sin(ang) * r;
-      if (getTerrainHeight(x, z) > 3) addRock(x, z, 0.6 + Math.random() * 0.6);
+      if (getTerrainHeight(x, z) > 3) addRock(x, z, 0.3 + Math.random() * 0.35);
     }
   });
 
@@ -9684,22 +9944,8 @@ function initSekigahara() {
       scene.add(t);
     }
   }
-  (BX.trees || [[-35, -30, 55, 4, 15], [-30, 30, 50, 4, 15], [40, -5, 50, 4, 15]])
-    .forEach(([cx, cz, n, r0, r1]) => scatterTrees(cx, cz, n, r0, r1));
-  // 疎らに散在する木
-  for (let i = 0; i < 30; i++) {
-    const x = (Math.random() - 0.5) * 120;
-    const z = (Math.random() - 0.5) * 120;
-    const h = getTerrainHeight(x, z);
-    if (h > 2 && h < 7) {
-      const t = addTree(x, z, Math.random() > 0.5 ? 'pine' : 'broad');
-      t.position.y = h;
-      const s = 0.7 + Math.random() * 0.4;
-      t.scale.set(s, s, s);
-      scene.add(t);
-    }
-  }
-  
+  buildForest();
+
   // 部隊
   units = BX.units ? BX.units() : {
     ieyasu:     new Unit('ieyasu',     '徳', 'east', 45, 0,    '徳川家康', 1.5, true),
