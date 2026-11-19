@@ -2750,6 +2750,21 @@ html[lang="en"] .title-logo { font-family: 'Cormorant Garamond', 'Noto Serif JP'
 
 .cine-main.long { font-size: 38px; letter-spacing: 0.1em; }
 html[lang="en"] .cine-main.long { font-size: 26px; }
+/* 幕の表示 */
+.ctrl-header-right { display: flex; align-items: center; gap: 8px; }
+.act-chip { font-size: 10px; letter-spacing: 0.12em; color: #8a6418; border: 1px solid rgba(168,120,31,0.4); border-radius: 2px; padding: 1px 6px; white-space: nowrap; }
+.act-card { position: absolute; left: 50%; top: 30%; transform: translate(-50%, -50%); z-index: 46; pointer-events: none; text-align: center; opacity: 0; padding: 12px 28px 14px;
+  background: linear-gradient(90deg, rgba(251,247,238,0) 0%, rgba(251,247,238,0.9) 18%, rgba(251,247,238,0.9) 82%, rgba(251,247,238,0) 100%); min-width: 260px; }
+.act-card .ac-act { font-size: 11px; letter-spacing: 0.4em; color: #a8781f; white-space: pre; }
+.act-card .ac-title { font-family: 'Noto Serif JP', serif; font-weight: 900; font-size: 30px; color: #2b241d; letter-spacing: 0.12em; margin-top: 4px; white-space: nowrap; }
+html[lang="en"] .act-card .ac-title { font-family: 'Cormorant Garamond', 'Noto Serif JP', serif; font-weight: 700; font-size: 28px; letter-spacing: 0.04em; }
+.act-card.show { animation: actCard 2.6s ease forwards; }
+@keyframes actCard { 0% { opacity: 0; transform: translate(-50%, -40%); } 15% { opacity: 1; transform: translate(-50%, -50%); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -55%); } }
+.app.pop .act-chip { color: #1b1b1f; background: #ffd23f; border: 2px solid #1b1b1f; border-radius: 999px; font-weight: 900; }
+.app.pop .act-card { background: #fff; border: 3px solid #1b1b1f; border-radius: 16px; box-shadow: 5px 5px 0 #1b1b1f; }
+.app.pop .act-card .ac-act { color: #ff4f9a; font-weight: 900; }
+.app.pop .act-card .ac-title { font-family: 'Dela Gothic One', sans-serif; font-weight: 400; }
+
 </style>
 </head>
 <body>
@@ -2902,6 +2917,7 @@ html[lang="en"] .cine-main.long { font-size: 26px; }
       <div class="letterbox top"></div>
       <div class="letterbox bottom"></div>
       <div class="cine-flash" id="cineFlash"></div>
+      <div class="act-card" id="actCard"><div class="ac-act"></div><div class="ac-title"></div></div>
       <div class="cine-title" id="cineTitle">
         <div class="cine-brush"></div>
         <div class="cine-kanji" id="cineKanji"></div>
@@ -2969,6 +2985,7 @@ html[lang="en"] .cine-main.long { font-size: 26px; }
             <div class="info-title" id="infoTitle">The Western Army takes position at Sekigahara</div>
           </div>
           <div class="ctrl-header-right">
+            <div class="act-chip" id="actChip"></div>
             <div class="info-phase-num" id="infoPhaseNum">01 / 13</div>
           </div>
         </div>
@@ -4710,6 +4727,7 @@ function updateLabels() {
 function applyPhase(idx) {
   if (decideState.active && decisionGate(idx)) return;
   lastAppliedPhase = idx;
+  updateAct(idx);
   const p = phases[idx];
   const [h, m] = p.time.split(':');
   document.getElementById('timeHour').textContent = h;
@@ -6353,10 +6371,10 @@ function initTroops() {
     });
 
     const force = parseForce(u.id);
-    const count = Math.max(10, Math.min(84, Math.round(Math.sqrt(force) * 0.55)));
+    const count = Math.max(14, Math.min(140, Math.round(Math.sqrt(force) * 0.92)));
     const cols = Math.ceil(Math.sqrt(count * 1.8));
     const rows = Math.ceil(count / cols);
-    const sp = 0.56;
+    const sp = 0.5;
     const mat = new THREE.MeshLambertMaterial({ vertexColors: true, color: TROOP_COLORS[u.faction] || 0x888888, side: THREE.DoubleSide });
     const mesh = new THREE.InstancedMesh(soldierGeo, mat, count);
     const legs = new THREE.InstancedMesh(legGeo, mat, count * 2);
@@ -6376,7 +6394,7 @@ function initTroops() {
       });
     }
 
-    const nNobori = Math.max(2, Math.min(6, Math.round(count / 14)));
+    const nNobori = Math.max(2, Math.min(8, Math.round(count / 16)));
     const noboriMat = new THREE.MeshLambertMaterial({ side: THREE.DoubleSide, transparent: true });
     noboriMat.map = makeNoboriTexture(u, TROOP_COLORS[u.faction], () => { noboriMat.needsUpdate = true; });
     const nobori = [];
@@ -6488,6 +6506,10 @@ function placeHorse(T, i, wx, wy, wz, yaw, pitch, roll, ph, gait) {
   }
 }
 const RIDER_Y = 0.3 * 1.3;   // 鞍の高さ(体の倍率込み)
+
+function terrainFast(x, z) {
+  return groundGrid ? sampleGrid(groundGrid.H, x, z) : getTerrainHeight(x, z);
+}
 
 function updateTroops(dt, t) {
   Object.values(units).forEach(u => {
@@ -6615,7 +6637,7 @@ function updateTroops(dt, t) {
 
       const wx = lx * cs + lz * sn + m.ox;
       const wz = -lx * sn + lz * cs + m.oz;
-      const gy = getTerrainHeight(gp.x + wx, gp.z + wz) - gp.y;
+      const gy = terrainFast(gp.x + wx, gp.z + wz) - gp.y;
 
       if (m.mounted) {
         const hy = T.facing + yawOff;
@@ -6799,7 +6821,7 @@ function manWorld(u, T, m, out) {
   const gp = u.group.position;
   const x = gp.x + m.lx * cs + m.lz * sn + m.ox;
   const z = gp.z - m.lx * sn + m.lz * cs + m.oz;
-  return out.set(x, getTerrainHeight(x, z), z);
+  return out.set(x, terrainFast(x, z), z);
 }
 
 const _v3c = new THREE.Vector3();
@@ -9906,6 +9928,62 @@ function updateScenery(dt) {
     sp.material.color.copy(_cloudCol);
     sp.material.opacity = 0.75 * (1 - atmoCur.rain * 0.4);
   });
+}
+
+
+// ========================================================
+// ===== 幕(番組風の章立て) v17 =====
+// ========================================================
+const ACTS = {
+  sekigahara: [
+    { from: 0, ja: ['第一幕', '夜明け前', '布陣'], en: ['ACT I', 'BEFORE DAWN', 'Deployment'] },
+    { from: 3, ja: ['第二幕', '朝', '激突'], en: ['ACT II', 'MORNING', 'The Clash'] },
+    { from: 7, ja: ['第三幕', '昼', '裏切り'], en: ['ACT III', 'MIDDAY', 'Betrayal'] },
+    { from: 10, ja: ['第四幕', '午後', '決着'], en: ['ACT IV', 'AFTERNOON', 'The Reckoning'] },
+  ],
+  okehazama: [
+    { from: 0, ja: ['第一幕', '夜明け前', '砦攻め'], en: ['ACT I', 'BEFORE DAWN', 'The Forts'] },
+    { from: 3, ja: ['第二幕', '朝', '今川の進軍'], en: ['ACT II', 'MORNING', 'The Imagawa Advance'] },
+    { from: 7, ja: ['第三幕', '昼', '嵐の前'], en: ['ACT III', 'MIDDAY', 'Before the Storm'] },
+    { from: 10, ja: ['第四幕', '午後', '桶狭間'], en: ['ACT IV', 'AFTERNOON', 'Okehazama'] },
+  ],
+  nagashino: [
+    { from: 0, ja: ['第一幕', '夜', '前夜'], en: ['ACT I', 'NIGHT', 'The Night Before'] },
+    { from: 3, ja: ['第二幕', '夜明け', '鳶ヶ巣山'], en: ['ACT II', 'DAWN', 'The Dawn Raid'] },
+    { from: 5, ja: ['第三幕', '朝', '柵と鉄砲'], en: ['ACT III', 'MORNING', 'Fence and Guns'] },
+    { from: 9, ja: ['第四幕', '昼', '決着'], en: ['ACT IV', 'MIDDAY', 'The Reckoning'] },
+  ],
+};
+let lastActIdx = -1;
+let actCardTimer = null;
+function actFor(idx) {
+  const list = ACTS[BATTLE_ID] || [];
+  let k = 0;
+  list.forEach((a, i) => { if (idx >= a.from) k = i; });
+  return { k, a: list[k] };
+}
+function updateAct(idx) {
+  const { k, a } = actFor(idx);
+  if (!a) return;
+  const L = a[LANG] || a.en;
+  const chip = document.getElementById('actChip');
+  if (chip) chip.textContent = `${L[0]} · ${L[1]}`;
+  const changed = k !== lastActIdx;
+  const first = lastActIdx < 0;
+  lastActIdx = k;
+  // 幕が変わったら短い見出しを出す(名場面の場面や、最初の読み込みでは出さない)
+  if (changed && !first && !CINE_MOMENTS[idx] && currentScreen === 'sim') showActCard(L);
+}
+function showActCard(L) {
+  const card = document.getElementById('actCard');
+  if (!card) return;
+  card.querySelector('.ac-act').textContent = `${L[0]}  ${L[1]}`;
+  card.querySelector('.ac-title').textContent = L[2];
+  card.classList.remove('show');
+  void card.offsetWidth;
+  card.classList.add('show');
+  clearTimeout(actCardTimer);
+  actCardTimer = setTimeout(() => card.classList.remove('show'), 2600);
 }
 
 function initSekigahara() {
