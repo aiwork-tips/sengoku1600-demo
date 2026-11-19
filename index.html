@@ -3962,6 +3962,7 @@ function openSimulation(battleId) {
     currentPhase = 0;
     applyPhase(0);
     scrollToPhase(0, false);
+    requestAnimationFrame(() => { scrollToPhase(0, false); scrollLockUntil = Date.now() + 1200; });
     setTimeout(() => {
       if (pendingDecide) { pendingDecide = false; setScenario('decide'); }
       else startPlay();
@@ -4781,6 +4782,7 @@ function applyPhase(idx) {
 // スクロール制御
 let scrollLockUntil = 0;
 let scrollDebounceTimer = null;
+let lastTrackInput = 0;
 const markerWidth = 62;
 let scrollTrack, scrollInner;
 
@@ -9717,10 +9719,10 @@ function buildGroundTexture(maxAniso) {
         r = r * (1 - fA) + fr * fA; g = g * (1 - fA) + fg * fA; b = b * (1 - fA) + fb * fA;
       }
       // 川辺は湿った緑、川そのものは青灰色
-      const bank = _sstep(5, 1.8, rv);
+      const bank = _sstep(3.5, 1.2, rv);
       r = r * (1 - bank * 0.3) + 0.36 * bank * 0.3; g = g * (1 - bank * 0.3) + 0.44 * bank * 0.3; b = b * (1 - bank * 0.3) + 0.28 * bank * 0.3;
-      const water = _sstep(1.6, 0.9, rv);
-      r = r * (1 - water) + 0.38 * water; g = g * (1 - water) + 0.46 * water; b = b * (1 - water) + 0.5 * water;
+      const water = _sstep(1.1, 0.55, rv);
+      r = r * (1 - water) + 0.28 * water; g = g * (1 - water) + 0.35 * water; b = b * (1 - water) + 0.38 * water;
       // 陰影
       const shade = Math.max(0, nrm.nx * lx + nrm.ny * ly + nrm.nz * lz);
       const sh = 0.5 + shade * 0.62;
@@ -9814,6 +9816,96 @@ function buildForest() {
   const blob = new THREE.IcosahedronGeometry(0.52, 0); blob.scale(1, 0.85, 1); blob.translate(0, 0.62, 0);
   make(cone, conifer, [0.11, 0.17, 0.09]);
   make(blob, broad, [0.17, 0.22, 0.11]);
+}
+
+
+// ========================================================
+// ===== 景色 v16: 川のきらめきと流れ、空にだけ浮かぶ雲 =====
+// ========================================================
+const waterTexes = [];
+let cloudSprites = [];
+function makeWaterTexture() {
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 32;
+  const g = c.getContext('2d');
+  const grd = g.createLinearGradient(0, 0, 0, 32);
+  grd.addColorStop(0, 'rgb(70,98,120)');
+  grd.addColorStop(0.5, 'rgb(90,120,142)');
+  grd.addColorStop(1, 'rgb(70,98,120)');
+  g.fillStyle = grd;
+  g.fillRect(0, 0, 256, 32);
+  // 細い波とキラッと光る点
+  for (let i = 0; i < 16; i++) {
+    const x = Math.random() * 256, y = 6 + Math.random() * 20, w = 6 + Math.random() * 22;
+    g.fillStyle = `rgba(220,232,242,${0.25 + Math.random() * 0.35})`;
+    g.fillRect(x, y, w, 1.2);
+  }
+  for (let i = 0; i < 6; i++) {
+    g.fillStyle = 'rgba(255,255,255,0.95)';
+    g.fillRect(Math.random() * 256, 8 + Math.random() * 16, 2, 1.5);
+  }
+  return c;
+}
+// できあがった川(管の形)に、流れる水面の模様を付ける
+function enhanceWater() {
+  const cv = makeWaterTexture();
+  scene.traverse(o => {
+    if (!o.isMesh || !o.geometry || o.geometry.type !== 'TubeGeometry') return;
+    const path = o.geometry.parameters && o.geometry.parameters.path;
+    const len = path ? path.getLength() : 100;
+    const tex = new THREE.CanvasTexture(cv);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(Math.max(2, len / 5), 1);
+    o.material = new THREE.MeshStandardMaterial({ map: tex, transparent: true, opacity: 0.88, roughness: 0.45, metalness: 0.1 });
+    o.userData.waterSpeed = 0.035 + Math.random() * 0.01;
+    waterTexes.push([tex, o.userData.waterSpeed * (len / 100)]);
+  });
+}
+function makeCloudTexture() {
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 128;
+  const g = c.getContext('2d');
+  for (let i = 0; i < 14; i++) {
+    const x = 40 + Math.random() * 176, y = 50 + Math.random() * 40, r = 22 + Math.random() * 30;
+    const grd = g.createRadialGradient(x, y, 0, x, y, r);
+    grd.addColorStop(0, 'rgba(255,255,255,0.55)');
+    grd.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = grd;
+    g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+  }
+  return new THREE.CanvasTexture(c);
+}
+// 雲は地図の外、遠くの空にだけ置く(地面や兵には重ならない)
+function addSkyClouds() {
+  const tex = makeCloudTexture();
+  for (let i = 0; i < 14; i++) {
+    const a = (i / 14) * Math.PI * 2 + Math.random() * 0.3;
+    const d = 175 + Math.random() * 45;
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, fog: false, opacity: 0.75 });
+    const sp = new THREE.Sprite(mat);
+    sp.position.set(Math.sin(a) * d, 28 + Math.random() * 30, Math.cos(a) * d);
+    const w = 60 + Math.random() * 50;
+    sp.scale.set(w, w * 0.4, 1);
+    sp.userData = { a, d, speed: 0.004 + Math.random() * 0.004 };
+    sp.renderOrder = -1;
+    scene.add(sp);
+    cloudSprites.push(sp);
+  }
+}
+const _cloudCol = new THREE.Color();
+function updateScenery(dt) {
+  waterTexes.forEach(([tex, sp]) => { tex.offset.x -= dt * sp; });
+  if (!cloudSprites.length) return;
+  // 夜は雲を暗く、夕方は少し橙に(空の色に合わせる)
+  _cloudCol.setRGB(1, 1, 1).lerp(atmoCur.bottom, 0.35).multiplyScalar(1 - atmoCur.night * 0.55);
+  cloudSprites.forEach(sp => {
+    sp.userData.a += sp.userData.speed * dt;
+    sp.position.x = Math.sin(sp.userData.a) * sp.userData.d;
+    sp.position.z = Math.cos(sp.userData.a) * sp.userData.d;
+    sp.material.color.copy(_cloudCol);
+    sp.material.opacity = 0.75 * (1 - atmoCur.rain * 0.4);
+  });
 }
 
 function initSekigahara() {
@@ -10127,6 +10219,8 @@ function initSekigahara() {
     }
   }
   buildForest();
+  enhanceWater();
+  addSkyClouds();
 
   // 部隊
   units = BX.units ? BX.units() : {
@@ -10224,8 +10318,10 @@ function initSekigahara() {
   
   setSpacerWidths();
   
+  ['pointerdown', 'touchstart', 'wheel'].forEach(ev => scrollTrack.addEventListener(ev, () => { lastTrackInput = Date.now(); }, { passive: true }));
   scrollTrack.addEventListener('scroll', () => {
     if (Date.now() < scrollLockUntil) return;
+    if (Date.now() - lastTrackInput > 4000) return;
     clearTimeout(scrollDebounceTimer);
     scrollDebounceTimer = setTimeout(() => {
       const scrollLeft = scrollTrack.scrollLeft;
@@ -10266,6 +10362,7 @@ function initSekigahara() {
     
     Object.values(units).forEach(u => u.update(dt, t));
     updateTroops(dt, t);
+    updateScenery(dt);
     updateBattleEffects(dt);
     spawnBattleParticles(t);
     updateCamera(dt);
@@ -10277,7 +10374,7 @@ function initSekigahara() {
     updatePlaceLabels();
     
     const baseOpacity = phases[currentPhase].fog !== undefined ? phases[currentPhase].fog : 0.05;
-    fogPlane.material.opacity = baseOpacity * 0.55 + Math.sin(t * 0.5) * 0.01;
+    fogPlane.material.opacity = baseOpacity * 0.2 + Math.sin(t * 0.5) * 0.004;
     
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
@@ -10298,6 +10395,7 @@ function initSekigahara() {
   setTimeout(() => {
     document.getElementById('loading').classList.add('hidden');
     scrollToPhase(0, false);
+    requestAnimationFrame(() => { scrollToPhase(0, false); scrollLockUntil = Date.now() + 1200; });
     setTimeout(() => {
       if (pendingDecide) { pendingDecide = false; setScenario('decide'); }
       else startPlay();
