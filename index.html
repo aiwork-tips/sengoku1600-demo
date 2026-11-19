@@ -2748,6 +2748,8 @@ html[lang="en"] .title-logo { font-family: 'Cormorant Garamond', 'Noto Serif JP'
 
 .app.entry-history #whatIfBtn { display: none; }
 
+.cine-main.long { font-size: 38px; letter-spacing: 0.1em; }
+html[lang="en"] .cine-main.long { font-size: 26px; }
 </style>
 </head>
 <body>
@@ -4930,7 +4932,7 @@ function setCamMode(mode) {
     // 今のカメラ位置から自由視点を始める
     _v1.copy(camera.position).sub(camCurrent.look);
     freeCam.target.copy(camCurrent.look);
-    freeCam.radius = THREE.MathUtils.clamp(_v1.length(), 18, 150);
+    freeCam.radius = THREE.MathUtils.clamp(_v1.length(), 7, 150);
     freeCam.theta = Math.atan2(_v1.x, _v1.z);
     freeCam.phi = THREE.MathUtils.clamp(Math.acos(_v1.y / _v1.length()), 0.2, 1.35);
     freeCam.sTarget.copy(freeCam.target);
@@ -4946,6 +4948,7 @@ const easeInOut = x => x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
 
 function updateCamera(dt) {
   dt = Math.min(dt || 0.016, 0.1);
+  heroW = 0;
   if (camMode === 'free') {
     const k = 1 - Math.exp(-dt * 12);
     freeCam.sTarget.lerp(freeCam.target, k);
@@ -4981,12 +4984,79 @@ function updateCamera(dt) {
     const dolly = (c.dolly || 0) * easeInOut(Math.min(ts / 7, 1));
     _v1.multiplyScalar(1 - dolly);
     _desiredPos.copy(_desiredLook).add(_v1);
-    const k = 1 - Math.exp(-dt * 1.8 * Math.sqrt(playSpeed));
+    const hero = heroShot();
+    heroW = hero ? hero.w : 0;
+    if (hero && hero.w > 0) { _desiredPos.lerp(hero.pos, hero.w); _desiredLook.lerp(hero.look, hero.w); }
+    const k = 1 - Math.exp(-dt * (hero ? 1.8 + hero.w * 2.4 : 1.8) * Math.sqrt(playSpeed));
     camCurrent.pos.lerp(_desiredPos, k);
     camCurrent.look.lerp(_desiredLook, k);
   }
   camera.position.copy(camCurrent.pos);
   camera.lookAt(camCurrent.look);
+}
+
+
+// ---------- 名場面の寄りのカメラ(v14) ----------
+// 名場面のあいだは、主役の部隊に地面すれすれまで寄って、ゆっくり回り込む
+let heroW = 0;
+const heroCache = { idx: -2, dir: 0, lift: 0 };
+const _heroC = new THREE.Vector3(), _heroPos = new THREE.Vector3(), _heroLook = new THREE.Vector3(), _heroD = new THREE.Vector3();
+function heroShot() {
+  if (cine.t < 0 || !phaseShot) return null;
+  const c = phaseShot.cine || {};
+  let ids = c.focus ? (Array.isArray(c.focus) ? c.focus : [c.focus]) : [];
+  ids = ids.filter(id => units[id]);
+  if (!ids.length) return null;
+  _heroC.set(0, 0, 0);
+  ids.forEach(id => { _heroC.x += units[id].group.position.x; _heroC.z += units[id].group.position.z; });
+  _heroC.x /= ids.length; _heroC.z /= ids.length;
+  // 主役(最初の部隊)を中心に、ほかの部隊の方へ少しだけ寄せる
+  const lead = units[ids[0]].group.position;
+  _heroC.x = lead.x * 0.75 + _heroC.x * 0.25;
+  _heroC.z = lead.z * 0.75 + _heroC.z * 0.25;
+  const spread = 2;
+  const gy = getTerrainHeight(_heroC.x, _heroC.z);
+  const R = 12 + spread * 0.7;
+  const camH = (x, z) => Math.max(getTerrainHeight(x, z) + 3.0, gy + 4.4 + spread * 0.15);
+  // 名場面の始めに一度だけ、森や山にさえぎられない向きを選ぶ
+  if (heroCache.idx !== cine.idx) {
+    const base = Math.atan2(_desiredPos.x - _heroC.x, _desiredPos.z - _heroC.z);
+    let best = base, bestScore = Infinity, bestLift = 0;
+    for (let k = 0; k < 16; k++) {
+      const a = base + (k / 16) * Math.PI * 2;
+      const dx = Math.sin(a), dz = Math.cos(a);
+      const px = _heroC.x + dx * R, pz = _heroC.z + dz * R;
+      if (Math.abs(px) > 76 || Math.abs(pz) > 76) continue;
+      const py = camH(px, pz);
+      let block = 0, lift = 0;
+      for (let s = 0.15; s < 0.95; s += 0.1) {
+        const x = _heroC.x + dx * R * s, z = _heroC.z + dz * R * s;
+        const lineY = gy + 1.1 + (py - gy - 1.1) * s;
+        let top = getTerrainHeight(x, z);
+        if (groundGrid) {
+          const sl = 1 - groundSlope(x, z).ny;
+          if (forestAmount(top, sl, sampleGrid(groundGrid.N1, x, z), sampleGrid(groundGrid.N2, x, z)) > 0.35) top += 1.0;
+        }
+        block += Math.max(0, top - lineY + 0.3);
+        lift = Math.max(lift, (top + 0.4 - (gy + 1.1)) / s - (py - gy - 1.1));
+      }
+      let d = Math.abs(Math.atan2(Math.sin(a - base), Math.cos(a - base)));
+      const score = block * 4 + d;
+      if (score < bestScore) { bestScore = score; best = a; bestLift = lift; }
+    }
+    heroCache.idx = cine.idx;
+    heroCache.dir = best;
+    heroCache.lift = Math.min(8, Math.max(0, bestLift));   // さえぎるものがあればその分だけ高く
+  }
+  // 少しずつ回り込む
+  const a = heroCache.dir + (cine.idx % 2 ? -1 : 1) * 0.18 * cine.t;
+  _heroD.set(Math.sin(a), 0, Math.cos(a));
+  _heroPos.set(_heroC.x + _heroD.x * R, 0, _heroC.z + _heroD.z * R);
+  _heroPos.y = camH(_heroPos.x, _heroPos.z) + heroCache.lift;
+  _heroLook.set(_heroC.x, gy + 1.1, _heroC.z);
+  const t = cine.t, dur = cine.dur;
+  const w = _sstep(0, 0.7, t) * (1 - _sstep(dur - 0.9, dur, t));
+  return { pos: _heroPos, look: _heroLook, w };
 }
 
 // ---------- 自由視点の操作(ドラッグ回転・ピンチ/ホイール拡大・2本指で移動) ----------
@@ -5013,7 +5083,7 @@ function initCameraControls() {
     freeCam.target.z = THREE.MathUtils.clamp(freeCam.target.z, -70, 70);
   };
   const zoom = (factor) => {
-    freeCam.radius = THREE.MathUtils.clamp(freeCam.radius * factor, 18, 150);
+    freeCam.radius = THREE.MathUtils.clamp(freeCam.radius * factor, 7, 150);
   };
   const ensureFree = () => { if (camMode !== 'free') setCamMode('free'); };
 
@@ -5037,7 +5107,7 @@ function initCameraControls() {
         pan(dx, dy);
       } else {
         freeCam.theta -= dx * 0.006;
-        freeCam.phi = THREE.MathUtils.clamp(freeCam.phi - dy * 0.005, 0.2, 1.35);
+        freeCam.phi = THREE.MathUtils.clamp(freeCam.phi - dy * 0.005, 0.2, 1.42);
       }
       prev.x = e.clientX; prev.y = e.clientY;
     } else if (pointers.size === 2) {
@@ -5302,9 +5372,9 @@ function updateArrow(a, dt, time) {
   a.fade = Math.min(1, a.fade + dt / 0.6);
   const pulse = a.def.style === 'attack' ? 0.85 + 0.15 * Math.sin(time * 4 + a.seed) : 1;
   const op = st.opacity * a.fade * pulse;
-  a.body.material.opacity = op;
-  a.head.material.opacity = Math.min(1, op * 1.1);
-  a.outline.material.opacity = 0.28 * a.fade;
+  a.body.material.opacity = op * (1 - heroW * 0.8);
+  a.head.material.opacity = Math.min(1, op * 1.1) * (1 - heroW * 0.8);
+  a.outline.material.opacity = 0.28 * a.fade * (1 - heroW * 0.8);
 }
 
 function updateArrows(dt, time) {
@@ -5764,6 +5834,7 @@ function startCinematic(idx, m) {
     sub.textContent = m.subJa;
   }
   title.classList.toggle('gold', m.accent === 'gold');
+  main.classList.toggle('long', main.textContent.length > (LANG === 'en' ? 16 : 5));
   layoutCinematic();
 
   // アニメーションをやり直すため、一度クラスを外して付け直す
@@ -6162,6 +6233,43 @@ function buildSpear() {
   return mergeColoredParts([[shaft, [0.36, 0.26, 0.16]], [tip, [0.88, 0.88, 0.92]]]);
 }
 
+// 馬: 胴・首・頭・尾(脚は別)。前が +z
+function buildHorseBody() {
+  const parts = [];
+  const torso = new THREE.BoxGeometry(0.17, 0.19, 0.5); torso.translate(0, 0.38, 0);
+  parts.push([torso, [1, 1, 1]]);
+  const chest = new THREE.BoxGeometry(0.15, 0.16, 0.12); chest.translate(0, 0.4, 0.27);
+  parts.push([chest, [0.96, 0.96, 0.96]]);
+  const neck = new THREE.BoxGeometry(0.08, 0.24, 0.1); neck.rotateX(0.55); neck.translate(0, 0.52, 0.3);
+  parts.push([neck, [0.95, 0.95, 0.95]]);
+  const mane = new THREE.BoxGeometry(0.03, 0.22, 0.05); mane.rotateX(0.55); mane.translate(0, 0.56, 0.26);
+  parts.push([mane, [0.25, 0.22, 0.2]]);
+  const head = new THREE.BoxGeometry(0.08, 0.08, 0.2); head.rotateX(0.35); head.translate(0, 0.62, 0.42);
+  parts.push([head, [0.92, 0.92, 0.92]]);
+  const tail = new THREE.BoxGeometry(0.04, 0.22, 0.05); tail.rotateX(-0.45); tail.translate(0, 0.33, -0.3);
+  parts.push([tail, [0.25, 0.22, 0.2]]);
+  const saddle = new THREE.BoxGeometry(0.19, 0.04, 0.16); saddle.translate(0, 0.49, -0.02);
+  parts.push([saddle, [0.55, 0.12, 0.1]]);
+  return mergeColoredParts(parts);
+}
+const HORSE_LEG_H = 0.3;
+function buildHorseLeg() {
+  const leg = new THREE.BoxGeometry(0.045, HORSE_LEG_H, 0.05); leg.translate(0, -HORSE_LEG_H / 2, 0);
+  return mergeColoredParts([[leg, [0.85, 0.85, 0.85]]]);
+}
+const HORSE_COATS = [0x6b4428, 0x5a3820, 0x3a2a20, 0x7a5232, 0x2a2420, 0x8a7a68];
+// 騎馬の割合(合戦ごと)。指定がなければ総大将の隊 18%、ほかは 8%
+const CAVALRY_RATIO = {
+  nagashino: { katsuyori: 0.3, baba: 0.45, yamagata: 0.5, sanada: 0.45, naito: 0.4, tsuchiya: 0.4, nobukado: 0.35, nobutoyo: 0.35, nobuzane: 0.15, siege: 0.1, teppo: 0, okudaira: 0 },
+  okehazama: { hattori: 0.6, shinsuke: 0.6, nobunaga: 0.3, yoshimoto: 0.2, sassa: 0.3, kajikawa: 0, sakuma: 0.05, iio: 0.05 },
+  sekigahara: { shimazu: 0.22, ii: 0.3, honda: 0.25 },
+};
+function riderRatio(u) {
+  const t = CAVALRY_RATIO[BATTLE_ID] || {};
+  if (t[u.id] !== undefined) return t[u.id];
+  return u.isGeneral ? 0.18 : 0.08;
+}
+
 // 幟(のぼり)のテクスチャ: 陣営色の地に白抜きの家紋
 function makeNoboriTexture(unit, colorHex, done) {
   const c = document.createElement('canvas');
@@ -6212,7 +6320,7 @@ function parseForce(id) {
   return isFinite(n) && n > 0 ? n : 3000;
 }
 
-let soldierGeo = null, legGeo = null, spearGeo = null, spearMat = null;
+let soldierGeo = null, legGeo = null, spearGeo = null, spearMat = null, horseGeo = null, horseLegGeo = null, horseMat = null;
 const _m4 = new THREE.Matrix4();
 const _mb = new THREE.Matrix4();
 const _ml = new THREE.Matrix4();
@@ -6230,6 +6338,9 @@ function initTroops() {
   legGeo = buildSoldierLeg();
   spearGeo = buildSpear();
   spearMat = new THREE.MeshLambertMaterial({ vertexColors: true });
+  horseGeo = buildHorseBody();
+  horseLegGeo = buildHorseLeg();
+  horseMat = new THREE.MeshLambertMaterial({ vertexColors: true });
   initBattleFxV12();
   Object.values(units).forEach(u => {
     u.baseCircle.visible = false;
@@ -6250,12 +6361,14 @@ function initTroops() {
     const spears = new THREE.InstancedMesh(spearGeo, spearMat, count);
     [mesh, legs, spears].forEach(m => { m.castShadow = true; m.frustumCulled = false; u.group.add(m); });
 
+    const nRiders = Math.round(count * riderRatio(u));
     const men = [];
     for (let i = 0; i < count; i++) {
       const r = Math.floor(i / cols), cIdx = i % cols;
       men.push({
+        mounted: i < nRiders, hi: i,
         lx: (cIdx - (cols - 1) / 2) * sp + (Math.random() - 0.5) * 0.14,
-        lz: ((rows - 1) / 2 - r) * sp + (Math.random() - 0.5) * 0.14,   // 前(敵側)が +z
+        lz: ((rows - 1) / 2 - r) * sp + (Math.random() - 0.5) * 0.14 + (i < nRiders ? 0.25 : 0),   // 前(敵側)が +z
         row: r, seed: Math.random() * 10, gait: 0.85 + Math.random() * 0.3,
         fallen: false, fallRot: 0, fallDir: 1, ox: 0, oz: 0, rvx: 0, rvz: 0, yaw: 0,
       });
@@ -6277,8 +6390,21 @@ function initTroops() {
       nobori.push({ grp, flag, lx: ((k + 0.5) / nNobori - 0.5) * cols * sp * 0.9, lz: -((rows - 1) / 2) * sp - 0.35, seed: Math.random() * 6 });
     }
 
+    // 馬(騎乗の兵の数だけ)
+    let horses = null, hlegs = null;
+    if (nRiders > 0) {
+      horses = new THREE.InstancedMesh(horseGeo, horseMat, nRiders);
+      hlegs = new THREE.InstancedMesh(horseLegGeo, horseMat, nRiders * 4);
+      const c = new THREE.Color();
+      for (let i = 0; i < nRiders; i++) {
+        c.setHex(HORSE_COATS[Math.floor(Math.random() * HORSE_COATS.length)]);
+        horses.setColorAt(i, c);
+        for (let k = 0; k < 4; k++) hlegs.setColorAt(i * 4 + k, c);
+      }
+      [horses, hlegs].forEach(m => { m.castShadow = true; m.frustumCulled = false; u.group.add(m); });
+    }
     u.troop = {
-      mesh, legs, spears, men, count, rows, cols, nobori, noboriMat,
+      mesh, legs, spears, men, count, rows, cols, nobori, noboriMat, horses, hlegs, nRiders,
       faction: u.faction, facing: u.faction === 'east' ? -Math.PI / 2 : Math.PI / 2,
       wasDefeated: false, wasBattling: false, lastPhase: -1, anim: Math.random() * 10,
       lastDust: 0, lastClash: 0, lastVolley: 0, prevX: 0, prevZ: 0, speed: 0,
@@ -6338,6 +6464,28 @@ function placeMan(T, i, wx, wy, wz, yaw, pitch, roll, legA, legB, spearPitch, sp
   _m4.multiplyMatrices(_mb, _ml);
   T.spears.setMatrixAt(i, _m4);
 }
+
+// 馬1頭: 胴と4本の脚。gait: 0=止まる 1=並足 2=駆け足
+const _hp = [[-0.06, 0.2], [0.06, 0.2], [-0.06, -0.19], [0.06, -0.19]];
+function placeHorse(T, i, wx, wy, wz, yaw, pitch, roll, ph, gait) {
+  _e.set(pitch, yaw, roll, 'YXZ');
+  _q.setFromEuler(_e);
+  _p3.set(wx, wy, wz);
+  _mb.compose(_p3, _q, _s3);
+  T.horses.setMatrixAt(i, _mb);
+  for (let k = 0; k < 4; k++) {
+    let a = 0;
+    if (gait === 2) a = Math.sin(ph + (k < 2 ? 0 : 2.0) + (k % 2) * 0.35) * 0.75;
+    else if (gait === 1) a = Math.sin(ph + [0, Math.PI, Math.PI * 0.5, Math.PI * 1.5][k]) * 0.35;
+    else if (gait === 3) a = k < 2 ? -1.1 : 0.25;      // 倒れて脚を投げ出す
+    _pl.set(_hp[k][0], HORSE_LEG_H, _hp[k][1]);
+    _ql.setFromAxisAngle(_ax, a);
+    _ml.compose(_pl, _ql, _one);
+    _m4.multiplyMatrices(_mb, _ml);
+    T.hlegs.setMatrixAt(i * 4 + k, _m4);
+  }
+}
+const RIDER_Y = 0.3 * 1.3;   // 鞍の高さ(体の倍率込み)
 
 function updateTroops(dt, t) {
   Object.values(units).forEach(u => {
@@ -6467,7 +6615,29 @@ function updateTroops(dt, t) {
       const wz = -lx * sn + lz * cs + m.oz;
       const gy = getTerrainHeight(gp.x + wx, gp.z + wz) - gp.y;
 
-      if (m.fallen) {
+      if (m.mounted) {
+        const hy = T.facing + yawOff;
+        if (m.fallen) {
+          m.fallRot = Math.min(Math.PI / 2, m.fallRot + dt * 4);
+          const k = m.fallRot / (Math.PI / 2);
+          placeHorse(T, m.hi, wx, gy + 0.02, wz, hy, 0, k * Math.PI / 2 * 0.9, 0, 3);
+          // 落馬: 馬の横に投げ出される
+          const sx = Math.cos(hy) * 0.5, sz = -Math.sin(hy) * 0.5;
+          placeMan(T, i, wx + sx, gy + 0.03 + Math.sin(k * Math.PI) * 0.15, wz + sz, hy + 1.2, m.fallRot * m.fallDir, 0, 0.3 * k, -0.2 * k, 0.6, 0, 0);
+        } else {
+          // 走っているときは駆け足、ゆっくりなら並足
+          const spd = u.defeated ? Math.hypot(m.rvx, m.rvz) : (moving ? T.speed : 0);
+          const gallop = charging || (u.defeated && spd > 0.4) || (moving && T.speed > 2.5);
+          const gait = gallop ? 2 : (spd > 0.1 || (fighting && i < T.cols)) ? 1 : 0;
+          const hph = A * (gallop ? 12 : 6.5) * m.gait + m.seed;
+          const rock = gallop ? Math.sin(hph) * 0.1 : 0;
+          const hb = gallop ? Math.abs(Math.sin(hph)) * 0.09 : gait === 1 ? Math.abs(Math.sin(hph * 2)) * 0.02 : 0;
+          placeHorse(T, m.hi, wx, gy + hb, wz, hy, rock, 0, hph, gait);
+          // 騎乗の武者: 脚は鞍をはさむ形、槍は歩兵と同じ動き
+          placeMan(T, i, wx, gy + hb + RIDER_Y, wz, hy, pitch * 0.5 + rock * 0.5, roll * 0.5, -0.5, -0.5,
+            charging || (fighting && spP > 1) ? 1.3 : spP, spF, spU + 0.05);
+        }
+      } else if (m.fallen) {
         m.fallRot = Math.min(Math.PI / 2, m.fallRot + dt * 5);
         const k = m.fallRot / (Math.PI / 2);
         placeMan(T, i, wx, gy + 0.03 + Math.sin(k * Math.PI) * 0.08, wz, T.facing + m.seed, m.fallRot * m.fallDir, 0,
@@ -6479,6 +6649,7 @@ function updateTroops(dt, t) {
     T.mesh.instanceMatrix.needsUpdate = true;
     T.legs.instanceMatrix.needsUpdate = true;
     T.spears.instanceMatrix.needsUpdate = true;
+    if (T.horses) { T.horses.instanceMatrix.needsUpdate = true; T.hlegs.instanceMatrix.needsUpdate = true; }
 
     // 幟: 風になびき、敗走すると倒れる
     T.nobori.forEach(nb => {
@@ -9584,9 +9755,10 @@ function buildForest() {
   // 部隊・砦の上には木を置かない
   const keep = [];
   phases.forEach(p => Object.values(p.units || {}).forEach(([x, z]) => keep.push([x, z])));
+  phases.forEach(p => (p.battles || []).forEach(b => keep.push([b.x, b.z])));
   Object.values(typeof OKE_POS !== 'undefined' && IS_OKE ? OKE_POS : {}).forEach(p => keep.push(p));
   Object.values(typeof NAGA_POS !== 'undefined' && IS_NAGA ? NAGA_POS : {}).forEach(p => keep.push(p));
-  const blocked = (x, z) => keep.some(([kx, kz]) => (kx - x) ** 2 + (kz - z) ** 2 < 11);
+  const blocked = (x, z) => keep.some(([kx, kz]) => (kx - x) ** 2 + (kz - z) ** 2 < 26);
   const nearFence = (x, z) => IS_NAGA && z > NAGA_FENCE.z0 - 3 && z < NAGA_FENCE.z1 + 3 && Math.abs(x - nagaFenceX(z)) < 4;
   const roads = GROUND_ROADS[BATTLE_ID] || [];
   const conifer = [], broad = [];
