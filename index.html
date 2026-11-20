@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Sengoku Simulation | Japanese Historical Battles in 3D</title>
-<meta name="description" content="Watch Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.">
+<meta name="description" content="Watch Minatogawa, Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Sengoku Simulation | Japanese Historical Battles in 3D">
 <meta property="og:description" content="Watch the Battle of Sekigahara (1600) unfold in 3D, phase by phase, with commander profiles and a timeline.">
@@ -2618,6 +2618,7 @@ html[lang="en"] .title-logo { font-family: 'Cormorant Garamond', 'Noto Serif JP'
 .if-card.c-crimson .ifc-top { background: #e0284f; color: #fff; }
 .if-card.c-indigo .ifc-top { background: #3b4cca; color: #fff; }
 .if-card.c-lime .ifc-top { background: #7cc520; color: #1b1b1f; }
+.if-card.c-sky .ifc-top { background: #1fa3e0; color: #fff; }
 .ifc-year { font-family: 'Dela Gothic One', sans-serif; font-size: 13px; background: #fff; color: #1b1b1f; border: 2px solid #1b1b1f; border-radius: 8px; padding: 1px 8px; }
 .ifc-name { font-family: 'Dela Gothic One', sans-serif; font-size: 21px; line-height: 1.2; }
 .ifc-q { display: block; font-size: 17px; font-weight: 900; padding: 14px 16px 6px; line-height: 1.45; }
@@ -3130,7 +3131,7 @@ setTimeout(updateAppHeight, 1000);
 const BATTLE_ID = (() => {
   try {
     const b = new URLSearchParams(location.search).get('battle');
-    return ['okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake'].includes(b) ? b : 'sekigahara';
+    return ['okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake', 'minatogawa'].includes(b) ? b : 'sekigahara';
   } catch (e) { return 'sekigahara'; }
 })();
 const IS_OKE = BATTLE_ID === 'okehazama';
@@ -3140,11 +3141,12 @@ const IS_MIKA = BATTLE_ID === 'mikatagahara';
 const IS_HONNO = BATTLE_ID === 'honnoji';
 const IS_YAMA = BATTLE_ID === 'yamazaki';
 const IS_SHIZ = BATTLE_ID === 'shizugatake';
+const IS_MINA = BATTLE_ID === 'minatogawa';
 // 合戦ごとの差し替え口(関ヶ原では空のまま)
 const BX = {};
-const GENERAL_IDS = { sekigahara: ['ieyasu', 'mitsunari'], okehazama: ['nobunaga', 'yoshimoto'], nagashino: ['nobunaga', 'katsuyori'], kawanakajima: ['shingen', 'kenshin'], mikatagahara: ['ieyasu', 'shingen'], honnoji: ['mitsuhide', 'nobunaga'], yamazaki: ['hideyoshi', 'mitsuhide'], shizugatake: ['hideyoshi', 'katsuie'] }[BATTLE_ID];
-const GENERAL_SIDE = { sekigahara: { ieyasu: 'right', mitsunari: 'left' }, okehazama: { nobunaga: 'left', yoshimoto: 'right' }, nagashino: { nobunaga: 'left', katsuyori: 'right' }, kawanakajima: { shingen: 'right', kenshin: 'left' }, mikatagahara: { ieyasu: 'right', shingen: 'left' }, honnoji: { mitsuhide: 'right', nobunaga: 'left' }, yamazaki: { hideyoshi: 'right', mitsuhide: 'left' }, shizugatake: { hideyoshi: 'right', katsuie: 'left' } }[BATTLE_ID];
-const DM_START = { sekigahara: 4, okehazama: 5, nagashino: 0, kawanakajima: 0, mikatagahara: 2, honnoji: 2, yamazaki: 0, shizugatake: 1 }[BATTLE_ID];
+const GENERAL_IDS = { sekigahara: ['ieyasu', 'mitsunari'], okehazama: ['nobunaga', 'yoshimoto'], nagashino: ['nobunaga', 'katsuyori'], kawanakajima: ['shingen', 'kenshin'], mikatagahara: ['ieyasu', 'shingen'], honnoji: ['mitsuhide', 'nobunaga'], yamazaki: ['hideyoshi', 'mitsuhide'], shizugatake: ['hideyoshi', 'katsuie'], minatogawa: ['takauji', 'masashige'] }[BATTLE_ID];
+const GENERAL_SIDE = { sekigahara: { ieyasu: 'right', mitsunari: 'left' }, okehazama: { nobunaga: 'left', yoshimoto: 'right' }, nagashino: { nobunaga: 'left', katsuyori: 'right' }, kawanakajima: { shingen: 'right', kenshin: 'left' }, mikatagahara: { ieyasu: 'right', shingen: 'left' }, honnoji: { mitsuhide: 'right', nobunaga: 'left' }, yamazaki: { hideyoshi: 'right', mitsuhide: 'left' }, shizugatake: { hideyoshi: 'right', katsuie: 'left' }, minatogawa: { takauji: 'right', masashige: 'left' } }[BATTLE_ID];
+const DM_START = { sekigahara: 4, okehazama: 5, nagashino: 0, kawanakajima: 0, mikatagahara: 2, honnoji: 2, yamazaki: 0, shizugatake: 1, minatogawa: 3 }[BATTLE_ID];
 const ENDINGS_KEY = BATTLE_ID === 'sekigahara' ? 'sg_endings' : 'sg_endings_' + BATTLE_ID;
 
 const eras = [
@@ -3174,7 +3176,7 @@ const eras = [
     years: '1336 — 1392',
     desc: '皇統分裂、武士が二手に分かれた動乱期',
     battles: [
-      { id: 'minatogawa', year: '1336', name: '湊川の戦い', east: { name: '足利軍', force: '約5万' }, west: { name: '楠木軍', force: '約700' }, winner: 'east', winnerName: '足利軍', implemented: false },
+      { id: 'minatogawa', year: '1336', name: '湊川の戦い', east: { name: '足利軍', force: '約5万' }, west: { name: '楠木軍', force: '約700' }, winner: 'east', winnerName: '足利軍', implemented: true },
     ],
   },
   {
@@ -3243,7 +3245,7 @@ try {
 const STR = {
   en: {
     'meta.title': 'Sengoku Simulation | Japanese Historical Battles in 3D',
-    'meta.desc': 'Watch Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.',
+    'meta.desc': 'Watch Minatogawa, Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.',
     'home.title': 'SENGOKU',
     'title.sub': 'Famous battles of Japan in 3D. Watch them unfold — or change how they end.',
     'title.history': 'Watch History',
@@ -3294,7 +3296,7 @@ const STR = {
   },
   ja: {
     'meta.title': '戦国シミュレーション',
-    'meta.desc': '桶狭間・川中島・三方ヶ原・長篠・本能寺・山崎・賤ヶ岳・関ヶ原を3Dで再現。史実をたどるだけでなく、自分で決断して別の結末も探せる。無料・ブラウザで動作。',
+    'meta.desc': '湊川・桶狭間・川中島・三方ヶ原・長篠・本能寺・山崎・賤ヶ岳・関ヶ原を3Dで再現。史実をたどるだけでなく、自分で決断して別の結末も探せる。無料・ブラウザで動作。',
     'home.title': '戦国',
     'title.sub': '日本の合戦を3Dで。史実をたどるか、歴史を変えるか。',
     'title.history': '史実を見る',
@@ -3650,6 +3652,8 @@ const IF_BATTLES = [
     q: { ja: 'もしも義元が、本陣の守りを固めていたら？', en: 'What if Yoshimoto had stayed on guard?' } },
   { id: 'nagashino', endings: 5, key: 'sg_endings_nagashino', color: 'cyan',
     q: { ja: 'もしも勝頼が、柵の端を回り込んでいたら？', en: 'What if Katsuyori had gone around the fence?' } },
+  { id: 'minatogawa', endings: 4, key: 'sg_endings_minatogawa', color: 'sky',
+    q: { ja: 'もしも新田義貞が、退かなかったら？', en: "What if Nitta Yoshisada hadn't pulled back?" } },
   { id: 'shizugatake', endings: 5, key: 'sg_endings_shizugatake', color: 'lime',
     q: { ja: 'もしも盛政が、勝家の命令に従っていたら？', en: "What if Morimasa had obeyed Katsuie's orders?" } },
   { id: 'yamazaki', endings: 5, key: 'sg_endings_yamazaki', color: 'indigo',
@@ -3736,6 +3740,7 @@ function renderEras() {
     const hasImpl = era.battles.some(b => b.implemented);
     const card = document.createElement('div');
     card.className = 'era-card' + (hasImpl ? '' : ' coming');
+    card.dataset.id = era.id;
     const badge = hasImpl ? `<span class="era-card-badge">${t('era.playable')}</span>` : '';
     const n = era.battles.length;
     const countText = LANG === 'en' ? `${n} ${n === 1 ? 'battle' : 'battles'}` : `合戦 ${n} 件`;
@@ -3979,7 +3984,7 @@ document.getElementById('backFromSim').addEventListener('click', () => {
 });
 
 // ========= シミュレーション =========
-const PLAYABLE_BATTLES = ['sekigahara', 'okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake'];
+const PLAYABLE_BATTLES = ['sekigahara', 'okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake', 'minatogawa'];
 function openSimulation(battleId) {
   if (!PLAYABLE_BATTLES.includes(battleId)) return;
   if (battleId !== BATTLE_ID) {
@@ -6303,6 +6308,7 @@ const HORSE_COATS = [0x6b4428, 0x5a3820, 0x3a2a20, 0x7a5232, 0x2a2420, 0x8a7a68]
 // 騎馬の割合(合戦ごと)。指定がなければ総大将の隊 18%、ほかは 8%
 const CAVALRY_RATIO = {
   nagashino: { katsuyori: 0.3, baba: 0.45, yamagata: 0.5, sanada: 0.45, naito: 0.4, tsuchiya: 0.4, nobukado: 0.35, nobutoyo: 0.35, nobuzane: 0.15, siege: 0.1, teppo: 0, okudaira: 0 },
+  minatogawa: { takauji: 0.3, tadayoshi: 0.35, shiba: 0.3, shoni: 0.35, hosokawa: 0.25, masashige: 0.3, masasue: 0.3, yoshisada: 0.35, wakiya: 0.3, honma: 0.2 },
   shizugatake: { hideyoshi: 0.25, fukushima: 0.2, kato: 0.2, hidenaga: 0.2, hori: 0.2, nakagawa: 0.1, takayama: 0.1, kuwayama: 0.05, niwa: 0.1, katsuie: 0.25, morimasa: 0.2, katsumasa: 0.2, maeda: 0.25 },
   yamazaki: { hideyoshi: 0.2, hidenaga: 0.15, nakagawa: 0.15, takayama: 0.15, horio: 0.1, ikeda: 0.3, niwa: 0.2, nobutaka: 0.25, mitsuhide: 0.25, toshimitsu: 0.2, matsuda: 0.1, ise: 0.2, tsuda: 0.2, mimaki: 0.3 },
   honnoji: { mitsuhide: 0.2, toshimitsu: 0.15, hidemitsu: 0.2, mitsutada: 0.1, fujita: 0.15, nobunaga: 0, ranmaru: 0, nobutada: 0.1, murai: 0.05 },
@@ -9939,6 +9945,375 @@ if (IS_SHIZ) {
   kamonImages.katsumasa = "data:image/png;base64,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";
 }
 
+
+// ========================================================
+// ===== 9戦目: 湊川の戦い(?battle=minatogawa) =====
+// ========================================================
+// 座標: x が東、z が南。南が海(大輪田の泊)、北に六甲の山。湊川が南北に流れ、和田岬が海へ突き出す
+const MINA_POS = {
+  esayama: [-18, -10], wada: [6, 28], minato: [-6, 6], ikuta: [42, 6], suma: [-70, 8], house: [-8, -15],
+};
+const MINA_COAST = [[-90, 14], [-50, 16], [-20, 18], [-8, 21], [-2, 28], [6, 34], [14, 29], [20, 21], [40, 19], [90, 17]];   // 南側が海
+const MINA_RIVERS = [
+  [[-12, -60], [-9, -30], [-6, -10], [-6, 8], [-8, 21]],      // 湊川
+  [[46, -50], [45, -20], [44, 0], [43, 19]],                   // 生田川
+];
+const MINA_FLEETS = ['takauji', 'hosokawa'];
+function minaSeaDepth(x, z) {
+  let best = 1e9, sign = 1;
+  for (let i = 0; i < MINA_COAST.length - 1; i++) {
+    const [ax, az] = MINA_COAST[i], [bx, bz] = MINA_COAST[i + 1];
+    const dd = _segDist(x, z, MINA_COAST[i], MINA_COAST[i + 1]);
+    if (dd < best) { best = dd; sign = ((bx - ax) * (z - az) - (bz - az) * (x - ax)) > 0 ? 1 : -1; }
+  }
+  return sign * best;   // 正なら海
+}
+function minaTerrainHeight(x, z) {
+  const hill = (cx, cz, s, a) => Math.exp(-((x - cx) ** 2 + (z - cz) ** 2) / s) * a;
+  let h = 0.6 + __fbm(x * 0.05, z * 0.05, 3) * 0.8;
+  h += Math.max(0, -z - 24) * 0.5 * (0.8 + __fbm(x * 0.06, z * 0.06, 3) * 0.5);   // 六甲の山
+  h += hill(-18, -10, 60, 3.2);    // 会下山
+  h += hill(-64, -2, 300, 4);      // 須磨の山(鉢伏山)
+  h += __fbm(x * 0.2, z * 0.2, 3) * 0.25;
+  let rd = 1e9;
+  MINA_RIVERS.forEach(line => { for (let i = 0; i < line.length - 1; i++) rd = Math.min(rd, _segDist(x, z, line[i], line[i + 1])); });
+  const k = Math.exp(-(rd * rd) / 6);
+  h = h * (1 - k * 0.85) - k * 0.3;
+  const sd = minaSeaDepth(x, z);
+  if (sd > -4) {
+    const t = Math.min(1, Math.max(0, (sd + 4) / 5));
+    h = h * (1 - t) + (0.15 - 0.65 * t) * t;   // 浜から海へ
+  }
+  return Math.max(-0.5, h);
+}
+const minaShips = {};
+function buildMinaDecor() {
+  const wmat = new THREE.MeshStandardMaterial({ color: 0x5f8db4, transparent: true, opacity: 0.85, roughness: 0.15, metalness: 0.3, side: THREE.DoubleSide });
+  // 海
+  const sh = new THREE.Shape();
+  sh.moveTo(-90, 90);
+  MINA_COAST.forEach(([x, z]) => sh.lineTo(x, z));
+  sh.lineTo(90, 90);
+  const sea = new THREE.Mesh(new THREE.ShapeGeometry(sh), wmat);
+  sea.rotation.x = Math.PI / 2;
+  sea.position.y = 0.05;
+  scene.add(sea);
+  // 川
+  const rmat = new THREE.MeshStandardMaterial({ color: 0x6888a8, transparent: true, opacity: 0.75, roughness: 0.2, metalness: 0.3 });
+  MINA_RIVERS.forEach(line => {
+    const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(line.map(([x, z]) => new THREE.Vector3(x, 0.1, z))), 50, 0.9, 6, false), rmat);
+    tube.scale.y = 0.15;
+    scene.add(tube);
+  });
+  // 生田の森
+  const leaf = new THREE.MeshStandardMaterial({ color: 0x3f6b3a, roughness: 1, flatShading: true });
+  const coneGeo = new THREE.ConeGeometry(0.9, 2.6, 6);
+  for (let i = 0; i < 40; i++) {
+    const x = 36 + Math.random() * 12, z = -6 + Math.random() * 10;
+    const c = new THREE.Mesh(coneGeo, leaf);
+    c.position.set(x, getTerrainHeight(x, z) + 1.3, z);
+    c.scale.setScalar(0.8 + Math.random() * 0.5);
+    scene.add(c);
+  }
+  // 湊川の北の民家(正成最期の地)
+  {
+    const [x, z] = MINA_POS.house;
+    const y = getTerrainHeight(x, z);
+    const hut = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.9, 1.6), new THREE.MeshStandardMaterial({ color: 0xcfc4ad, roughness: 0.95 }));
+    hut.position.set(x, y + 0.45, z); scene.add(hut);
+    const rf = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 1.6, 0.9, 4, 1), new THREE.MeshStandardMaterial({ color: 0x8a7a5a, roughness: 1, flatShading: true }));
+    rf.rotation.y = Math.PI / 4; rf.scale.set(1.1, 1, 0.8); rf.position.set(x, y + 1.35, z); scene.add(rf);
+  }
+  // 船団(足利尊氏・細川定禅)
+  const hullMat = new THREE.MeshStandardMaterial({ color: 0x6a4a30, roughness: 0.9 });
+  const sailMat = new THREE.MeshStandardMaterial({ color: 0xf2ece0, roughness: 0.9, side: THREE.DoubleSide });
+  const hullGeo = new THREE.BoxGeometry(3.0, 0.7, 1.2);
+  const sailGeo = new THREE.PlaneGeometry(1.6, 1.8);
+  const mastGeo = new THREE.CylinderGeometry(0.05, 0.05, 2.4, 4);
+  MINA_FLEETS.forEach(id => {
+    const grp = new THREE.Group();
+    for (let i = 0; i < 7; i++) {
+      const b = new THREE.Group();
+      const hull = new THREE.Mesh(hullGeo, hullMat); hull.position.y = 0.0; hull.castShadow = true; b.add(hull);
+      const mast = new THREE.Mesh(mastGeo, hullMat); mast.position.y = 1.4; b.add(mast);
+      const sail = new THREE.Mesh(sailGeo, sailMat); sail.position.set(0, 1.6, 0.06); b.add(sail);
+      const a = (i / 7) * Math.PI * 2;
+      b.position.set(i === 0 ? 0 : Math.cos(a) * 3.2, 0, i === 0 ? 0 : Math.sin(a) * 2.4);
+      b.userData.ph = Math.random() * 6.28;
+      grp.add(b);
+    }
+    grp.visible = false;
+    scene.add(grp);
+    minaShips[id] = grp;
+  });
+}
+const MINA_ROCKS = [];
+const MINA_TREES = [];
+
+function makeMinaUnits() {
+  return {
+    takauji:   new Unit('takauji',   '尊', 'east', -50, 44, '足利尊氏', 1.5, true),
+    tadayoshi: new Unit('tadayoshi', '直', 'east', -66, 4, '足利直義', 1.3),
+    shiba:     new Unit('shiba',     '斯', 'east', -62, -16, '斯波高経', 1.1),
+    shoni:     new Unit('shoni',     '少', 'east', -68, 12, '少弐頼尚', 1.1),
+    hosokawa:  new Unit('hosokawa',  '細', 'east', -34, 52, '細川定禅', 1.1),
+    masashige: new Unit('masashige', '楠', 'west', -18, -10, '楠木正成', 1.3, true),
+    masasue:   new Unit('masasue',   '季', 'west', -14, -4, '楠木正季', 0.8),
+    yoshisada: new Unit('yoshisada', '新', 'west', 8, 24, '新田義貞', 1.3),
+    wakiya:    new Unit('wakiya',    '脇', 'west', 22, 16, '脇屋義助', 1.0),
+    honma:     new Unit('honma',     '本', 'west', 4, 32, '本間重氏', 0.6),
+  };
+}
+
+// 特殊効果: 海の上の船団をゆらす
+function minaSpecialFx() {
+  const t = performance.now() / 1000;
+  MINA_FLEETS.forEach(id => {
+    const grp = minaShips[id], u = units[id];
+    if (!grp || !u) return;
+    const p = u.group.position;
+    const atSea = minaSeaDepth(p.x, p.z) > 1.5;
+    grp.visible = atSea;
+    if (!atSea) return;
+    grp.position.set(p.x, 0.15, p.z);
+    grp.children.forEach(b => {
+      b.position.y = Math.sin(t * 1.3 + b.userData.ph) * 0.08;
+      b.rotation.z = Math.sin(t * 1.1 + b.userData.ph) * 0.04;
+    });
+  });
+}
+function minaMomentSound(idx) {
+  if (idx === 1) {
+    horagai(0.28, 0, 2.6);
+  } else if (idx === 3) {
+    crowdSurge(0.3, 0.1, 3.0);
+    let d = 0.2;
+    for (let i = 0; i < 8; i++) { taiko(0.36, d); d += 0.24; }
+  } else if (idx === 5) {
+    [0.05, 0.7].forEach(d => taiko(0.5, d));
+  } else if (idx === 8) {
+    crowdSurge(0.32, 0.1, 3.4);
+  } else if (idx === 9) {
+    [0.05, 0.9].forEach(d => taiko(0.55, d));
+  }
+}
+
+if (IS_MINA) {
+  Object.assign(BX, {
+    terrain: minaTerrainHeight, decor: buildMinaDecor, rocks: MINA_ROCKS, trees: MINA_TREES,
+    units: makeMinaUnits, fx: minaSpecialFx, sound: minaMomentSound, drum: [3, 8],
+    dom: { kicker: 'MINATOGAWA · 3D', year: '1336', rename: [['ieyasu', 'takauji'], ['mitsunari', 'masashige']] },
+  });
+
+  const ALL0 = {
+    takauji: [-50, 44], tadayoshi: [-66, 4], shiba: [-62, -16], shoni: [-68, 12], hosokawa: [-34, 52],
+    masashige: [-18, -10], masasue: [-14, -4], yoshisada: [8, 24], wakiya: [22, 16], honma: [4, 32],
+  };
+  const U = (o) => Object.assign({}, ALL0, o);
+  const ESA = { tadayoshi: [-24, -6], shiba: [-26, -18], shoni: [-24, 10] };
+  const RING = { masashige: [-12, -6], masasue: [-10, -1], tadayoshi: [-20, -6], shiba: [-14, -17], shoni: [-17, 6], takauji: [-3, 6] };
+  const NITTA_E = { yoshisada: [52, -8], wakiya: [56, -4], honma: [48, -6] };
+  const ph = (time, ja, units, extra) => Object.assign({ time, units, battles: [], battling: [], defeated: [], traitor: null }, ja, extra || {});
+
+  _replaceArr(phases, [
+    ph('06:00', { phase: '会下山', label: '会下山', title: '楠木正成、七百騎で会下山に陣取る',
+      text: '建武3年(延元元年)5月25日。九州で力を取り戻した<span class="info-east">足利尊氏</span>が、陸と海から京をめざして攻め上ってきた。迎え撃つ<span class="info-west">新田義貞</span>は和田岬に、<span class="info-west">楠木正成</span>はわずか<span class="info-highlight">七百ほどの兵</span>で会下山に陣を置いた。',
+      camera: { pos: [-10, 60, 70], look: [-10, 0, 8], label: 'CAM · 湊川' } }, U({})),
+    ph('08:00', { phase: '陸と海から', label: '陸と海', title: '海を埋める船団と、浜を進む大軍',
+      text: '西の須磨から<span class="info-east">足利直義</span>の陸の軍が、沖からは<span class="info-east">尊氏</span>の船団が迫る。陸の軍は山の手・中央・浜の手の三手に分かれていた。兵の数は<span class="info-highlight">朝廷方を大きく上回る</span>。',
+      camera: { pos: [-20, 50, 60], look: [-36, 0, 20], label: 'CAM · 須磨の浜' } },
+      U({ tadayoshi: [-44, 2], shiba: [-42, -18], shoni: [-46, 12], takauji: [-24, 44], hosokawa: [-8, 54] })),
+    ph('09:00', { phase: '遠矢', label: '遠矢', title: '本間孫四郎の遠矢',
+      text: '和田岬の波打ち際で、新田方の<span class="info-west">本間重氏</span>が沖の船に向けて遠矢を放った。『太平記』は、その見事さに<span class="info-highlight">敵味方から喝采が上がった</span>と記す。',
+      camera: { pos: [24, 22, 46], look: [2, 1, 36], label: 'CAM · 和田岬' } },
+      U({ tadayoshi: [-34, 0], shiba: [-34, -18], shoni: [-36, 12], takauji: [-6, 46], hosokawa: [16, 50] })),
+    ph('10:00', { phase: '会下山の戦い', label: '会下山', title: '直義の大軍が会下山に攻めかかる',
+      text: '<span class="info-east">足利直義</span>らが会下山の楠木勢に攻めかかった。<span class="info-west">正成</span>と弟の<span class="info-west">正季</span>は、少ない兵で<span class="info-highlight">何度も敵を押し返す</span>。',
+      camera: { pos: [6, 34, 20], look: [-18, 0, -6], label: 'CAM · 会下山' } },
+      U(Object.assign({}, ESA, { takauji: [-4, 46], hosokawa: [30, 44] })),
+      { battles: [{ x: -21, z: -8 }, { x: -18, z: 3 }, { x: -22, z: -15 }], battling: ['tadayoshi', 'masashige', 'shoni', 'masasue', 'shiba'] }),
+    ph('11:00', { phase: '細川、生田へ', label: '生田', title: '細川定禅、生田の浜に上陸',
+      text: '東へまわった<span class="info-east">細川定禅</span>の船団が、新田軍の後ろ、<span class="info-highlight">生田の浜に上陸</span>した。このままでは京への帰り道を断たれてしまう。',
+      camera: { pos: [20, 38, 44], look: [40, 0, 12], label: 'CAM · 生田' } },
+      U(Object.assign({}, ESA, { takauji: [0, 44], hosokawa: [42, 13] })),
+      { battles: [{ x: -21, z: -8 }, { x: -18, z: 3 }], battling: ['tadayoshi', 'masashige', 'shoni', 'masasue'] }),
+    ph('11:30', { phase: '新田、東へ', label: '新田退く', title: '新田義貞、東へ兵を引く',
+      text: '退路を断たれることを恐れた<span class="info-west">新田義貞</span>は、和田岬を捨てて東へ退いた。湊川の西に残された<span class="info-west">楠木勢</span>は、<span class="info-highlight">ひとりぼっち</span>になる。',
+      camera: { pos: [10, 52, 50], look: [20, 0, 6], label: 'CAM · 湊川の東' } },
+      U(Object.assign({}, ESA, { takauji: [2, 42], hosokawa: [42, 10], yoshisada: [36, 0], wakiya: [44, -2], honma: [30, 6] })),
+      { battles: [{ x: -21, z: -8 }], battling: ['tadayoshi', 'masashige'] }),
+    ph('12:00', { phase: '尊氏、上陸', label: '上陸', title: '尊氏、和田岬に上陸',
+      text: '誰もいなくなった<span class="info-highlight">和田岬</span>に、<span class="info-east">尊氏</span>の本隊がやすやすと上陸した。浜の手の<span class="info-east">少弐頼尚</span>も湊川の河口へ迫る。',
+      camera: { pos: [24, 30, 46], look: [0, 0, 20], label: 'CAM · 和田岬' } },
+      U(Object.assign({}, ESA, { takauji: [5, 26], hosokawa: [40, 6], shoni: [-12, 14], yoshisada: [52, -8], wakiya: [56, -4], honma: [48, -6] })),
+      { battles: [{ x: -21, z: -8 }], battling: ['tadayoshi', 'masashige'] }),
+    ph('13:00', { phase: '囲まれる', label: '包囲', title: '楠木勢、四方を囲まれる',
+      text: '西から直義、北から斯波、南の浜から少弐、東から尊氏。<span class="info-west">楠木勢</span>は<span class="info-highlight">四方を敵に囲まれた</span>。',
+      camera: { pos: [10, 46, 30], look: [-12, 0, -2], label: 'CAM · 湊川' } },
+      U(Object.assign({}, RING, NITTA_E, { hosokawa: [36, 2] })),
+      { battles: [{ x: -16, z: -6 }, { x: -7, z: 2 }], battling: ['tadayoshi', 'masashige', 'takauji', 'masasue'] }),
+    ph('15:00', { phase: '十六度', label: '十六度', title: '十六度の突撃',
+      text: '『太平記』によれば、楠木勢は<span class="info-highlight">十六度も敵の中へ突撃した</span>。六時間におよぶ戦いのすえ、正成のまわりに残ったのは七十三騎だったという。',
+      camera: { pos: [4, 30, 18], look: [-10, 1, -4], label: 'CAM · 湊川' } },
+      U(Object.assign({}, RING, NITTA_E, { hosokawa: [36, 2], masashige: [-10, -4], masasue: [-8, 0], tadayoshi: [-15, -5], takauji: [-5, 3], shiba: [-11, -12], shoni: [-12, 4] })),
+      { battles: [{ x: -12, z: -4 }, { x: -7, z: 2 }, { x: -10, z: -9 }], battling: ['tadayoshi', 'masashige', 'takauji', 'masasue', 'shiba', 'shoni'] }),
+    ph('16:00', { phase: '七生', label: '七生', title: '「七生までただ同じ人間に生まれて」',
+      text: '力尽きた<span class="info-west">正成</span>は、湊川の北の民家に入り、弟の<span class="info-west">正季</span>ら一族とともに自害した。正季は「<span class="info-highlight">七たび人に生まれて朝敵を滅ぼしたい</span>」と言い、正成もうなずいたと『太平記』は記す。',
+      camera: { pos: [6, 22, 6], look: [-8, 1, -14], label: 'CAM · 湊川の北' } },
+      U(Object.assign({}, NITTA_E, { hosokawa: [36, 2], masashige: [-8, -15], masasue: [-7, -14], tadayoshi: [-14, -10], takauji: [-2, -6], shiba: [-10, -20], shoni: [-14, -2] })),
+      { defeated: ['masashige', 'masasue'] }),
+    ph('18:00', { phase: '戦の後', label: '戦の後', title: '尊氏、京へ',
+      text: '新田義貞は京へ退き、<span class="info-east">尊氏</span>は京に入った。後醍醐天皇はのちに吉野へ移り、<span class="info-highlight">朝廷が二つに分かれる南北朝の時代</span>が始まる。正成は江戸時代に忠臣としてたたえられ、のちに湊川神社にまつられた。',
+      camera: { pos: [10, 80, 80], look: [0, 0, 0], label: 'CAM · 俯瞰' } },
+      U({ masashige: [-8, -15], masasue: [-7, -14], tadayoshi: [6, 0], takauji: [14, 6], shiba: [-2, -10], shoni: [0, 12], hosokawa: [36, 2], yoshisada: [76, -12], wakiya: [78, -8], honma: [72, -10] }),
+      { defeated: ['masashige', 'masasue'] }),
+  ]);
+
+  _replaceArr(EN_PHASES, [
+    { phase: 'ESAYAMA', label: 'Esayama', cam: 'CAM · MINATOGAWA',
+      title: 'Kusunoki Masashige takes the hill of Esayama with 700 men',
+      text: `The 25th day of the 5th month, 1336. Having rebuilt his strength in Kyushu, <span class="info-east">Ashikaga Takauji</span> is driving on Kyoto by land and sea. To stop him, <span class="info-west">Nitta Yoshisada</span> holds Wada Cape, and <span class="info-west">Kusunoki Masashige</span> camps on the hill of Esayama with <span class="info-highlight">only about 700 men</span>.` },
+    { phase: 'BY LAND AND SEA', label: 'Land & sea', cam: 'CAM · SUMA SHORE',
+      title: 'A sea full of ships and an army on the beach',
+      text: `<span class="info-east">Ashikaga Tadayoshi</span>'s land army comes from Suma in the west, while <span class="info-east">Takauji</span>'s fleet closes in offshore. The land army moves in three columns — hills, center and beach — and <span class="info-highlight">far outnumbers the imperial side</span>.` },
+    { phase: 'THE LONG SHOT', label: 'Long shot', cam: 'CAM · WADA CAPE',
+      title: 'Honma Magoshirō\'s long-distance arrow',
+      text: `At the water's edge on Wada Cape, Nitta's man <span class="info-west">Honma Shigeuji</span> shoots an arrow at the ships far offshore. The Taiheiki says it was so fine that <span class="info-highlight">both armies cheered</span>.` },
+    { phase: 'BATTLE FOR ESAYAMA', label: 'Esayama', cam: 'CAM · ESAYAMA',
+      title: "Tadayoshi's army storms Esayama",
+      text: `<span class="info-east">Ashikaga Tadayoshi</span> and the others attack the Kusunoki on Esayama. With his younger brother <span class="info-west">Masasue</span>, <span class="info-west">Masashige</span> <span class="info-highlight">throws them back again and again</span> with a handful of men.` },
+    { phase: 'HOSOKAWA AT IKUTA', label: 'Ikuta', cam: 'CAM · IKUTA',
+      title: 'Hosokawa Jōzen lands on the beach at Ikuta',
+      text: `<span class="info-east">Hosokawa Jōzen</span>'s fleet swings east and <span class="info-highlight">lands at Ikuta</span>, behind Nitta's army. If this goes on, the road back to Kyoto will be cut.` },
+    { phase: 'NITTA PULLS BACK', label: 'Nitta leaves', cam: 'CAM · EAST OF THE MINATO',
+      title: 'Nitta Yoshisada falls back to the east',
+      text: `Afraid of being cut off, <span class="info-west">Nitta Yoshisada</span> abandons Wada Cape and pulls back east. Left behind west of the Minato, the <span class="info-west">Kusunoki</span> are <span class="info-highlight">on their own</span>.` },
+    { phase: 'TAKAUJI LANDS', label: 'Landing', cam: 'CAM · WADA CAPE',
+      title: 'Takauji lands at Wada Cape',
+      text: `<span class="info-east">Takauji</span>'s main force lands at the now-empty <span class="info-highlight">Wada Cape</span> without a fight, while <span class="info-east">Shōni Yorihisa</span>'s beach column closes on the mouth of the Minato.` },
+    { phase: 'SURROUNDED', label: 'Surrounded', cam: 'CAM · MINATOGAWA',
+      title: 'The Kusunoki are surrounded on all sides',
+      text: `Tadayoshi from the west, Shiba from the north, Shōni from the beach, Takauji from the east — the <span class="info-west">Kusunoki</span> are <span class="info-highlight">surrounded on every side</span>.` },
+    { phase: 'SIXTEEN CHARGES', label: 'Sixteen', cam: 'CAM · MINATOGAWA',
+      title: 'Sixteen charges',
+      text: `According to the Taiheiki, the Kusunoki <span class="info-highlight">charged into the enemy sixteen times</span>. After some six hours of fighting, only seventy-three riders were left around Masashige.` },
+    { phase: 'SEVEN LIVES', label: 'Seven lives', cam: 'CAM · NORTH OF THE MINATO',
+      title: '"Seven times reborn as the same man"',
+      text: `Spent, <span class="info-west">Masashige</span> goes into a farmhouse north of the Minato and takes his own life with his brother <span class="info-west">Masasue</span> and their kin. The Taiheiki has Masasue say he wished to <span class="info-highlight">be reborn seven times to destroy the emperor's enemies</span>, and Masashige agree.` },
+    { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · OVERVIEW',
+      title: 'Takauji marches into Kyoto',
+      text: `Nitta falls back to Kyoto and <span class="info-east">Takauji</span> enters the city. Emperor Go-Daigo later flees to Yoshino, and <span class="info-highlight">the age of two rival courts — the Northern and Southern Courts — begins</span>. Masashige was later honored as the model loyal warrior, and enshrined at Minatogawa Shrine.` },
+  ]);
+
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
+  _replaceArr(PHASE_ARROWS, [
+    [ mvp([-78, 6], [-66, 4], E), mvp([-60, 46], [-50, 44], E) ],
+    [ mvp([-64, 4], [-44, 2], E), mvp([-50, 44], [-24, 44], E) ],
+    [ mvp([-24, 44], [-6, 46], E) ],
+    [ at('tadayoshi', 'masashige', E), at('shoni', 'masasue', E), at('shiba', 'masashige', E) ],
+    [ mvp([30, 44], [42, 15], E) ],
+    [ mvp([8, 24], [36, 0], W), mvp([22, 16], [44, -2], W) ],
+    [ mvp([0, 42], [5, 28], E), mvp([-24, 10], [-12, 14], E) ],
+    [ at('tadayoshi', 'masashige', E), at('takauji', 'masasue', E), at('shiba', 'masashige', E), at('shoni', 'masasue', E) ],
+    [ at('masashige', 'tadayoshi', W), at('masasue', 'takauji', W) ],
+    [],
+    [ mvp([52, -8], [76, -12], W), mvp([6, 0], [30, -6], E) ],
+  ]);
+  _replaceArr(CINE, [
+    { focus: ['masashige'], blend: 0.3, orbit: 0.015, dolly: 0.04 },
+    { focus: ['tadayoshi', 'takauji'], blend: 0.4, orbit: -0.02, dolly: 0.05 },
+    { focus: ['honma'], blend: 0.7, orbit: 0.02, dolly: 0.08 },
+    { focus: ['masashige', 'tadayoshi'], blend: 0.8, orbit: 0.025, dolly: 0.1 },
+    { focus: ['hosokawa'], blend: 0.6, orbit: -0.02, dolly: 0.06 },
+    { focus: ['yoshisada', 'hosokawa'], blend: 0.5, orbit: 0.02, dolly: 0.06 },
+    { focus: ['takauji'], blend: 0.7, orbit: -0.02, dolly: 0.08 },
+    { focus: ['masashige', 'takauji'], blend: 0.6, orbit: 0.02, dolly: 0.06 },
+    { focus: ['masashige', 'tadayoshi'], blend: 0.9, orbit: -0.03, dolly: 0.12 },
+    { focus: ['masashige'], blend: 0.8, orbit: 0.02, dolly: 0.08 },
+    { orbit: 0.02, dolly: -0.05 },
+  ]);
+  _replaceObj(CINE_MOMENTS, {
+    1: { ja: '陸と海から', en: 'BY LAND AND SEA', subJa: '足利の大軍が迫る', subEn: 'The Ashikaga close in', shake: 0.2 },
+    3: { ja: '会下山', en: 'ESAYAMA', subJa: '七百で大軍を押し返す', subEn: '700 men hold back a host', shake: 0.6, accent: 'gold' },
+    5: { ja: '孤立', en: 'ALONE', subJa: '新田、東へ去る', subEn: 'Nitta pulls out', shake: 0.3 },
+    8: { ja: '十六度', en: 'SIXTEEN CHARGES', subJa: '残るは七十三騎', subEn: 'Seventy-three riders left', shake: 0.8 },
+    9: { ja: '七生報国', en: 'SEVEN LIVES', subJa: '楠木正成、湊川に散る', subEn: 'Masashige dies at Minatogawa', shake: 0 },
+  });
+  _replaceArr(MOMENTUM, [62, 66, 64, 58, 66, 76, 82, 88, 90, 96, 96]);
+  ATMO_KEYS.minadusk = Object.assign({}, ATMO_KEYS.late);
+  _replaceArr(PHASE_ATMO, ['morning', 'morning', 'morning', 'noon', 'noon', 'noon', 'noon', 'noon', 'late', 'late', 'minadusk']);
+  _replaceArr(PLACES, [
+    { x: -18, z: -10, ja: '会下山', en: 'Esayama', lift: 4 },
+    { x: 6, z: 30, ja: '和田岬', en: 'Wada Cape', lift: 2.5 },
+    { x: -6, z: -28, ja: '湊川', en: 'Minato River', lift: 1.5, minor: true },
+    { x: 42, z: 2, ja: '生田の森', en: 'Ikuta forest', lift: 3.5 },
+    { x: -70, z: 6, ja: '須磨', en: 'Suma', lift: 3, minor: true },
+    { x: -8, z: -18, ja: '正成最期の地', en: 'Where Masashige died', lift: 2.5, minor: true },
+    { x: -30, z: 50, ja: '大輪田の泊', en: 'Ōwada harbor', lift: 1.5, minor: true },
+  ]);
+
+  const g = (o) => o;
+  _replaceObj(generalsData, {
+    takauji: g({ name: '足利尊氏', yomi: 'ASHIKAGA TAKAUJI', faction: 'east', factionLabel: '足利軍 総大将', force: '数万(諸説)', troops: 6000, base: '船団 → 和田岬', birth: '1305', koku: '—',
+      bio: '鎌倉幕府を倒すのに力を尽くしたが、のちに後醍醐天皇と対立した。一度は京を追われて九州へ落ちたが、多々良浜の戦いに勝って勢いを取り戻した。',
+      episode: '2年後に征夷大将軍となり、室町幕府を開く。' }),
+    tadayoshi: g({ name: '足利直義', yomi: 'ASHIKAGA TADAYOSHI', faction: 'east', factionLabel: '足利軍 陸の大将', force: '—', troops: 5000, base: '須磨 → 会下山', birth: '1306', koku: '—',
+      bio: '尊氏の弟。兄とともに幕府を支え、政治の多くを任された。', episode: '陸の軍を率いて楠木勢と正面から戦った。のちに兄と争い、観応の擾乱を起こす。' }),
+    shiba: g({ name: '斯波高経', yomi: 'SHIBA TAKATSUNE', faction: 'east', factionLabel: '足利軍 山の手', force: '—', troops: 3500, base: '山の手', birth: '1305', koku: '—',
+      bio: '足利一門の有力な武将。', episode: '陸の軍の山側を進み、北から楠木勢を囲んだ。' }),
+    shoni: g({ name: '少弐頼尚', yomi: 'SHŌNI YORIHISA', faction: 'east', factionLabel: '足利軍 浜の手', force: '—', troops: 4000, base: '浜の手', birth: '1294', koku: '筑前',
+      bio: '九州・筑前の武将。九州へ落ちた尊氏を迎え入れ、多々良浜の勝利を支えた。', episode: '浜ぞいを進み、湊川の河口へ迫った。' }),
+    hosokawa: g({ name: '細川定禅', yomi: 'HOSOKAWA JŌZEN', faction: 'east', factionLabel: '足利軍 船団', force: '—', troops: 3000, base: '船団 → 生田', birth: '不詳', koku: '—',
+      bio: '四国の兵を率いた足利方の武将。', episode: '新田軍の後ろの生田に上陸し、新田義貞を退かせるきっかけをつくった。' }),
+    masashige: g({ name: '楠木正成', yomi: 'KUSUNOKI MASASHIGE', faction: 'west', factionLabel: '朝廷方 楠木勢', force: '約700', troops: 700, base: '会下山', birth: '1294?', koku: '河内',
+      bio: '河内の武将。千早城などで鎌倉幕府の大軍を防ぎ、後醍醐天皇の倒幕を支えた。',
+      episode: '『太平記』では、京を捨てて比叡山にこもり、尊氏を京に引きこんでから討つ策を出したが退けられたという。桜井の駅で子の正行と別れた話も知られる。' }),
+    masasue: g({ name: '楠木正季', yomi: 'KUSUNOKI MASASUE', faction: 'west', factionLabel: '朝廷方 楠木勢', force: '—', troops: 200, base: '会下山', birth: '不詳', koku: '—',
+      bio: '正成の弟。兄とともに戦い続けた。', episode: '最期に「七たび人に生まれて朝敵を滅ぼしたい」と言ったと『太平記』は伝える。「七生報国」の言葉のもとになった。' }),
+    yoshisada: g({ name: '新田義貞', yomi: 'NITTA YOSHISADA', faction: 'west', factionLabel: '朝廷方 総大将', force: '—', troops: 5000, base: '和田岬', birth: '1301?', koku: '—',
+      bio: '鎌倉を攻め落として幕府を滅ぼした武将。朝廷方の総大将として尊氏と戦った。', episode: '2年後、越前の藤島で討死する。' }),
+    wakiya: g({ name: '脇屋義助', yomi: 'WAKIYA YOSHISUKE', faction: 'west', factionLabel: '朝廷方', force: '—', troops: 3000, base: '和田岬の東', birth: '1306', koku: '—',
+      bio: '新田義貞の弟。', episode: '兄とともに新田軍を率いた。' }),
+    honma: g({ name: '本間重氏', yomi: 'HONMA SHIGEUJI', faction: 'west', factionLabel: '新田軍', force: '—', troops: 100, base: '和田岬', birth: '不詳', koku: '—',
+      bio: '弓の名手として知られた新田方の武士。孫四郎とも。', episode: '沖の船へ放った遠矢の話が『太平記』に残る。神戸市兵庫区に「遠矢浜」の碑がある。' }),
+  });
+  _replaceObj(EN_GEN, {
+    takauji: { name: 'Ashikaga Takauji', yomi: '足利尊氏', factionLabel: 'ASHIKAGA · COMMANDER', force: 'Tens of thousands (accounts vary)', base: 'Fleet → Wada Cape', birth: '1305', koku: '—',
+      bio: 'He helped bring down the Kamakura shogunate, then turned against Emperor Go-Daigo. Driven out of Kyoto to Kyushu, he won at Tatarahama and came roaring back.',
+      episode: 'Two years later he became shogun and founded the Muromachi shogunate.' },
+    tadayoshi: { name: 'Ashikaga Tadayoshi', yomi: '足利直義', factionLabel: 'ASHIKAGA · LAND ARMY', force: '—', base: 'Suma → Esayama', birth: '1306', koku: '—',
+      bio: "Takauji's younger brother, who ran much of the government alongside him.", episode: 'He led the land army straight at the Kusunoki. Later he fell out with his brother in a bitter civil war.' },
+    shiba: { name: 'Shiba Takatsune', yomi: '斯波高経', factionLabel: 'ASHIKAGA · HILL COLUMN', force: '—', base: 'Hill column', birth: '1305', koku: '—',
+      bio: 'A leading general of the Ashikaga family.', episode: 'He led the column along the hills and closed in on the Kusunoki from the north.' },
+    shoni: { name: 'Shōni Yorihisa', yomi: '少弐頼尚', factionLabel: 'ASHIKAGA · BEACH COLUMN', force: '—', base: 'Beach column', birth: '1294', koku: 'Chikuzen',
+      bio: 'A Kyushu warlord who took in the fleeing Takauji and helped him win at Tatarahama.', episode: 'He advanced along the beach to the mouth of the Minato.' },
+    hosokawa: { name: 'Hosokawa Jōzen', yomi: '細川定禅', factionLabel: 'ASHIKAGA · FLEET', force: '—', base: 'Fleet → Ikuta', birth: 'Unknown', koku: '—',
+      bio: 'An Ashikaga commander leading troops from Shikoku.', episode: "His landing at Ikuta, behind Nitta's army, is what made Nitta pull back." },
+    masashige: { name: 'Kusunoki Masashige', yomi: '楠木正成', factionLabel: 'IMPERIAL · KUSUNOKI', force: 'About 700', base: 'Esayama', birth: 'c. 1294', koku: 'Kawachi',
+      bio: "A warrior from Kawachi whose defense of Chihaya and other forts against huge shogunate armies made Go-Daigo's restoration possible.",
+      episode: 'The Taiheiki says he proposed abandoning Kyoto, luring Takauji in and striking from Mount Hiei — and was overruled. His farewell to his son Masatsura at Sakurai is famous.' },
+    masasue: { name: 'Kusunoki Masasue', yomi: '楠木正季', factionLabel: 'IMPERIAL · KUSUNOKI', force: '—', base: 'Esayama', birth: 'Unknown', koku: '—',
+      bio: "Masashige's younger brother, who fought beside him to the end.", episode: 'The Taiheiki has him wish to be reborn seven times to destroy the emperor\'s enemies — the origin of the phrase "seven lives for the nation."' },
+    yoshisada: { name: 'Nitta Yoshisada', yomi: '新田義貞', factionLabel: 'IMPERIAL · COMMANDER', force: '—', base: 'Wada Cape', birth: 'c. 1301', koku: '—',
+      bio: 'The general who took Kamakura and ended the shogunate, now commanding the imperial army against Takauji.', episode: 'He was killed two years later at Fujishima in Echizen.' },
+    wakiya: { name: 'Wakiya Yoshisuke', yomi: '脇屋義助', factionLabel: 'IMPERIAL', force: '—', base: 'East of Wada Cape', birth: '1306', koku: '—',
+      bio: "Nitta Yoshisada's younger brother.", episode: "He led the Nitta army alongside his brother." },
+    honma: { name: 'Honma Shigeuji', yomi: '本間重氏', factionLabel: 'NITTA ARMY', force: '—', base: 'Wada Cape', birth: 'Unknown', koku: '—',
+      bio: 'A Nitta warrior famous as a master archer, also called Magoshirō.', episode: 'The Taiheiki tells of his long shot at the ships offshore. A monument to it stands in Hyōgo Ward, Kobe.' },
+  });
+  _replaceObj(LBL_EN, {
+    takauji: 'Ashikaga Takauji', tadayoshi: 'Tadayoshi', shiba: 'Shiba', shoni: 'Shōni', hosokawa: 'Hosokawa',
+    masashige: 'Kusunoki Masashige', masasue: 'Masasue', yoshisada: 'Nitta Yoshisada', wakiya: 'Wakiya', honma: 'Honma',
+  });
+  kamonImages.takauji = "data:image/png;base64,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";
+  kamonImages.tadayoshi = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAARJklEQVR4Xu2daahFVRmG3+bJZkpLsyIbbFDK1LSyTCz6URaUFJFSZAYV+EP6ZRhUSFgIUVCGWlGEEZUUWdmEDTSQ2jxHklmWqQ1mNvMc13v77rpr7b3P8dxz9j53vXC5956zx/W937gmqWFP4zZ78O373vm/e6lN+hpjivA73Vba+huhWrD/6XkpzgNcx9fy+fE6G4FNIADvYGEjoH/3SOYuku6cCBEFzN+Q408DCML9uBfHT9piTJUACMBCyAV+O0n3kXSwpIMkPUjSgyU9JAnr4ZL2qQiZa/0gCfZ6Sd+TdIOk70j6uaRrJd2UnetngQx91mV0mBIBrOnWPOOukh4j6cmSnirpUZL2l3TPJbf23yT9UdKPJX1N0qWSrpB0XbgPzwgBIdIkLMMUCGAN+1do6AMkHZ8EfpykAwvCtnm2IPyu0beXELXY5/oZckCIr0j6kqTPSvphOAAigMm7iXWBBowEvbukkyRdlPx0DMxo5H9KM5KgfVH4eQC36P9ck2tzD+5lLff1+BzLcLo0I2hE/i4NHaCxHImDQySdLenXyazGBi8JYlEBL3IepDAh4vkEku9PVsqWADQidCA3s5h4zCoNHIXO/7uh4YsQILdCJTIQQL5c0h0L7qEhmfmoJRZ8bFw0fVGhOzpHOBYQ16v9+Lhb40psGeIzk1FEItTiij2FKPgjk8Zb8Pa38wg+muRluYd4zUWsj9/D7wURXpxZg7UF4+u6sSNxGvf+ks6Q9CpJdwiaHsnRBWu4U7Ac+GPI4Pz+Smn2UwKp46GhXkDgea/Cgb6nC1BD2tFE9ntdLOl1kr6fru/0caUY8uDLRnzRF0l6m6QHppugLUME71pALPcCcnUalHQM33t5EjwE6Kvw5aC+cKdUTHpsCkYfL+lxqdAUwXO7TtEHp5k8+z8knSXpTck9rYUEq8Tt080Q+IdCcDfUx9s/x/gAbb5A0vMr9QDDPpdG5jlqP32++b7SrPbw1kS0GKSWfH8tuIznfV2auUCQk3ojELXjWZKuTsIf6lPz40gJz5V0lDTT1Ai7AgTstGsRS2c3FQkT01PAPR4t6cxkaaKwh7yb6xechxKcFl5kiCWcBOKLvCHT+pp2xLQvFly+miJpfHME98jrB7uFSLD8GchgPi7p5ix17QtkI1kulGZWxgSbNCz8e0v6dGoUBJpX0XIi5CkY9QAatyT0RbR7WbBly7WVmOH8AhG6CB+twU8lHT51EtjfEzhdloRP0NPXCNE35oK39q1T6DX42SIZciIMqS3gCmgjOplOnCoJLHxYzIvYx3UJPwqeXPnZoaXxvVPyifnzQoRPzeH+YlucMjUSlIQfX6hEAn8P+wmoXDadmuBz5M9P2vub4Aq7YoNYQJoMCUrC7/L37mGDFDEVAlPS+D7E1DJPgbuUw2kl7TN6Eswr/Pji56SUypHvGH38MuA2Aq+Q9OcB7nESJLC2Rp/fpfkWfgx0Nk3r+4JF8IQQIDv4K7nIUZPAwqdE6oCvS/h+UTIDMoRN1/oabA1Ikcn9+wLlSIKTxxIYOg+mcPHdUN2rRfsW/jel2Ytb+HsVMc6hskm7dVUQXUO5UdIRqdHy6uRK4Re4ZACDLfzzpK1K3iYFeosiZgqUgiFBV73A1vUaSfvO0Qm1dNiEubzbVeSx8GG5sVbmjgyxK5to3+6glia6PSmUgZUrkm9IedZmq8/svzc8bBN+GYyHAKfOYVFRwJW6Uue0DOT4XRrAUQv6HO3j8+m16+tqbbilhxG8awAJHC/QPb0yS2Dt/3CP9lv4BIcO+Jrm9wN3YBJgNbuyAyses5boId31sQQWPp0UXQ/mCh9pIenhyti5IXB2hdX8VggMu8ro79ztdvZDoc1EoLGMmz+Yg5QXrNo/bRBsLR+a6iseh9hFAqbG7ZqyWfvfMdD0U95daXCygbArQJGGuIJvJ/cx2BUMrblzQRh4WOq0sTXIz+cYjqU714WKyUyUHCkgwd8lvVvSK1ONoJT2eUDta6SZO1jqAFObIyZB1tI+uwQmTJYmazbcehAP1FxvjLuozPZNgh1sns2kp0t6WgcDIQZEuUrSS1OfPg811Mo0lOF2RcMZS/DEytRz2pljiNFeK83qA71WYIhwbP6/KM1IMHTsfsPqAVkA2dcjw9oF/nwHYv90CWbQsUn4aHRf2dG17Iblo6+QZiuACxhkBfosgLX/C9KMBE37x49oBVgthZgMFK1AV2XOwmf5FfJLLtCn/Q3rB0qNpcYKMFuqU259BABMacZV9K2+1TAueByhFbmImgvgcy7AalpMUnhA+r/PZTSMB56E+qRUTi5mBDULYFN/QhK+Z782TAcuylE8qqJGALPnJdN534YMVuLnpJ7CohKXCOAgArPP2nugdeNOD5Yjw8aOqcmxJFgz55mS7pGCv+b7pwlbcvfK7kCJAM4Xn5GOrlaRGkYPy/fotNqJCbGFnACuJN0trYIBWu4/XSBfFJg1kxmY436FTgIAKkj7tdRvI0DwBxGeUooDcgvg/6n89fYkNUwCjt/oyQXbXHpOAH/poUUt+Js+LEO6kdkrYVs6mPcGEiSwmQL1f1AjwI5gomEUKAX1jgPul/ZM+FGS60zZIwFc/iX187p9NQK0usC0gLBZ85ABpibADJEACBXz8DBplgW4lBjhz96eVsNqccL64c4edkLxWMDaWE0vVVNUbKd79P7Vxv150iL+pGFcQH6/T7LL5xR6ks770iNvpfa5CwAe0JkXgJxDsuQqCzVyEbuNhvXCfp7tbPD1tZFbO2QbCWCB+6Ca/2fSB8OUHU22SuH6gQwQer6hlWFZMp+TTAD5zZQ3BnMWJL6kBEf+rLrN2jZmXcP6YTkyCRfkSmkCsIMa0822vi9F87CjC03w40Vf3YY1HOLmW1sEsC9nhinDiUHtYr/o+b5h9bBG12Rj+bIfwiOi/HIXwAIF3m8vJ4BvwlTkLoI0rA8/65AN8iPm2ybf3AU4/etC3PyoYVwYIpuiC4jo8yN5gNEwHgyRzTb5tpLuHsciBOizEA3rw9yyqQ0K7cI2H9IwKgyRTacLGBIEejuTIf6mYbXok80O+doCxDo/lT6Q9/mbOV7ftxFgPLBsWHwadPXjeIfzmXxLaWCfH6Ga1DBO9MnGg363UIoBPJ04h4lBpZCKISzrI0vDamBrbQuQy8UWgZ5c4oSt7/MBIVyIBZ48rTjCJzFiyOc1AowDyIGf0ja30SX8UtJfkuWfkaa0Qsj16Z1y4bqeTG8SvUoc1+KAcYCueaqADPkCNcW0bLdQGg9wRcdFYA39BYwa9qCQtm7AeoGwkQudPJ7GX4rtAPspAw8j28YUf/jgtCcuAwdqbMKPYEraiKD1w9rOoE/LLIeX9nmhpI/EOR8lC/CHtK4MZr62zBvneQHohvED5UZpiQHAluvOCcCBbMHO0GEIUPPxzfePEyXf72ztBmmrK79IgOgb2MOP6eE1QZdu1DBOeIAo2d1fo/+3wCMscC8Ju0hnUcO4YJleWprrkQvYBQWiRYoGbfzf9GEZQ4Bt/r9mATiBfPEr6YQ2D3C6cB/P1dJsKXmwTZ5dkwk/X2JMw6RgYbPKOBadyTzb4roSAXzSp6VZ50JbIWT6uCi9wo7gvUYAPv+JpMtTsadV+6YHNB3lpWB3cXr8HXKsRfkO/qga7QgcGiYBW3KCP7b3Kwb0NQKYKR9MueMO39Ewetjcs/8gKNZuagSw+fitpE80NzA5uITPTCGCeXcY7UCNABHvKS0v1jBqmAAfSDOGqxa8r6TL95zM7p8sHee8smG8cJpHBsdaT1iBre7fHKUBIRHuRXqLNNvGdEhRiAcYclzD/EAh+6y2a/8XJuF3LuMzxAJwDINAKA8z6KBZgfEC2fDDIh6Hpr0eqv4f9FkAC/tmSWf1WAF3O/4qdTty7dp4gob54IE3zOxl4GdtQG7Ufuo4S1nEy2aHESfsHsJNStvFewEppo8zbrBh+fjYgI070X5Gbg9xF4PhcjBDijy7xOYm/vZqVC4gQRrOxW+1n8XawFO+2QZuSNuztzNYegnfF/zMwAdhubkhbqahDrf5Iamki4LlS8BBCqwvP9RtGKqHsvXFd3PDF8W8eK2Z0sPwGQ/K6BMefFfYuAdgE447JQ23oEuWF7PP5yfvdnubkexL62iz9ECOEXhwM7IvfWn4P5x5AdLvIab/c0nzl276I1wYIi28rOfBzErHA15YsqEfzs5O61E0W1uW7WOJX7DrimaGMUsYU1/zS9FCnJsejhdbum/aMFj4pwThl1xtbN9X77bpz2ES9DE0PiTHAqxHQxkW/lEh3a4JP8+4+mo6S4dviInvigd4AbsDWA121U9NFG7Pw9PEHEf2tRiLdqXOT4zlyaErhaNUHoAZJ11RaiwenRpI0NzBLbDw2afxuoFtSZuyLexaFcoBB8vH8+BdrHXAAlE8SGGtDz8COKgGWEdbylKl1Z1so7OmZi+bEzpdqfmtmM6clxaaiBqwlxDdoGOpLivKd9Rf+H1OZjnWjjxy7coMYrzA6tZenXwvZQhuL1ZaQRGGKI41f7QZ1aIkuFbSiYHCmxwguj8E0KvnWoqFWwr4Sun0rpR6l4F5SeBUhpdkHyIvZLxp1gBfH9M0OnYo3nRlTyZDrvmjL6iVSFALahzY+Hv6sJ8VmDh1IsQgDzCghgk3Fm5Xu0Sfb7M/euEbOQn6gptcE84PW9c5SJxSypgLni7dM6TZHH2/a1egHDOmyQk/JwHdwkPNnQeV0EjXSDpT0r6ZRdj1WvetQG7qETzvz9x8a310eyWfHwNoR/uj9fl9sCU4QprNUB3i8/KeL2a15ETAFI7FHFrbY/BaE3yX1se2we/HqumUrN8OmASsYGX/11UwslbEEjKfQYSzpdnmhxE0PPdYpWUoCR1grU4vaHyfr4/vyrA7KoJ2fRuBqB1ocx7hlkxhjQhsasVs15NCIcmwCYYQy7IQLnnXiMa9jpdmcQskjaa+T/C5tWMotxd83rh0OObARPpE/A4OhzRUbhE4l7UKPyrpZWlRqxK4r4WHsEwOu5H8dzymZlUQ0gmSLpBmi2tHAmO+530fgkNSQ2PjhB9hl0DOT+4fNabPRzpt9DiE2PA3SvpGKpNCCOKO2tKp84AhWQen5XPfKM1G3rCecry3yTnP8/t83KJ38lp5sLeu4CKOVz9O0pslHZmkgnCHmm83OChpDVVGlkfHbVB2RjOvlGZzFzzWHvhvCMOECoTDb/5npM0BhRiDe/MTLVsXTF4/J0Hx65PrsL8fsuHDxiDmygwSwQRGH4opHaJRMVagATmvry+iK+aofbfotWNOz7WZZIPlYxtXk2+VAezoEDWXKJoBp4sEUyXBufEtPJPDWUj+Oz+O/2NtYh7icF7M+RE8gWLMYlY+imesyCtnJSJYmPNYhXkEtoxj/YwxCMT95IIf6uL2HPJKGkSgIPLVLOiigYdG28sQbNc1rOl5hY/ldkl5mVYfo/s9be6HIrcI4GhpVhcn9StF4LfGXM9DEmt5iYCUvKlRPFeaTYsbveDXlQUMhYswMdpnx5JjJT0vZQ6kaDkcoTvIioMm+94ZMgCTwn/7WfLzr0oZxiclXSLN/o+Cd/Q/SvQ1xpjgYDEudcZnDKygdHqMpMMk7d8z6jgKtoQ+E01qyYwnVt/6sjRbhJGl2Azn8pG0o8WUCGBYE0G+7h1FGza8YKl7hlcfJOlASful7mWE37fPAStqIjyEyrBrqnQsjkGPHu6HWj3HRDioi5ZnEpgiASKiWXZZuabVVB45hjGI+1SkA6Eo7SJIovebKse5+GPzbrcxOUydADns6/07FokWgc15rBpOwrQPxaYRoIb4nn0+HgEbk9XshoZB+B9or2zM6CHZoQAAAABJRU5ErkJggg==";
+  kamonImages.masashige = "data:image/png;base64,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";
+  kamonImages.masasue = "data:image/png;base64,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";
+  kamonImages.yoshisada = "data:image/png;base64,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";
+}
+
 // 史実の表を保存しておく(切り替えで元に戻せるように)
 const BASE_TABLES = {
   phases: phases.slice(),
@@ -12998,6 +13373,274 @@ if (IS_SHIZ) {
   });
 }
 
+// ---------- 湊川の戦い: 決断モード ----------
+function minaEndingId(c) {
+  if (c[5] === 'hold') return c[8] === 'charge' ? 'E4' : 'E3';
+  if (c[8] === 'breakout') return 'E2';
+  return 'E1';
+}
+let MINA_SEG = null;
+function minaBuildSegments(c, put) {
+  if (!MINA_SEG) return;
+  if (c[5] === 'hold') {
+    put(MINA_SEG.hold);
+    if (c[8] === 'charge') put(MINA_SEG.charge);
+    else if (c[8] === 'withdraw') put(MINA_SEG.withdraw);
+    return;
+  }
+  if (c[8] === 'breakout') put(MINA_SEG.breakout);
+}
+
+if (IS_MINA) {
+  Object.assign(BX, { endingId: minaEndingId, segments: minaBuildSegments });
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
+  const LINKED = { masashige: [-14, -6], masasue: [-9, 3], yoshisada: [-3, 15], honma: [2, 22], wakiya: [36, 8],
+    tadayoshi: [-22, -6], shiba: [-24, -18], shoni: [-15, 12], takauji: [-12, 20], hosokawa: [42, 12] };
+
+  MINA_SEG = {
+    // ---------- 決断1: 新田、踏みとどまる ----------
+    hold: {
+      5: altPhase(5, {
+        ja: { phase: '新田、踏みとどまる', label: '踏みとどまる', cam: 'CAM · 生田',
+          title: '新田義貞、和田岬を捨てない',
+          text: '<span class="info-west">新田義貞</span>は退かなかった。弟の<span class="info-west">脇屋義助</span>を生田へ向かわせて<span class="info-east">細川</span>の上陸部隊を食い止め、自分は和田岬に残って<span class="info-highlight">楠木勢とのつながりを守る</span>。' },
+        en: { phase: 'NITTA STANDS FIRM', label: 'Stand firm', cam: 'CAM · IKUTA',
+          title: 'Nitta Yoshisada will not give up Wada Cape',
+          text: `<span class="info-west">Nitta Yoshisada</span> does not pull back. He sends his brother <span class="info-west">Wakiya Yoshisuke</span> to hold off <span class="info-east">Hosokawa</span>'s landing at Ikuta, and stays on Wada Cape himself to <span class="info-highlight">keep his link with the Kusunoki</span>.` },
+        cam: { pos: [20, 40, 40], look: [30, 0, 12] },
+        units: { yoshisada: [6, 24], honma: [4, 32], wakiya: [38, 10], hosokawa: [42, 13] },
+        battles: [{ x: 40, z: 11 }, { x: -21, z: -8 }], battling: ['wakiya', 'hosokawa', 'tadayoshi', 'masashige'],
+        arrows: [mvp([22, 16], [37, 10], W), at('wakiya', 'hosokawa', W)],
+        cine: { focus: ['wakiya', 'hosokawa'], blend: 0.7, orbit: 0.02, dolly: 0.08 },
+        moment: { ja: '踏みとどまる', en: 'STANDING FIRM', subJa: '新田、退かず', subEn: 'Nitta holds his ground', shake: 0.4, accent: 'gold' },
+        mom: 58,
+      }),
+      6: altPhase(6, {
+        ja: { phase: '和田岬の攻防', label: '和田岬', cam: 'CAM · 和田岬',
+          title: '尊氏の上陸を、波打ち際で迎え撃つ',
+          text: '<span class="info-east">尊氏</span>の船団は和田岬に寄せたが、浜には新田勢が待ち構えていた。<span class="info-west">本間重氏</span>らの矢が降りそそぎ、<span class="info-highlight">上陸は思うように進まない</span>。' },
+        en: { phase: 'BATTLE AT WADA CAPE', label: 'Wada Cape', cam: 'CAM · WADA CAPE',
+          title: "Takauji's landing is met at the water's edge",
+          text: `<span class="info-east">Takauji</span>'s fleet runs in toward Wada Cape, but the Nitta are waiting on the beach. Arrows from <span class="info-west">Honma Shigeuji</span> and the others rain down, and <span class="info-highlight">the landing stalls</span>.` },
+        cam: { pos: [24, 26, 50], look: [2, 0, 30] },
+        units: { takauji: [0, 40], yoshisada: [6, 26], honma: [3, 31], wakiya: [38, 9], hosokawa: [43, 14], shoni: [-14, 13] },
+        battles: [{ x: 2, z: 34 }, { x: 40, z: 11 }, { x: -21, z: -8 }], battling: ['honma', 'yoshisada', 'takauji', 'wakiya', 'hosokawa', 'tadayoshi', 'masashige'],
+        arrows: [at('honma', 'takauji', W), at('yoshisada', 'takauji', W)],
+        cine: { focus: ['honma', 'takauji'], blend: 0.7, orbit: -0.02, dolly: 0.08 },
+        moment: null,
+        mom: 56,
+      }),
+      7: altPhase(7, {
+        ja: { phase: 'つながる', label: '持ちこたえる', cam: 'CAM · 湊川',
+          title: '楠木と新田、手をつないで持ちこたえる',
+          text: '尊氏は湊川の河口近くにようやく上陸したが、<span class="info-west">新田勢</span>が浜ぞいに楠木勢の横を固めている。<span class="info-west">正成</span>は<span class="info-highlight">囲まれずに戦い続けられる</span>。' },
+        en: { phase: 'HOLDING TOGETHER', label: 'Holding', cam: 'CAM · MINATOGAWA',
+          title: 'Kusunoki and Nitta hold together',
+          text: `Takauji finally gets ashore near the mouth of the Minato, but the <span class="info-west">Nitta</span> are guarding the Kusunoki's flank along the beach. <span class="info-west">Masashige</span> <span class="info-highlight">can keep fighting without being surrounded</span>.` },
+        cam: { pos: [12, 44, 36], look: [-10, 0, 4] },
+        units: Object.assign({}, LINKED),
+        battles: [{ x: -18, z: -6 }, { x: -13, z: 9 }, { x: -7, z: 17 }, { x: 39, z: 10 }], battling: ['masashige', 'tadayoshi', 'masasue', 'shoni', 'yoshisada', 'takauji', 'wakiya', 'hosokawa'],
+        arrows: [at('tadayoshi', 'masashige', E), at('takauji', 'yoshisada', E)],
+        cine: { focus: ['masashige', 'yoshisada'], blend: 0.5, orbit: 0.02, dolly: 0.06 },
+        moment: { ja: '持ちこたえる', en: 'HOLDING TOGETHER', subJa: '楠木は囲まれない', subEn: 'Kusunoki is not surrounded', shake: 0.4 },
+        mom: 60,
+      }),
+    },
+    withdraw: {
+      8: altPhase(8, {
+        ja: { phase: 'そろって東へ', label: '東へ', cam: 'CAM · 浜の道',
+          title: '日暮れ、朝廷方はそろって東へ',
+          text: '日が傾き、<span class="info-west">正成</span>と<span class="info-west">義貞</span>は兵をまとめて浜の道を東へ退いた。足利方も<span class="info-highlight">深追いはしない</span>。' },
+        en: { phase: 'EAST TOGETHER', label: 'East', cam: 'CAM · COAST ROAD',
+          title: 'At dusk, the imperial army pulls back east together',
+          text: `As the sun drops, <span class="info-west">Masashige</span> and <span class="info-west">Yoshisada</span> gather their men and fall back east along the coast road. The Ashikaga <span class="info-highlight">do not press the chase</span>.` },
+        cam: { pos: [-6, 44, 40], look: [18, 0, 6] },
+        units: { masashige: [10, 4], masasue: [6, 6], yoshisada: [20, 10], honma: [24, 14], wakiya: [40, 4], tadayoshi: [-14, -4], shiba: [-18, -16], shoni: [-8, 12], takauji: [-4, 18], hosokawa: [46, 16] },
+        battles: [], battling: [], defeated: [],
+        arrows: [mvp([-12, -4], [8, 4], W), mvp([-3, 15], [18, 10], W)],
+        cine: { focus: ['masashige', 'yoshisada'], blend: 0.5, orbit: -0.02, dolly: 0.06 },
+        moment: null,
+        mom: 56,
+      }),
+      9: altPhase(9, {
+        ja: { phase: '生田を抜ける', label: '生田', cam: 'CAM · 生田',
+          title: '生田の細川勢を押しのけて京へ',
+          text: '朝廷方は生田の<span class="info-east">細川</span>勢を押しのけ、<span class="info-highlight">京への道を確保した</span>。楠木勢の多くが生きて湊川を離れた。' },
+        en: { phase: 'PAST IKUTA', label: 'Ikuta', cam: 'CAM · IKUTA',
+          title: 'Brushing past Hosokawa at Ikuta, on to Kyoto',
+          text: `The imperial army shoulders <span class="info-east">Hosokawa</span>'s men aside at Ikuta and <span class="info-highlight">keeps the road to Kyoto open</span>. Most of the Kusunoki leave Minatogawa alive.` },
+        cam: { pos: [20, 44, 36], look: [46, 0, 2] },
+        units: { masashige: [56, -4], masasue: [52, -2], yoshisada: [62, -6], honma: [58, 0], wakiya: [48, 2], hosokawa: [42, 16], tadayoshi: [0, -2], shiba: [-6, -14], shoni: [4, 12], takauji: [8, 16] },
+        battles: [{ x: 45, z: 8 }], battling: ['wakiya', 'hosokawa'], defeated: [],
+        arrows: [mvp([20, 10], [60, -4], W)],
+        cine: { focus: ['masashige'], blend: 0.5, orbit: 0.02, dolly: 0.06 },
+        moment: null,
+        mom: 54,
+      }),
+      10: altPhase(10, {
+        ja: { phase: 'その後', label: 'その後', cam: 'CAM · 俯瞰',
+          title: '正成、生きて京へ',
+          text: '<span class="info-west">正成</span>は生きて京へ戻った。尊氏の大軍はなお迫るが、今度こそ<span class="info-highlight">比叡山にこもって尊氏を京に引きこむ策</span>が使えるかもしれない。南北朝の歴史は、大きく変わっていた可能性がある。' },
+        en: { phase: 'WHAT CAME AFTER', label: 'After', cam: 'CAM · OVERVIEW',
+          title: 'Masashige gets back to Kyoto alive',
+          text: `<span class="info-west">Masashige</span> returns to Kyoto alive. Takauji's huge army is still coming — but this time his plan to <span class="info-highlight">hole up on Mount Hiei and lure Takauji into the city</span> might finally be tried. The age of the two courts could have unfolded very differently.` },
+        cam: { pos: [10, 80, 80], look: [10, 0, 0] },
+        units: { masashige: [74, -10], masasue: [72, -8], yoshisada: [78, -12], honma: [76, -6], wakiya: [70, -4], hosokawa: [42, 16], tadayoshi: [6, 0], shiba: [-2, -10], shoni: [4, 12], takauji: [14, 8] },
+        battles: [], battling: [], defeated: [], arrows: [],
+        moment: { ja: '生きて京へ', en: 'ALIVE TO KYOTO', subJa: '楠木正成、湊川を生きのびる', subEn: 'Masashige survives Minatogawa', shake: 0 },
+        mom: 52,
+      }),
+    },
+    charge: {
+      8: altPhase(8, {
+        ja: { phase: '逆襲', label: '逆襲', cam: 'CAM · 会下山',
+          title: '楠木と新田、直義の陸の軍に打って出る',
+          text: '山と海にはさまれた細い浜で、<span class="info-east">直義</span>の陸の軍は縦に長く伸びていた。<span class="info-west">正成</span>は会下山から、<span class="info-west">義貞</span>は浜から、<span class="info-highlight">二手に分かれて一気に打って出る</span>。' },
+        en: { phase: 'THE COUNTERSTRIKE', label: 'Counter', cam: 'CAM · ESAYAMA',
+          title: "Kusunoki and Nitta strike Tadayoshi's land army",
+          text: `On the narrow strip between hills and sea, <span class="info-east">Tadayoshi</span>'s land army is strung out. <span class="info-west">Masashige</span> from Esayama and <span class="info-west">Yoshisada</span> from the beach <span class="info-highlight">hit it from two sides at once</span>.` },
+        cam: { pos: [4, 36, 30], look: [-20, 0, 0] },
+        units: { masashige: [-20, -4], masasue: [-18, 2], yoshisada: [-16, 12], honma: [-12, 16], tadayoshi: [-24, -2], shiba: [-26, -14], shoni: [-20, 10], takauji: [-8, 20] },
+        battles: [{ x: -22, z: -3 }, { x: -18, z: 10 }, { x: -24, z: -10 }], battling: ['masashige', 'tadayoshi', 'masasue', 'yoshisada', 'shoni', 'shiba'],
+        arrows: [at('masashige', 'tadayoshi', W), at('yoshisada', 'shoni', W)],
+        cine: { focus: ['masashige', 'tadayoshi'], blend: 0.85, orbit: 0.025, dolly: 0.1 },
+        moment: { ja: '逆襲', en: 'THE COUNTERSTRIKE', subJa: '二手から打って出る', subEn: 'From two sides at once', shake: 0.8, accent: 'gold' },
+        mom: 42,
+      }),
+      9: altPhase(9, {
+        ja: { phase: '直義、崩れる', label: '崩れる', cam: 'CAM · 須磨の浜',
+          title: '足利の陸の軍、須磨へ崩れ立つ',
+          text: '横と前から突かれた<span class="info-east">直義</span>の軍は崩れ、西の須磨へ逃げた。浜に上がった<span class="info-east">尊氏</span>も<span class="info-highlight">船へ引き返す</span>。' },
+        en: { phase: 'TADAYOSHI BREAKS', label: 'Breaks', cam: 'CAM · SUMA SHORE',
+          title: 'The Ashikaga land army breaks toward Suma',
+          text: `Hit from the front and side, <span class="info-east">Tadayoshi</span>'s army breaks and flees west toward Suma. <span class="info-east">Takauji</span>, already ashore, <span class="info-highlight">heads back to his ships</span>.` },
+        cam: { pos: [-10, 46, 40], look: [-40, 0, 4] },
+        units: { masashige: [-34, 0], masasue: [-30, 4], yoshisada: [-28, 10], honma: [-24, 14], wakiya: [36, 8], hosokawa: [44, 16], tadayoshi: [-56, 2], shiba: [-54, -16], shoni: [-58, 12], takauji: [-10, 36] },
+        battles: [{ x: -44, z: 4 }], battling: ['masashige', 'tadayoshi'], defeated: [],
+        arrows: [mvp([-24, -2], [-56, 2], E), mvp([-8, 20], [-10, 36], E)],
+        cine: { focus: ['tadayoshi', 'masashige'], blend: 0.6, orbit: -0.02, dolly: 0.06 },
+        moment: null,
+        mom: 30,
+      }),
+      10: altPhase(10, {
+        ja: { phase: 'その後', label: 'その後', cam: 'CAM · 俯瞰',
+          title: '湊川の逆転',
+          text: '足利の陸の軍は崩れ、<span class="info-east">尊氏</span>は海の上へ退いた。<span class="info-west">正成</span>と<span class="info-west">義貞</span>が京への道を守りきった。<span class="info-highlight">室町幕府が開かれる日は、ずっと遠のいた</span>かもしれない。' },
+        en: { phase: 'WHAT CAME AFTER', label: 'After', cam: 'CAM · OVERVIEW',
+          title: 'Reversal at Minatogawa',
+          text: `The Ashikaga land army is broken and <span class="info-east">Takauji</span> retreats to the sea. <span class="info-west">Masashige</span> and <span class="info-west">Yoshisada</span> have held the road to Kyoto. <span class="info-highlight">The founding of the Muromachi shogunate might have been pushed far into the future</span>.` },
+        cam: { pos: [10, 80, 80], look: [-10, 0, 4] },
+        units: { masashige: [-30, 0], masasue: [-26, 4], yoshisada: [-22, 10], honma: [-18, 14], wakiya: [30, 8], hosokawa: [40, 40], tadayoshi: [-74, 4], shiba: [-72, -14], shoni: [-76, 12], takauji: [-20, 48] },
+        battles: [], battling: [], defeated: [], arrows: [],
+        moment: { ja: '湊川の逆転', en: 'REVERSAL', subJa: '尊氏、海へ退く', subEn: 'Takauji retreats to sea', shake: 0 },
+        mom: 24,
+      }),
+    },
+    // ---------- 決断2: 正成、囲みを破る ----------
+    breakout: {
+      8: altPhase(8, {
+        ja: { phase: '囲みを破る', label: '突破', cam: 'CAM · 湊川の北',
+          title: '正成、北の山へ囲みを破る',
+          text: '<span class="info-west">正成</span>はここで死ぬのをやめた。残った兵をひとつにまとめ、いちばん薄い北の<span class="info-east">斯波</span>の陣へ突っこんで、<span class="info-highlight">六甲の山へ抜ける</span>。弟の<span class="info-west">正季</span>が殿をつとめる。' },
+        en: { phase: 'BREAKING OUT', label: 'Breakout', cam: 'CAM · NORTH OF THE MINATO',
+          title: 'Masashige breaks out toward the northern hills',
+          text: `<span class="info-west">Masashige</span> decides not to die here. He gathers what is left into one body, drives into <span class="info-east">Shiba</span>'s thin line to the north, and <span class="info-highlight">breaks through toward the Rokkō hills</span>, his brother <span class="info-west">Masasue</span> covering the rear.` },
+        cam: { pos: [10, 38, 10], look: [-12, 0, -22] },
+        units: { masashige: [-12, -26], masasue: [-11, -18], shiba: [-15, -22], tadayoshi: [-18, -10], takauji: [-4, -4], shoni: [-14, 0] },
+        battles: [{ x: -13, z: -24 }, { x: -12, z: -15 }], battling: ['masashige', 'shiba', 'masasue', 'tadayoshi'],
+        arrows: [mvp([-10, -4], [-12, -30], W), at('masashige', 'shiba', W)],
+        cine: { focus: ['masashige', 'shiba'], blend: 0.85, orbit: 0.025, dolly: 0.1 },
+        moment: { ja: '突破', en: 'BREAKOUT', subJa: '北の山へ', subEn: 'To the northern hills', shake: 0.7, accent: 'gold' },
+        mom: 80,
+      }),
+      9: altPhase(9, {
+        ja: { phase: '山へ', label: '山へ', cam: 'CAM · 六甲の山',
+          title: '楠木勢、山の中へ消える',
+          text: '山道に慣れた楠木勢は、尾根づたいに姿を消した。千早城で鎌倉の大軍を手玉にとった<span class="info-west">正成</span>を、<span class="info-highlight">足利方は山の中まで追えなかった</span>。' },
+        en: { phase: 'INTO THE HILLS', label: 'Hills', cam: 'CAM · ROKKŌ HILLS',
+          title: 'The Kusunoki vanish into the hills',
+          text: `At home on mountain trails, the Kusunoki melt away along the ridges. The Ashikaga <span class="info-highlight">will not chase into the mountains</span> the man who once ran rings around the Kamakura armies at Chihaya.` },
+        cam: { pos: [10, 50, 0], look: [-12, 0, -40] },
+        units: { masashige: [-14, -50], masasue: [-12, -44], shiba: [-14, -26], tadayoshi: [-16, -14], takauji: [-4, -8], shoni: [-12, -2] },
+        battles: [], battling: [], defeated: [],
+        arrows: [mvp([-12, -28], [-14, -48], W)],
+        cine: { focus: ['masashige'], blend: 0.6, orbit: -0.02, dolly: 0.06 },
+        moment: null,
+        mom: 86,
+      }),
+      10: altPhase(10, {
+        ja: { phase: 'その後', label: 'その後', cam: 'CAM · 俯瞰',
+          title: '楠木正成、生きのびる',
+          text: '尊氏は京に入ったが、<span class="info-west">正成</span>は河内へ戻った。山にこもって戦う正成は、千早城のときのように<span class="info-highlight">足利方を何年も苦しめた</span>かもしれない。' },
+        en: { phase: 'WHAT CAME AFTER', label: 'After', cam: 'CAM · OVERVIEW',
+          title: 'Kusunoki Masashige survives',
+          text: `Takauji enters Kyoto, but <span class="info-west">Masashige</span> is back in Kawachi. Fighting from the mountains as he did at Chihaya, he might have <span class="info-highlight">tormented the Ashikaga for years</span>.` },
+        cam: { pos: [10, 80, 80], look: [0, 0, -10] },
+        units: { masashige: [-16, -70], masasue: [-12, -66], tadayoshi: [6, 0], takauji: [14, 6], shiba: [-2, -10], shoni: [0, 12], hosokawa: [36, 2], yoshisada: [76, -12], wakiya: [78, -8], honma: [72, -10] },
+        battles: [], battling: [], defeated: [], arrows: [],
+        moment: { ja: '生きのびる', en: 'HE LIVES', subJa: '正成、河内へ', subEn: 'Masashige returns to Kawachi', shake: 0 },
+        mom: 84,
+      }),
+    },
+  };
+
+  _replaceObj(SEG, MINA_SEG);
+  _replaceArr(DECISION_IDX, [5, 8]);
+  _replaceObj(DECISIONS, {
+    5: {
+      who: 'yoshisada', applies: () => true,
+      ja: { title: '義貞の決断', situation: '細川の船団が後ろの生田に上陸した。このままでは京への帰り道を断たれる。だが和田岬を離れれば、湊川の西で戦う楠木勢がひとり取り残される。' },
+      en: { title: "YOSHISADA'S DECISION", situation: "Hosokawa's fleet has landed behind you at Ikuta. Stay, and your road back to Kyoto may be cut. Leave Wada Cape, and the Kusunoki fighting west of the Minato will be left alone." },
+      options: () => [
+        { id: 'retreat', history: true, ja: ['東へ退く', '史実どおり。京への道を守る'], en: ['Fall back east', 'As in history: protect the road to Kyoto'] },
+        { id: 'hold', ja: ['和田岬にとどまる', '脇屋を生田へ送り、楠木とのつながりを守る'], en: ['Stay on Wada Cape', 'Send Wakiya to Ikuta and keep the link with Kusunoki'] },
+      ],
+    },
+    8: {
+      who: 'masashige', applies: () => true,
+      ja: { title: '正成の決断' },
+      en: { title: "MASASHIGE'S DECISION" },
+      situation: () => decideState.choices[5] === 'hold'
+        ? { ja: '新田が浜を固め、楠木勢は囲まれずに戦えている。日が傾いてきた。足利の陸の軍は、山と海のあいだで縦に伸びている。', en: "With Nitta guarding the beach, you are not surrounded. The sun is sinking, and the Ashikaga land army is strung out between the hills and the sea." }
+        : { ja: '新田は去り、四方を囲まれた。何度も突撃をくり返し、残る兵は百に満たない。', en: 'Nitta is gone and you are surrounded on every side. After charge after charge, fewer than a hundred men remain.' },
+      options: () => decideState.choices[5] === 'hold'
+        ? [
+          { id: 'withdraw', ja: ['そろって京へ退く', '日暮れにまぎれて浜の道を東へ'], en: ['Fall back to Kyoto together', 'Slip east along the coast road at dusk'] },
+          { id: 'charge', ja: ['直義の軍に打って出る', '新田と二手から、伸びきった敵を突く'], en: ["Strike Tadayoshi's army", 'Hit the strung-out enemy from two sides with Nitta'] },
+        ]
+        : [
+          { id: 'stand', history: true, ja: ['最後まで戦う', '史実どおり。湊川に散る'], en: ['Fight to the end', 'As in history: die at Minatogawa'] },
+          { id: 'breakout', ja: ['囲みを破って逃れる', '北の山へ抜け、河内へ戻る'], en: ['Break out and escape', 'Through the northern hills, home to Kawachi'] },
+        ],
+    },
+  });
+  _replaceObj(ENDINGS, {
+    E1: { ja: ['史実：七生報国', '楠木正成は湊川に散り、尊氏は京へ。南北朝の時代が始まる。'], en: ['History: Seven Lives', 'Masashige dies at Minatogawa and Takauji takes Kyoto. The age of two courts begins.'] },
+    E2: { ja: ['正成、生きのびる', '囲みを破った正成は、山を越えて河内へ戻った。'], en: ['Masashige Lives', 'Masashige breaks out and escapes over the hills to Kawachi.'] },
+    E3: { ja: ['生きて京へ', '新田が踏みとどまり、朝廷方はそろって京へ退いた。'], en: ['Alive to Kyoto', 'Nitta holds, and the imperial army falls back to Kyoto together.'] },
+    E4: { ja: ['湊川の逆転', '楠木と新田が打って出て、足利の陸の軍を崩した。'], en: ['Reversal at Minatogawa', 'Kusunoki and Nitta strike back and break the Ashikaga land army.'] },
+  });
+
+  Object.assign(STR.en, {
+    'sim.title': 'Minatogawa', 'sim.sub': 'The Last Stand of Kusunoki', 'sim.d1': 'Kenmu 3', 'sim.d2': '5th mo. 25',
+    'legend.east': 'Ashikaga', 'legend.west': 'Imperial',
+    'sim.loading': 'Deploying the armies...',
+    'name.takauji': 'Ashikaga Takauji', 'name.masashige': 'Kusunoki Masashige',
+    'wi.historyDesc': 'What actually happened on the 25th day of the 5th month, 1336.',
+    'dm.desc': 'Make two calls — as Nitta Yoshisada and as Kusunoki Masashige. Four endings to discover.',
+  });
+  Object.assign(STR.ja, {
+    'sim.title': '湊川', 'sim.sub': '楠木正成、最後の戦い', 'sim.d1': '建武三年', 'sim.d2': '五月二十五日',
+    'legend.east': '足利軍', 'legend.west': '朝廷方',
+    'sim.loading': '湊川の布陣図を展開中',
+    'name.takauji': '足利尊氏', 'name.masashige': '楠木正成',
+    'wi.historyDesc': '建武三年五月二十五日に実際に起きたこと。',
+    'dm.desc': '新田義貞と楠木正成、2つの決断で展開が変わる。エンディングは全4種。',
+  });
+}
+
 const decideState = { active: false, choices: {}, wasPlaying: false, open: null };
 let altPhaseSet = new Set();
 let lastAppliedPhase = -1;
@@ -13280,6 +13923,10 @@ const GROUND_ROADS = {
     [[-46, 28], [-30, 24], [-12, 20], [6, 14], [18, 15], [27, 17]],
     [[-2, -6], [-6, -14], [-8, -22]],
   ],
+  minatogawa: [
+    [[-90, 10], [-50, 11], [-20, 13], [-6, 12], [10, 12], [30, 12], [60, 6], [90, 2]],     // 西国街道(浜の道)
+    [[-6, 12], [-4, 20], [4, 26]],                                                          // 兵庫の津へ
+  ],
   shizugatake: [
     [[6, -80], [8, -50], [14, -30], [18, -10], [18, 10], [18, 32], [22, 56], [32, 80]],   // 北国街道
     [[18, 32], [30, 44], [50, 56], [80, 64]],                                             // 大垣へ
@@ -13335,6 +13982,7 @@ function groundRiverLines() {
   if (IS_HONNO) return HONNO_RIVERS;
   if (IS_YAMA) return YAMA_RIVERS;
   if (IS_SHIZ) return [];
+  if (IS_MINA) return MINA_RIVERS;
   const line = [];
   for (let i = 0; i <= 30; i++) {
     const t = i / 30, x = -70 + t * 140;
@@ -13526,6 +14174,7 @@ function buildForest() {
   Object.values(typeof HONNO_POS !== 'undefined' && IS_HONNO ? HONNO_POS : {}).forEach(p => keep.push(p));
   Object.values(typeof YAMA_POS !== 'undefined' && IS_YAMA ? YAMA_POS : {}).forEach(p => keep.push(p));
   Object.values(typeof SHIZ_POS !== 'undefined' && IS_SHIZ ? SHIZ_POS : {}).forEach(p => keep.push(p));
+  Object.values(typeof MINA_POS !== 'undefined' && IS_MINA ? MINA_POS : {}).forEach(p => keep.push(p));
   const blocked = (x, z) => keep.some(([kx, kz]) => (kx - x) ** 2 + (kz - z) ** 2 < 26);
   const nearFence = (x, z) => IS_NAGA && z > NAGA_FENCE.z0 - 3 && z < NAGA_FENCE.z1 + 3 && Math.abs(x - nagaFenceX(z)) < 4;
   const roads = GROUND_ROADS[BATTLE_ID] || [];
@@ -13537,7 +14186,7 @@ function buildForest() {
       const jx = x + (_hash2(x, z) - 0.5) * st, jz = z + (_hash2(z, x + 3) - 0.5) * st;
       const h = sampleGrid(groundGrid.H, jx, jz);
       const slope = 1 - groundSlope(jx, jz).ny;
-      if (IS_SHIZ && h < 0.3) continue;
+      if ((IS_SHIZ || IS_MINA) && h < 0.3) continue;
       const f = forestAmount(h, slope, sampleGrid(groundGrid.N1, jx, jz), sampleGrid(groundGrid.N2, jx, jz));
       if (f < 0.35 || _hash2(jx * 3.1, jz * 1.7) > f * 0.92) continue;
       if (sampleGrid(groundGrid.RV, jx, jz) < 2.2) continue;
@@ -13681,6 +14330,11 @@ const ACTS = {
     { from: 3, ja: ['第二幕', '朝', '今川の進軍'], en: ['ACT II', 'MORNING', 'The Imagawa Advance'] },
     { from: 7, ja: ['第三幕', '昼', '嵐の前'], en: ['ACT III', 'MIDDAY', 'Before the Storm'] },
     { from: 10, ja: ['第四幕', '午後', '桶狭間'], en: ['ACT IV', 'AFTERNOON', 'Okehazama'] },
+  ],
+  minatogawa: [
+    { from: 0, ja: ['第一幕', '朝', '陸と海'], en: ['ACT I', 'MORNING', 'By Land and Sea'] },
+    { from: 3, ja: ['第二幕', '昼', '孤立'], en: ['ACT II', 'MIDDAY', 'Alone'] },
+    { from: 8, ja: ['第三幕', '夕', '七生'], en: ['ACT III', 'AFTERNOON', 'Seven Lives'] },
   ],
   shizugatake: [
     { from: 0, ja: ['第一幕', '夜明け前', '大岩山'], en: ['ACT I', 'BEFORE DAWN', 'Ōiwayama'] },
