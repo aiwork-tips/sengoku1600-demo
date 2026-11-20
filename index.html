@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Sengoku Simulation | Japanese Historical Battles in 3D</title>
-<meta name="description" content="Watch Okehazama, Kawanakajima, Mikatagahara, Nagashino and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.">
+<meta name="description" content="Watch Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Sengoku Simulation | Japanese Historical Battles in 3D">
 <meta property="og:description" content="Watch the Battle of Sekigahara (1600) unfold in 3D, phase by phase, with commander profiles and a timeline.">
@@ -2615,6 +2615,7 @@ html[lang="en"] .title-logo { font-family: 'Cormorant Garamond', 'Noto Serif JP'
 .if-card.c-violet .ifc-top { background: #7b5cff; color: #fff; }
 .if-card.c-amber .ifc-top { background: #ffb020; color: #1b1b1f; }
 .if-card.c-teal .ifc-top { background: #12b5a5; color: #fff; }
+.if-card.c-crimson .ifc-top { background: #e0284f; color: #fff; }
 .ifc-year { font-family: 'Dela Gothic One', sans-serif; font-size: 13px; background: #fff; color: #1b1b1f; border: 2px solid #1b1b1f; border-radius: 8px; padding: 1px 8px; }
 .ifc-name { font-family: 'Dela Gothic One', sans-serif; font-size: 21px; line-height: 1.2; }
 .ifc-q { display: block; font-size: 17px; font-weight: 900; padding: 14px 16px 6px; line-height: 1.45; }
@@ -3127,18 +3128,19 @@ setTimeout(updateAppHeight, 1000);
 const BATTLE_ID = (() => {
   try {
     const b = new URLSearchParams(location.search).get('battle');
-    return ['okehazama', 'nagashino', 'kawanakajima', 'mikatagahara'].includes(b) ? b : 'sekigahara';
+    return ['okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji'].includes(b) ? b : 'sekigahara';
   } catch (e) { return 'sekigahara'; }
 })();
 const IS_OKE = BATTLE_ID === 'okehazama';
 const IS_NAGA = BATTLE_ID === 'nagashino';
 const IS_KAWA = BATTLE_ID === 'kawanakajima';
 const IS_MIKA = BATTLE_ID === 'mikatagahara';
+const IS_HONNO = BATTLE_ID === 'honnoji';
 // 合戦ごとの差し替え口(関ヶ原では空のまま)
 const BX = {};
-const GENERAL_IDS = { sekigahara: ['ieyasu', 'mitsunari'], okehazama: ['nobunaga', 'yoshimoto'], nagashino: ['nobunaga', 'katsuyori'], kawanakajima: ['shingen', 'kenshin'], mikatagahara: ['ieyasu', 'shingen'] }[BATTLE_ID];
-const GENERAL_SIDE = { sekigahara: { ieyasu: 'right', mitsunari: 'left' }, okehazama: { nobunaga: 'left', yoshimoto: 'right' }, nagashino: { nobunaga: 'left', katsuyori: 'right' }, kawanakajima: { shingen: 'right', kenshin: 'left' }, mikatagahara: { ieyasu: 'right', shingen: 'left' } }[BATTLE_ID];
-const DM_START = { sekigahara: 4, okehazama: 5, nagashino: 0, kawanakajima: 0, mikatagahara: 2 }[BATTLE_ID];
+const GENERAL_IDS = { sekigahara: ['ieyasu', 'mitsunari'], okehazama: ['nobunaga', 'yoshimoto'], nagashino: ['nobunaga', 'katsuyori'], kawanakajima: ['shingen', 'kenshin'], mikatagahara: ['ieyasu', 'shingen'], honnoji: ['mitsuhide', 'nobunaga'] }[BATTLE_ID];
+const GENERAL_SIDE = { sekigahara: { ieyasu: 'right', mitsunari: 'left' }, okehazama: { nobunaga: 'left', yoshimoto: 'right' }, nagashino: { nobunaga: 'left', katsuyori: 'right' }, kawanakajima: { shingen: 'right', kenshin: 'left' }, mikatagahara: { ieyasu: 'right', shingen: 'left' }, honnoji: { mitsuhide: 'right', nobunaga: 'left' } }[BATTLE_ID];
+const DM_START = { sekigahara: 4, okehazama: 5, nagashino: 0, kawanakajima: 0, mikatagahara: 2, honnoji: 2 }[BATTLE_ID];
 const ENDINGS_KEY = BATTLE_ID === 'sekigahara' ? 'sg_endings' : 'sg_endings_' + BATTLE_ID;
 
 const eras = [
@@ -3179,8 +3181,8 @@ const eras = [
     battles: [
       { id: 'okehazama', year: '1560', name: '桶狭間の戦い', east: { name: '織田軍', force: '約3千' }, west: { name: '今川軍', force: '約2万5千' }, winner: 'east', winnerName: '織田軍', implemented: true },
       { id: 'kawanakajima', year: '1561', name: '川中島の戦い', east: { name: '武田軍', force: '約2万' }, west: { name: '上杉軍', force: '約1万3千' }, winner: 'draw', winnerName: '痛み分け', implemented: true },
-      { id: 'nagashino', year: '1575', name: '長篠の戦い', east: { name: '織田・徳川連合', force: '約3万8千' }, west: { name: '武田軍', force: '約1万5千' }, winner: 'east', winnerName: '織田・徳川', implemented: true },
       { id: 'mikatagahara', year: '1572', name: '三方ヶ原の戦い', east: { name: '徳川軍', force: '約1万1千' }, west: { name: '武田軍', force: '約3万' }, winner: 'west', winnerName: '武田軍', implemented: true },
+      { id: 'nagashino', year: '1575', name: '長篠の戦い', east: { name: '織田・徳川連合', force: '約3万8千' }, west: { name: '武田軍', force: '約1万5千' }, winner: 'east', winnerName: '織田・徳川', implemented: true },
     ],
   },
   {
@@ -3189,7 +3191,7 @@ const eras = [
     years: '1573 — 1603',
     desc: '天下統一から関ヶ原の戦いまで',
     battles: [
-      { id: 'honnoji', year: '1582', name: '本能寺の変', east: { name: '明智軍', force: '約1万3千' }, west: { name: '織田信長', force: '約100' }, winner: 'east', winnerName: '明智光秀', implemented: false },
+      { id: 'honnoji', year: '1582', name: '本能寺の変', east: { name: '明智軍', force: '約1万3千' }, west: { name: '織田信長', force: '約100' }, winner: 'east', winnerName: '明智光秀', implemented: true },
       { id: 'yamazaki', year: '1582', name: '山崎の戦い', east: { name: '羽柴軍', force: '約4万' }, west: { name: '明智軍', force: '約1万6千' }, winner: 'east', winnerName: '羽柴軍', implemented: false },
       { id: 'shizugatake', year: '1583', name: '賤ヶ岳の戦い', east: { name: '羽柴軍', force: '約5万' }, west: { name: '柴田軍', force: '約3万' }, winner: 'east', winnerName: '羽柴軍', implemented: false },
       { id: 'sekigahara', year: '1600', name: '関ヶ原の戦い', east: { name: '東軍(徳川)', force: '約7万4千' }, west: { name: '西軍(石田)', force: '約8万2千' }, winner: 'east', winnerName: '東軍・徳川家康', implemented: true },
@@ -3237,7 +3239,7 @@ try {
 const STR = {
   en: {
     'meta.title': 'Sengoku Simulation | Japanese Historical Battles in 3D',
-    'meta.desc': 'Watch Okehazama, Kawanakajima, Mikatagahara, Nagashino and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.',
+    'meta.desc': 'Watch Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.',
     'home.title': 'SENGOKU',
     'title.sub': 'Famous battles of Japan in 3D. Watch them unfold — or change how they end.',
     'title.history': 'Watch History',
@@ -3288,7 +3290,7 @@ const STR = {
   },
   ja: {
     'meta.title': '戦国シミュレーション',
-    'meta.desc': '桶狭間・川中島・三方ヶ原・長篠・関ヶ原を3Dで再現。史実をたどるだけでなく、自分で決断して別の結末も探せる。無料・ブラウザで動作。',
+    'meta.desc': '桶狭間・川中島・三方ヶ原・長篠・本能寺・関ヶ原を3Dで再現。史実をたどるだけでなく、自分で決断して別の結末も探せる。無料・ブラウザで動作。',
     'home.title': '戦国',
     'title.sub': '日本の合戦を3Dで。史実をたどるか、歴史を変えるか。',
     'title.history': '史実を見る',
@@ -3644,6 +3646,8 @@ const IF_BATTLES = [
     q: { ja: 'もしも義元が、本陣の守りを固めていたら？', en: 'What if Yoshimoto had stayed on guard?' } },
   { id: 'nagashino', endings: 5, key: 'sg_endings_nagashino', color: 'cyan',
     q: { ja: 'もしも勝頼が、柵の端を回り込んでいたら？', en: 'What if Katsuyori had gone around the fence?' } },
+  { id: 'honnoji', endings: 4, key: 'sg_endings_honnoji', color: 'crimson',
+    q: { ja: 'もしも信長が、本能寺から逃げのびていたら？', en: 'What if Nobunaga had escaped Honnō-ji?' } },
   { id: 'mikatagahara', endings: 5, key: 'sg_endings_mikatagahara', color: 'teal',
     q: { ja: 'もしも家康が、信玄の誘いに乗らなかったら？', en: "What if Ieyasu hadn't taken Shingen's bait?" } },
   { id: 'kawanakajima', endings: 5, key: 'sg_endings_kawanakajima', color: 'amber',
@@ -3807,6 +3811,7 @@ function openEra(eraId) {
 
     if (b.implemented) {
       card.className = 'battle-card implemented';
+      card.dataset.id = b.id;
       const winnerClass = b.winner === 'east' ? 'east' : b.winner === 'west' ? 'west' : 'draw';
       card.innerHTML = `
         <div class="battle-header-row">
@@ -3832,6 +3837,7 @@ function openEra(eraId) {
       `;
     } else {
       card.className = 'battle-card coming compact';
+      card.dataset.id = b.id;
       card.innerHTML = `
         <div class="battle-header-row">
           <div class="battle-year">${b.year}</div>
@@ -3965,7 +3971,7 @@ document.getElementById('backFromSim').addEventListener('click', () => {
 });
 
 // ========= シミュレーション =========
-const PLAYABLE_BATTLES = ['sekigahara', 'okehazama', 'nagashino', 'kawanakajima', 'mikatagahara'];
+const PLAYABLE_BATTLES = ['sekigahara', 'okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji'];
 function openSimulation(battleId) {
   if (!PLAYABLE_BATTLES.includes(battleId)) return;
   if (battleId !== BATTLE_ID) {
@@ -6289,6 +6295,7 @@ const HORSE_COATS = [0x6b4428, 0x5a3820, 0x3a2a20, 0x7a5232, 0x2a2420, 0x8a7a68]
 // 騎馬の割合(合戦ごと)。指定がなければ総大将の隊 18%、ほかは 8%
 const CAVALRY_RATIO = {
   nagashino: { katsuyori: 0.3, baba: 0.45, yamagata: 0.5, sanada: 0.45, naito: 0.4, tsuchiya: 0.4, nobukado: 0.35, nobutoyo: 0.35, nobuzane: 0.15, siege: 0.1, teppo: 0, okudaira: 0 },
+  honnoji: { mitsuhide: 0.2, toshimitsu: 0.15, hidemitsu: 0.2, mitsutada: 0.1, fujita: 0.15, nobunaga: 0, ranmaru: 0, nobutada: 0.1, murai: 0.05 },
   mikatagahara: { shingen: 0.3, katsuyori: 0.4, yamagata: 0.45, baba: 0.4, naito: 0.35, oyamada: 0.15, ieyasu: 0.22, honda: 0.3, sakakibara: 0.25, okubo: 0.25, natsume: 0.6, sakai: 0.15, ishikawa: 0.15, sakuma: 0.1, hirate: 0.15 },
   kawanakajima: { shingen: 0.25, kenshin: 0.4, kakizaki: 0.45, murakami: 0.35, kosaka: 0.3, baba: 0.35, nobushige: 0.3, yoshinobu: 0.3, morozumi: 0.25, kansuke: 0.2, amakasu: 0.25, naoe: 0.1 },
   okehazama: { hattori: 0.6, shinsuke: 0.6, nobunaga: 0.3, yoshimoto: 0.2, sassa: 0.3, kajikawa: 0, sakuma: 0.05, iio: 0.05 },
@@ -8145,7 +8152,8 @@ function makeKawaUnits() {
 
 // 特殊効果: 海津城の炊煙(夕方)
 let kawaLastSmoke = 0, kawaLastFire = 0;
-function kawaSpecialFx(t) {
+function kawaSpecialFx() {
+  const t = performance.now() / 1000;
   // 妻女山に残した篝火(夜)
   if (currentPhase >= 1 && currentPhase <= 3 && t - kawaLastFire > 0.25) {
     kawaLastFire = t;
@@ -8519,7 +8527,8 @@ function makeMikaUnits() {
 
 // 特殊効果: 空城の計の篝火、犀ヶ崖の夜襲の火花
 let mikaLastFire = 0;
-function mikaSpecialFx(t) {
+function mikaSpecialFx() {
+  const t = performance.now() / 1000;
   if ((currentPhase === 8 || currentPhase === 9) && t - mikaLastFire > 0.2) {
     mikaLastFire = t;
     const [cx, cz] = MIKA_POS.hamamatsu;
@@ -8786,6 +8795,401 @@ if (IS_MIKA) {
   });
   kamonImages.shingen = "data:image/png;base64,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";
   kamonImages.katsuyori = "data:image/png;base64,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";
+}
+
+
+// ========================================================
+// ===== 6戦目: 本能寺の変(?battle=honnoji) =====
+// ========================================================
+// 座標: x が東、z が南。西の山に老ノ坂、桂川をこえて京の町。東に鴨川
+const HONNO_POS = {
+  honnoji: [10, 12], nijo: [26, -10], myokakuji: [30, -22], katsura: [-34, 4], kutsukake: [-56, 4], oinosaka: [-70, 0], awataguchi: [64, -16],
+};
+const HONNO_RIVERS = [
+  [[-38, -80], [-35, -40], [-33, 0], [-36, 40], [-40, 80]],     // 桂川
+  [[56, -80], [58, -40], [59, 0], [57, 40], [55, 80]],          // 鴨川
+];
+const HONNO_CITY = { x0: -14, x1: 54, z0: -38, z1: 38, step: 8 };
+function honnoTerrainHeight(x, z) {
+  let h = 0.5 + __fbm(x * 0.05, z * 0.05, 3) * 0.6;
+  // 西の山(老ノ坂だけ低く)
+  const pass = Math.exp(-(z * z) / 90);
+  h += Math.max(0, -x - 50) * 0.6 * (1 - pass * 0.7) * (0.8 + __fbm(x * 0.06, z * 0.06, 3) * 0.5);
+  // 東山
+  h += Math.max(0, x - 64) * 0.7 * (0.8 + __fbm(x * 0.06 + 3, z * 0.06, 3) * 0.5);
+  h += __fbm(x * 0.2, z * 0.2, 3) * 0.25;
+  // 京の町はたいら
+  const inCity = x > HONNO_CITY.x0 - 4 && x < HONNO_CITY.x1 + 2 && z > HONNO_CITY.z0 - 4 && z < HONNO_CITY.z1 + 4;
+  if (inCity) h = 0.6 + (h - 0.6) * 0.15;
+  let rd = 1e9;
+  HONNO_RIVERS.forEach(line => { for (let i = 0; i < line.length - 1; i++) rd = Math.min(rd, _segDist(x, z, line[i], line[i + 1])); });
+  const k = Math.exp(-(rd * rd) / 10);
+  h = h * (1 - k * 0.92) - k * 0.5;
+  return Math.max(-0.5, h);
+}
+function honnoCompound(cx, cz, w, d, hallW, hallD, mats, opt) {
+  const { wall, roof, wood, stone } = mats;
+  const g = new THREE.Group();
+  const gy = getTerrainHeight(cx, cz);
+  g.position.set(cx, gy, cz);
+  // 土塀
+  const t = 0.35, hh = 0.9;
+  [[0, -d / 2, w, t], [0, d / 2, w, t], [-w / 2, 0, t, d], [w / 2, 0, t, d]].forEach(([x, z, sx, sz], i) => {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(sx, hh, sz), opt.stoneWall ? stone : wall);
+    m.position.set(x, hh / 2, z);
+    if (i === 3 && opt.gate) { m.scale.z = 0.4; m.position.z = d * 0.3; const m2 = m.clone(); m2.position.z = -d * 0.3; g.add(m2); }
+    g.add(m);
+  });
+  // 本堂
+  const hall = new THREE.Mesh(new THREE.BoxGeometry(hallW, 1.3, hallD), wood);
+  hall.position.set(0, 0.65, 0); hall.castShadow = true; g.add(hall);
+  const rf = new THREE.Mesh(new THREE.CylinderGeometry(0.01, Math.max(hallW, hallD) * 0.78, 1.3, 4, 1), roof);
+  rf.rotation.y = Math.PI / 4; rf.scale.set(hallW / Math.max(hallW, hallD) * 1.15, 1, hallD / Math.max(hallW, hallD) * 1.15);
+  rf.position.set(0, 1.95, 0); rf.castShadow = true; g.add(rf);
+  if (opt.extra) {
+    const s = new THREE.Mesh(new THREE.BoxGeometry(hallW * 0.5, 0.9, hallD * 0.6), wall);
+    s.position.set(-w * 0.28, 0.45, d * 0.25); g.add(s);
+    const sr = new THREE.Mesh(new THREE.ConeGeometry(hallW * 0.42, 0.7, 4), roof);
+    sr.rotation.y = Math.PI / 4; sr.scale.z = 0.7; sr.position.set(-w * 0.28, 1.25, d * 0.25); g.add(sr);
+  }
+  scene.add(g);
+}
+function buildHonnoDecor() {
+  const rmat = new THREE.MeshStandardMaterial({ color: 0x6888a8, transparent: true, opacity: 0.75, roughness: 0.2, metalness: 0.3 });
+  HONNO_RIVERS.forEach((line) => {
+    const pts = line.map(([x, z]) => new THREE.Vector3(x, 0.12, z));
+    const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 70, 1.5, 6, false), rmat);
+    tube.scale.y = 0.15;
+    scene.add(tube);
+  });
+  const mats = {
+    wall: new THREE.MeshStandardMaterial({ color: 0xe2dccb, roughness: 0.9 }),
+    wood: new THREE.MeshStandardMaterial({ color: 0x6a4a30, roughness: 0.95 }),
+    roof: new THREE.MeshStandardMaterial({ color: 0x3c3c42, roughness: 0.8, flatShading: true }),
+    stone: new THREE.MeshStandardMaterial({ color: 0x8c867a, roughness: 1, flatShading: true }),
+  };
+  honnoCompound(HONNO_POS.honnoji[0], HONNO_POS.honnoji[1], 9, 9, 4.2, 3.0, mats, { gate: true, extra: true, stoneWall: true });
+  // 燃えあがる炎(はじめは隠しておく)
+  const flameGeo = new THREE.ConeGeometry(0.55, 2.2, 6);
+  const flameMats = [0xff6a1a, 0xff9a2a, 0xffc04a].map(c => new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.88, depthWrite: false }));
+  [['honnoji', 2.4, 1.6, 14], ['nijo', 1.9, 1.3, 10]].forEach(([k, rx, rz, n]) => {
+    const [cx, cz] = HONNO_POS[k];
+    const gy = getTerrainHeight(cx, cz);
+    const grp = new THREE.Group();
+    for (let i = 0; i < n; i++) {
+      const f = new THREE.Mesh(flameGeo, flameMats[i % 3]);
+      const a = (i / n) * Math.PI * 2;
+      const rr = 0.3 + (i % 3) * 0.35;
+      f.position.set(cx + Math.cos(a) * rx * rr, gy + 2.2 + (i % 2) * 0.4, cz + Math.sin(a) * rz * rr);
+      f.userData.ph = Math.random() * 6.28;
+      f.userData.base = 0.8 + Math.random() * 0.6;
+      grp.add(f);
+    }
+    grp.visible = false;
+    scene.add(grp);
+    honnoFlames[k] = grp;
+  });
+  honnoCompound(HONNO_POS.nijo[0], HONNO_POS.nijo[1], 7, 7, 3.4, 2.4, mats, { gate: true, stoneWall: true });
+  honnoCompound(HONNO_POS.myokakuji[0], HONNO_POS.myokakuji[1], 6, 6, 3.0, 2.2, mats, {});
+  // 町家(兵の通り道と寺のまわりはあける)
+  const keep = Object.values(HONNO_POS).map(p => [p[0], p[1], 7]);
+  phases.forEach(p => Object.values(p.units || {}).forEach(u => keep.push([u[0], u[1], 3.6])));
+  const { x0, x1, z0, z1, step } = HONNO_CITY;
+  const pos = [];
+  let seed = 7;
+  const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  for (let bx = x0; bx < x1; bx += step) {
+    for (let bz = z0; bz < z1; bz += step) {
+      for (let k = 0; k < 9; k++) {
+        if (rnd() < 0.35) continue;
+        const x = bx + 1.6 + (k % 3) * 1.6 + (rnd() - 0.5) * 0.4;
+        const z = bz + 1.6 + Math.floor(k / 3) * 1.6 + (rnd() - 0.5) * 0.4;
+        if (keep.some(([kx, kz, r]) => (x - kx) ** 2 + (z - kz) ** 2 < r * r)) continue;
+        pos.push([x, z, 0.8 + rnd() * 0.5, rnd() < 0.5 ? 0 : Math.PI / 2]);
+      }
+    }
+  }
+  const boxGeo = new THREE.BoxGeometry(1.2, 0.6, 1.0);
+  const roofGeo = new THREE.CylinderGeometry(0.01, 0.95, 0.5, 4, 1);
+  const houses = new THREE.InstancedMesh(boxGeo, new THREE.MeshStandardMaterial({ color: 0xcfc4ad, roughness: 0.95 }), pos.length);
+  const roofs = new THREE.InstancedMesh(roofGeo, mats.roof, pos.length);
+  const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), sc = new THREE.Vector3(), p3 = new THREE.Vector3();
+  pos.forEach(([x, z, s, rot], i) => {
+    const y = getTerrainHeight(x, z);
+    e.set(0, rot, 0); q.setFromEuler(e); sc.set(s, s, s); p3.set(x, y + 0.3 * s, z);
+    m4.compose(p3, q, sc); houses.setMatrixAt(i, m4);
+    e.set(0, rot + Math.PI / 4, 0); q.setFromEuler(e); sc.set(s * 0.95, s, s * 0.8); p3.set(x, y + 0.85 * s, z);
+    m4.compose(p3, q, sc); roofs.setMatrixAt(i, m4);
+  });
+  houses.castShadow = true; roofs.castShadow = true;
+  scene.add(houses); scene.add(roofs);
+}
+const HONNO_ROCKS = [];
+const HONNO_TREES = [];
+
+function makeHonnoUnits() {
+  return {
+    mitsuhide: new Unit('mitsuhide', '明', 'east', -76, 0, '明智光秀', 1.5, true),
+    toshimitsu: new Unit('toshimitsu', '斎', 'east', -72, -6, '斎藤利三', 1.2),
+    hidemitsu: new Unit('hidemitsu', '秀', 'east', -74, 8, '明智秀満', 1.2),
+    mitsutada: new Unit('mitsutada', '忠', 'east', -78, -12, '明智光忠', 1.0),
+    fujita:    new Unit('fujita',    '藤', 'east', -70, 12, '藤田行政', 0.9),
+    nobunaga:  new Unit('nobunaga',  '織', 'west', 10, 12, '織田信長', 1.5, true),
+    ranmaru:   new Unit('ranmaru',   '森', 'west', 12, 10, '森蘭丸', 0.6),
+    nobutada:  new Unit('nobutada',  '信', 'west', 30, -22, '織田信忠', 1.0),
+    murai:     new Unit('murai',     '村', 'west', 16, 20, '村井貞勝', 0.7),
+  };
+}
+
+// 特殊効果: 燃える本能寺と二条御所
+let honnoLastFire = 0;
+const honnoFlames = {};
+function honnoBurning() {
+  const c = (typeof decideState !== 'undefined' && decideState.active) ? decideState.choices : {};
+  if (c[3] === 'west') return { honnoji: false, nijo: false };
+  const nijoFight = !(c[4] === 'escape' || c[7] === 'flee');
+  return { honnoji: currentPhase >= 6, nijo: nijoFight && currentPhase >= 8 };
+}
+function honnoSpecialFx() {
+  const t = performance.now() / 1000;   // 一時停止中も燃え続ける
+  const b = honnoBurning();
+  // 炎がゆらめく
+  Object.entries(honnoFlames).forEach(([k, grp]) => {
+    grp.visible = !!b[k];
+    if (!grp.visible) return;
+    grp.children.forEach(f => {
+      const w = f.userData.base * (0.75 + 0.35 * Math.sin(t * 7 + f.userData.ph) + 0.15 * Math.sin(t * 13 + f.userData.ph * 2));
+      f.scale.set(0.8 + 0.2 * Math.sin(t * 5 + f.userData.ph), w, 0.8 + 0.2 * Math.cos(t * 6 + f.userData.ph));
+    });
+  });
+  if (t - honnoLastFire < 0.12) return;
+  honnoLastFire = t;
+  [['honnoji', 4.2], ['nijo', 3.2]].forEach(([k, r]) => {
+    if (!b[k]) return;
+    const [cx, cz] = HONNO_POS[k];
+    const x = cx + (Math.random() - 0.5) * r * 2, z = cz + (Math.random() - 0.5) * r * 2;
+    const y = getTerrainHeight(x, z) + 1.6;
+    emitFire(x, y, z, 3);
+    addFx('flash', x, y + 0.4, z, { s0: 1.8, s1: 2.8, life: 0.45, color: Math.random() < 0.5 ? 0xff7a2a : 0xffb040 });
+    if (Math.random() < 0.45) addFx('smoke', x, y + 2.4, z, { color: 0x2e2824, life: 7, s0: 1.8, s1: 8, vy: 2.8, vx: 1.4, vz: 0.6, op: 0.8 });
+  });
+}
+function honnoMomentSound(idx) {
+  if (idx === 2) {               // 敵は本能寺にあり
+    horagai(0.22, 0, 2.0);
+  } else if (idx === 4) {        // 囲む
+    crowdSurge(0.3, 0.1, 3.0);
+    let d = 0.2;
+    for (let i = 0; i < 6; i++) { taiko(0.4, d); d += 0.3; }
+  } else if (idx === 5) {
+    crowdSurge(0.28, 0.1, 2.4);
+  } else if (idx === 6) {        // 炎上
+    [0.05, 0.8].forEach(d => taiko(0.55, d));
+  } else if (idx === 8) {        // 二条
+    crowdSurge(0.3, 0.2, 3.0);
+  } else if (idx === 9) {
+    horagai(0.24, 0, 2.4);
+  }
+}
+
+if (IS_HONNO) {
+  Object.assign(BX, {
+    terrain: honnoTerrainHeight, decor: buildHonnoDecor, rocks: HONNO_ROCKS, trees: HONNO_TREES,
+    units: makeHonnoUnits, fx: honnoSpecialFx, sound: honnoMomentSound, drum: [4, 8],
+    dom: { kicker: 'HONNŌ-JI · 3D', year: '1582', rename: [['ieyasu', 'mitsuhide'], ['mitsunari', 'nobunaga']] },
+  });
+
+  const ALL0 = {
+    mitsuhide: [-76, 0], toshimitsu: [-72, -6], hidemitsu: [-74, 8], mitsutada: [-78, -12], fujita: [-70, 12],
+    nobunaga: [10, 12], ranmaru: [12, 10], nobutada: [30, -22], murai: [16, 20],
+  };
+  const U = (o) => Object.assign({}, ALL0, o);
+  // 本能寺を囲む明智勢(北東だけ手薄)
+  const RING = { toshimitsu: [2, 12], hidemitsu: [6, 4], mitsutada: [10, 21], fujita: [18, 18], mitsuhide: [-12, 6] };
+  const ph = (time, ja, units, extra) => Object.assign({ time, units, battles: [], battling: [], defeated: [], traitor: null }, ja, extra || {});
+
+  _replaceArr(phases, [
+    ph('16:00', { phase: '茶会', label: '茶会', title: '本能寺の信長と、亀山城の光秀',
+      text: '天正10年6月1日。<span class="info-west">織田信長</span>は京の<span class="info-west">本能寺</span>で公家たちを招いて茶会を開いていた。供はわずか百人ほど。同じ日の夕方、<span class="info-east">明智光秀</span>は中国攻めの加勢として、丹波の亀山城から<span class="info-highlight">1万3千の兵を出した</span>。',
+      camera: { pos: [-10, 60, 60], look: [6, 0, 8], label: 'CAM · 京' } }, U({})),
+    ph('22:00', { phase: '老ノ坂', label: '老ノ坂', title: '明智軍、夜の老ノ坂を越える',
+      text: '明智軍は丹波と山城の境、<span class="info-east">老ノ坂</span>を夜のうちに越えた。この先で道は分かれる。南へ行けば西国、東へ行けば<span class="info-highlight">京の町</span>だ。',
+      camera: { pos: [-40, 40, 30], look: [-66, 0, 2], label: 'CAM · 老ノ坂' } },
+      U({ toshimitsu: [-62, 2], hidemitsu: [-66, -3], mitsuhide: [-70, 0], mitsutada: [-74, 4], fujita: [-68, 7] })),
+    ph('00:00', { phase: '敵は本能寺', label: '東へ', title: '明智軍、京へ向かう',
+      text: '明智軍は西国ではなく<span class="info-highlight">東の京へ</span>向かった。「敵は本能寺にあり」の言葉は後の軍記に出てくるもの。明智の兵だった本城惣右衛門は、のちに「家康を討つのだと思っていた」と書き残している。',
+      camera: { pos: [-30, 40, 30], look: [-52, 0, 4], label: 'CAM · 沓掛' } },
+      U({ toshimitsu: [-46, 4], hidemitsu: [-50, -2], mitsuhide: [-56, 2], mitsutada: [-58, 8], fujita: [-53, 10] })),
+    ph('04:00', { phase: '桂川', label: '桂川', title: '夜明け前、桂川を渡る',
+      text: '明智軍は<span class="info-east">桂川</span>を渡り、京の町に入った。先頭は重臣の<span class="info-east">斎藤利三</span>と<span class="info-east">明智秀満</span>。京ではまだ誰も、<span class="info-highlight">何が起きようとしているか知らない</span>。',
+      camera: { pos: [-10, 38, 30], look: [-30, 0, 4], label: 'CAM · 桂川' } },
+      U({ toshimitsu: [-24, 4], hidemitsu: [-27, -2], mitsuhide: [-40, 2], mitsutada: [-34, 9], fujita: [-31, 12] })),
+    ph('06:00', { phase: '是非に及ばず', label: '包囲', title: '本能寺を囲む桔梗の旗',
+      text: '夜明けとともに明智軍が本能寺を囲んだ。はじめ喧嘩の騒ぎかと思った信長は、<span class="info-west">森蘭丸</span>から「明智の者と見えます」と聞くと、「<span class="info-highlight">是非に及ばず</span>」と言ったと『信長公記』は記す。',
+      camera: { pos: [-6, 30, 34], look: [10, 0, 12], label: 'CAM · 本能寺' } },
+      U(RING), { battles: [{ x: 5, z: 12 }], battling: ['toshimitsu', 'ranmaru'] }),
+    ph('06:30', { phase: '弓と槍', label: '弓と槍', title: '信長、弓をとり、槍をとって戦う',
+      text: '信長はみずから弓を引き、弦が切れると槍で戦った。だが肘に傷を負う。そばにいた女たちに「<span class="info-highlight">急いで逃げよ</span>」と命じ、御殿の奥へ入っていった。',
+      camera: { pos: [24, 22, 30], look: [10, 1, 12], label: 'CAM · 本能寺' } },
+      U(Object.assign({}, RING, { toshimitsu: [6, 12], hidemitsu: [9, 7] })),
+      { battles: [{ x: 8, z: 12 }, { x: 10, z: 9 }], battling: ['toshimitsu', 'hidemitsu', 'nobunaga', 'ranmaru'] }),
+    ph('07:00', { phase: '炎上', label: '炎上', title: '燃えあがる本能寺',
+      text: '御殿に火の手が上がり、信長はその中で<span class="info-highlight">自害した</span>とされる。<span class="info-west">森蘭丸</span>らも討死。焼け跡から信長の遺体は見つからなかった。',
+      camera: { pos: [-8, 28, 30], look: [10, 1, 10], label: 'CAM · 本能寺' } },
+      U(Object.assign({}, RING, { toshimitsu: [5, 12], hidemitsu: [8, 6] })),
+      { defeated: ['nobunaga', 'ranmaru'] }),
+    ph('07:30', { phase: '信忠、二条へ', label: '二条へ', title: '信忠、二条新御所に入る',
+      text: '妙覚寺にいた嫡男<span class="info-west">織田信忠</span>は、父を救おうとしたが間に合わなかった。京都所司代の<span class="info-west">村井貞勝</span>にすすめられ、守りの固い<span class="info-highlight">二条新御所</span>に入る。御所にいた誠仁親王は外へ逃がした。',
+      camera: { pos: [44, 34, 14], look: [24, 0, -10], label: 'CAM · 二条新御所' } },
+      U({ toshimitsu: [12, 4], hidemitsu: [18, 0], mitsutada: [10, 20], fujita: [22, 6], mitsuhide: [-2, 8], nobutada: [26, -10], murai: [24, -8] }),
+      { defeated: ['nobunaga', 'ranmaru'] }),
+    ph('08:30', { phase: '二条の戦い', label: '二条', title: '二条新御所の戦い',
+      text: '明智軍は二条新御所を囲み、となりの近衛前久の屋敷の屋根から鉄砲と矢を撃ちこんだ。<span class="info-west">信忠</span>と<span class="info-west">村井貞勝</span>は奮戦ののち<span class="info-highlight">自害</span>。信長に仕えていた黒人の家臣<span class="info-west">弥助</span>もここで戦い、捕らえられたと宣教師が記している。',
+      camera: { pos: [6, 30, 4], look: [26, 0, -10], label: 'CAM · 二条新御所' } },
+      U({ toshimitsu: [18, -10], hidemitsu: [26, -2], mitsutada: [26, -18], fujita: [33, -10], mitsuhide: [6, 2], nobutada: [26, -10], murai: [25, -9] }),
+      { battles: [{ x: 22, z: -10 }, { x: 26, z: -5 }, { x: 30, z: -10 }], battling: ['toshimitsu', 'hidemitsu', 'fujita', 'nobutada', 'murai'], defeated: ['nobunaga', 'ranmaru'] }),
+    ph('13:00', { phase: '戦の後', label: '戦の後', title: '光秀の天下は11日',
+      text: '昼すぎ、<span class="info-east">光秀</span>は粟田口から近江へ向かった。だが備中にいた<span class="info-west">羽柴秀吉</span>は毛利と和睦して引き返し(中国大返し)、11日後の山崎の戦いで光秀を破る。<span class="info-highlight">光秀の天下は長く続かなかった</span>。',
+      camera: { pos: [10, 80, 80], look: [12, 0, -4], label: 'CAM · 俯瞰' } },
+      U({ mitsuhide: [62, -16], fujita: [56, -14], toshimitsu: [20, -4], hidemitsu: [14, 6], mitsutada: [30, -16], nobutada: [26, -10], murai: [25, -9] }),
+      { defeated: ['nobunaga', 'ranmaru', 'nobutada', 'murai'] }),
+  ]);
+
+  _replaceArr(EN_PHASES, [
+    { phase: 'TEA PARTY', label: 'Tea party', cam: 'CAM · KYOTO',
+      title: 'Nobunaga at Honnō-ji, Mitsuhide at Kameyama',
+      text: `The 1st day of the 6th month, 1582. <span class="info-west">Oda Nobunaga</span> is hosting a tea gathering for court nobles at <span class="info-west">Honnō-ji</span> in Kyoto, with only about a hundred attendants. That evening <span class="info-east">Akechi Mitsuhide</span>, ordered west to reinforce the campaign against the Mōri, <span class="info-highlight">marches out of Kameyama Castle with 13,000 men</span>.` },
+    { phase: 'OINOSAKA', label: 'Oinosaka', cam: 'CAM · OINOSAKA',
+      title: 'The Akechi army crosses Oinosaka in the night',
+      text: `The Akechi army crosses the <span class="info-east">Oinosaka pass</span> into Yamashiro by night. Ahead the road splits: south leads to the western provinces, east leads to <span class="info-highlight">the city of Kyoto</span>.` },
+    { phase: 'THE ENEMY IS AT HONNŌ-JI', label: 'East', cam: 'CAM · KUTSUKAKE',
+      title: 'The Akechi army turns toward Kyoto',
+      text: `The Akechi army turns <span class="info-highlight">east toward Kyoto</span>, not west. The famous line "The enemy is at Honnō-ji!" comes from later war tales. One Akechi soldier, Honjō Sōemon, later wrote that he thought they were going to attack Ieyasu.` },
+    { phase: 'KATSURA RIVER', label: 'Katsura', cam: 'CAM · KATSURA RIVER',
+      title: 'Crossing the Katsura before dawn',
+      text: `The Akechi army fords the <span class="info-east">Katsura River</span> and enters Kyoto, led by the senior retainers <span class="info-east">Saitō Toshimitsu</span> and <span class="info-east">Akechi Hidemitsu</span>. In the city, no one yet <span class="info-highlight">knows what is coming</span>.` },
+    { phase: 'IT CANNOT BE HELPED', label: 'Surrounded', cam: 'CAM · HONNŌ-JI',
+      title: 'Bellflower banners around Honnō-ji',
+      text: `At dawn the Akechi surround Honnō-ji. Nobunaga first takes the noise for a brawl. When <span class="info-west">Mori Ranmaru</span> reports that the attackers look like Akechi men, the Shinchō Kōki records him saying: "<span class="info-highlight">It cannot be helped</span>."` },
+    { phase: 'BOW AND SPEAR', label: 'Bow & spear', cam: 'CAM · HONNŌ-JI',
+      title: 'Nobunaga fights with bow, then spear',
+      text: `Nobunaga shoots arrows himself; when the bowstring breaks he fights with a spear, until he is wounded in the elbow. He tells the women around him to <span class="info-highlight">get out quickly</span>, and withdraws deep into the hall.` },
+    { phase: 'HONNŌ-JI BURNS', label: 'Fire', cam: 'CAM · HONNŌ-JI',
+      title: 'Honnō-ji goes up in flames',
+      text: `Fire breaks out in the hall, and Nobunaga is believed to have <span class="info-highlight">taken his own life</span> inside. <span class="info-west">Mori Ranmaru</span> and the others are killed. Nobunaga's body was never found in the ashes.` },
+    { phase: 'NOBUTADA TO NIJŌ', label: 'To Nijō', cam: 'CAM · NIJŌ PALACE',
+      title: 'Nobutada moves into the Nijō palace',
+      text: `Nobunaga's heir <span class="info-west">Oda Nobutada</span>, staying at Myōkaku-ji, tries to save his father but is too late. On the advice of the Kyoto governor <span class="info-west">Murai Sadakatsu</span>, he moves into the better-defended <span class="info-highlight">Nijō palace</span>, sending the resident Prince Sanehito out to safety.` },
+    { phase: 'THE FIGHT AT NIJŌ', label: 'Nijō', cam: 'CAM · NIJŌ PALACE',
+      title: 'The battle at the Nijō palace',
+      text: `The Akechi surround the palace and fire guns and arrows down from the roof of Konoe Sakihisa's mansion next door. After a hard fight, <span class="info-west">Nobutada</span> and <span class="info-west">Murai</span> <span class="info-highlight">take their own lives</span>. Missionaries recorded that <span class="info-west">Yasuke</span>, the African retainer who served Nobunaga, fought here and was captured.` },
+    { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · OVERVIEW',
+      title: "Mitsuhide's eleven days",
+      text: `In the afternoon <span class="info-east">Mitsuhide</span> heads east through Awataguchi toward Ōmi. But <span class="info-west">Hashiba Hideyoshi</span>, besieging a castle in Bitchū, makes peace with the Mōri and races back, defeating Mitsuhide at Yamazaki eleven days later. <span class="info-highlight">Mitsuhide's rule did not last</span>.` },
+  ]);
+
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
+  _replaceArr(PHASE_ARROWS, [
+    [ mvp([-78, 0], [-70, 0], E) ],
+    [ mvp([-74, 2], [-60, 2], E) ],
+    [ mvp([-54, 4], [-36, 4], E) ],
+    [ mvp([-30, 4], [-2, 8], E) ],
+    [ at('toshimitsu', 'nobunaga', E), at('hidemitsu', 'nobunaga', E), at('mitsutada', 'nobunaga', E) ],
+    [ at('toshimitsu', 'nobunaga', E), at('hidemitsu', 'ranmaru', E) ],
+    [],
+    [ mvp([30, -22], [26, -11], W), mvp([12, 6], [18, -2], E) ],
+    [ at('toshimitsu', 'nobutada', E), at('hidemitsu', 'nobutada', E), at('fujita', 'nobutada', E) ],
+    [ mvp([0, 4], [60, -16], E) ],
+  ]);
+  _replaceArr(CINE, [
+    { focus: ['nobunaga'], blend: 0.3, orbit: 0.015, dolly: 0.04 },
+    { focus: ['mitsuhide', 'toshimitsu'], blend: 0.5, orbit: -0.02, dolly: 0.06 },
+    { focus: ['mitsuhide'], blend: 0.6, orbit: 0.02, dolly: 0.08 },
+    { focus: ['toshimitsu', 'hidemitsu'], blend: 0.6, orbit: -0.02, dolly: 0.08 },
+    { focus: ['nobunaga', 'toshimitsu'], blend: 0.8, orbit: 0.025, dolly: 0.1 },
+    { focus: ['nobunaga', 'ranmaru'], blend: 0.9, orbit: -0.03, dolly: 0.12 },
+    { focus: ['nobunaga'], blend: 0.8, orbit: 0.02, dolly: 0.08 },
+    { focus: ['nobutada', 'murai'], blend: 0.7, orbit: 0.02, dolly: 0.08 },
+    { focus: ['nobutada', 'hidemitsu'], blend: 0.8, orbit: -0.025, dolly: 0.1 },
+    { orbit: 0.02, dolly: -0.05 },
+  ]);
+  _replaceObj(CINE_MOMENTS, {
+    2: { ja: '東へ', en: 'TURNING EAST', subJa: '明智軍、京へ向かう', subEn: 'The Akechi turn toward Kyoto', shake: 0 },
+    4: { ja: '是非に及ばず', en: 'IT CANNOT BE HELPED', subJa: '本能寺を囲む桔梗の旗', subEn: 'Bellflower banners around Honnō-ji', shake: 0.5, accent: 'gold' },
+    6: { ja: '本能寺炎上', en: 'HONNŌ-JI BURNS', subJa: '信長、炎の中に消える', subEn: 'Nobunaga vanishes in the flames', shake: 0.4 },
+    8: { ja: '二条の戦い', en: 'THE FIGHT AT NIJŌ', subJa: '信忠、自害', subEn: 'Nobutada takes his own life', shake: 0.6 },
+    9: { ja: '三日天下', en: 'ELEVEN DAYS', subJa: '光秀の天下は長く続かない', subEn: "Mitsuhide's rule will not last", shake: 0 },
+  });
+  _replaceArr(MOMENTUM, [30, 38, 48, 58, 78, 84, 92, 86, 92, 80]);
+  ATMO_KEYS.honnonight = Object.assign({}, ATMO_KEYS.night, { rain: 0 });
+  _replaceArr(PHASE_ATMO, ['late', 'honnonight', 'honnonight', 'predawn', 'morning', 'morning', 'morning', 'morning', 'morning', 'noon']);
+  _replaceArr(PLACES, [
+    { x: 10, z: 12, ja: '本能寺', en: 'Honnō-ji', lift: 4 },
+    { x: 26, z: -10, ja: '二条新御所', en: 'Nijō palace', lift: 3.5 },
+    { x: 30, z: -22, ja: '妙覚寺', en: 'Myōkaku-ji', lift: 3, minor: true },
+    { x: -68, z: 0, ja: '老ノ坂', en: 'Oinosaka', lift: 4 },
+    { x: -34, z: -16, ja: '桂川', en: 'Katsura River', lift: 1.5, minor: true },
+    { x: 58, z: 24, ja: '鴨川', en: 'Kamo River', lift: 1.5, minor: true },
+    { x: 66, z: -18, ja: '粟田口', en: 'Awataguchi', lift: 3, minor: true },
+  ]);
+
+  const g = (o) => o;
+  _replaceObj(generalsData, {
+    mitsuhide: g({ name: '明智光秀', yomi: 'AKECHI MITSUHIDE', faction: 'east', factionLabel: '明智軍 総大将', force: '約1万3千', troops: 3000, base: '丹波亀山城', birth: '不詳', koku: '丹波・近江坂本',
+      bio: '信長に重く用いられ、丹波一国と近江坂本を任された重臣。教養が深く、連歌や茶の湯にも通じていた。',
+      episode: '謀反の理由はいまも謎で、怨恨説・四国説など多くの説がある。光秀自身は本能寺に入らず、南の鳥羽で待っていたとする記録もある。' }),
+    toshimitsu: g({ name: '斎藤利三', yomi: 'SAITŌ TOSHIMITSU', faction: 'east', factionLabel: '明智軍 先鋒', force: '—', troops: 3500, base: '明智軍の先頭', birth: '1534', koku: '—',
+      bio: '明智家の重臣。娘はのちに徳川家光の乳母となる春日局。', episode: '本能寺攻めの先頭に立ったとされる。山崎の戦いのあと捕らえられ、処刑された。' }),
+    hidemitsu: g({ name: '明智秀満', yomi: 'AKECHI HIDEMITSU', faction: 'east', factionLabel: '明智軍', force: '—', troops: 3000, base: '明智軍の先頭', birth: '1536?', koku: '—',
+      bio: '光秀の娘婿で、明智左馬助とも呼ばれる。', episode: '本能寺のあと安土城を守った。山崎の敗戦後、坂本城で一族とともに自害した。' }),
+    mitsutada: g({ name: '明智光忠', yomi: 'AKECHI MITSUTADA', faction: 'east', factionLabel: '明智軍', force: '—', troops: 2000, base: '明智軍', birth: '不詳', koku: '—',
+      bio: '光秀の一族。丹波八上城を任されていた。', episode: '二条新御所の攻撃で傷を負ったと伝わる。' }),
+    fujita: g({ name: '藤田行政', yomi: 'FUJITA YUKIMASA', faction: 'east', factionLabel: '明智軍', force: '—', troops: 1500, base: '明智軍', birth: '不詳', koku: '—',
+      bio: '藤田伝五とも呼ばれる明智家の古参の家臣。', episode: '山崎の戦いで深い傷を負い、自害したと伝わる。' }),
+    nobunaga: g({ name: '織田信長', yomi: 'ODA NOBUNAGA', faction: 'west', factionLabel: '本能寺', force: '約100', troops: 100, base: '本能寺', birth: '1534', koku: '天下(畿内ほか)',
+      bio: '天下統一を目前にした覇者。この年、武田家を滅ぼしたばかりだった。数え49歳。',
+      episode: '「是非に及ばず」は、本能寺から逃げのびた女たちの話をもとに家臣の太田牛一が『信長公記』に書いた言葉。' }),
+    ranmaru: g({ name: '森蘭丸', yomi: 'MORI RANMARU', faction: 'west', factionLabel: '信長の小姓', force: '—', troops: 40, base: '本能寺', birth: '1565', koku: '—',
+      bio: '信長のそば近くに仕えた小姓。本名は森成利。', episode: '弟の坊丸・力丸とともに本能寺で討死した。' }),
+    nobutada: g({ name: '織田信忠', yomi: 'ODA NOBUTADA', faction: 'west', factionLabel: '信長の嫡男', force: '約500', troops: 500, base: '妙覚寺 → 二条新御所', birth: '1557', koku: '美濃・尾張',
+      bio: '信長の長男で、すでに織田家の家督を継いでいた。この春の武田攻めでは総大将を務めた。',
+      episode: '逃げるようすすめる声もあったが、「明智の兵に討たれるのは恥」として二条にこもったと『信長公記』は記す。' }),
+    murai: g({ name: '村井貞勝', yomi: 'MURAI SADAKATSU', faction: 'west', factionLabel: '京都所司代', force: '—', troops: 200, base: '本能寺の前の屋敷', birth: '不詳', koku: '—',
+      bio: '京の町と朝廷とのやりとりを任された、信長の重臣。', episode: '屋敷は本能寺のすぐ前にあった。信忠に二条へ移るようすすめ、ともに討死した。' }),
+  });
+  _replaceObj(EN_GEN, {
+    mitsuhide: { name: 'Akechi Mitsuhide', yomi: '明智光秀', factionLabel: 'AKECHI · COMMANDER', force: 'About 13,000', base: 'Kameyama Castle, Tanba', birth: 'Unknown', koku: 'Tanba, Sakamoto',
+      bio: 'One of Nobunaga\'s most trusted generals, given all of Tanba and Sakamoto in Ōmi. A cultured man, skilled in linked verse and tea.',
+      episode: 'Why he rebelled is still a mystery, with many theories. One record even says he stayed at Toba to the south and never entered Honnō-ji himself.' },
+    toshimitsu: { name: 'Saitō Toshimitsu', yomi: '斎藤利三', factionLabel: 'AKECHI · VANGUARD', force: '—', base: 'Head of the column', birth: '1534', koku: '—',
+      bio: 'A senior Akechi retainer. His daughter later became Lady Kasuga, nurse to the third Tokugawa shogun.', episode: 'He is said to have led the attack on Honnō-ji. After Yamazaki he was captured and executed.' },
+    hidemitsu: { name: 'Akechi Hidemitsu', yomi: '明智秀満', factionLabel: 'AKECHI', force: '—', base: 'Head of the column', birth: 'c. 1536', koku: '—',
+      bio: "Mitsuhide's son-in-law, also known as Akechi Samanosuke.", episode: 'He held Azuchi Castle after the coup, and died with the Akechi family at Sakamoto Castle after Yamazaki.' },
+    mitsutada: { name: 'Akechi Mitsutada', yomi: '明智光忠', factionLabel: 'AKECHI', force: '—', base: 'Akechi army', birth: 'Unknown', koku: '—',
+      bio: 'A relative of Mitsuhide, in charge of Yakami Castle in Tanba.', episode: 'He is said to have been wounded attacking the Nijō palace.' },
+    fujita: { name: 'Fujita Yukimasa', yomi: '藤田行政', factionLabel: 'AKECHI', force: '—', base: 'Akechi army', birth: 'Unknown', koku: '—',
+      bio: 'A veteran Akechi retainer, also called Fujita Dengo.', episode: 'He is said to have been badly wounded at Yamazaki and taken his own life.' },
+    nobunaga: { name: 'Oda Nobunaga', yomi: '織田信長', factionLabel: 'HONNŌ-JI', force: 'About 100', base: 'Honnō-ji', birth: '1534', koku: 'The realm (Kinai and more)',
+      bio: 'The warlord on the verge of unifying Japan, fresh from destroying the Takeda that spring. He was 48.',
+      episode: '"It cannot be helped" was written down by his retainer Ōta Gyūichi in the Shinchō Kōki, based on accounts from women who escaped the temple.' },
+    ranmaru: { name: 'Mori Ranmaru', yomi: '森蘭丸', factionLabel: "NOBUNAGA'S PAGE", force: '—', base: 'Honnō-ji', birth: '1565', koku: '—',
+      bio: "Nobunaga's close attendant, formally named Mori Naritoshi.", episode: 'He died at Honnō-ji together with his younger brothers Bōmaru and Rikimaru.' },
+    nobutada: { name: 'Oda Nobutada', yomi: '織田信忠', factionLabel: "NOBUNAGA'S HEIR", force: 'About 500', base: 'Myōkaku-ji → Nijō palace', birth: '1557', koku: 'Mino, Owari',
+      bio: "Nobunaga's eldest son, already head of the Oda house, who had led the campaign against the Takeda that spring.",
+      episode: 'Some urged him to flee, but the Shinchō Kōki says he refused, calling it shameful to be cut down by Akechi soldiers on the road.' },
+    murai: { name: 'Murai Sadakatsu', yomi: '村井貞勝', factionLabel: 'KYOTO GOVERNOR', force: '—', base: 'Mansion facing Honnō-ji', birth: 'Unknown', koku: '—',
+      bio: 'The senior retainer who ran Kyoto and dealt with the court for Nobunaga.', episode: 'His mansion stood just across from Honnō-ji. He urged Nobutada to move to Nijō and died with him.' },
+  });
+  _replaceObj(LBL_EN, {
+    mitsuhide: 'Akechi Mitsuhide', toshimitsu: 'Saitō', hidemitsu: 'Hidemitsu', mitsutada: 'Mitsutada', fujita: 'Fujita',
+    nobunaga: 'Oda Nobunaga', ranmaru: 'Ranmaru', nobutada: 'Nobutada', murai: 'Murai',
+  });
+  kamonImages.mitsuhide = "data:image/png;base64,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";
+  kamonImages.hidemitsu = "data:image/png;base64,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";
+  kamonImages.nobunaga = "data:image/png;base64,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";
+  kamonImages.nobutada = "data:image/png;base64,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";
 }
 
 // 史実の表を保存しておく(切り替えで元に戻せるように)
@@ -10866,6 +11270,338 @@ if (IS_MIKA) {
   });
 }
 
+// ---------- 本能寺の変: 決断モード ----------
+function honnoEndingId(c) {
+  if (c[3] === 'west') return 'E2';
+  if (c[4] === 'escape') return 'E4';
+  if (c[7] === 'flee') return 'E3';
+  return 'E1';
+}
+let HONNO_SEG = null;
+function honnoBuildSegments(c, put) {
+  if (!HONNO_SEG) return;
+  if (c[3] === 'west') { put(HONNO_SEG.west); return; }
+  if (c[4] === 'escape') { put(HONNO_SEG.escape); return; }
+  if (c[7] === 'flee') put(HONNO_SEG.flee);
+}
+
+if (IS_HONNO) {
+  Object.assign(BX, { endingId: honnoEndingId, segments: honnoBuildSegments });
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
+  const ODA0 = { nobunaga: [10, 12], ranmaru: [12, 10], nobutada: [30, -22], murai: [16, 20] };
+  const RING = { toshimitsu: [2, 12], hidemitsu: [6, 4], mitsutada: [10, 21], fujita: [18, 18], mitsuhide: [-12, 6] };
+  const SOUTH = (dz) => ({ toshimitsu: [-40, 22 + dz], hidemitsu: [-42, 16 + dz], mitsuhide: [-44, 10 + dz], mitsutada: [-46, 26 + dz], fujita: [-38, 30 + dz] });
+  const HUNT = { toshimitsu: [12, 4], hidemitsu: [18, 0], mitsutada: [10, 20], fujita: [22, 6], mitsuhide: [-2, 8] };
+
+  HONNO_SEG = {
+    // ---------- 決断1: 光秀、西国へ向かう ----------
+    west: {
+      3: altPhase(3, {
+        ja: { phase: '西へ', label: '西へ', cam: 'CAM · 桂川',
+          title: '光秀、兵を南へ向け直す',
+          text: '桂川の手前で、<span class="info-east">光秀</span>は兵を南へ向け直した。命じられたとおり、<span class="info-highlight">西国の羽柴秀吉の加勢</span>に向かう。兵たちは何も知らないまま歩き続ける。' },
+        en: { phase: 'WESTWARD', label: 'West', cam: 'CAM · KATSURA RIVER',
+          title: 'Mitsuhide turns his army south',
+          text: `Short of the Katsura River, <span class="info-east">Mitsuhide</span> turns his army south. As ordered, he heads west <span class="info-highlight">to reinforce Hashiba Hideyoshi</span>. His men march on, none the wiser.` },
+        cam: { pos: [-10, 44, 40], look: [-38, 0, 16] },
+        units: SOUTH(0),
+        arrows: [mvp([-50, 4], [-42, 28], E)],
+        cine: { focus: ['mitsuhide'], blend: 0.5, orbit: -0.02, dolly: 0.06 },
+        moment: { ja: '西へ', en: 'WESTWARD', subJa: '光秀、命令どおり西国へ', subEn: 'Mitsuhide follows his orders', shake: 0 },
+        mom: 30,
+      }),
+      4: altPhase(4, {
+        ja: { phase: '静かな夜明け', label: '夜明け', cam: 'CAM · 本能寺',
+          title: '本能寺に、いつもの朝が来る',
+          text: '京の町に夜明けが来た。本能寺のまわりには<span class="info-highlight">桔梗の旗はない</span>。信長はまだ眠っている。' },
+        en: { phase: 'A QUIET DAWN', label: 'Dawn', cam: 'CAM · HONNŌ-JI',
+          title: 'An ordinary morning at Honnō-ji',
+          text: `Dawn comes to Kyoto. There are <span class="info-highlight">no bellflower banners</span> around Honnō-ji. Nobunaga is still asleep.` },
+        cam: { pos: [-6, 34, 36], look: [10, 0, 10] },
+        units: Object.assign({}, ODA0, SOUTH(26)),
+        battles: [], battling: [], arrows: [],
+        cine: { focus: ['nobunaga'], blend: 0.5, orbit: 0.015, dolly: 0.05 },
+        moment: null,
+        mom: 20,
+      }),
+      5: altPhase(5, {
+        ja: { phase: '本能寺の朝', label: '朝', cam: 'CAM · 本能寺',
+          title: '信長、西国への出陣を思う',
+          text: '起きた<span class="info-west">信長</span>は、<span class="info-west">森蘭丸</span>から届いた書状を受け取る。数日のうちに京を発ち、<span class="info-highlight">みずから毛利攻めに向かう</span>つもりだった。' },
+        en: { phase: 'MORNING AT HONNŌ-JI', label: 'Morning', cam: 'CAM · HONNŌ-JI',
+          title: 'Nobunaga thinks about the western campaign',
+          text: `<span class="info-west">Nobunaga</span> wakes and takes the day's letters from <span class="info-west">Mori Ranmaru</span>. In a few days he plans to leave Kyoto and <span class="info-highlight">lead the campaign against the Mōri himself</span>.` },
+        cam: { pos: [24, 26, 30], look: [10, 1, 12] },
+        units: Object.assign({}, ODA0, SOUTH(40)),
+        battles: [], battling: [], arrows: [],
+        cine: { focus: ['nobunaga', 'ranmaru'], blend: 0.7, orbit: -0.02, dolly: 0.08 },
+        moment: null,
+        mom: 20,
+      }),
+      6: altPhase(6, {
+        ja: { phase: '西国へ', label: '西国へ', cam: 'CAM · 京の南',
+          title: '明智軍、山崎を越えて西へ',
+          text: '明智軍は京の南を抜け、<span class="info-highlight">山崎から西国街道</span>へ入っていく。光秀が胸に何を秘めていたのかは、誰にもわからない。' },
+        en: { phase: 'TO THE WEST', label: 'West', cam: 'CAM · SOUTH OF KYOTO',
+          title: 'The Akechi army passes Yamazaki heading west',
+          text: `The Akechi army skirts south of Kyoto and <span class="info-highlight">takes the western highway at Yamazaki</span>. What Mitsuhide had in mind, no one will ever know.` },
+        cam: { pos: [-10, 54, 30], look: [-40, 0, 60] },
+        units: Object.assign({}, ODA0, SOUTH(52)),
+        battles: [], battling: [], defeated: [],
+        arrows: [mvp([-42, 40], [-44, 76], E)],
+        cine: { focus: ['mitsuhide'], blend: 0.4, orbit: 0.02, dolly: 0.05 },
+        moment: null,
+        mom: 20,
+      }),
+      7: altPhase(7, {
+        ja: { phase: '妙覚寺の信忠', label: '妙覚寺', cam: 'CAM · 妙覚寺',
+          title: '信忠も、父とともに西へ向かう支度',
+          text: '妙覚寺の<span class="info-west">信忠</span>のもとへ、所司代の<span class="info-west">村井貞勝</span>が訪ねてくる。織田家の<span class="info-highlight">次の大戦の相談</span>だ。' },
+        en: { phase: 'NOBUTADA AT MYŌKAKU-JI', label: 'Myōkaku-ji', cam: 'CAM · MYŌKAKU-JI',
+          title: 'Nobutada prepares to go west with his father',
+          text: `<span class="info-west">Murai Sadakatsu</span> calls on <span class="info-west">Nobutada</span> at Myōkaku-ji. They talk over <span class="info-highlight">the Oda clan's next great campaign</span>.` },
+        cam: { pos: [44, 34, 4], look: [28, 0, -20] },
+        units: Object.assign({}, ODA0, { murai: [26, -18] }, SOUTH(60)),
+        battles: [], battling: [], defeated: [],
+        arrows: [mvp([16, 20], [26, -16], W)],
+        cine: { focus: ['nobutada', 'murai'], blend: 0.6, orbit: 0.02, dolly: 0.06 },
+        moment: null,
+        mom: 20,
+      }),
+      8: altPhase(8, {
+        ja: { phase: '京の一日', label: '京', cam: 'CAM · 京',
+          title: '何ごともなく過ぎる一日',
+          text: '京の町はいつもどおり。信長は公家や商人と会い、<span class="info-highlight">西国への出陣の支度</span>を進める。' },
+        en: { phase: 'A DAY IN KYOTO', label: 'Kyoto', cam: 'CAM · KYOTO',
+          title: 'A day that passes without incident',
+          text: `Kyoto goes about its business. Nobunaga meets nobles and merchants and <span class="info-highlight">prepares to march west</span>.` },
+        cam: { pos: [-6, 60, 60], look: [10, 0, 2] },
+        units: Object.assign({}, ODA0, { murai: [20, 18] }, SOUTH(64)),
+        battles: [], battling: [], defeated: [], arrows: [],
+        cine: { orbit: 0.015, dolly: 0.04 },
+        moment: null,
+        mom: 20,
+      }),
+      9: altPhase(9, {
+        ja: { phase: 'その後', label: 'その後', cam: 'CAM · 俯瞰',
+          title: '何も起きなかった朝',
+          text: '信長は予定どおり西国へ向かい、毛利との大戦に臨んだだろう。天下統一は<span class="info-west">信長</span>の手で進み、<span class="info-highlight">秀吉や家康の天下はなかった</span>かもしれない。光秀の心の内は、永遠に謎のままだ。' },
+        en: { phase: 'WHAT CAME AFTER', label: 'After', cam: 'CAM · OVERVIEW',
+          title: 'The morning nothing happened',
+          text: `Nobunaga would have marched west as planned to face the Mōri. Unification would have gone on under <span class="info-west">Nobunaga</span>, and <span class="info-highlight">Hideyoshi and Ieyasu might never have ruled</span>. What Mitsuhide was thinking would remain a mystery forever.` },
+        cam: { pos: [10, 80, 80], look: [12, 0, -4] },
+        units: Object.assign({}, ODA0, SOUTH(70)),
+        battles: [], battling: [], defeated: [], arrows: [],
+        moment: { ja: '何も起きない', en: 'NOTHING HAPPENS', subJa: '信長の天下は続く', subEn: "Nobunaga's rule goes on", shake: 0 },
+        mom: 15,
+      }),
+    },
+    // ---------- 決断2: 信長、本能寺を抜け出す ----------
+    escape: {
+      4: altPhase(4, {
+        ja: { phase: '抜け出す', label: '脱出', cam: 'CAM · 本能寺',
+          title: '信長、手薄な北東から抜け出す',
+          text: '「明智の者」と聞いた<span class="info-west">信長</span>は、戦わずに逃げると決めた。わずかな供と、囲みの<span class="info-highlight">手薄な北東の門</span>から外へ出る。<span class="info-west">森蘭丸</span>は残って門を守る。' },
+        en: { phase: 'THE ESCAPE', label: 'Escape', cam: 'CAM · HONNŌ-JI',
+          title: 'Nobunaga slips out through the thin northeast corner',
+          text: `Hearing "Akechi men," <span class="info-west">Nobunaga</span> decides to run instead of fight. With a few attendants he slips out through the <span class="info-highlight">lightly watched northeast gate</span>. <span class="info-west">Mori Ranmaru</span> stays behind to hold the gate.` },
+        cam: { pos: [-6, 32, 34], look: [12, 0, 8] },
+        units: Object.assign({}, RING, { nobunaga: [17, 4], ranmaru: [7, 12] }),
+        battles: [{ x: 5, z: 12 }], battling: ['toshimitsu', 'ranmaru'],
+        arrows: [mvp([11, 11], [18, 2], W), at('toshimitsu', 'ranmaru', E)],
+        cine: { focus: ['nobunaga', 'ranmaru'], blend: 0.8, orbit: 0.025, dolly: 0.1 },
+        moment: { ja: '脱出', en: 'THE ESCAPE', subJa: '信長、本能寺を抜け出す', subEn: 'Nobunaga slips out of Honnō-ji', shake: 0.4, accent: 'gold' },
+        mom: 66,
+      }),
+      5: altPhase(5, {
+        ja: { phase: '蘭丸、門を守る', label: '蘭丸', cam: 'CAM · 本能寺',
+          title: '森蘭丸、主の時間をかせぐ',
+          text: '<span class="info-west">森蘭丸</span>らは門で明智勢を食い止め、主が逃げる時間をかせぐ。そのあいだに<span class="info-west">信長</span>は町の路地を北へ、<span class="info-highlight">信忠のいる妙覚寺</span>をめざす。' },
+        en: { phase: 'RANMARU HOLDS THE GATE', label: 'Ranmaru', cam: 'CAM · HONNŌ-JI',
+          title: 'Mori Ranmaru buys his lord time',
+          text: `<span class="info-west">Mori Ranmaru</span> and the others hold the Akechi at the gate to buy time. Meanwhile <span class="info-west">Nobunaga</span> hurries north through the back streets toward <span class="info-highlight">Nobutada at Myōkaku-ji</span>.` },
+        cam: { pos: [26, 30, 30], look: [12, 0, 6] },
+        units: Object.assign({}, RING, { nobunaga: [22, -8], ranmaru: [8, 12], toshimitsu: [5, 12], hidemitsu: [8, 8] }),
+        battles: [{ x: 7, z: 11 }], battling: ['toshimitsu', 'hidemitsu', 'ranmaru'],
+        arrows: [mvp([17, 4], [24, -10], W), at('hidemitsu', 'ranmaru', E)],
+        cine: { focus: ['ranmaru', 'toshimitsu'], blend: 0.8, orbit: -0.025, dolly: 0.1 },
+        moment: null,
+        mom: 62,
+      }),
+      6: altPhase(6, {
+        ja: { phase: '信長はいない', label: '空の御殿', cam: 'CAM · 本能寺',
+          title: '燃える本能寺に、信長の姿はない',
+          text: '本能寺は炎に包まれ、<span class="info-west">森蘭丸</span>らは討死した。だが明智勢がいくら探しても<span class="info-highlight">信長は見つからない</span>。そのころ信長は妙覚寺で信忠と落ち合っていた。' },
+        en: { phase: 'NOBUNAGA IS GONE', label: 'Empty hall', cam: 'CAM · HONNŌ-JI',
+          title: 'Honnō-ji burns — and Nobunaga is not there',
+          text: `Honnō-ji is in flames and <span class="info-west">Mori Ranmaru</span> and the others are dead. But however hard the Akechi search, <span class="info-highlight">Nobunaga is nowhere to be found</span>. By now he has reached Nobutada at Myōkaku-ji.` },
+        cam: { pos: [44, 40, 28], look: [20, 0, -4] },
+        units: Object.assign({}, RING, { nobunaga: [29, -19], ranmaru: [8, 12], toshimitsu: [5, 12], hidemitsu: [8, 6] }),
+        battles: [], battling: [],
+        defeated: ['ranmaru'],
+        arrows: [mvp([22, -8], [29, -18], W)],
+        cine: { focus: ['nobunaga', 'nobutada'], blend: 0.5, orbit: 0.02, dolly: 0.06 },
+        moment: { ja: '空の御殿', en: 'NOT THERE', subJa: '信長の姿はない', subEn: 'Nobunaga is gone', shake: 0.2 },
+        mom: 48,
+      }),
+      7: altPhase(7, {
+        ja: { phase: '父子、東へ', label: '東へ', cam: 'CAM · 京の東',
+          title: '信長・信忠父子、京を出る',
+          text: '<span class="info-west">信長</span>と<span class="info-west">信忠</span>は、<span class="info-west">村井貞勝</span>の手勢を加えて東へ走る。明智勢は本能寺のまわりを探しまわり、<span class="info-highlight">まだ気づいていない</span>。' },
+        en: { phase: 'FATHER AND SON RIDE EAST', label: 'East', cam: 'CAM · EAST KYOTO',
+          title: 'Nobunaga and Nobutada leave Kyoto',
+          text: `<span class="info-west">Nobunaga</span> and <span class="info-west">Nobutada</span>, joined by <span class="info-west">Murai Sadakatsu</span>'s men, ride east. The Akechi are still searching around Honnō-ji and <span class="info-highlight">have not noticed</span>.` },
+        cam: { pos: [26, 44, 12], look: [42, 0, -16] },
+        units: Object.assign({}, HUNT, { nobunaga: [44, -18], nobutada: [41, -20], murai: [38, -16], ranmaru: [8, 12] }),
+        battles: [], battling: [],
+        defeated: ['ranmaru'],
+        arrows: [mvp([30, -20], [46, -18], W)],
+        cine: { focus: ['nobunaga', 'nobutada'], blend: 0.6, orbit: -0.02, dolly: 0.06 },
+        moment: null,
+        mom: 42,
+      }),
+      8: altPhase(8, {
+        ja: { phase: '粟田口', label: '粟田口', cam: 'CAM · 粟田口',
+          title: '粟田口を抜け、近江へ',
+          text: '気づいた<span class="info-east">藤田行政</span>の隊が追ってきたが、<span class="info-west">村井貞勝</span>が鴨川の手前で踏みとどまる。信長父子は<span class="info-highlight">粟田口から京を抜けた</span>。' },
+        en: { phase: 'AWATAGUCHI', label: 'Awataguchi', cam: 'CAM · AWATAGUCHI',
+          title: 'Out through Awataguchi toward Ōmi',
+          text: `<span class="info-east">Fujita</span>'s men finally give chase, but <span class="info-west">Murai Sadakatsu</span> makes a stand short of the Kamo River. Nobunaga and his son <span class="info-highlight">get out of Kyoto through Awataguchi</span>.` },
+        cam: { pos: [34, 40, 12], look: [56, 0, -14] },
+        units: Object.assign({}, HUNT, { nobunaga: [64, -16], nobutada: [62, -18], murai: [52, -14], ranmaru: [8, 12], fujita: [47, -12], hidemitsu: [36, -12] }),
+        battles: [{ x: 50, z: -13 }], battling: ['murai', 'fujita'],
+        defeated: ['ranmaru'],
+        arrows: [mvp([44, -18], [64, -16], W), at('fujita', 'murai', E)],
+        cine: { focus: ['murai', 'fujita'], blend: 0.7, orbit: 0.02, dolly: 0.08 },
+        moment: { ja: '粟田口', en: 'AWATAGUCHI', subJa: '信長父子、京を抜ける', subEn: 'Father and son get out', shake: 0.3 },
+        mom: 36,
+      }),
+      9: altPhase(9, {
+        ja: { phase: 'その後', label: 'その後', cam: 'CAM · 俯瞰',
+          title: '信長、生還',
+          text: '近江へ逃れた<span class="info-west">信長</span>は、各地の織田軍に光秀を討てと命じた。主を討ちもらした<span class="info-east">光秀</span>は、<span class="info-highlight">ただの謀反人として追われる身</span>になる。信長の天下統一は、さらに進んだかもしれない。' },
+        en: { phase: 'WHAT CAME AFTER', label: 'After', cam: 'CAM · OVERVIEW',
+          title: 'Nobunaga survives',
+          text: `Safe in Ōmi, <span class="info-west">Nobunaga</span> orders every Oda army to hunt down Mitsuhide. Having failed to kill his lord, <span class="info-east">Mitsuhide</span> is <span class="info-highlight">just a hunted rebel</span>. Nobunaga's unification of Japan might have gone even further.` },
+        cam: { pos: [10, 80, 80], look: [12, 0, -4] },
+        units: Object.assign({}, HUNT, { nobunaga: [76, -20], nobutada: [74, -22], murai: [72, -18], ranmaru: [8, 12], mitsuhide: [20, 2] }),
+        battles: [], battling: [],
+        defeated: ['ranmaru'],
+        arrows: [mvp([64, -16], [78, -20], W)],
+        moment: { ja: '信長生還', en: 'NOBUNAGA LIVES', subJa: '光秀は謀反人として追われる', subEn: 'Mitsuhide becomes a hunted rebel', shake: 0 },
+        mom: 20,
+      }),
+    },
+    // ---------- 決断3: 信忠、京から逃れる ----------
+    flee: {
+      7: altPhase(7, {
+        ja: { phase: '信忠、京を出る', label: '京を出る', cam: 'CAM · 京の東',
+          title: '信忠、二条に入らず東へ',
+          text: '<span class="info-west">信忠</span>は二条にこもらず、<span class="info-west">村井貞勝</span>とともに<span class="info-highlight">東の粟田口へ</span>向かった。明智勢はまだ本能寺のまわりにいる。' },
+        en: { phase: 'NOBUTADA LEAVES KYOTO', label: 'Leave', cam: 'CAM · EAST KYOTO',
+          title: 'Nobutada skips Nijō and heads east',
+          text: `Instead of shutting himself in at Nijō, <span class="info-west">Nobutada</span> heads <span class="info-highlight">east toward Awataguchi</span> with <span class="info-west">Murai Sadakatsu</span>. The Akechi are still around Honnō-ji.` },
+        cam: { pos: [26, 44, 12], look: [40, 0, -16] },
+        units: Object.assign({}, HUNT, { nobutada: [42, -20], murai: [39, -17] }),
+        battles: [], battling: [],
+        defeated: ['nobunaga', 'ranmaru'],
+        arrows: [mvp([30, -22], [44, -19], W)],
+        cine: { focus: ['nobutada', 'murai'], blend: 0.6, orbit: 0.02, dolly: 0.06 },
+        moment: { ja: '京を出る', en: 'OUT OF KYOTO', subJa: '信忠、東へ', subEn: 'Nobutada rides east', shake: 0.2 },
+        mom: 80,
+      }),
+      8: altPhase(8, {
+        ja: { phase: '粟田口', label: '粟田口', cam: 'CAM · 粟田口',
+          title: '二条は空、信忠は粟田口の先',
+          text: '二条新御所に押し寄せた明智勢が見たのは、<span class="info-highlight">空の御所</span>だった。追ってきた<span class="info-east">藤田行政</span>の隊を<span class="info-west">村井貞勝</span>が食い止め、信忠は京を抜ける。' },
+        en: { phase: 'AWATAGUCHI', label: 'Awataguchi', cam: 'CAM · AWATAGUCHI',
+          title: 'Nijō is empty — Nobutada is past Awataguchi',
+          text: `The Akechi storm the Nijō palace and find it <span class="info-highlight">empty</span>. <span class="info-west">Murai Sadakatsu</span> holds off <span class="info-east">Fujita</span>'s pursuers while Nobutada gets out of the city.` },
+        cam: { pos: [30, 42, 14], look: [50, 0, -14] },
+        units: Object.assign({}, HUNT, { nobutada: [64, -18], murai: [52, -14], fujita: [47, -12], hidemitsu: [27, -9], toshimitsu: [22, -10] }),
+        battles: [{ x: 50, z: -13 }], battling: ['murai', 'fujita'],
+        defeated: ['nobunaga', 'ranmaru'],
+        arrows: [mvp([42, -20], [64, -18], W), at('fujita', 'murai', E)],
+        cine: { focus: ['murai', 'fujita'], blend: 0.7, orbit: -0.02, dolly: 0.08 },
+        moment: null,
+        mom: 70,
+      }),
+      9: altPhase(9, {
+        ja: { phase: 'その後', label: 'その後', cam: 'CAM · 俯瞰',
+          title: '織田家の跡継ぎは生きのびた',
+          text: '信長は死んだが、すでに家督を継いでいた<span class="info-west">信忠</span>が生きのびた。織田家の当主ははっきりしている。<span class="info-highlight">秀吉が織田家を飲みこむ道は、ずっと狭くなった</span>かもしれない。' },
+        en: { phase: 'WHAT CAME AFTER', label: 'After', cam: 'CAM · OVERVIEW',
+          title: 'The Oda heir survives',
+          text: `Nobunaga is dead, but <span class="info-west">Nobutada</span>, already head of the house, is alive. There is no doubt who leads the Oda. <span class="info-highlight">Hideyoshi's path to swallowing the Oda clan might have been much narrower</span>.` },
+        cam: { pos: [10, 80, 80], look: [12, 0, -4] },
+        units: Object.assign({}, HUNT, { nobutada: [76, -20], murai: [72, -18], mitsuhide: [20, 2] }),
+        battles: [], battling: [],
+        defeated: ['nobunaga', 'ranmaru'],
+        arrows: [mvp([64, -18], [78, -20], W)],
+        moment: { ja: '跡継ぎ生存', en: 'THE HEIR LIVES', subJa: '信忠、生きのびる', subEn: 'Nobutada survives', shake: 0 },
+        mom: 60,
+      }),
+    },
+  };
+
+  _replaceObj(SEG, HONNO_SEG);
+  _replaceArr(DECISION_IDX, [3, 4, 7]);
+  _replaceObj(DECISIONS, {
+    3: {
+      who: 'mitsuhide', applies: () => true,
+      ja: { title: '光秀の決断', situation: '桂川を渡れば京の町。本能寺の信長のまわりには、わずか百人ほどしかいない。命じられたとおり西国へ向かうなら、まだ引き返せる。' },
+      en: { title: "MITSUHIDE'S DECISION", situation: 'Across the Katsura lies Kyoto, where Nobunaga sits in Honnō-ji with barely a hundred men. If you head west as ordered instead, there is still time to turn back.' },
+      options: () => [
+        { id: 'attack', history: true, ja: ['本能寺へ向かう', '史実どおり。主君・信長を討つ'], en: ['March on Honnō-ji', 'As in history: strike down Nobunaga'] },
+        { id: 'west', ja: ['西国へ向かう', '命令どおり、秀吉の加勢に行く'], en: ['Head west', 'Obey orders and reinforce Hideyoshi'] },
+      ],
+    },
+    4: {
+      who: 'nobunaga', applies: () => decideState.choices[3] === 'attack',
+      ja: { title: '信長の決断', situation: '本能寺は桔梗の旗に囲まれた。まわりの供は百人ほど。囲みは北東の門だけがまだ手薄だ。' },
+      en: { title: "NOBUNAGA'S DECISION", situation: 'Honnō-ji is surrounded by bellflower banners, and you have about a hundred men. Only the northeast gate is still lightly watched.' },
+      options: () => [
+        { id: 'fight', history: true, ja: ['寺で戦う', '史実どおり。「是非に及ばず」'], en: ['Fight in the temple', 'As in history: "It cannot be helped"'] },
+        { id: 'escape', ja: ['抜け出す', '蘭丸に門を任せ、北東から信忠のもとへ'], en: ['Slip out', 'Leave Ranmaru at the gate and run to Nobutada'] },
+      ],
+    },
+    7: {
+      who: 'nobutada', applies: () => decideState.choices[3] === 'attack' && decideState.choices[4] === 'fight',
+      ja: { title: '信忠の決断', situation: '本能寺は燃え、父は討たれた。村井貞勝は二条新御所にこもるようすすめる。だが今なら、まだ京の外へ逃げられるかもしれない。' },
+      en: { title: "NOBUTADA'S DECISION", situation: 'Honnō-ji is burning and your father is dead. Murai Sadakatsu urges you to hold out in the Nijō palace — but you might still be able to get out of Kyoto.' },
+      options: () => [
+        { id: 'nijo', history: true, ja: ['二条新御所にこもる', '史実どおり。逃げて討たれるのは恥'], en: ['Hold the Nijō palace', 'As in history: better than being cut down fleeing'] },
+        { id: 'flee', ja: ['京から逃れる', '粟田口から近江へ抜ける'], en: ['Get out of Kyoto', 'Through Awataguchi to Ōmi'] },
+      ],
+    },
+  });
+  _replaceObj(ENDINGS, {
+    E1: { ja: ['史実：信長、本能寺に死す', '信長と信忠は討たれた。だが光秀の天下も11日で終わる。'], en: ['History: Death at Honnō-ji', "Nobunaga and Nobutada die — but Mitsuhide's rule lasts only eleven days."] },
+    E2: { ja: ['何も起きなかった朝', '光秀は命令どおり西へ。信長の天下は続いた。'], en: ['The Morning Nothing Happened', "Mitsuhide marches west as ordered, and Nobunaga's rule goes on."] },
+    E3: { ja: ['跡継ぎは生きのびた', '信長は死んだが、信忠が京を抜け出した。'], en: ['The Heir Lives', 'Nobunaga dies, but Nobutada escapes Kyoto.'] },
+    E4: { ja: ['信長、生還', '本能寺を抜け出した信長が、光秀を謀反人として追う。'], en: ['Nobunaga Lives', 'Nobunaga escapes Honnō-ji and hunts down Mitsuhide as a rebel.'] },
+  });
+
+  Object.assign(STR.en, {
+    'sim.title': 'Honnō-ji', 'sim.sub': 'Betrayal at Dawn', 'sim.d1': 'Tenshō 10', 'sim.d2': '6th mo. 2',
+    'legend.east': 'Akechi', 'legend.west': 'Oda',
+    'sim.loading': 'Deploying the armies...',
+    'name.mitsuhide': 'Akechi Mitsuhide', 'name.nobunaga': 'Oda Nobunaga',
+    'wi.historyDesc': 'What actually happened on June 21, 1582.',
+    'dm.desc': 'Make the calls at 04:00, 06:00 and 07:30. Four endings to discover.',
+  });
+  Object.assign(STR.ja, {
+    'sim.title': '本能寺', 'sim.sub': '夜明けの謀反', 'sim.d1': '天正十年', 'sim.d2': '六月二日',
+    'legend.east': '明智軍', 'legend.west': '織田方',
+    'sim.loading': '京の布陣図を展開中',
+    'name.mitsuhide': '明智光秀', 'name.nobunaga': '織田信長',
+    'wi.historyDesc': '天正十年六月二日に実際に起きたこと。',
+    'dm.desc': '4:00・6:00・7:30の決断で展開が変わる。エンディングは全4種。',
+  });
+}
+
 const decideState = { active: false, choices: {}, wasPlaying: false, open: null };
 let altPhaseSet = new Set();
 let lastAppliedPhase = -1;
@@ -11148,6 +11884,28 @@ const GROUND_ROADS = {
     [[-46, 28], [-30, 24], [-12, 20], [6, 14], [18, 15], [27, 17]],
     [[-2, -6], [-6, -14], [-8, -22]],
   ],
+  honnoji: [
+    [[-8, -38], [-8, 38]],
+    [[0, -38], [0, 38]],
+    [[8, -38], [8, 38]],
+    [[16, -38], [16, 38]],
+    [[24, -38], [24, 38]],
+    [[32, -38], [32, 38]],
+    [[40, -38], [40, 38]],
+    [[48, -38], [48, 38]],
+    [[-14, -32], [54, -32]],
+    [[-14, -24], [54, -24]],
+    [[-14, -16], [54, -16]],
+    [[-14, -8], [54, -8]],
+    [[-14, 0], [54, 0]],
+    [[-14, 8], [54, 8]],
+    [[-14, 16], [54, 16]],
+    [[-14, 24], [54, 24]],
+    [[-14, 32], [54, 32]],
+    [[-80, 1], [-60, 2], [-34, 4], [-14, 4]],
+    [[54, -16], [66, -17], [80, -19]],
+    [[-34, 4], [-40, 30], [-44, 60], [-46, 80]],
+  ],
   mikatagahara: [
     [[44, 50], [48, 30], [54, 0], [60, -30], [66, -60], [70, -80]],               // 浜松から二俣へ
     [[44, 46], [26, 22], [6, 0], [-14, -18], [-34, -40], [-46, -60], [-56, -80]],   // 浜松から祝田へ
@@ -11169,6 +11927,7 @@ function groundRiverLines() {
   if (IS_NAGA) return NAGA_RIVERS;
   if (IS_KAWA) return KAWA_RIVERS;
   if (IS_MIKA) return MIKA_RIVERS;
+  if (IS_HONNO) return HONNO_RIVERS;
   const line = [];
   for (let i = 0; i <= 30; i++) {
     const t = i / 30, x = -70 + t * 140;
@@ -11196,6 +11955,8 @@ const _hash2 = (x, y) => { const s = Math.sin(x * 127.1 + y * 311.7) * 43758.545
 // 標高・傾斜・ノイズから「森の濃さ」(0〜1)
 function forestAmount(h, slope, n1, n2) {
   // 三方ヶ原は草と松がまばらな台地
+  // 京の町に森はない。山だけ
+  if (IS_HONNO) return _sstep(1.8, 3.4, h + n1 * 1.2) * 0.95;
   if (IS_MIKA) return Math.max(_sstep(0.16, 0.34, slope) * 0.9, _sstep(0.6, 0.72, n2) * 0.85);
   let f = _sstep(2.0, 4.2, h + n1 * 2.6) * 0.95;
   f = Math.max(f, _sstep(0.16, 0.34, slope) * _sstep(1.0, 2.0, h));
@@ -11355,6 +12116,7 @@ function buildForest() {
   Object.values(typeof NAGA_POS !== 'undefined' && IS_NAGA ? NAGA_POS : {}).forEach(p => keep.push(p));
   Object.values(typeof KAWA_POS !== 'undefined' && IS_KAWA ? KAWA_POS : {}).forEach(p => keep.push(p));
   Object.values(typeof MIKA_POS !== 'undefined' && IS_MIKA ? MIKA_POS : {}).forEach(p => keep.push(p));
+  Object.values(typeof HONNO_POS !== 'undefined' && IS_HONNO ? HONNO_POS : {}).forEach(p => keep.push(p));
   const blocked = (x, z) => keep.some(([kx, kz]) => (kx - x) ** 2 + (kz - z) ** 2 < 26);
   const nearFence = (x, z) => IS_NAGA && z > NAGA_FENCE.z0 - 3 && z < NAGA_FENCE.z1 + 3 && Math.abs(x - nagaFenceX(z)) < 4;
   const roads = GROUND_ROADS[BATTLE_ID] || [];
@@ -11509,6 +12271,11 @@ const ACTS = {
     { from: 3, ja: ['第二幕', '朝', '今川の進軍'], en: ['ACT II', 'MORNING', 'The Imagawa Advance'] },
     { from: 7, ja: ['第三幕', '昼', '嵐の前'], en: ['ACT III', 'MIDDAY', 'Before the Storm'] },
     { from: 10, ja: ['第四幕', '午後', '桶狭間'], en: ['ACT IV', 'AFTERNOON', 'Okehazama'] },
+  ],
+  honnoji: [
+    { from: 0, ja: ['第一幕', '夜', '老ノ坂'], en: ['ACT I', 'NIGHT', 'Oinosaka'] },
+    { from: 4, ja: ['第二幕', '夜明け', '本能寺'], en: ['ACT II', 'DAWN', 'Honnō-ji'] },
+    { from: 7, ja: ['第三幕', '朝', '二条'], en: ['ACT III', 'MORNING', 'Nijō'] },
   ],
   mikatagahara: [
     { from: 0, ja: ['第一幕', '昼', '素通り'], en: ['ACT I', 'MIDDAY', 'Passing By'] },
