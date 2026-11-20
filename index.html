@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Sengoku Simulation | Japanese Historical Battles in 3D</title>
-<meta name="description" content="Watch Okehazama, Kawanakajima, Nagashino and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.">
+<meta name="description" content="Watch Okehazama, Kawanakajima, Mikatagahara, Nagashino and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Sengoku Simulation | Japanese Historical Battles in 3D">
 <meta property="og:description" content="Watch the Battle of Sekigahara (1600) unfold in 3D, phase by phase, with commander profiles and a timeline.">
@@ -2614,6 +2614,7 @@ html[lang="en"] .title-logo { font-family: 'Cormorant Garamond', 'Noto Serif JP'
 .if-card.c-cyan .ifc-top { background: #23c4f8; color: #1b1b1f; }
 .if-card.c-violet .ifc-top { background: #7b5cff; color: #fff; }
 .if-card.c-amber .ifc-top { background: #ffb020; color: #1b1b1f; }
+.if-card.c-teal .ifc-top { background: #12b5a5; color: #fff; }
 .ifc-year { font-family: 'Dela Gothic One', sans-serif; font-size: 13px; background: #fff; color: #1b1b1f; border: 2px solid #1b1b1f; border-radius: 8px; padding: 1px 8px; }
 .ifc-name { font-family: 'Dela Gothic One', sans-serif; font-size: 21px; line-height: 1.2; }
 .ifc-q { display: block; font-size: 17px; font-weight: 900; padding: 14px 16px 6px; line-height: 1.45; }
@@ -3126,17 +3127,18 @@ setTimeout(updateAppHeight, 1000);
 const BATTLE_ID = (() => {
   try {
     const b = new URLSearchParams(location.search).get('battle');
-    return ['okehazama', 'nagashino', 'kawanakajima'].includes(b) ? b : 'sekigahara';
+    return ['okehazama', 'nagashino', 'kawanakajima', 'mikatagahara'].includes(b) ? b : 'sekigahara';
   } catch (e) { return 'sekigahara'; }
 })();
 const IS_OKE = BATTLE_ID === 'okehazama';
 const IS_NAGA = BATTLE_ID === 'nagashino';
 const IS_KAWA = BATTLE_ID === 'kawanakajima';
+const IS_MIKA = BATTLE_ID === 'mikatagahara';
 // 合戦ごとの差し替え口(関ヶ原では空のまま)
 const BX = {};
-const GENERAL_IDS = { sekigahara: ['ieyasu', 'mitsunari'], okehazama: ['nobunaga', 'yoshimoto'], nagashino: ['nobunaga', 'katsuyori'], kawanakajima: ['shingen', 'kenshin'] }[BATTLE_ID];
-const GENERAL_SIDE = { sekigahara: { ieyasu: 'right', mitsunari: 'left' }, okehazama: { nobunaga: 'left', yoshimoto: 'right' }, nagashino: { nobunaga: 'left', katsuyori: 'right' }, kawanakajima: { shingen: 'right', kenshin: 'left' } }[BATTLE_ID];
-const DM_START = { sekigahara: 4, okehazama: 5, nagashino: 0, kawanakajima: 0 }[BATTLE_ID];
+const GENERAL_IDS = { sekigahara: ['ieyasu', 'mitsunari'], okehazama: ['nobunaga', 'yoshimoto'], nagashino: ['nobunaga', 'katsuyori'], kawanakajima: ['shingen', 'kenshin'], mikatagahara: ['ieyasu', 'shingen'] }[BATTLE_ID];
+const GENERAL_SIDE = { sekigahara: { ieyasu: 'right', mitsunari: 'left' }, okehazama: { nobunaga: 'left', yoshimoto: 'right' }, nagashino: { nobunaga: 'left', katsuyori: 'right' }, kawanakajima: { shingen: 'right', kenshin: 'left' }, mikatagahara: { ieyasu: 'right', shingen: 'left' } }[BATTLE_ID];
+const DM_START = { sekigahara: 4, okehazama: 5, nagashino: 0, kawanakajima: 0, mikatagahara: 2 }[BATTLE_ID];
 const ENDINGS_KEY = BATTLE_ID === 'sekigahara' ? 'sg_endings' : 'sg_endings_' + BATTLE_ID;
 
 const eras = [
@@ -3178,7 +3180,7 @@ const eras = [
       { id: 'okehazama', year: '1560', name: '桶狭間の戦い', east: { name: '織田軍', force: '約3千' }, west: { name: '今川軍', force: '約2万5千' }, winner: 'east', winnerName: '織田軍', implemented: true },
       { id: 'kawanakajima', year: '1561', name: '川中島の戦い', east: { name: '武田軍', force: '約2万' }, west: { name: '上杉軍', force: '約1万3千' }, winner: 'draw', winnerName: '痛み分け', implemented: true },
       { id: 'nagashino', year: '1575', name: '長篠の戦い', east: { name: '織田・徳川連合', force: '約3万8千' }, west: { name: '武田軍', force: '約1万5千' }, winner: 'east', winnerName: '織田・徳川', implemented: true },
-      { id: 'mikatagahara', year: '1572', name: '三方ヶ原の戦い', east: { name: '徳川軍', force: '約1万1千' }, west: { name: '武田軍', force: '約3万' }, winner: 'west', winnerName: '武田軍', implemented: false },
+      { id: 'mikatagahara', year: '1572', name: '三方ヶ原の戦い', east: { name: '徳川軍', force: '約1万1千' }, west: { name: '武田軍', force: '約3万' }, winner: 'west', winnerName: '武田軍', implemented: true },
     ],
   },
   {
@@ -3235,7 +3237,7 @@ try {
 const STR = {
   en: {
     'meta.title': 'Sengoku Simulation | Japanese Historical Battles in 3D',
-    'meta.desc': 'Watch Okehazama, Kawanakajima, Nagashino and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.',
+    'meta.desc': 'Watch Okehazama, Kawanakajima, Mikatagahara, Nagashino and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.',
     'home.title': 'SENGOKU',
     'title.sub': 'Famous battles of Japan in 3D. Watch them unfold — or change how they end.',
     'title.history': 'Watch History',
@@ -3286,7 +3288,7 @@ const STR = {
   },
   ja: {
     'meta.title': '戦国シミュレーション',
-    'meta.desc': '桶狭間・川中島・長篠・関ヶ原を3Dで再現。史実をたどるだけでなく、自分で決断して別の結末も探せる。無料・ブラウザで動作。',
+    'meta.desc': '桶狭間・川中島・三方ヶ原・長篠・関ヶ原を3Dで再現。史実をたどるだけでなく、自分で決断して別の結末も探せる。無料・ブラウザで動作。',
     'home.title': '戦国',
     'title.sub': '日本の合戦を3Dで。史実をたどるか、歴史を変えるか。',
     'title.history': '史実を見る',
@@ -3642,6 +3644,8 @@ const IF_BATTLES = [
     q: { ja: 'もしも義元が、本陣の守りを固めていたら？', en: 'What if Yoshimoto had stayed on guard?' } },
   { id: 'nagashino', endings: 5, key: 'sg_endings_nagashino', color: 'cyan',
     q: { ja: 'もしも勝頼が、柵の端を回り込んでいたら？', en: 'What if Katsuyori had gone around the fence?' } },
+  { id: 'mikatagahara', endings: 5, key: 'sg_endings_mikatagahara', color: 'teal',
+    q: { ja: 'もしも家康が、信玄の誘いに乗らなかったら？', en: "What if Ieyasu hadn't taken Shingen's bait?" } },
   { id: 'kawanakajima', endings: 5, key: 'sg_endings_kawanakajima', color: 'amber',
     q: { ja: 'もしも信玄が、兵を分けなかったら？', en: 'What if Shingen had kept his army together?' } },
   { id: 'sekigahara', endings: 7, key: 'sg_endings', color: 'violet',
@@ -3961,7 +3965,7 @@ document.getElementById('backFromSim').addEventListener('click', () => {
 });
 
 // ========= シミュレーション =========
-const PLAYABLE_BATTLES = ['sekigahara', 'okehazama', 'nagashino', 'kawanakajima'];
+const PLAYABLE_BATTLES = ['sekigahara', 'okehazama', 'nagashino', 'kawanakajima', 'mikatagahara'];
 function openSimulation(battleId) {
   if (!PLAYABLE_BATTLES.includes(battleId)) return;
   if (battleId !== BATTLE_ID) {
@@ -6285,6 +6289,7 @@ const HORSE_COATS = [0x6b4428, 0x5a3820, 0x3a2a20, 0x7a5232, 0x2a2420, 0x8a7a68]
 // 騎馬の割合(合戦ごと)。指定がなければ総大将の隊 18%、ほかは 8%
 const CAVALRY_RATIO = {
   nagashino: { katsuyori: 0.3, baba: 0.45, yamagata: 0.5, sanada: 0.45, naito: 0.4, tsuchiya: 0.4, nobukado: 0.35, nobutoyo: 0.35, nobuzane: 0.15, siege: 0.1, teppo: 0, okudaira: 0 },
+  mikatagahara: { shingen: 0.3, katsuyori: 0.4, yamagata: 0.45, baba: 0.4, naito: 0.35, oyamada: 0.15, ieyasu: 0.22, honda: 0.3, sakakibara: 0.25, okubo: 0.25, natsume: 0.6, sakai: 0.15, ishikawa: 0.15, sakuma: 0.1, hirate: 0.15 },
   kawanakajima: { shingen: 0.25, kenshin: 0.4, kakizaki: 0.45, murakami: 0.35, kosaka: 0.3, baba: 0.35, nobushige: 0.3, yoshinobu: 0.3, morozumi: 0.25, kansuke: 0.2, amakasu: 0.25, naoe: 0.1 },
   okehazama: { hattori: 0.6, shinsuke: 0.6, nobunaga: 0.3, yoshimoto: 0.2, sassa: 0.3, kajikawa: 0, sakuma: 0.05, iio: 0.05 },
   sekigahara: { shimazu: 0.22, ii: 0.3, honda: 0.25 },
@@ -8417,6 +8422,372 @@ if (IS_KAWA) {
   kamonImages.kenshin = "data:image/png;base64,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";
 }
 
+
+// ========================================================
+// ===== 5戦目: 三方ヶ原の戦い(?battle=mikatagahara) =====
+// ========================================================
+// 座標: x が東、z が南。南東に浜松城、北西の端に祝田の坂、城の北に犀ヶ崖
+const MIKA_POS = {
+  hamamatsu: [46, 50], iwai: [-40, -50], saigagake: [30, 31], osakabe: [-62, -30], plateau: [-14, -18],
+};
+const MIKA_RIVERS = [
+  [[76, -80], [72, -40], [75, 0], [71, 40], [75, 80]],                 // 天竜川
+  [[-80, -66], [-50, -69], [-20, -74], [10, -80]],                      // 都田川
+];
+const MIKA_SAIGA = [[14, 37], [24, 33], [34, 30], [44, 27], [52, 22]];   // 犀ヶ崖
+function mikaTerrainHeight(x, z) {
+  let h = 4.2;
+  h += __fbm(x * 0.04, z * 0.04, 3) * 1.4 - 0.5;
+  h += __fbm(x * 0.15, z * 0.15, 3) * 0.4;
+  h += __fbm(x * 0.5, z * 0.5, 2) * 0.2;
+  h += -z * 0.015;                          // 北が高く、南へゆるく下がる台地
+  h -= Math.max(0, -z - 44) * 0.32;          // 祝田の坂(北の崖)
+  h -= Math.max(0, x - 54) * 0.28;           // 天竜川の低地
+  h -= Math.max(0, -x - 56) * 0.25;          // 西の低地
+  h -= Math.max(0, z - 46) * 0.3;            // 浜松城の南
+  // 犀ヶ崖(細い谷)
+  let sd = 1e9;
+  for (let i = 0; i < MIKA_SAIGA.length - 1; i++) sd = Math.min(sd, _segDist(x, z, MIKA_SAIGA[i], MIKA_SAIGA[i + 1]));
+  h -= 3.2 * Math.exp(-(sd * sd) / 2.5);
+  // 川の谷
+  let rd = 1e9;
+  MIKA_RIVERS.forEach(line => { for (let i = 0; i < line.length - 1; i++) rd = Math.min(rd, _segDist(x, z, line[i], line[i + 1])); });
+  const k = Math.exp(-(rd * rd) / 14);
+  h = h * (1 - k * 0.92) - k * 0.5;
+  return Math.max(-0.5, h);
+}
+function buildMikaDecor() {
+  const rmat = new THREE.MeshStandardMaterial({ color: 0x6888a8, transparent: true, opacity: 0.75, roughness: 0.2, metalness: 0.3 });
+  MIKA_RIVERS.forEach((line, i) => {
+    const pts = line.map(([x, z]) => new THREE.Vector3(x, 0.12, z));
+    const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 70, i === 0 ? 2.6 : 1.4, 6, false), rmat);
+    tube.scale.y = 0.15;
+    scene.add(tube);
+  });
+  // 浜松城
+  const wood = new THREE.MeshStandardMaterial({ color: 0x5a4028, roughness: 0.95 });
+  const wall = new THREE.MeshStandardMaterial({ color: 0xd8d0bc, roughness: 0.9 });
+  const stone = new THREE.MeshStandardMaterial({ color: 0x8a8478, roughness: 1, flatShading: true });
+  const roof = new THREE.MeshStandardMaterial({ color: 0x3a3a3e, roughness: 0.8, flatShading: true });
+  const [x, z] = MIKA_POS.hamamatsu;
+  const g = new THREE.Group();
+  const gy = getTerrainHeight(x, z);
+  g.position.set(x, 0, z);
+  const base = new THREE.Mesh(new THREE.BoxGeometry(6.4, 1.0, 5.2), stone);
+  base.position.set(0, gy + 0.3, 0); base.castShadow = true; g.add(base);
+  const stakeGeo = new THREE.CylinderGeometry(0.09, 0.11, 1.2, 5);
+  const r = 5.2;
+  for (let i = 0; i < 40; i++) {
+    const a = (i / 40) * Math.PI * 2;
+    if (Math.abs(a - Math.PI * 1.5) < 0.16) continue;      // 北の門
+    const st = new THREE.Mesh(stakeGeo, wood);
+    st.position.set(Math.cos(a) * r, getTerrainHeight(x + Math.cos(a) * r, z + Math.sin(a) * r) + 0.5, Math.sin(a) * r);
+    g.add(st);
+  }
+  const hall = new THREE.Mesh(new THREE.BoxGeometry(3.4, 1.2, 2.2), wall);
+  hall.position.set(-0.6, gy + 1.4, 0.6); hall.castShadow = true; g.add(hall);
+  const hr = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 2.2, 0.9, 4, 1), roof);
+  hr.rotation.y = Math.PI / 4; hr.scale.set(1.15, 1, 0.75); hr.position.set(-0.6, gy + 2.45, 0.6); g.add(hr);
+  const tw = new THREE.Mesh(new THREE.BoxGeometry(1.3, 2.0, 1.3), wall);
+  tw.position.set(1.8, gy + 1.8, -1.2); g.add(tw);
+  const rf = new THREE.Mesh(new THREE.ConeGeometry(1.15, 0.8, 4), roof);
+  rf.rotation.y = Math.PI / 4; rf.position.set(1.8, gy + 3.2, -1.2); g.add(rf);
+  scene.add(g);
+}
+const MIKA_ROCKS = [];
+const MIKA_TREES = [];
+
+function makeMikaUnits() {
+  return {
+    ieyasu:     new Unit('ieyasu',     '徳', 'east', 46, 50, '徳川家康', 1.5, true),
+    sakai:      new Unit('sakai',      '酒', 'east', 40, 46, '酒井忠次', 1.0),
+    honda:      new Unit('honda',      '本', 'east', 50, 44, '本多忠勝', 0.9),
+    ishikawa:   new Unit('ishikawa',   '石', 'east', 36, 50, '石川数正', 0.9),
+    sakakibara: new Unit('sakakibara', '榊', 'east', 44, 42, '榊原康政', 0.9),
+    okubo:      new Unit('okubo',      '大', 'east', 50, 54, '大久保忠世', 0.8),
+    natsume:    new Unit('natsume',    '夏', 'east', 42, 54, '夏目吉信', 0.6),
+    sakuma:     new Unit('sakuma',     '佐', 'east', 54, 50, '佐久間信盛', 1.0),
+    hirate:     new Unit('hirate',     '平', 'east', 56, 46, '平手汎秀', 0.7),
+    shingen:    new Unit('shingen',    '武', 'west', 56, -46, '武田信玄', 1.5, true),
+    katsuyori:  new Unit('katsuyori',  '勝', 'west', 52, -38, '武田勝頼', 1.2),
+    yamagata:   new Unit('yamagata',   '山', 'west', 50, -26, '山県昌景', 1.2),
+    baba:       new Unit('baba',       '馬', 'west', 58, -56, '馬場信春', 1.2),
+    naito:      new Unit('naito',      '内', 'west', 60, -64, '内藤昌豊', 1.1),
+    oyamada:    new Unit('oyamada',    '小', 'west', 48, -16, '小山田信茂', 1.0),
+  };
+}
+
+// 特殊効果: 空城の計の篝火、犀ヶ崖の夜襲の火花
+let mikaLastFire = 0;
+function mikaSpecialFx(t) {
+  if ((currentPhase === 8 || currentPhase === 9) && t - mikaLastFire > 0.2) {
+    mikaLastFire = t;
+    const [cx, cz] = MIKA_POS.hamamatsu;
+    const a = Math.random() * Math.PI * 2, r = 4.6 + Math.random() * 1.4;
+    const fx = cx + Math.cos(a) * r, fz = cz + Math.sin(a) * r;
+    addFx('flash', fx, getTerrainHeight(fx, fz) + 0.7, fz, { s0: 1.0, s1: 1.6, life: 0.45, color: 0xffa040 });
+  }
+}
+function mikaMomentSound(idx) {
+  if (idx === 3) {               // 魚鱗の陣
+    horagai(0.3, 0, 2.6);
+  } else if (idx === 5) {        // 激突
+    crowdSurge(0.3, 0.2, 3.0);
+    let d = 0.2;
+    for (let i = 0; i < 8; i++) { taiko(0.36, d); d += 0.24; }
+  } else if (idx === 6) {        // 崩れる
+    crowdSurge(0.28, 0.1, 2.6);
+  } else if (idx === 7) {        // 夏目吉信
+    [0.05, 0.75].forEach(d => taiko(0.55, d));
+  } else if (idx === 8) {        // 空城の計: 太鼓
+    let d = 0.3;
+    for (let i = 0; i < 12; i++) { taiko(0.4, d); d += 0.32; }
+  } else if (idx === 9) {        // 犀ヶ崖
+    crowdSurge(0.22, 0.2, 2.0);
+  } else if (idx === 10) {
+    horagai(0.24, 0, 2.4);
+  }
+}
+
+if (IS_MIKA) {
+  Object.assign(BX, {
+    terrain: mikaTerrainHeight, decor: buildMikaDecor, rocks: MIKA_ROCKS, trees: MIKA_TREES,
+    units: makeMikaUnits, fx: mikaSpecialFx, sound: mikaMomentSound, drum: [5, 8],
+    dom: { kicker: 'MIKATAGAHARA · 3D', year: '1572', rename: [['mitsunari', 'shingen']] },
+  });
+
+  const ALL0 = {
+    ieyasu: [46, 50], sakai: [40, 46], honda: [50, 44], ishikawa: [36, 50], sakakibara: [44, 42], okubo: [50, 54], natsume: [42, 54], sakuma: [54, 50], hirate: [56, 46],
+    shingen: [56, -46], katsuyori: [52, -38], yamagata: [50, -26], baba: [58, -56], naito: [60, -64], oyamada: [48, -16],
+  };
+  const U = (o) => Object.assign({}, ALL0, o);
+  // 祝田の坂の上で向きを変えた武田(魚鱗)と、徳川(鶴翼)
+  const TK = { oyamada: [-26, -30], yamagata: [-20, -36], baba: [-32, -24], katsuyori: [-30, -36], naito: [-36, -30], shingen: [-38, -40] };
+  const TG = { ieyasu: [-4, -6], okubo: [-2, -2], sakakibara: [-12, -16], honda: [-22, -14], ishikawa: [-24, -6], sakai: [-6, -26], sakuma: [2, -24], hirate: [-2, -32] };
+  const ph = (time, ja, units, extra) => Object.assign({ time, units, battles: [], battling: [], defeated: [], traitor: null }, ja, extra || {});
+
+  _replaceArr(phases, [
+    ph('08:00', { phase: '西へ', label: '西へ', title: '武田軍、二俣から浜松へ向かう',
+      text: '元亀3年12月22日。10月に甲斐を出た<span class="info-west">武田信玄</span>は、徳川方の<span class="info-highlight">二俣城を落とし</span>、天竜川に沿って南へ下ってきた。その先には<span class="info-east">徳川家康</span>の本拠、浜松城がある。',
+      camera: { pos: [20, 54, 40], look: [48, 0, -10], label: 'CAM · 天竜川沿い' } }, U({})),
+    ph('12:00', { phase: '素通り', label: '素通り', title: '武田軍、浜松城を素通りする',
+      text: '浜松城の手前で、武田軍は<span class="info-highlight">向きを西に変えた</span>。城を攻めずに三方ヶ原の台地を横切り、北西の祝田(ほうだ)へ向かう。城の中では、籠城すべきだという声が強かった。',
+      camera: { pos: [40, 52, 44], look: [10, 0, -6], label: 'CAM · 三方ヶ原' } },
+      U({ oyamada: [-6, -14], yamagata: [2, -12], katsuyori: [10, -8], shingen: [18, -6], baba: [26, -4], naito: [32, -2] })),
+    ph('14:00', { phase: '出陣', label: '出陣', title: '家康、城を出て武田を追う',
+      text: '<span class="info-east">家康</span>は城を出ると決めた。武田軍が祝田の坂を下りるところを、<span class="info-highlight">後ろから突く</span>つもりだ。徳川8千に織田の援軍3千、あわせて約1万1千が台地を北へ進む。',
+      camera: { pos: [44, 50, 52], look: [8, 0, -4], label: 'CAM · 浜松城' } },
+      U({ oyamada: [-40, -46], yamagata: [-34, -42], katsuyori: [-28, -38], shingen: [-22, -34], baba: [-16, -30], naito: [-10, -26],
+          ieyasu: [30, 26], okubo: [32, 30], sakai: [36, 18], honda: [24, 22], ishikawa: [20, 28], sakakibara: [28, 16], sakuma: [42, 24], hirate: [44, 18] })),
+    ph('16:00', { phase: '魚鱗の陣', label: '魚鱗', title: '武田軍は、台地の上で待ち構えていた',
+      text: '祝田の坂の上で、武田軍は<span class="info-highlight">すでに向きを変えて</span>いた。兵を厚く重ねた「魚鱗の陣」だ。<span class="info-east">家康</span>は翼を左右に広げた「鶴翼の陣」で向かい合う。兵の数は、武田が倍以上。',
+      camera: { pos: [24, 48, 24], look: [-16, 0, -20], label: 'CAM · 三方ヶ原' } },
+      U(Object.assign({}, TK, TG))),
+    ph('16:15', { phase: '開戦', label: '開戦', title: '石つぶてで戦が始まる',
+      text: '武田方の<span class="info-west">小山田信茂</span>の隊が、徳川の前の隊に石を投げかけて戦が始まったと伝わる。<span class="info-east">榊原康政</span>らがこれに応じ、<span class="info-highlight">両軍がぶつかる</span>。',
+      camera: { pos: [4, 34, 8], look: [-18, 0, -20], label: 'CAM · 両軍の先頭' } },
+      U(Object.assign({}, TK, TG, { oyamada: [-20, -24] })),
+      { battles: [{ x: -16, z: -20 }], battling: ['oyamada', 'sakakibara'] }),
+    ph('16:45', { phase: '激突', label: '激突', title: '織田の援軍が崩れ、平手汎秀が討たれる',
+      text: '徳川の左翼、<span class="info-east">本多忠勝・石川数正</span>は踏みとどまった。だが右翼の<span class="info-east">織田の援軍</span>は武田の攻撃に押し崩され、<span class="info-east">平手汎秀</span>が討死。<span class="info-east">佐久間信盛</span>らは<span class="info-highlight">退いてしまった</span>。',
+      camera: { pos: [16, 38, 4], look: [-12, 0, -24], label: 'CAM · 徳川の右翼' } },
+      U(Object.assign({}, TK, TG, { oyamada: [-18, -22], yamagata: [-8, -32], katsuyori: [-14, -34], baba: [-26, -18], sakuma: [10, -16] })),
+      { battles: [{ x: -24, z: -16 }, { x: -5, z: -31 }, { x: -15, z: -19 }], battling: ['baba', 'honda', 'yamagata', 'hirate', 'oyamada', 'sakakibara', 'katsuyori', 'sakai'], defeated: ['hirate'] }),
+    ph('17:30', { phase: '鶴翼崩れる', label: '崩れる', title: '武田の本隊が押し寄せ、徳川の陣が崩れる',
+      text: '<span class="info-west">武田勝頼</span>らの新手が次々に加わり、薄く広がった鶴翼は<span class="info-highlight">あちこちで断ち切られた</span>。戦はおよそ2時間で決まった。徳川軍は浜松城へ向けて崩れ立つ。',
+      camera: { pos: [16, 42, 20], look: [-8, 0, -8], label: 'CAM · 三方ヶ原' } },
+      U({ shingen: [-28, -30], katsuyori: [-10, -14], yamagata: [-4, -18], baba: [-20, -10], naito: [-22, -18], oyamada: [-12, -10],
+          ieyasu: [-2, -2], okubo: [0, 2], sakakibara: [-6, -8], honda: [-14, -6], ishikawa: [-16, 0], sakai: [4, -10], sakuma: [16, 4], hirate: [-2, -32] }),
+      { battles: [{ x: -8, z: -11 }, { x: -17, z: -8 }, { x: 0, z: -14 }], battling: ['katsuyori', 'sakakibara', 'baba', 'honda', 'yamagata', 'sakai'], defeated: ['hirate'] }),
+    ph('18:00', { phase: '夏目吉信', label: '身代わり', title: '夏目吉信、「我こそは家康」と敵に向かう',
+      text: '浜松城の留守を守っていた<span class="info-east">夏目吉信</span>は、味方の大敗を知って二十数騎で駆けつけた。死を覚悟した家康を諫めて城へ逃がし、<span class="info-highlight">家康を名乗って敵中に突入</span>、討死したと伝わる。',
+      camera: { pos: [24, 26, 26], look: [6, 1, 6], label: 'CAM · 台地の南' } },
+      U({ shingen: [-22, -20], katsuyori: [-4, -4], yamagata: [2, 4], baba: [-6, 2], naito: [-16, -10], oyamada: [-10, -6],
+          ieyasu: [16, 16], okubo: [12, 12], natsume: [6, 8], honda: [10, 6], sakakibara: [16, 8], ishikawa: [12, 22], sakai: [22, 16], sakuma: [30, 20], hirate: [-2, -32] }),
+      { battles: [{ x: 4, z: 6 }], battling: ['natsume', 'yamagata'], defeated: ['hirate', 'natsume'] }),
+    ph('19:00', { phase: '空城の計', label: '空城の計', title: '城門を開け、篝火を焚く(伝説)',
+      text: '浜松城に逃げ帰った家康は、<span class="info-highlight">城門を開けたまま篝火を焚かせた</span>という。追ってきた<span class="info-west">山県昌景</span>らは、罠を疑って城に入らなかった。<span class="info-east">酒井忠次</span>が櫓で太鼓を打ち鳴らした話とともに、後の軍記に伝わる。',
+      camera: { pos: [22, 30, 24], look: [42, 1, 44], label: 'CAM · 浜松城' } },
+      U({ shingen: [-10, -8], katsuyori: [16, 14], yamagata: [34, 22], baba: [26, 24], naito: [0, 0], oyamada: [10, 10],
+          ieyasu: [46, 50], sakai: [42, 47], honda: [50, 45], ishikawa: [38, 51], sakakibara: [44, 44], okubo: [50, 53], sakuma: [54, 52], natsume: [6, 8], hirate: [-2, -32] }),
+      { defeated: ['hirate', 'natsume'] }),
+    ph('21:00', { phase: '犀ヶ崖', label: '犀ヶ崖', title: '犀ヶ崖の夜襲(伝説)',
+      text: 'その夜、<span class="info-east">大久保忠世</span>らが城の北に陣取る武田勢へ鉄砲を撃ちかけた。驚いた武田の兵が<span class="info-highlight">犀ヶ崖へ落ちた</span>と伝わる。崖に布を渡して橋に見せかけた、という話まで残っている。',
+      camera: { pos: [52, 44, 58], look: [32, 0, 28], label: 'CAM · 犀ヶ崖' } },
+      U({ shingen: [-10, -8], katsuyori: [16, 14], yamagata: [32, 24], baba: [24, 26], naito: [0, 0], oyamada: [10, 10],
+          ieyasu: [46, 50], sakai: [42, 47], honda: [50, 45], ishikawa: [38, 51], sakakibara: [44, 44], okubo: [36, 34], sakuma: [54, 52], natsume: [6, 8], hirate: [-2, -32] }),
+      { battles: [{ x: 33, z: 29 }], battling: ['okubo', 'yamagata'], defeated: ['hirate', 'natsume'] }),
+    ph('06:00', { phase: '戦の後', label: '戦の後', title: '信玄は浜松城を攻めず、西へ',
+      text: '信玄は浜松城を攻めず、西の<span class="info-west">刑部(おさかべ)</span>で年を越すと三河へ進んだ。だが翌年4月、甲斐へ帰る途中で<span class="info-highlight">病に倒れて世を去る</span>。生きのびた家康は、のちに天下人となった。',
+      camera: { pos: [30, 80, 70], look: [-6, 0, 0], label: 'CAM · 俯瞰' } },
+      U({ shingen: [-62, -30], katsuyori: [-56, -24], yamagata: [-50, -36], baba: [-58, -40], naito: [-46, -28], oyamada: [-66, -20],
+          ieyasu: [46, 50], sakai: [42, 47], honda: [50, 45], ishikawa: [38, 51], sakakibara: [44, 44], okubo: [48, 55], sakuma: [54, 52], natsume: [6, 8], hirate: [-2, -32] }),
+      { defeated: ['hirate', 'natsume'] }),
+  ]);
+
+  _replaceArr(EN_PHASES, [
+    { phase: 'HEADING WEST', label: 'Westward', cam: 'CAM · TENRYŪ RIVER',
+      title: 'The Takeda march from Futamata toward Hamamatsu',
+      text: `The 22nd day of the 12th month. <span class="info-west">Takeda Shingen</span>, who left Kai in the 10th month, has <span class="info-highlight">taken Futamata Castle</span> and is marching south along the Tenryū River. Ahead lies Hamamatsu, the home castle of <span class="info-east">Tokugawa Ieyasu</span>.` },
+    { phase: 'PASSING BY', label: 'Passing by', cam: 'CAM · MIKATAGAHARA',
+      title: 'The Takeda walk right past Hamamatsu Castle',
+      text: `Short of Hamamatsu, the Takeda army <span class="info-highlight">turns west</span>. Instead of attacking the castle, it crosses the Mikatagahara plateau toward Hōda in the northwest. Inside the castle, many urge Ieyasu to stay behind the walls.` },
+    { phase: 'SORTIE', label: 'Sortie', cam: 'CAM · HAMAMATSU CASTLE',
+      title: 'Ieyasu leaves the castle to chase the Takeda',
+      text: `<span class="info-east">Ieyasu</span> decides to march out. He means to <span class="info-highlight">hit the Takeda from behind</span> as they go down the Hōda slope. 8,000 Tokugawa troops and 3,000 sent by Oda Nobunaga — about 11,000 men — head north across the plateau.` },
+    { phase: 'THE FISH-SCALE', label: 'Fish-scale', cam: 'CAM · MIKATAGAHARA',
+      title: 'The Takeda were waiting on the plateau',
+      text: `At the top of the Hōda slope, the Takeda have <span class="info-highlight">already turned around</span>, packed into a deep "fish-scale" formation. <span class="info-east">Ieyasu</span> spreads his men in a wide "crane's wing." The Takeda outnumber him more than two to one.` },
+    { phase: 'FIRST CONTACT', label: 'First contact', cam: 'CAM · THE FRONT LINES',
+      title: 'The battle opens with thrown stones',
+      text: `<span class="info-west">Oyamada Nobushige</span>'s men are said to have opened the fight by throwing stones at the Tokugawa front. <span class="info-east">Sakakibara Yasumasa</span> and others answer, and <span class="info-highlight">the two armies collide</span>.` },
+    { phase: 'THE CLASH', label: 'Clash', cam: 'CAM · TOKUGAWA RIGHT',
+      title: 'The Oda reinforcements break and Hirate Hirohide is killed',
+      text: `On the Tokugawa left, <span class="info-east">Honda Tadakatsu and Ishikawa Kazumasa</span> hold their ground. But on the right, the <span class="info-east">Oda reinforcements</span> are smashed: <span class="info-east">Hirate Hirohide</span> is killed and <span class="info-east">Sakuma Nobumori</span> and others <span class="info-highlight">pull out</span>.` },
+    { phase: 'THE WINGS BREAK', label: 'Collapse', cam: 'CAM · MIKATAGAHARA',
+      title: 'The Takeda main body pours in and the Tokugawa line breaks',
+      text: `Fresh units under <span class="info-west">Takeda Katsuyori</span> and others keep coming, and the thin crane's wing is <span class="info-highlight">cut apart in places</span>. The fight is decided in about two hours, and the Tokugawa army breaks for Hamamatsu.` },
+    { phase: 'NATSUME YOSHINOBU', label: 'Stand-in', cam: 'CAM · SOUTH PLATEAU',
+      title: 'Natsume Yoshinobu: "I am Ieyasu!"',
+      text: `<span class="info-east">Natsume Yoshinobu</span>, left in charge of Hamamatsu Castle, hears of the defeat and rides out with some twenty horsemen. He talks Ieyasu — ready to die — into fleeing to the castle, then <span class="info-highlight">charges the enemy shouting that he is Ieyasu</span>, and is killed.` },
+    { phase: 'THE EMPTY FORT', label: 'Empty fort', cam: 'CAM · HAMAMATSU CASTLE',
+      title: 'Gates open, fires burning (legend)',
+      text: `Back at Hamamatsu, Ieyasu is said to have <span class="info-highlight">left the gates open and lit bonfires</span>. Pursuers under <span class="info-west">Yamagata Masakage</span> suspected a trap and did not go in. Later war tales add <span class="info-east">Sakai Tadatsugu</span> pounding a drum on the tower.` },
+    { phase: 'SAIGAGAKE', label: 'Saigagake', cam: 'CAM · SAIGAGAKE',
+      title: 'The night raid at Saigagake (legend)',
+      text: `That night, <span class="info-east">Ōkubo Tadayo</span> and others fire guns into the Takeda camped north of the castle. Panicked Takeda soldiers are said to have <span class="info-highlight">fallen into the Saigagake ravine</span> — one story even has cloth stretched over it to look like a bridge.` },
+    { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · OVERVIEW',
+      title: 'Shingen leaves Hamamatsu alone and moves west',
+      text: `Shingen never attacks Hamamatsu. He spends the New Year at <span class="info-west">Osakabe</span> to the west, then pushes into Mikawa. But the following spring, on the way home to Kai, he <span class="info-highlight">falls ill and dies</span>. Ieyasu, who survived, would one day rule Japan.` },
+  ]);
+
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
+  _replaceArr(PHASE_ARROWS, [
+    [ mvp([62, -70], [52, -30], W) ],
+    [ mvp([46, -20], [-8, -14], W) ],
+    [ mvp([-10, -20], [-38, -44], W), mvp([44, 46], [30, 24], E) ],
+    [ mvp([30, 24], [-6, -8], E), mvp([-40, -46], [-30, -34], W) ],
+    [ at('oyamada', 'sakakibara', W) ],
+    [ at('yamagata', 'hirate', W), at('baba', 'honda', W), at('katsuyori', 'sakai', W) ],
+    [ at('katsuyori', 'sakakibara', W), at('baba', 'ishikawa', W), mvp([-2, -2], [12, 12], E) ],
+    [ mvp([44, 52], [6, 8], E), mvp([10, 10], [40, 46], E) ],
+    [ mvp([2, 4], [32, 22], W) ],
+    [ at('okubo', 'yamagata', E) ],
+    [ mvp([-10, -8], [-60, -30], W) ],
+  ]);
+  _replaceArr(CINE, [
+    { focus: ['shingen', 'yamagata'], blend: 0.4, orbit: 0.02, dolly: 0.05 },
+    { focus: ['shingen'], blend: 0.4, orbit: -0.02, dolly: 0.06 },
+    { focus: ['ieyasu', 'sakakibara'], blend: 0.55, orbit: 0.02, dolly: 0.07 },
+    { focus: ['shingen', 'ieyasu'], blend: 0.5, orbit: -0.015, dolly: 0.06 },
+    { focus: ['oyamada', 'sakakibara'], blend: 0.8, orbit: 0.02, dolly: 0.1 },
+    { focus: ['yamagata', 'hirate'], blend: 0.8, orbit: -0.025, dolly: 0.1 },
+    { focus: ['katsuyori', 'sakakibara'], blend: 0.7, orbit: 0.02, dolly: 0.08 },
+    { focus: ['natsume', 'yamagata'], blend: 0.9, orbit: 0.03, dolly: 0.12 },
+    { focus: ['ieyasu', 'yamagata'], blend: 0.6, orbit: -0.02, dolly: 0.06 },
+    { focus: ['okubo', 'yamagata'], blend: 0.5, orbit: 0.02, dolly: 0.06 },
+    { orbit: 0.02, dolly: -0.05 },
+  ]);
+  _replaceObj(CINE_MOMENTS, {
+    3:  { ja: '魚鱗の陣', en: 'THE FISH-SCALE', subJa: '武田軍は待ち構えていた', subEn: 'The Takeda were waiting', shake: 0.3 },
+    5:  { ja: '激突', en: 'THE CLASH', subJa: '織田の援軍が崩れる', subEn: 'The Oda reinforcements break', shake: 0.8, accent: 'gold' },
+    6:  { ja: '鶴翼崩れる', en: 'THE WINGS BREAK', subJa: '徳川軍、浜松へ崩れ立つ', subEn: 'The Tokugawa break for Hamamatsu', shake: 0.6 },
+    7:  { ja: '身代わり', en: 'THE STAND-IN', subJa: '夏目吉信、家康を名乗って討死', subEn: 'Natsume dies in Ieyasu\'s name', shake: 0.5 },
+    8:  { ja: '空城の計', en: 'THE EMPTY FORT', subJa: '開いた門と篝火(伝説)', subEn: 'Open gates and bonfires (legend)', shake: 0 },
+    10: { ja: '生きのびる', en: 'SURVIVAL', subJa: '家康の生涯最大の敗北', subEn: "Ieyasu's worst defeat", shake: 0 },
+  });
+  _replaceArr(MOMENTUM, [46, 42, 44, 36, 36, 26, 16, 12, 22, 30, 30]);
+  ATMO_KEYS.mikanight = Object.assign({}, ATMO_KEYS.night, { rain: 0 });
+  _replaceArr(PHASE_ATMO, ['morning', 'noon', 'noon', 'late', 'late', 'late', 'late', 'mikanight', 'mikanight', 'mikanight', 'morning']);
+  _replaceArr(PLACES, [
+    { x: 46, z: 50, ja: '浜松城', en: 'Hamamatsu Castle', lift: 5 },
+    { x: -40, z: -50, ja: '祝田の坂', en: 'Hōda slope', lift: 3.5 },
+    { x: 30, z: 31, ja: '犀ヶ崖', en: 'Saigagake', lift: 2.5 },
+    { x: -14, z: -18, ja: '三方ヶ原', en: 'Mikatagahara', lift: 4, minor: true },
+    { x: 72, z: -20, ja: '天竜川', en: 'Tenryū River', lift: 1.5, minor: true },
+    { x: 62, z: -72, ja: '二俣城方面', en: 'Toward Futamata', lift: 3, minor: true },
+    { x: -64, z: -32, ja: '刑部方面', en: 'Toward Osakabe', lift: 3, minor: true },
+  ]);
+
+  const g = (o) => o;
+  _replaceObj(generalsData, {
+    ieyasu: g({ name: '徳川家康', yomi: 'TOKUGAWA IEYASU', faction: 'east', factionLabel: '徳川軍 総大将', force: '約1万1千(織田の援軍を含む)', troops: 2500, base: '浜松城', birth: '1543', koku: '三河・遠江',
+      bio: '三河・遠江の大名。この年、数え31歳。織田信長と同盟を結び、武田と遠江を争っていた。',
+      episode: '敗戦の姿を描かせて戒めにしたという「しかみ像」の話は有名だが、近年の研究では後から付いた話とみられている。' }),
+    sakai: g({ name: '酒井忠次', yomi: 'SAKAI TADATSUGU', faction: 'east', factionLabel: '徳川軍 右翼', force: '—', troops: 1200, base: '鶴翼の右', birth: '1527', koku: '—',
+      bio: '徳川家の筆頭家老。のちの徳川四天王の一人。', episode: '浜松城の櫓で太鼓を打ち鳴らし、逃げてくる味方を励ましたという話が伝わる。' }),
+    honda: g({ name: '本多忠勝', yomi: 'HONDA TADAKATSU', faction: 'east', factionLabel: '徳川軍 左翼', force: '—', troops: 900, base: '鶴翼の左', birth: '1548', koku: '—',
+      bio: '生涯の戦で傷ひとつ負わなかったと伝わる猛将。徳川四天王の一人。', episode: '左翼で武田の攻撃を受け止め、崩れたあとも家康の退却を助けたとされる。' }),
+    ishikawa: g({ name: '石川数正', yomi: 'ISHIKAWA KAZUMASA', faction: 'east', factionLabel: '徳川軍 左翼', force: '—', troops: 1000, base: '鶴翼の左', birth: '1533', koku: '—',
+      bio: '酒井忠次と並ぶ徳川家の重臣。', episode: '左翼で本多忠勝とともに戦った。のちに徳川家を出て豊臣秀吉に仕えることになる。' }),
+    sakakibara: g({ name: '榊原康政', yomi: 'SAKAKIBARA YASUMASA', faction: 'east', factionLabel: '徳川軍 先手', force: '—', troops: 800, base: '鶴翼の中央', birth: '1548', koku: '—',
+      bio: '徳川四天王の一人。本多忠勝と同い年。', episode: '中央の先手として、小山田隊とぶつかったとされる。' }),
+    okubo: g({ name: '大久保忠世', yomi: 'ŌKUBO TADAYO', faction: 'east', factionLabel: '徳川軍', force: '—', troops: 500, base: '家康のそば', birth: '1532', koku: '—',
+      bio: '大久保一族をまとめた徳川の重臣。', episode: '家康を守って浜松城へ逃げ戻り、その夜、犀ヶ崖の武田勢に鉄砲を撃ちかけたと伝わる。' }),
+    natsume: g({ name: '夏目吉信', yomi: 'NATSUME YOSHINOBU', faction: 'east', factionLabel: '浜松城 留守居', force: '二十数騎', troops: 150, base: '浜松城', birth: '1518', koku: '—',
+      bio: '三河一向一揆で家康に背いたが、許されて仕え続けた。', episode: '家康の身代わりとなって討死。浜松市の犀ヶ崖近くに碑が立つ。作家・夏目漱石の先祖ともいわれる。' }),
+    sakuma: g({ name: '佐久間信盛', yomi: 'SAKUMA NOBUMORI', faction: 'east', factionLabel: '織田の援軍', force: '約3千(援軍全体)', troops: 1800, base: '鶴翼の右', birth: '1528', koku: '—',
+      bio: '織田家の重臣。信長が送った援軍の中心。', episode: '戦が不利になると兵を引いた。のちに信長から、働きが足りないと責められて追放される。' }),
+    hirate: g({ name: '平手汎秀', yomi: 'HIRATE HIROHIDE', faction: 'east', factionLabel: '織田の援軍', force: '—', troops: 700, base: '鶴翼の右', birth: '1553', koku: '—',
+      bio: '信長の守役だった平手政秀の一族。まだ20歳ほどの若武者。', episode: '援軍が崩れるなかで踏みとどまり、討死した。' }),
+    shingen: g({ name: '武田信玄', yomi: 'TAKEDA SHINGEN', faction: 'west', factionLabel: '武田軍 総大将', force: '約2万7千〜3万', troops: 6000, base: '祝田の坂の上', birth: '1521', koku: '甲斐・信濃・駿河',
+      bio: '甲斐の大名。数え52歳。将軍足利義昭と結び、信長を討つため西へ兵を進めた。',
+      episode: 'この戦いの翌年4月、陣中で病が重くなり、甲斐へ帰る途中で亡くなった。' }),
+    katsuyori: g({ name: '武田勝頼', yomi: 'TAKEDA KATSUYORI', faction: 'west', factionLabel: '武田軍', force: '—', troops: 5000, base: '魚鱗の二の手', birth: '1546', koku: '—',
+      bio: '信玄の四男で、のちの跡継ぎ。', episode: '新手として徳川の陣に攻めかかった。3年後の長篠では、総大将として織田・徳川と戦う。' }),
+    yamagata: g({ name: '山県昌景', yomi: 'YAMAGATA MASAKAGE', faction: 'west', factionLabel: '武田軍 先鋒', force: '—', troops: 5000, base: '魚鱗の前', birth: '1529', koku: '—',
+      bio: '赤い鎧でそろえた「赤備え」で知られる武田の重臣。', episode: '敗走する徳川軍を浜松城まで追ったが、開いた門を見て引き返したと伝わる。' }),
+    baba: g({ name: '馬場信春', yomi: 'BABA NOBUHARU', faction: 'west', factionLabel: '武田軍', force: '—', troops: 4500, base: '魚鱗の右', birth: '1515?', koku: '—',
+      bio: '武田四天王の一人。信玄の代からの宿老。', episode: '徳川の左翼とぶつかった。長篠では殿を務めて討死する。' }),
+    naito: g({ name: '内藤昌豊', yomi: 'NAITŌ MASATOYO', faction: 'west', factionLabel: '武田軍', force: '—', troops: 3500, base: '魚鱗の後ろ', birth: '1522', koku: '—',
+      bio: '武田四天王の一人。目立たないが確かな働きで知られた。', episode: '後ろの備えから徳川の陣を押した。' }),
+    oyamada: g({ name: '小山田信茂', yomi: 'OYAMADA NOBUSHIGE', faction: 'west', factionLabel: '武田軍 先手', force: '—', troops: 3000, base: '魚鱗の前', birth: '1539', koku: '—',
+      bio: '甲斐・郡内の領主。', episode: '投石を得意とする兵を率い、石つぶてで戦を始めたと伝わる。' }),
+  });
+  _replaceObj(EN_GEN, {
+    ieyasu: { name: 'Tokugawa Ieyasu', yomi: '徳川家康', factionLabel: 'TOKUGAWA · COMMANDER', force: 'About 11,000 (incl. Oda troops)', base: 'Hamamatsu Castle', birth: '1543', koku: 'Mikawa, Tōtōmi',
+      bio: 'Lord of Mikawa and Tōtōmi, about 30 that year. Allied with Oda Nobunaga, he was fighting the Takeda for Tōtōmi.',
+      episode: 'The famous "frowning portrait" he supposedly had painted to remember this defeat is now thought to have gained that story much later.' },
+    sakai: { name: 'Sakai Tadatsugu', yomi: '酒井忠次', factionLabel: 'TOKUGAWA · RIGHT', force: '—', base: 'Right wing', birth: '1527', koku: '—',
+      bio: 'Chief retainer of the Tokugawa and one of the later "Four Heavenly Kings."', episode: 'Legend says he pounded a drum on a tower of Hamamatsu Castle to rally the men streaming back.' },
+    honda: { name: 'Honda Tadakatsu', yomi: '本多忠勝', factionLabel: 'TOKUGAWA · LEFT', force: '—', base: 'Left wing', birth: '1548', koku: '—',
+      bio: 'A famous warrior said never to have been wounded in battle. One of the "Four Heavenly Kings."', episode: 'He held the left against the Takeda and is said to have helped cover Ieyasu\'s escape.' },
+    ishikawa: { name: 'Ishikawa Kazumasa', yomi: '石川数正', factionLabel: 'TOKUGAWA · LEFT', force: '—', base: 'Left wing', birth: '1533', koku: '—',
+      bio: 'A senior Tokugawa retainer on a par with Sakai.', episode: 'He fought beside Honda on the left. Years later he would leave Ieyasu to serve Toyotomi Hideyoshi.' },
+    sakakibara: { name: 'Sakakibara Yasumasa', yomi: '榊原康政', factionLabel: 'TOKUGAWA · VANGUARD', force: '—', base: 'Center', birth: '1548', koku: '—',
+      bio: 'One of the "Four Heavenly Kings," the same age as Honda Tadakatsu.', episode: 'He led the center and is said to have met Oyamada\'s men head-on.' },
+    okubo: { name: 'Ōkubo Tadayo', yomi: '大久保忠世', factionLabel: 'TOKUGAWA', force: '—', base: "Near Ieyasu", birth: '1532', koku: '—',
+      bio: 'Head of the Ōkubo clan and a senior Tokugawa retainer.', episode: 'He guarded Ieyasu back to the castle, and that night is said to have fired on the Takeda at Saigagake.' },
+    natsume: { name: 'Natsume Yoshinobu', yomi: '夏目吉信', factionLabel: 'HAMAMATSU · KEEPER', force: 'Some 20 riders', base: 'Hamamatsu Castle', birth: '1518', koku: '—',
+      bio: 'He had once joined a rebellion against Ieyasu but was pardoned and kept serving him.', episode: 'He died as Ieyasu\'s stand-in. A monument stands near Saigagake in Hamamatsu. The novelist Natsume Sōseki is said to be a descendant.' },
+    sakuma: { name: 'Sakuma Nobumori', yomi: '佐久間信盛', factionLabel: 'ODA REINFORCEMENTS', force: 'About 3,000 (all Oda troops)', base: 'Right wing', birth: '1528', koku: '—',
+      bio: 'A senior Oda retainer and leader of the troops Nobunaga sent.', episode: 'He pulled back when the fight turned. Nobunaga later blamed him for poor service and banished him.' },
+    hirate: { name: 'Hirate Hirohide', yomi: '平手汎秀', factionLabel: 'ODA REINFORCEMENTS', force: '—', base: 'Right wing', birth: '1553', koku: '—',
+      bio: 'A young warrior of about 20, from the family of Nobunaga\'s old tutor Hirate Masahide.', episode: 'He stood his ground as the Oda troops gave way, and was killed.' },
+    shingen: { name: 'Takeda Shingen', yomi: '武田信玄', factionLabel: 'TAKEDA · COMMANDER', force: 'About 27,000–30,000', base: 'Top of the Hōda slope', birth: '1521', koku: 'Kai, Shinano, Suruga',
+      bio: 'Lord of Kai, about 51. Allied with the shogun Ashikaga Yoshiaki, he marched west against Nobunaga.',
+      episode: 'The following spring his illness worsened in camp, and he died on the way home to Kai.' },
+    katsuyori: { name: 'Takeda Katsuyori', yomi: '武田勝頼', factionLabel: 'TAKEDA', force: '—', base: 'Second line', birth: '1546', koku: '—',
+      bio: "Shingen's fourth son and later his heir.", episode: 'He led fresh troops into the Tokugawa lines. Three years later he would command at Nagashino.' },
+    yamagata: { name: 'Yamagata Masakage', yomi: '山県昌景', factionLabel: 'TAKEDA · VANGUARD', force: '—', base: 'Front', birth: '1529', koku: '—',
+      bio: 'A senior Takeda general famous for his all-red armored troops.', episode: 'He chased the Tokugawa to Hamamatsu, but legend says he turned back at the sight of the open gates.' },
+    baba: { name: 'Baba Nobuharu', yomi: '馬場信春', factionLabel: 'TAKEDA', force: '—', base: 'Right', birth: 'c. 1515', koku: '—',
+      bio: 'One of the Takeda "Four Generals," a veteran from the start of Shingen\'s rule.', episode: 'He hit the Tokugawa left. At Nagashino he would die leading the rearguard.' },
+    naito: { name: 'Naitō Masatoyo', yomi: '内藤昌豊', factionLabel: 'TAKEDA', force: '—', base: 'Rear', birth: '1522', koku: '—',
+      bio: 'One of the Takeda "Four Generals," known for quiet, reliable work.', episode: 'He pressed the Tokugawa from the rear lines.' },
+    oyamada: { name: 'Oyamada Nobushige', yomi: '小山田信茂', factionLabel: 'TAKEDA · VANGUARD', force: '—', base: 'Front', birth: '1539', koku: '—',
+      bio: 'Lord of the Gunnai district of Kai.', episode: 'He led men skilled at throwing stones, and is said to have started the battle with a volley of them.' },
+  });
+  _replaceObj(LBL_EN, {
+    ieyasu: 'Tokugawa Ieyasu', sakai: 'Sakai', honda: 'Honda', ishikawa: 'Ishikawa', sakakibara: 'Sakakibara', okubo: 'Ōkubo', natsume: 'Natsume', sakuma: 'Sakuma', hirate: 'Hirate',
+    shingen: 'Takeda Shingen', katsuyori: 'Katsuyori', yamagata: 'Yamagata', baba: 'Baba', naito: 'Naitō', oyamada: 'Oyamada',
+  });
+  kamonImages.shingen = "data:image/png;base64,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";
+  kamonImages.katsuyori = "data:image/png;base64,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";
+}
+
 // 史実の表を保存しておく(切り替えで元に戻せるように)
 const BASE_TABLES = {
   phases: phases.slice(),
@@ -10149,6 +10520,352 @@ if (IS_KAWA) {
   });
 }
 
+// ---------- 三方ヶ原: 決断モード ----------
+function mikaEndingId(c) {
+  if (c[3] === 'withdraw') return c[9] === 'besiege' ? 'E5' : 'E2';
+  if (c[7] === 'charge') return 'E3';
+  if (c[9] === 'besiege') return 'E4';
+  return 'E1';
+}
+let MIKA_SEG = null;
+function mikaBuildSegments(c, put) {
+  if (!MIKA_SEG) return;
+  if (c[3] === 'withdraw') {
+    put(MIKA_SEG.withdraw);
+    if (c[9] === 'besiege') put(MIKA_SEG.besiegeIntact);
+    else if (c[9] === 'west') put(MIKA_SEG.westIntact);
+    return;
+  }
+  if (c[7] === 'charge') { put(MIKA_SEG.charge); return; }
+  if (c[9] === 'besiege') put(MIKA_SEG.besiegeBroken);
+}
+
+if (IS_MIKA) {
+  Object.assign(BX, { endingId: mikaEndingId, segments: mikaBuildSegments });
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
+  const TK = { oyamada: [-26, -30], yamagata: [-20, -36], baba: [-32, -24], katsuyori: [-30, -36], naito: [-36, -30], shingen: [-38, -40] };
+  const TG = { ieyasu: [-4, -6], okubo: [-2, -2], sakakibara: [-12, -16], honda: [-22, -14], ishikawa: [-24, -6], sakai: [-6, -26], sakuma: [2, -24], hirate: [-2, -32] };
+  const CASTLE = { ieyasu: [46, 50], sakai: [42, 47], honda: [50, 45], ishikawa: [38, 51], sakakibara: [44, 44], okubo: [50, 53], sakuma: [54, 52], natsume: [42, 54], hirate: [56, 47] };
+  const CAMP = { oyamada: [0, -4], yamagata: [6, -6], baba: [-4, 2], katsuyori: [-6, -10], naito: [-14, -14], shingen: [-20, -20] };
+  const OSAKABE = { shingen: [-62, -30], katsuyori: [-56, -24], yamagata: [-50, -36], baba: [-58, -40], naito: [-46, -28], oyamada: [-66, -20] };
+  const SIEGE = { yamagata: [42, 40], baba: [36, 45], katsuyori: [48, 38], oyamada: [32, 52], naito: [54, 40], shingen: [22, 22] };
+  const FLED = { ieyasu: [-62, 50], okubo: [-58, 54], honda: [-54, 48], sakai: [-48, 52], ishikawa: [-66, 46], sakakibara: [-52, 56], sakuma: [-70, 52] };
+
+  MIKA_SEG = {
+    // ---------- 決断1: 戦わずに引き返す ----------
+    withdraw: {
+      3: altPhase(3, {
+        ja: { phase: '引き返す', label: '引き返す', cam: 'CAM · 三方ヶ原',
+          title: '家康、魚鱗の陣を見て兵を返す',
+          text: '待ち構える武田の大軍を見た<span class="info-east">家康</span>は、戦わずに<span class="info-highlight">浜松城へ引き返す</span>と決めた。だが敵の目の前で背を向けるのは、それだけで危ない。' },
+        en: { phase: 'TURNING BACK', label: 'Turn back', cam: 'CAM · MIKATAGAHARA',
+          title: 'Ieyasu sees the fish-scale and turns his army around',
+          text: `Facing the waiting Takeda host, <span class="info-east">Ieyasu</span> decides not to fight and to <span class="info-highlight">head back to Hamamatsu</span>. But turning your back on an enemy this close is dangerous in itself.` },
+        cam: { pos: [24, 48, 24], look: [-16, 0, -20] },
+        arrows: [mvp([-4, -6], [12, 12], E), mvp([-12, -16], [-2, -4], E)],
+        cine: { focus: ['ieyasu', 'shingen'], blend: 0.5, orbit: -0.015, dolly: 0.06 },
+        moment: { ja: '引き返す', en: 'TURNING BACK', subJa: '戦わずに浜松城へ', subEn: 'Back to Hamamatsu without a fight', shake: 0.2 },
+        mom: 40,
+      }),
+      4: altPhase(4, {
+        ja: { phase: '追ってくる武田', label: '追撃', cam: 'CAM · 三方ヶ原',
+          title: '武田の先手が追ってくる',
+          text: '徳川軍が向きを変えると、<span class="info-west">小山田信茂・山県昌景</span>の隊がすぐに追いかけてきた。最後尾の<span class="info-east">榊原康政</span>が振り返って<span class="info-highlight">追っ手を押し返す</span>。' },
+        en: { phase: 'THE TAKEDA FOLLOW', label: 'Pursuit', cam: 'CAM · MIKATAGAHARA',
+          title: 'The Takeda vanguard comes after them',
+          text: `As soon as the Tokugawa turn, <span class="info-west">Oyamada and Yamagata</span> come after them. <span class="info-east">Sakakibara Yasumasa</span> at the rear turns to <span class="info-highlight">push the pursuers back</span>.` },
+        cam: { pos: [10, 40, 18], look: [-10, 0, -12] },
+        units: { oyamada: [-14, -18], yamagata: [-8, -26], baba: [-24, -16], katsuyori: [-22, -30],
+          ieyasu: [6, 4], okubo: [8, 8], sakakibara: [-6, -10], honda: [-12, -6], ishikawa: [-14, 0], sakai: [2, -16], sakuma: [10, -14], hirate: [6, -22] },
+        battles: [{ x: -10, z: -14 }], battling: ['oyamada', 'sakakibara'],
+        arrows: [at('oyamada', 'sakakibara', W), mvp([-4, -6], [6, 4], E)],
+        cine: { focus: ['sakakibara', 'oyamada'], blend: 0.7, orbit: 0.02, dolly: 0.08 },
+        mom: 38,
+      }),
+      5: altPhase(5, {
+        ja: { phase: '殿', label: '殿', cam: 'CAM · 三方ヶ原',
+          title: '本多忠勝と榊原康政が殿をつとめる',
+          text: '<span class="info-east">本多忠勝・榊原康政</span>が最後尾に残り、武田の先手を食い止める。そのあいだに家康と織田の援軍は台地を南へ下る。<span class="info-highlight">兵はほとんど減っていない</span>。' },
+        en: { phase: 'THE REARGUARD', label: 'Rearguard', cam: 'CAM · MIKATAGAHARA',
+          title: 'Honda and Sakakibara cover the retreat',
+          text: `<span class="info-east">Honda Tadakatsu and Sakakibara Yasumasa</span> stay at the back and hold off the Takeda vanguard while Ieyasu and the Oda troops head south. <span class="info-highlight">Hardly any men have been lost</span>.` },
+        cam: { pos: [30, 50, 40], look: [8, 0, 8] },
+        units: { oyamada: [-8, -8], yamagata: [-4, -14], baba: [-12, -2], katsuyori: [-14, -16], naito: [-22, -20], shingen: [-30, -30],
+          ieyasu: [18, 18], okubo: [20, 22], sakai: [14, 6], sakuma: [24, 12], hirate: [20, 4], ishikawa: [8, 16], honda: [-6, -2], sakakibara: [-1, -8] },
+        battles: [{ x: -7, z: -5 }, { x: -2, z: -11 }], battling: ['honda', 'baba', 'oyamada', 'sakakibara', 'yamagata'],
+        arrows: [at('baba', 'honda', W), at('yamagata', 'sakakibara', W), mvp([6, 4], [18, 18], E)],
+        cine: { orbit: -0.015, dolly: 0.03 },
+        mom: 44,
+      }),
+      6: altPhase(6, {
+        ja: { phase: '日が暮れる', label: '日暮れ', cam: 'CAM · 三方ヶ原',
+          title: '日が暮れ、武田は追うのをやめる',
+          text: '冬の日はすぐに暮れる。<span class="info-west">信玄</span>は深追いをやめさせ、台地の上に兵をまとめた。徳川軍は<span class="info-highlight">隊列を保ったまま</span>浜松城へ向かう。' },
+        en: { phase: 'NIGHTFALL', label: 'Nightfall', cam: 'CAM · MIKATAGAHARA',
+          title: 'Night falls and the Takeda stop chasing',
+          text: `The winter day ends quickly. <span class="info-west">Shingen</span> calls off the chase and gathers his men on the plateau. The Tokugawa reach Hamamatsu <span class="info-highlight">still in good order</span>.` },
+        cam: { pos: [30, 46, 46], look: [10, 0, 10] },
+        units: { oyamada: [-2, -4], yamagata: [2, -8], baba: [-6, 0], katsuyori: [-8, -12], naito: [-16, -16], shingen: [-24, -24],
+          ieyasu: [36, 40], okubo: [38, 44], sakai: [26, 22], sakuma: [42, 42], hirate: [44, 38], ishikawa: [30, 40], honda: [14, 12], sakakibara: [16, 8] },
+        arrows: [mvp([18, 18], [36, 40], E), mvp([-6, -2], [14, 12], E)],
+        cine: { focus: ['ieyasu', 'honda'], blend: 0.5, orbit: 0.02, dolly: 0.06 },
+        mom: 46,
+      }),
+      7: altPhase(7, {
+        ja: { phase: '入城', label: '入城', cam: 'CAM · 浜松城',
+          title: '徳川軍、ほぼ無傷で浜松城へ',
+          text: '留守を守る<span class="info-east">夏目吉信</span>が門を開けて迎えた。<span class="info-east">平手汎秀</span>も、織田の援軍も無事だ。<span class="info-highlight">1万1千がそろって城に入った</span>。' },
+        en: { phase: 'INTO THE CASTLE', label: 'Castle', cam: 'CAM · HAMAMATSU CASTLE',
+          title: 'The Tokugawa reach Hamamatsu almost untouched',
+          text: `<span class="info-east">Natsume Yoshinobu</span>, keeping the castle, opens the gates for them. <span class="info-east">Hirate Hirohide</span> and the Oda troops are safe. <span class="info-highlight">All 11,000 are back inside</span>.` },
+        cam: { pos: [22, 30, 24], look: [42, 1, 44] },
+        units: Object.assign({}, CASTLE, CAMP),
+        arrows: [mvp([36, 40], [44, 48], E)],
+        cine: { focus: ['ieyasu', 'natsume'], blend: 0.6, orbit: -0.02, dolly: 0.06 },
+        moment: { ja: '入城', en: 'SAFE INSIDE', subJa: '1万1千がそろって城へ', subEn: 'All 11,000 back inside', shake: 0 },
+        mom: 50,
+      }),
+      8: altPhase(8, {
+        ja: { phase: '城を固める', label: '城を固める', cam: 'CAM · 浜松城',
+          title: '門を閉じ、城を固める',
+          text: '家康は門を閉じ、櫓に鉄砲と弓を並べた。台地の上には武田の篝火が並ぶ。<span class="info-highlight">信玄は城を攻めるのか</span>、それとも西へ去るのか。' },
+        en: { phase: 'BATTENING DOWN', label: 'Defenses', cam: 'CAM · HAMAMATSU CASTLE',
+          title: 'Gates shut, walls manned',
+          text: `Ieyasu shuts the gates and lines the towers with guns and bows. Takeda campfires dot the plateau. <span class="info-highlight">Will Shingen attack</span> — or move on west?` },
+        cam: { pos: [20, 34, 22], look: [40, 1, 40] },
+        units: Object.assign({}, CASTLE, CAMP),
+        arrows: [],
+        cine: { focus: ['ieyasu', 'yamagata'], blend: 0.5, orbit: 0.02, dolly: 0.06 },
+        moment: null,
+        mom: 50,
+      }),
+    },
+    westIntact: {
+      9: altPhase(9, {
+        ja: { phase: '信玄、去る', label: '去る', cam: 'CAM · 三方ヶ原',
+          title: '信玄、浜松城には手を出さない',
+          text: '<span class="info-west">信玄</span>は城を攻めなかった。夜のうちに陣を払い、祝田の坂から<span class="info-highlight">西へ向かう</span>。' },
+        en: { phase: 'SHINGEN MOVES ON', label: 'Moves on', cam: 'CAM · MIKATAGAHARA',
+          title: 'Shingen leaves the castle alone',
+          text: `<span class="info-west">Shingen</span> does not attack. He breaks camp in the night and <span class="info-highlight">heads west</span> down the Hōda slope.` },
+        cam: { pos: [10, 50, 30], look: [-20, 0, -24] },
+        units: Object.assign({}, CASTLE, { oyamada: [-38, -46], yamagata: [-32, -42], baba: [-26, -38], katsuyori: [-20, -34], naito: [-14, -30], shingen: [-8, -26] }),
+        battles: [], battling: [],
+        arrows: [mvp([0, -4], [-36, -44], W)],
+        cine: { focus: ['shingen'], blend: 0.5, orbit: -0.02, dolly: 0.06 },
+        moment: null,
+        mom: 52,
+      }),
+      10: altPhase(10, {
+        ja: { phase: '戦の後', label: '戦の後', cam: 'CAM · 俯瞰',
+          title: '戦わずに兵を守った家康',
+          text: '家康は兵を一人も無駄にしなかった。武田軍を素通りさせたことは悔しさを残したが、<span class="info-east">本多・榊原</span>も<span class="info-east">夏目吉信</span>も生きている。<span class="info-highlight">徳川の力は丸ごと残った</span>。' },
+        en: { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · OVERVIEW',
+          title: 'Ieyasu saves his army by not fighting',
+          text: `Ieyasu has thrown away no one. Letting the Takeda walk past still stings, but <span class="info-east">Honda, Sakakibara</span> and <span class="info-east">Natsume</span> are all alive. <span class="info-highlight">The Tokugawa army is whole</span>.` },
+        cam: { pos: [30, 80, 70], look: [-6, 0, 0] },
+        units: Object.assign({}, CASTLE, OSAKABE),
+        defeated: [],
+        arrows: [],
+        moment: { ja: '兵を守る', en: 'ARMY INTACT', subJa: '徳川の力は丸ごと残った', subEn: 'The Tokugawa army is whole', shake: 0 },
+        mom: 60,
+      }),
+    },
+    besiegeIntact: {
+      9: altPhase(9, {
+        ja: { phase: '夜の城攻め', label: '城攻め', cam: 'CAM · 浜松城',
+          title: '武田軍、浜松城に攻めかかる',
+          text: '<span class="info-west">信玄</span>は夜のうちに城を囲み、攻めかかった。だが城には<span class="info-east">1万1千</span>がそろっている。櫓からの鉄砲と矢が、<span class="info-highlight">寄せ手を次々に倒す</span>。' },
+        en: { phase: 'NIGHT ASSAULT', label: 'Assault', cam: 'CAM · HAMAMATSU CASTLE',
+          title: 'The Takeda storm Hamamatsu Castle',
+          text: `<span class="info-west">Shingen</span> surrounds the castle in the night and attacks. But all <span class="info-east">11,000</span> defenders are inside, and guns and arrows from the towers <span class="info-highlight">cut the attackers down</span>.` },
+        cam: { pos: [20, 30, 24], look: [42, 1, 44] },
+        units: Object.assign({}, CASTLE, SIEGE),
+        battles: [{ x: 44, z: 42 }, { x: 39, z: 47 }, { x: 51, z: 42 }], battling: ['yamagata', 'sakakibara', 'baba', 'ishikawa', 'naito', 'honda', 'katsuyori'],
+        arrows: [at('yamagata', 'sakakibara', W), at('baba', 'ishikawa', W), at('honda', 'naito', E)],
+        cine: { focus: ['yamagata', 'sakakibara'], blend: 0.8, orbit: 0.02, dolly: 0.1 },
+        moment: { ja: '城攻め', en: 'THE ASSAULT', subJa: '城には1万1千', subEn: '11,000 men on the walls', shake: 0.6 },
+        mom: 58,
+      }),
+      10: altPhase(10, {
+        ja: { phase: '戦の後', label: '戦の後', cam: 'CAM · 俯瞰',
+          title: '浜松城は落ちず、武田軍は大きな痛手',
+          text: '夜明けまでに武田軍は多くの兵を失い、<span class="info-west">信玄</span>は囲みを解いて西へ去った。城にこもった徳川は<span class="info-highlight">一歩も退かずに守りきった</span>。' },
+        en: { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · OVERVIEW',
+          title: 'Hamamatsu holds, and the Takeda pay heavily',
+          text: `By dawn the Takeda have lost many men, and <span class="info-west">Shingen</span> lifts the siege and moves west. The Tokugawa <span class="info-highlight">held the castle without giving an inch</span>.` },
+        cam: { pos: [30, 80, 70], look: [-6, 0, 0] },
+        units: Object.assign({}, CASTLE, OSAKABE),
+        defeated: [],
+        arrows: [mvp([30, 30], [-56, -30], W)],
+        moment: { ja: '守りきる', en: 'THE CASTLE HOLDS', subJa: '浜松城は落ちず', subEn: 'Hamamatsu does not fall', shake: 0 },
+        mom: 70,
+      }),
+    },
+    // ---------- 決断2: 家康、敵中へ ----------
+    charge: {
+      7: altPhase(7, {
+        ja: { phase: '家康、敵中へ', label: '突撃', cam: 'CAM · 台地の南',
+          title: '家康、夏目の制止をふりきって敵中へ',
+          text: '<span class="info-east">家康</span>は城へ逃げることを拒み、<span class="info-highlight">みずから武田勢へ斬り込んだ</span>。<span class="info-east">夏目吉信・本多忠勝・大久保忠世</span>が必死に後を追う。' },
+        en: { phase: 'IEYASU CHARGES', label: 'Charge', cam: 'CAM · SOUTH PLATEAU',
+          title: 'Ieyasu ignores Natsume and charges the enemy',
+          text: `<span class="info-east">Ieyasu</span> refuses to flee and <span class="info-highlight">charges into the Takeda himself</span>, with <span class="info-east">Natsume, Honda and Ōkubo</span> racing after him.` },
+        cam: { pos: [22, 26, 24], look: [2, 1, 2] },
+        units: { ieyasu: [4, 6], natsume: [6, 9], okubo: [8, 4], honda: [9, 8], yamagata: [2, 3], katsuyori: [-2, 0] },
+        battles: [{ x: 3, z: 5 }, { x: 0, z: 1 }], battling: ['ieyasu', 'natsume', 'yamagata', 'katsuyori', 'honda', 'okubo'],
+        defeated: ['hirate'],
+        arrows: [mvp([16, 16], [5, 6], E), at('yamagata', 'ieyasu', W)],
+        cine: { focus: ['ieyasu', 'yamagata'], blend: 0.9, orbit: 0.03, dolly: 0.12 },
+        moment: { ja: '突撃', en: 'THE CHARGE', subJa: '家康、みずから敵中へ', subEn: 'Ieyasu charges himself', shake: 0.7 },
+        mom: 10,
+      }),
+      8: altPhase(8, {
+        ja: { phase: '家康討死', label: '討死', cam: 'CAM · 台地の南',
+          title: '家康、三方ヶ原に散る(もしも)',
+          text: '赤備えの<span class="info-west">山県隊</span>に囲まれ、<span class="info-east">家康</span>は<span class="info-highlight">討死した</span>。夏目吉信も主のそばで倒れる。生き残った本多・大久保らは、浜松城へ落ちていった。' },
+        en: { phase: 'IEYASU FALLS', label: 'Ieyasu falls', cam: 'CAM · SOUTH PLATEAU',
+          title: 'Ieyasu dies on Mikatagahara (what-if)',
+          text: `Surrounded by <span class="info-west">Yamagata's red-armored men</span>, <span class="info-east">Ieyasu</span> <span class="info-highlight">is killed</span>, and Natsume falls at his side. Honda, Ōkubo and the other survivors fall back to Hamamatsu.` },
+        cam: { pos: [24, 30, 30], look: [6, 1, 8] },
+        units: { ieyasu: [4, 6], natsume: [6, 9], okubo: [30, 34], honda: [34, 36], sakakibara: [36, 40], ishikawa: [38, 46], sakai: [40, 44], sakuma: [44, 44],
+          yamagata: [6, 4], katsuyori: [2, 0], baba: [-2, 6], oyamada: [-6, -2], naito: [-12, -6], shingen: [-18, -14] },
+        battles: [], battling: [],
+        defeated: ['hirate', 'ieyasu', 'natsume'],
+        arrows: [mvp([10, 10], [34, 36], E)],
+        cine: { focus: ['ieyasu', 'yamagata'], blend: 0.8, orbit: -0.02, dolly: 0.1 },
+        moment: { ja: '家康討死', en: 'IEYASU FALLS', subJa: '三方ヶ原に散る(もしも)', subEn: 'Dead on Mikatagahara (what-if)', shake: 0.6 },
+        mom: 4,
+      }),
+      9: altPhase(9, {
+        ja: { phase: '浜松城を捨てる', label: '城を捨てる', cam: 'CAM · 浜松城',
+          title: '主を失った家臣たち、浜松城を捨てる',
+          text: '家康の死を知った家臣たちは、浜松城を守りきれないと見て、<span class="info-highlight">西の三河へ落ちていった</span>。武田軍は空になった浜松城に入る。' },
+        en: { phase: 'ABANDONING HAMAMATSU', label: 'Abandon', cam: 'CAM · HAMAMATSU CASTLE',
+          title: 'Without their lord, the Tokugawa abandon Hamamatsu',
+          text: `Hearing that Ieyasu is dead, his men decide the castle cannot be held and <span class="info-highlight">slip away west toward Mikawa</span>. The Takeda march into an empty Hamamatsu.` },
+        cam: { pos: [24, 54, 4], look: [20, 0, 38] },
+        units: Object.assign({ ieyasu: [4, 6], natsume: [6, 9] }, { okubo: [12, 54], honda: [18, 56], sakakibara: [8, 58], ishikawa: [4, 52], sakai: [16, 60], sakuma: [0, 56] },
+          { yamagata: [44, 46], baba: [40, 50], katsuyori: [50, 44], oyamada: [36, 40], naito: [30, 30], shingen: [20, 20] }),
+        battles: [], battling: [],
+        defeated: ['hirate', 'ieyasu', 'natsume'],
+        arrows: [mvp([40, 50], [8, 56], E), mvp([20, 24], [40, 42], W)],
+        cine: { orbit: 0.015, dolly: 0.04 },
+        moment: null,
+        mom: 4,
+      }),
+      10: altPhase(10, {
+        ja: { phase: '戦の後', label: '戦の後', cam: 'CAM · 俯瞰',
+          title: '家康のいない日本',
+          text: '徳川家は家康の長男<span class="info-east">信康</span>を立てて岡崎にこもった。東の盾を失った<span class="info-east">織田信長</span>は、武田と正面から向き合うことになる。のちに天下を治める人が、ここで消えた。<span class="info-highlight">日本の歴史は大きく変わっていたかもしれない</span>。' },
+        en: { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · OVERVIEW',
+          title: 'A Japan without Ieyasu',
+          text: `The Tokugawa rally around Ieyasu's eldest son <span class="info-east">Nobuyasu</span> at Okazaki. Without his eastern shield, <span class="info-east">Oda Nobunaga</span> must now face the Takeda head-on. The man who would one day rule Japan is gone — <span class="info-highlight">history might have turned out very differently</span>.` },
+        cam: { pos: [30, 80, 70], look: [-6, 0, 0] },
+        units: Object.assign({ ieyasu: [4, 6], natsume: [6, 9] }, FLED, { yamagata: [44, 46], baba: [40, 50], katsuyori: [50, 44], oyamada: [36, 40], naito: [30, 30], shingen: [46, 50] }),
+        defeated: ['hirate', 'ieyasu', 'natsume'],
+        arrows: [],
+        moment: { ja: '家康なき世', en: 'NO IEYASU', subJa: '歴史は大きく変わったかもしれない', subEn: 'History might have changed', shake: 0 },
+        mom: 4,
+      }),
+    },
+    // ---------- 決断3: 大敗のあと、信玄が浜松城を攻める ----------
+    besiegeBroken: {
+      9: altPhase(9, {
+        ja: { phase: '夜の城攻め', label: '城攻め', cam: 'CAM · 浜松城',
+          title: '信玄、開いた門に攻めこませる',
+          text: '<span class="info-west">信玄</span>は「罠ではない」と見ぬき、夜のうちに城を攻めさせた。逃げ帰ったばかりの徳川兵は少なく、<span class="info-west">山県昌景</span>の赤備えが<span class="info-highlight">外曲輪に攻めこむ</span>。' },
+        en: { phase: 'NIGHT ASSAULT', label: 'Assault', cam: 'CAM · HAMAMATSU CASTLE',
+          title: 'Shingen sends his men through the open gates',
+          text: `<span class="info-west">Shingen</span> sees through the bluff and attacks that night. Few Tokugawa soldiers have made it back, and <span class="info-west">Yamagata</span>'s red-armored men <span class="info-highlight">break into the outer works</span>.` },
+        cam: { pos: [20, 30, 24], look: [42, 1, 44] },
+        units: Object.assign({}, CASTLE, { natsume: [6, 8], hirate: [-2, -32] }, SIEGE),
+        battles: [{ x: 44, z: 43 }, { x: 39, z: 48 }, { x: 51, z: 43 }], battling: ['yamagata', 'sakakibara', 'baba', 'ishikawa', 'naito', 'honda', 'katsuyori', 'okubo'],
+        defeated: ['hirate', 'natsume'],
+        arrows: [at('yamagata', 'sakakibara', W), at('baba', 'ishikawa', W), at('katsuyori', 'honda', W)],
+        cine: { focus: ['yamagata', 'sakakibara'], blend: 0.8, orbit: 0.02, dolly: 0.1 },
+        moment: { ja: '城攻め', en: 'THE ASSAULT', subJa: '赤備え、外曲輪へ', subEn: 'The red army breaks in', shake: 0.7 },
+        mom: 8,
+      }),
+      10: altPhase(10, {
+        ja: { phase: '戦の後', label: '戦の後', cam: 'CAM · 俯瞰',
+          title: '浜松城、落ちる',
+          text: '夜明け前、<span class="info-east">家康</span>はわずかな兵とともに城を抜け出し、西の岡崎へ逃れた。<span class="info-highlight">浜松城は武田のもの</span>となり、遠江はほぼ信玄の手に落ちた。' },
+        en: { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · OVERVIEW',
+          title: 'Hamamatsu falls',
+          text: `Before dawn <span class="info-east">Ieyasu</span> slips out with a handful of men and flees west to Okazaki. <span class="info-highlight">Hamamatsu is Takeda territory</span>, and nearly all of Tōtōmi is in Shingen's hands.` },
+        cam: { pos: [30, 80, 70], look: [-6, 0, 0] },
+        units: Object.assign({ natsume: [6, 8], hirate: [-2, -32] }, FLED, { yamagata: [44, 46], baba: [40, 50], katsuyori: [50, 44], oyamada: [36, 40], naito: [30, 30], shingen: [46, 50] }),
+        defeated: ['hirate', 'natsume'],
+        arrows: [mvp([40, 50], [-60, 50], E)],
+        moment: { ja: '浜松城落城', en: 'HAMAMATSU FALLS', subJa: '家康、岡崎へ逃れる', subEn: 'Ieyasu flees to Okazaki', shake: 0 },
+        mom: 6,
+      }),
+    },
+  };
+
+  _replaceObj(SEG, MIKA_SEG);
+  _replaceArr(DECISION_IDX, [3, 7, 9]);
+  _replaceObj(DECISIONS, {
+    3: {
+      who: 'ieyasu', applies: () => true,
+      ja: { title: '家康の決断', situation: '祝田の坂を下りる武田軍を後ろから突くつもりだった。だが武田軍は台地の上で向きを変え、兵を厚く重ねて待ち構えている。数は倍以上だ。' },
+      en: { title: "IEYASU'S DECISION", situation: 'You meant to catch the Takeda going down the Hōda slope. Instead they have turned around on the plateau and are waiting for you in deep ranks — more than twice your numbers.' },
+      options: () => [
+        { id: 'attack', history: true, ja: ['鶴翼の陣で攻めかかる', '史実どおり。ここで決戦を挑む'], en: ["Attack in the crane's wing", 'As in history: fight it out here'] },
+        { id: 'withdraw', ja: ['戦わずに引き返す', '本多・榊原を殿にして浜松城へ戻る'], en: ['Turn back without fighting', 'Honda and Sakakibara cover the way back to Hamamatsu'] },
+      ],
+    },
+    7: {
+      who: 'ieyasu', applies: () => decideState.choices[3] === 'attack',
+      ja: { title: '家康の決断', situation: '鶴翼は崩れ、まわりに残る兵はわずか。城から駆けつけた夏目吉信が「ここは私が家康となります。殿は城へ」と言う。' },
+      en: { title: "IEYASU'S DECISION", situation: 'Your lines have collapsed and only a few men remain around you. Natsume Yoshinobu, riding out from the castle, says: "Let me be Ieyasu here. My lord, get back to the castle."' },
+      options: () => [
+        { id: 'escape', history: true, ja: ['城へ逃れる', '史実どおり。夏目に後を託す'], en: ['Escape to the castle', 'As in history: leave it to Natsume'] },
+        { id: 'charge', ja: ['みずから斬り込む', 'ここで武田と刺し違える覚悟'], en: ['Charge the enemy yourself', 'Ready to die fighting'] },
+      ],
+    },
+    9: {
+      who: 'shingen', applies: () => decideState.choices[3] === 'withdraw' || decideState.choices[7] === 'escape',
+      ja: { title: '信玄の決断' },
+      en: { title: "SHINGEN'S DECISION" },
+      situation: () => decideState.choices[3] === 'withdraw'
+        ? { ja: '徳川軍はほとんど兵を失わずに浜松城へ戻り、門を固く閉じた。城には1万1千がこもっている。', en: 'The Tokugawa got back to Hamamatsu with almost no losses and shut the gates. 11,000 men are inside.' }
+        : { ja: '徳川軍は大敗し、家康は浜松城へ逃げこんだ。城は門を開け、篝火を焚いている。罠か、ただの強がりか。', en: 'The Tokugawa are routed and Ieyasu has fled into Hamamatsu. The gates stand open with bonfires burning. A trap — or just a bluff?' },
+      options: () => [
+        { id: 'west', history: true, ja: ['城は攻めず、西へ進む', '史実どおり。目的は浜松ではない'], en: ['Leave it and move west', "As in history: Hamamatsu isn't the goal"] },
+        { id: 'besiege', ja: ['浜松城を攻める', 'このまま家康の城を落とす'], en: ['Attack Hamamatsu', "Take Ieyasu's castle now"] },
+      ],
+    },
+  });
+  _replaceObj(ENDINGS, {
+    E1: { ja: ['史実：家康、生涯最大の敗北', '大敗したが家康は生きのびた。信玄は西へ去り、翌年に病で世を去る。'], en: ["History: Ieyasu's Worst Defeat", 'Ieyasu is routed but survives. Shingen moves on and dies of illness the next year.'] },
+    E2: { ja: ['兵を守る', '戦わずに引き返した家康は、兵を丸ごと守りきった。'], en: ['Army Intact', 'By turning back, Ieyasu keeps his whole army.'] },
+    E3: { ja: ['家康なき世', '家康は三方ヶ原で討死。日本の歴史は大きく変わったかもしれない。'], en: ['No Ieyasu', 'Ieyasu dies on Mikatagahara. History might have changed.'] },
+    E4: { ja: ['浜松城、落ちる', '信玄は開いた門に攻めこみ、家康は岡崎へ逃れた。'], en: ['Hamamatsu Falls', 'Shingen storms the open gates and Ieyasu flees to Okazaki.'] },
+    E5: { ja: ['守りきった浜松城', '兵をそろえて城にこもった徳川が、武田の城攻めを退けた。'], en: ['The Castle Holds', 'With his whole army inside, Ieyasu beats off the Takeda assault.'] },
+  });
+
+  Object.assign(STR.en, {
+    'sim.title': 'Mikatagahara', 'sim.sub': "Ieyasu's Worst Defeat", 'sim.d1': 'Genki 3', 'sim.d2': '12th mo. 22',
+    'legend.east': 'Tokugawa–Oda', 'legend.west': 'Takeda',
+    'sim.loading': 'Deploying the armies...',
+    'name.ieyasu': 'Tokugawa Ieyasu', 'name.shingen': 'Takeda Shingen',
+    'wi.historyDesc': 'What actually happened on the 22nd day of the 12th month of Genki 3 (January 1573).',
+    'dm.desc': 'Make the calls at 16:00, 18:00 and 21:00. Five endings to discover.',
+  });
+  Object.assign(STR.ja, {
+    'sim.title': '三方ヶ原', 'sim.sub': '家康、生涯最大の敗北', 'sim.d1': '元亀三年', 'sim.d2': '十二月二十二日',
+    'legend.east': '徳川・織田軍', 'legend.west': '武田軍',
+    'sim.loading': '三方ヶ原の布陣図を展開中',
+    'name.ieyasu': '徳川家康', 'name.shingen': '武田信玄',
+    'wi.historyDesc': '元亀三年十二月二十二日に実際に起きたこと。',
+    'dm.desc': '16:00・18:00・21:00の決断で展開が変わる。エンディングは全5種。',
+  });
+}
+
 const decideState = { active: false, choices: {}, wasPlaying: false, open: null };
 let altPhaseSet = new Set();
 let lastAppliedPhase = -1;
@@ -10431,6 +11148,11 @@ const GROUND_ROADS = {
     [[-46, 28], [-30, 24], [-12, 20], [6, 14], [18, 15], [27, 17]],
     [[-2, -6], [-6, -14], [-8, -22]],
   ],
+  mikatagahara: [
+    [[44, 50], [48, 30], [54, 0], [60, -30], [66, -60], [70, -80]],               // 浜松から二俣へ
+    [[44, 46], [26, 22], [6, 0], [-14, -18], [-34, -40], [-46, -60], [-56, -80]],   // 浜松から祝田へ
+    [[-80, 40], [-40, 44], [0, 48], [44, 52], [80, 54]],                            // 東西の道
+  ],
   kawanakajima: [
     [[-80, -10], [-50, -8], [-24, -10], [-6, -8], [14, -4], [30, 4], [42, 14]],     // 八幡原を東西に
     [[-20, -80], [-20, -66], [-18, -50], [-14, -20], [-10, 0], [-14, 22]],           // 善光寺から雨宮の渡しへ
@@ -10446,6 +11168,7 @@ function groundRiverLines() {
   if (IS_OKE) return OKE_RIVERS;
   if (IS_NAGA) return NAGA_RIVERS;
   if (IS_KAWA) return KAWA_RIVERS;
+  if (IS_MIKA) return MIKA_RIVERS;
   const line = [];
   for (let i = 0; i <= 30; i++) {
     const t = i / 30, x = -70 + t * 140;
@@ -10472,6 +11195,8 @@ const _hash2 = (x, y) => { const s = Math.sin(x * 127.1 + y * 311.7) * 43758.545
 
 // 標高・傾斜・ノイズから「森の濃さ」(0〜1)
 function forestAmount(h, slope, n1, n2) {
+  // 三方ヶ原は草と松がまばらな台地
+  if (IS_MIKA) return Math.max(_sstep(0.16, 0.34, slope) * 0.9, _sstep(0.6, 0.72, n2) * 0.85);
   let f = _sstep(2.0, 4.2, h + n1 * 2.6) * 0.95;
   f = Math.max(f, _sstep(0.16, 0.34, slope) * _sstep(1.0, 2.0, h));
   // 平地にも小さな林
@@ -10629,6 +11354,7 @@ function buildForest() {
   Object.values(typeof OKE_POS !== 'undefined' && IS_OKE ? OKE_POS : {}).forEach(p => keep.push(p));
   Object.values(typeof NAGA_POS !== 'undefined' && IS_NAGA ? NAGA_POS : {}).forEach(p => keep.push(p));
   Object.values(typeof KAWA_POS !== 'undefined' && IS_KAWA ? KAWA_POS : {}).forEach(p => keep.push(p));
+  Object.values(typeof MIKA_POS !== 'undefined' && IS_MIKA ? MIKA_POS : {}).forEach(p => keep.push(p));
   const blocked = (x, z) => keep.some(([kx, kz]) => (kx - x) ** 2 + (kz - z) ** 2 < 26);
   const nearFence = (x, z) => IS_NAGA && z > NAGA_FENCE.z0 - 3 && z < NAGA_FENCE.z1 + 3 && Math.abs(x - nagaFenceX(z)) < 4;
   const roads = GROUND_ROADS[BATTLE_ID] || [];
@@ -10783,6 +11509,11 @@ const ACTS = {
     { from: 3, ja: ['第二幕', '朝', '今川の進軍'], en: ['ACT II', 'MORNING', 'The Imagawa Advance'] },
     { from: 7, ja: ['第三幕', '昼', '嵐の前'], en: ['ACT III', 'MIDDAY', 'Before the Storm'] },
     { from: 10, ja: ['第四幕', '午後', '桶狭間'], en: ['ACT IV', 'AFTERNOON', 'Okehazama'] },
+  ],
+  mikatagahara: [
+    { from: 0, ja: ['第一幕', '昼', '素通り'], en: ['ACT I', 'MIDDAY', 'Passing By'] },
+    { from: 3, ja: ['第二幕', '夕', '三方ヶ原'], en: ['ACT II', 'DUSK', 'Mikatagahara'] },
+    { from: 7, ja: ['第三幕', '夜', '浜松城'], en: ['ACT III', 'NIGHT', 'Hamamatsu'] },
   ],
   kawanakajima: [
     { from: 0, ja: ['第一幕', '夜', '啄木鳥'], en: ['ACT I', 'NIGHT', 'The Woodpecker'] },
