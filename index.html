@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Sengoku Simulation | Japanese Historical Battles in 3D</title>
-<meta name="description" content="Watch Minatogawa, Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake, Sekigahara, Sanada-maru and Osaka unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.">
+<meta name="description" content="Watch Minatogawa, Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake, Sekigahara, Sanada-maru, Osaka and Dan-no-ura unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Sengoku Simulation | Japanese Historical Battles in 3D">
 <meta property="og:description" content="Watch the Battle of Sekigahara (1600) unfold in 3D, phase by phase, with commander profiles and a timeline.">
@@ -2621,6 +2621,7 @@ html[lang="en"] .title-logo { font-family: 'Cormorant Garamond', 'Noto Serif JP'
 .if-card.c-sky .ifc-top { background: #1fa3e0; color: #fff; }
 .if-card.c-scarlet .ifc-top { background: #d8342a; color: #fff; }
 .if-card.c-plum .ifc-top { background: #9b3fb5; color: #fff; }
+.if-card.c-navy .ifc-top { background: #2a4f8f; color: #fff; }
 .ifc-year { font-family: 'Dela Gothic One', sans-serif; font-size: 13px; background: #fff; color: #1b1b1f; border: 2px solid #1b1b1f; border-radius: 8px; padding: 1px 8px; }
 .ifc-name { font-family: 'Dela Gothic One', sans-serif; font-size: 21px; line-height: 1.2; }
 .ifc-q { display: block; font-size: 17px; font-weight: 900; padding: 14px 16px 6px; line-height: 1.45; }
@@ -3133,7 +3134,7 @@ setTimeout(updateAppHeight, 1000);
 const BATTLE_ID = (() => {
   try {
     const b = new URLSearchParams(location.search).get('battle');
-    return ['okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake', 'minatogawa', 'osaka-summer', 'osaka-winter'].includes(b) ? b : 'sekigahara';
+    return ['okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake', 'minatogawa', 'osaka-summer', 'osaka-winter', 'dannoura'].includes(b) ? b : 'sekigahara';
   } catch (e) { return 'sekigahara'; }
 })();
 const IS_OKE = BATTLE_ID === 'okehazama';
@@ -3146,11 +3147,12 @@ const IS_SHIZ = BATTLE_ID === 'shizugatake';
 const IS_MINA = BATTLE_ID === 'minatogawa';
 const IS_OSAKA = BATTLE_ID === 'osaka-summer';
 const IS_WINTER = BATTLE_ID === 'osaka-winter';
+const IS_DAN = BATTLE_ID === 'dannoura';
 // 合戦ごとの差し替え口(関ヶ原では空のまま)
 const BX = {};
-const GENERAL_IDS = { sekigahara: ['ieyasu', 'mitsunari'], okehazama: ['nobunaga', 'yoshimoto'], nagashino: ['nobunaga', 'katsuyori'], kawanakajima: ['shingen', 'kenshin'], mikatagahara: ['ieyasu', 'shingen'], honnoji: ['mitsuhide', 'nobunaga'], yamazaki: ['hideyoshi', 'mitsuhide'], shizugatake: ['hideyoshi', 'katsuie'], minatogawa: ['takauji', 'masashige'], 'osaka-summer': ['ieyasu', 'nobushige'], 'osaka-winter': ['ieyasu', 'nobushige'] }[BATTLE_ID];
-const GENERAL_SIDE = { sekigahara: { ieyasu: 'right', mitsunari: 'left' }, okehazama: { nobunaga: 'left', yoshimoto: 'right' }, nagashino: { nobunaga: 'left', katsuyori: 'right' }, kawanakajima: { shingen: 'right', kenshin: 'left' }, mikatagahara: { ieyasu: 'right', shingen: 'left' }, honnoji: { mitsuhide: 'right', nobunaga: 'left' }, yamazaki: { hideyoshi: 'right', mitsuhide: 'left' }, shizugatake: { hideyoshi: 'right', katsuie: 'left' }, minatogawa: { takauji: 'right', masashige: 'left' }, 'osaka-summer': { ieyasu: 'right', nobushige: 'left' }, 'osaka-winter': { ieyasu: 'right', nobushige: 'left' } }[BATTLE_ID];
-const DM_START = { sekigahara: 4, okehazama: 5, nagashino: 0, kawanakajima: 0, mikatagahara: 2, honnoji: 2, yamazaki: 0, shizugatake: 1, minatogawa: 3, 'osaka-summer': 2, 'osaka-winter': 2 }[BATTLE_ID];
+const GENERAL_IDS = { sekigahara: ['ieyasu', 'mitsunari'], okehazama: ['nobunaga', 'yoshimoto'], nagashino: ['nobunaga', 'katsuyori'], kawanakajima: ['shingen', 'kenshin'], mikatagahara: ['ieyasu', 'shingen'], honnoji: ['mitsuhide', 'nobunaga'], yamazaki: ['hideyoshi', 'mitsuhide'], shizugatake: ['hideyoshi', 'katsuie'], minatogawa: ['takauji', 'masashige'], 'osaka-summer': ['ieyasu', 'nobushige'], 'osaka-winter': ['ieyasu', 'nobushige'], dannoura: ['yoshitsune', 'tomomori'] }[BATTLE_ID];
+const GENERAL_SIDE = { sekigahara: { ieyasu: 'right', mitsunari: 'left' }, okehazama: { nobunaga: 'left', yoshimoto: 'right' }, nagashino: { nobunaga: 'left', katsuyori: 'right' }, kawanakajima: { shingen: 'right', kenshin: 'left' }, mikatagahara: { ieyasu: 'right', shingen: 'left' }, honnoji: { mitsuhide: 'right', nobunaga: 'left' }, yamazaki: { hideyoshi: 'right', mitsuhide: 'left' }, shizugatake: { hideyoshi: 'right', katsuie: 'left' }, minatogawa: { takauji: 'right', masashige: 'left' }, 'osaka-summer': { ieyasu: 'right', nobushige: 'left' }, 'osaka-winter': { ieyasu: 'right', nobushige: 'left' }, dannoura: { yoshitsune: 'right', tomomori: 'left' } }[BATTLE_ID];
+const DM_START = { sekigahara: 4, okehazama: 5, nagashino: 0, kawanakajima: 0, mikatagahara: 2, honnoji: 2, yamazaki: 0, shizugatake: 1, minatogawa: 3, 'osaka-summer': 2, 'osaka-winter': 2, dannoura: 1 }[BATTLE_ID];
 const ENDINGS_KEY = BATTLE_ID === 'sekigahara' ? 'sg_endings' : 'sg_endings_' + BATTLE_ID;
 
 const eras = [
@@ -3160,7 +3162,7 @@ const eras = [
     years: '794 — 1185',
     desc: '武士が台頭し、源平の争乱で武家政権へ',
     battles: [
-      { id: 'dannoura', year: '1185', name: '壇ノ浦の戦い', east: { name: '源氏', force: '約840隻' }, west: { name: '平家', force: '約500隻' }, winner: 'east', winnerName: '源氏', implemented: false },
+      { id: 'dannoura', year: '1185', name: '壇ノ浦の戦い', east: { name: '源氏', force: '約840隻' }, west: { name: '平家', force: '約500隻' }, winner: 'east', winnerName: '源氏', implemented: true },
       { id: 'ichinotani', year: '1184', name: '一ノ谷の戦い', east: { name: '源氏', force: '約1万' }, west: { name: '平家', force: '約8万' }, winner: 'east', winnerName: '源氏', implemented: false },
     ],
   },
@@ -3249,7 +3251,7 @@ try {
 const STR = {
   en: {
     'meta.title': 'Sengoku Simulation | Japanese Historical Battles in 3D',
-    'meta.desc': 'Watch Minatogawa, Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake, Sekigahara, Sanada-maru and Osaka unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.',
+    'meta.desc': 'Watch Minatogawa, Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake, Sekigahara, Sanada-maru, Osaka and Dan-no-ura unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.',
     'home.title': 'SENGOKU',
     'title.sub': 'Famous battles of Japan in 3D. Watch them unfold — or change how they end.',
     'title.history': 'Watch History',
@@ -3300,7 +3302,7 @@ const STR = {
   },
   ja: {
     'meta.title': '戦国シミュレーション',
-    'meta.desc': '湊川・桶狭間・川中島・三方ヶ原・長篠・本能寺・山崎・賤ヶ岳・関ヶ原・大坂冬の陣・大坂夏の陣を3Dで再現。史実をたどるだけでなく、自分で決断して別の結末も探せる。無料・ブラウザで動作。',
+    'meta.desc': '湊川・桶狭間・川中島・三方ヶ原・長篠・本能寺・山崎・賤ヶ岳・関ヶ原・大坂冬の陣・大坂夏の陣・壇ノ浦を3Dで再現。史実をたどるだけでなく、自分で決断して別の結末も探せる。無料・ブラウザで動作。',
     'home.title': '戦国',
     'title.sub': '日本の合戦を3Dで。史実をたどるか、歴史を変えるか。',
     'title.history': '史実を見る',
@@ -3656,6 +3658,8 @@ const IF_BATTLES = [
     q: { ja: 'もしも義元が、本陣の守りを固めていたら？', en: 'What if Yoshimoto had stayed on guard?' } },
   { id: 'nagashino', endings: 5, key: 'sg_endings_nagashino', color: 'cyan',
     q: { ja: 'もしも勝頼が、柵の端を回り込んでいたら？', en: 'What if Katsuyori had gone around the fence?' } },
+  { id: 'dannoura', endings: 4, key: 'sg_endings_dannoura', color: 'navy',
+    q: { ja: 'もしも平家が、裏切り者を斬っていたら？', en: 'What if the Heike had executed the traitor?' } },
   { id: 'osaka-winter', endings: 4, key: 'sg_endings_osaka-winter', color: 'plum',
     q: { ja: 'もしも前田利常が、真田の挑発に乗らなかったら？', en: "What if Maeda hadn't taken Sanada's bait?" } },
   { id: 'osaka-summer', endings: 4, key: 'sg_endings_osaka-summer', color: 'scarlet',
@@ -3992,7 +3996,7 @@ document.getElementById('backFromSim').addEventListener('click', () => {
 });
 
 // ========= シミュレーション =========
-const PLAYABLE_BATTLES = ['sekigahara', 'okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake', 'minatogawa', 'osaka-summer', 'osaka-winter'];
+const PLAYABLE_BATTLES = ['sekigahara', 'okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake', 'minatogawa', 'osaka-summer', 'osaka-winter', 'dannoura'];
 function openSimulation(battleId) {
   if (!PLAYABLE_BATTLES.includes(battleId)) return;
   if (battleId !== BATTLE_ID) {
@@ -4385,7 +4389,7 @@ class Unit {
     const dz = this.targetZ - this.group.position.z;
     this.group.position.x += dx * 0.04 * playSpeed;
     this.group.position.z += dz * 0.04 * playSpeed;
-    this.group.position.y = getTerrainHeight(this.group.position.x, this.group.position.z);
+    this.group.position.y = (BX.walk || getTerrainHeight)(this.group.position.x, this.group.position.z);
     
     this.flag.rotation.y = Math.sin(t * 3 + this.group.position.x) * 0.3;
     
@@ -4813,9 +4817,7 @@ function applyPhase(idx) {
   if (p.traitor && units[p.traitor]) {
     units[p.traitor].setFaction('traitor');
   } else {
-    if (units['kobayakawa'] && units['kobayakawa'].faction === 'traitor' && !p.traitor) {
-      units['kobayakawa'].setFaction('west');
-    }
+    Object.values(units).forEach(u => { if (u.faction === 'traitor') u.setFaction('west'); });
   }
   
   (p.battling || []).forEach(id => { if (units[id]) units[id].battling = true; });
@@ -6316,6 +6318,7 @@ const HORSE_COATS = [0x6b4428, 0x5a3820, 0x3a2a20, 0x7a5232, 0x2a2420, 0x8a7a68]
 // 騎馬の割合(合戦ごと)。指定がなければ総大将の隊 18%、ほかは 8%
 const CAVALRY_RATIO = {
   nagashino: { katsuyori: 0.3, baba: 0.45, yamagata: 0.5, sanada: 0.45, naito: 0.4, tsuchiya: 0.4, nobukado: 0.35, nobutoyo: 0.35, nobuzane: 0.15, siege: 0.1, teppo: 0, okudaira: 0 },
+  dannoura: { yoshitsune: 0, kagetoki: 0, miura: 0, kono: 0, noriyori: 0.3, tomomori: 0, munemori: 0, noritsune: 0, antoku: 0, shigeyoshi: 0, hideto: 0 },
   'osaka-winter': { ieyasu: 0.25, hidetada: 0.25, maeda: 0.25, ii: 0.3, tadanao: 0.3, todo: 0.25, nobushige: 0.2, daisuke: 0.2, iki: 0.2, chosokabe: 0.15, ishikawa: 0.1, hideyori: 0.2 },
   'osaka-summer': { ieyasu: 0.25, hidetada: 0.25, tadanao: 0.3, tadatomo: 0.3, ogasawara: 0.3, maeda: 0.25, nobushige: 0.4, katsunaga: 0.3, harufusa: 0.25, akashi: 0.25, hideyori: 0.3 },
   minatogawa: { takauji: 0.3, tadayoshi: 0.35, shiba: 0.3, shoni: 0.35, hosokawa: 0.25, masashige: 0.3, masasue: 0.3, yoshisada: 0.35, wakiya: 0.3, honma: 0.2 },
@@ -6551,6 +6554,7 @@ function placeHorse(T, i, wx, wy, wz, yaw, pitch, roll, ph, gait) {
 const RIDER_Y = 0.3 * 1.3;   // 鞍の高さ(体の倍率込み)
 
 function terrainFast(x, z) {
+  if (BX.walk) return BX.walk(x, z);
   return groundGrid ? sampleGrid(groundGrid.H, x, z) : getTerrainHeight(x, z);
 }
 
@@ -11154,6 +11158,413 @@ if (IS_WINTER) {
   kamonImages.hideyori = "data:image/png;base64,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";
 }
 
+
+// ========================================================
+// ===== 12戦目: 壇ノ浦の戦い(?battle=dannoura) =====
+// ========================================================
+// 座標: x が東、z が南。北が本州(長門)、南が九州(豊前)。そのあいだを関門海峡が東西に走る
+const DAN_POS = {
+  hikoshima: [-62, 0], manju: [74, 4], dannoura: [22, -18], akama: [-26, -18], moji: [-10, 15], tanoura: [24, 24],
+};
+const DAN_NORTH = [[-95, -24], [-60, -20], [-30, -14], [-10, -8], [10, -12], [30, -18], [50, -26], [70, -34], [95, -42]];
+const DAN_SOUTH = [[-95, 30], [-60, 24], [-30, 14], [-10, 8], [10, 14], [30, 24], [50, 34], [70, 44], [95, 52]];
+const DAN_ISLES = [[-62, 0, 7], [74, 4, 3]];      // 彦島、満珠島
+const DAN_SEA_Y = 0.3, DAN_DECK = 0.62;
+function _danCoast(line, x) {
+  if (x <= line[0][0]) return line[0][1];
+  for (let i = 0; i < line.length - 1; i++) {
+    const [ax, az] = line[i], [bx, bz] = line[i + 1];
+    if (x <= bx) return az + (bz - az) * (x - ax) / (bx - ax);
+  }
+  return line[line.length - 1][1];
+}
+// 正なら海(値は岸からのおおよその距離)
+function danSeaDepth(x, z) {
+  let d = Math.min(z - _danCoast(DAN_NORTH, x), _danCoast(DAN_SOUTH, x) - z);
+  DAN_ISLES.forEach(([cx, cz, r]) => { d = Math.min(d, Math.hypot(x - cx, z - cz) - r); });
+  return d;
+}
+function danTerrainHeight(x, z) {
+  const hill = (cx, cz, s, a) => Math.exp(-((x - cx) ** 2 + (z - cz) ** 2) / s) * a;
+  const sd = danSeaDepth(x, z);
+  let h = 0.9 + Math.abs(__fbm(x * 0.05, z * 0.05, 3)) * 0.8;
+  h += Math.max(0, -z - 26) * 0.35 + Math.max(0, z - 30) * 0.3;    // 両岸の山並み
+  h += hill(-4, -24, 120, 4.5);     // 火の山
+  h += hill(-14, 24, 120, 4.2);     // 古城山
+  h += hill(-62, 0, 20, 1.6);       // 彦島
+  h += hill(74, 4, 4, 1.2);         // 満珠島
+  h += __fbm(x * 0.2, z * 0.2, 3) * 0.2;
+  if (sd > -3) {
+    const t = Math.min(1, (sd + 3) / 4);
+    h = h * (1 - t) + (0.15 - 0.55 * t) * t;   // 浜から海へ
+  }
+  return Math.max(-0.5, h);
+}
+// 兵と船が立つ高さ(海の上では船の甲板)
+function danWalkHeight(x, z) {
+  const t = danTerrainHeight(x, z);
+  const sd = danSeaDepth(x, z);
+  return Math.max(t, DAN_DECK * Math.min(1, Math.max(0, sd / 1.5)));
+}
+const danShips = {};
+const danStreaks = [];
+let danLastT = 0;
+function buildDanDecor() {
+  const wmat = new THREE.MeshStandardMaterial({ color: 0x4f86b0, transparent: true, opacity: 0.9, roughness: 0.15, metalness: 0.25 });
+  const sea = new THREE.Mesh(new THREE.PlaneGeometry(190, 190), wmat);
+  sea.rotation.x = -Math.PI / 2;
+  sea.position.y = DAN_SEA_Y;
+  scene.add(sea);
+  // 潮の流れを見せる白いすじ
+  const smat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6, depthWrite: false });
+  const sgeo = new THREE.PlaneGeometry(3.0, 0.16);
+  for (let i = 0; i < 70; i++) {
+    const m = new THREE.Mesh(sgeo, smat);
+    m.rotation.x = -Math.PI / 2;
+    const x = -80 + Math.random() * 160;
+    const zn = _danCoast(DAN_NORTH, x) + 2, zs = _danCoast(DAN_SOUTH, x) - 2;
+    m.position.set(x, DAN_SEA_Y + 0.02, zn + Math.random() * (zs - zn));
+    m.userData.v = 0.7 + Math.random() * 0.6;
+    scene.add(m);
+    danStreaks.push(m);
+  }
+  // 壇ノ浦の浜と赤間関の小さな家並み
+  const wall = new THREE.MeshStandardMaterial({ color: 0xcfc4ad, roughness: 0.95 });
+  const thatch = new THREE.MeshStandardMaterial({ color: 0x8a7a5a, roughness: 1, flatShading: true });
+  [[-30, -19], [-26, -20], [-22, -19], [-28, -23], [18, -20], [22, -21]].forEach(([x, z]) => {
+    const y = danTerrainHeight(x, z);
+    const hut = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.8, 1.3), wall);
+    hut.position.set(x, y + 0.4, z); scene.add(hut);
+    const rf = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 1.3, 0.8, 4, 1), thatch);
+    rf.rotation.y = Math.PI / 4; rf.scale.set(1.1, 1, 0.8); rf.position.set(x, y + 1.2, z); scene.add(rf);
+  });
+}
+// 船団は兵の下に置く(兵の並びの大きさに合わせる)
+const _danHull = new THREE.MeshStandardMaterial({ color: 0x6a4a30, roughness: 0.9, flatShading: true });
+function danMakeFleet(u) {
+  const force = parseForce(u.id);
+  const count = Math.max(14, Math.min(140, Math.round(Math.sqrt(force) * 0.92)));
+  const cols = Math.ceil(Math.sqrt(count * 1.8)), rows = Math.ceil(count / cols);
+  const W = cols * 0.5 + 0.8, D = rows * 0.5 + 0.8;
+  const nx = Math.max(1, Math.ceil(W / 2.4)), nz = Math.max(1, Math.ceil(D / 1.15));
+  const grp = new THREE.Group();
+  const sailColor = u.faction === 'east' ? 0xf4f0e6 : 0xc8302a;
+  const sailMat = new THREE.MeshStandardMaterial({ color: sailColor, roughness: 0.9, side: THREE.DoubleSide });
+  const hullGeo = new THREE.BoxGeometry(2.3, 0.42, 1.05);
+  const bowGeo = new THREE.CylinderGeometry(0.01, 0.52, 0.6, 4, 1);
+  for (let ix = 0; ix < nx; ix++) for (let iz = 0; iz < nz; iz++) {
+    const b = new THREE.Group();
+    const hull = new THREE.Mesh(hullGeo, _danHull);
+    hull.position.y = -0.21; hull.castShadow = true; b.add(hull);
+    const bow = new THREE.Mesh(bowGeo, _danHull);
+    bow.rotation.z = -Math.PI / 2; bow.rotation.x = Math.PI / 4; bow.scale.set(1, 1, 0.75);
+    bow.position.set(1.45, -0.18, 0); b.add(bow);
+    b.position.set((ix - (nx - 1) / 2) * 2.45, 0, (iz - (nz - 1) / 2) * 1.15);
+    b.userData.ph = Math.random() * 6.28;
+    grp.add(b);
+  }
+  // 大将の船には帆を立てる
+  const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.8, 4), _danHull);
+  mast.position.set(-(nx - 1) * 1.2 - 0.6, 1.2, 0); grp.add(mast);
+  const sail = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.7), sailMat);
+  sail.position.set(mast.position.x, 1.6, 0.05); grp.add(sail);
+  // 帝の御座船には屋形を載せる
+  if (u.id === 'antoku') {
+    const yk = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.8, 0.9), new THREE.MeshStandardMaterial({ color: 0xe8dcc0, roughness: 0.9 }));
+    yk.position.set(0.6, 0.35, 0); grp.add(yk);
+    const yr = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 1.2, 0.5, 4, 1), new THREE.MeshStandardMaterial({ color: 0x5a3a2a, roughness: 0.9, flatShading: true }));
+    yr.rotation.y = Math.PI / 4; yr.scale.set(1.2, 1, 0.7); yr.position.set(0.6, 1.0, 0); grp.add(yr);
+  }
+  u.group.add(grp);
+  return grp;
+}
+const DAN_ROCKS = [];
+const DAN_TREES = [];
+
+function makeDanUnits() {
+  return {
+    yoshitsune: new Unit('yoshitsune', '義', 'east', 56, 0, '源義経', 1.4, true),
+    kagetoki:   new Unit('kagetoki',   '梶', 'east', 60, -10, '梶原景時', 1.0),
+    miura:      new Unit('miura',      '三', 'east', 62, 12, '三浦義澄', 1.0),
+    kono:       new Unit('kono',       '河', 'east', 70, -2, '河野通信', 1.0),
+    noriyori:   new Unit('noriyori',   '範', 'east', -36, 24, '源範頼', 1.2),
+    tomomori:   new Unit('tomomori',   '知', 'west', -40, 0, '平知盛', 1.3, true),
+    munemori:   new Unit('munemori',   '宗', 'west', -48, -4, '平宗盛', 1.1),
+    noritsune:  new Unit('noritsune',  '教', 'west', -36, -6, '平教経', 1.0),
+    antoku:     new Unit('antoku',     '帝', 'west', -52, 4, '安徳天皇', 0.9),
+    shigeyoshi: new Unit('shigeyoshi', '阿', 'west', -42, 8, '田口重能', 1.0),
+    hideto:     new Unit('hideto',     '山', 'west', -34, 5, '山鹿秀遠', 1.0),
+  };
+}
+
+// 特殊効果: 潮のすじを流し、海にいる隊の下に船を出す
+const DAN_TIDE = [0.8, 1, 1, 1, 0.8, 0.3, -0.6, -1, -1, -1, -0.8];   // +が東向きの流れ(史実の潮の説)
+function danSpecialFx() {
+  const t = performance.now() / 1000;
+  const dt = Math.min(0.1, danLastT ? t - danLastT : 0);
+  danLastT = t;
+  const flow = DAN_TIDE[Math.max(0, Math.min(DAN_TIDE.length - 1, currentPhase))] * 3.2;
+  danStreaks.forEach(m => {
+    m.position.x += flow * m.userData.v * dt;
+    if (m.position.x > 85 || m.position.x < -85 || danSeaDepth(m.position.x, m.position.z) < 1) {
+      const x = flow >= 0 ? -80 + Math.random() * 40 : 40 + Math.random() * 40;
+      const zn = _danCoast(DAN_NORTH, x) + 2, zs = _danCoast(DAN_SOUTH, x) - 2;
+      m.position.set(x, DAN_SEA_Y + 0.02, zn + Math.random() * (zs - zn));
+    }
+  });
+  Object.values(units).forEach(u => {
+    if (!u.troop) return;   // 兵の並びができてから船をつくる
+    let grp = danShips[u.id];
+    if (!grp) grp = danShips[u.id] = danMakeFleet(u);
+    const p = u.group.position;
+    const atSea = danSeaDepth(p.x, p.z) > 1.2;
+    grp.visible = atSea;
+    if (!atSea) return;
+    const sink = u.defeated ? -0.35 : 0;
+    grp.children.forEach(b => {
+      if (b.userData.ph === undefined) return;
+      b.position.y = sink + Math.sin(t * 1.3 + b.userData.ph) * 0.05;
+      b.rotation.z = Math.sin(t * 1.1 + b.userData.ph) * 0.03 + (u.defeated ? 0.12 : 0);
+    });
+  });
+}
+function danMomentSound(idx) {
+  if (idx === 1) {
+    horagai(0.26, 0, 2.6);
+  } else if (idx === 3) {
+    crowdSurge(0.28, 0.1, 3.0);
+    let d = 0.2;
+    for (let i = 0; i < 6; i++) { taiko(0.36, d); d += 0.26; }
+  } else if (idx === 5) {
+    [0.05, 0.5].forEach(d => taiko(0.5, d));
+  } else if (idx === 7) {
+    crowdSurge(0.32, 0.1, 3.2);
+  } else if (idx === 8 || idx === 9) {
+    [0.05, 0.9].forEach(d => taiko(0.45, d));
+  }
+}
+
+if (IS_DAN) {
+  Object.assign(BX, {
+    terrain: danTerrainHeight, walk: danWalkHeight, decor: buildDanDecor, rocks: DAN_ROCKS, trees: DAN_TREES,
+    units: makeDanUnits, fx: danSpecialFx, sound: danMomentSound, drum: [3, 7],
+    dom: { kicker: 'DAN-NO-URA · 3D', year: '1185', rename: [['ieyasu', 'yoshitsune'], ['mitsunari', 'tomomori']] },
+  });
+
+  const ALL0 = {
+    yoshitsune: [56, 0], kagetoki: [60, -10], miura: [62, 12], kono: [70, -2], noriyori: [-36, 24],
+    tomomori: [-40, 0], munemori: [-48, -4], noritsune: [-36, -6], antoku: [-52, 4], shigeyoshi: [-42, 8], hideto: [-34, 5],
+  };
+  const U = (o) => Object.assign({}, ALL0, o);
+  const FACE = {
+    tomomori: [2, 0], noritsune: [8, -5], hideto: [10, 5], shigeyoshi: [2, 6], munemori: [-6, -2], antoku: [-14, 2],
+    yoshitsune: [30, 2], kagetoki: [32, -8], miura: [32, 12], kono: [40, 0],
+  };
+  const PUSH = Object.assign({}, FACE, {
+    tomomori: [17, 1], noritsune: [22, -6], hideto: [22, 8], shigeyoshi: [14, 9], munemori: [6, -2], antoku: [-2, 2],
+    yoshitsune: [30, 1], kagetoki: [32, -10], miura: [33, 15], kono: [42, 2],
+  });
+  const ph = (time, ja, units, extra) => Object.assign({ time, units, battles: [], battling: [], defeated: [], traitor: null }, ja, extra || {});
+
+  _replaceArr(phases, [
+    ph('08:00', { phase: '彦島を出る', label: '出陣', title: '平家500艘、彦島を出る',
+      text: '元暦2年3月24日。屋島で敗れた<span class="info-west">平家</span>は彦島に拠っていた。九州には<span class="info-east">源範頼</span>の軍がいて、もう退く道はない。<span class="info-west">平知盛</span>らの船500余艘が、源氏を迎え撃ちに出る。',
+      camera: { pos: [-20, 52, 50], look: [-36, 0, 4], label: 'CAM · 彦島' } }, U({})),
+    ph('10:00', { phase: '向かい合う船団', label: '対峙', title: '壇ノ浦の沖、源平の船が向かい合う',
+      text: '<span class="info-east">源義経</span>は840余艘の船を集めていた。熊野や伊予の水軍も味方につけている。両軍は壇ノ浦の沖で向かい合い、<span class="info-highlight">まずは遠くからの矢の射ち合い</span>が始まった。',
+      camera: { pos: [8, 62, 74], look: [10, 0, 6], label: 'CAM · 壇ノ浦の沖' } }, U(FACE),
+      { arrows: [] }),
+    ph('11:00', { phase: '重能を信じる', label: '重能', title: '「重能を斬るべきだ」— だが総大将は信じた',
+      text: '阿波の水軍を率いる<span class="info-west">田口重能</span>は、源氏に通じているとうたがわれていた。平家の将の中には重能を斬るべきだという声もあったが、総大将は話をしたうえで<span class="info-highlight">重能を信じることにした</span>。',
+      camera: { pos: [-6, 34, 34], look: [-2, 0, 4], label: 'CAM · 平家の船団' } }, U(FACE)),
+    ph('12:00', { phase: '潮に乗る平家', label: '潮', title: '東へ流れる潮に乗って、平家が攻めかかる',
+      text: '正午ごろから激しい戦いになった。はじめは東へ流れる潮に乗った<span class="info-west">平家</span>が有利で、<span class="info-highlight">源氏の船を囲みこもう</span>と攻めかかる。',
+      camera: { pos: [10, 40, 50], look: [20, 0, 6], label: 'CAM · 壇ノ浦の沖' } }, U(PUSH),
+      { battles: [{ x: 27, z: -8 }, { x: 28, z: 11 }, { x: 24, z: 1 }], battling: ['noritsune', 'kagetoki', 'hideto', 'miura', 'tomomori', 'yoshitsune'] }),
+    ph('13:00', { phase: '斬り込み', label: '斬り込み', title: '船に乗り移っての斬り合い',
+      text: '矢の射ち合いは、やがて<span class="info-highlight">船に乗り移っての斬り合い</span>に変わった。<span class="info-west">平教経</span>の隊が先頭で暴れまわる。',
+      camera: { pos: [36, 30, 40], look: [24, 0, 2], label: 'CAM · 船上の戦い' } },
+      U(Object.assign({}, PUSH, { noritsune: [26, -6], kagetoki: [30, -8], hideto: [26, 10], miura: [30, 13], tomomori: [21, 1], yoshitsune: [28, 1] })),
+      { battles: [{ x: 28, z: -7 }, { x: 28, z: 11 }, { x: 25, z: 1 }], battling: ['noritsune', 'kagetoki', 'hideto', 'miura', 'tomomori', 'yoshitsune'] }),
+    ph('14:00', { phase: '裏切り', label: '裏切り', title: '平家方から、裏切りが相次ぐ',
+      text: '形勢が悪いと見た平家方の軍勢から、<span class="info-highlight">裏切りが相次いだ</span>。<span class="info-west">田口重能</span>の阿波水軍も源氏の側へ回り、平家の船に向かってくる。',
+      camera: { pos: [36, 36, 46], look: [22, 0, 8], label: 'CAM · 阿波水軍' } },
+      U(Object.assign({}, PUSH, { noritsune: [26, -6], kagetoki: [30, -8], hideto: [24, 9], miura: [29, 13], tomomori: [20, 1], yoshitsune: [27, 1], shigeyoshi: [24, 16] })),
+      { battles: [{ x: 28, z: -7 }, { x: 24, z: 12 }, { x: 24, z: 1 }], battling: ['noritsune', 'kagetoki', 'hideto', 'shigeyoshi', 'miura', 'tomomori', 'yoshitsune'], traitor: 'shigeyoshi' }),
+    ph('14:30', { phase: '潮が変わる', label: '逆潮', title: '潮の向きが変わり、源氏が押し返す',
+      text: '途中から潮が逆に流れはじめ、<span class="info-east">源氏</span>が押し返した——という説が有名だ。ただ、いまでは<span class="info-highlight">潮の影響は小さかった</span>という見方が強い。',
+      camera: { pos: [30, 44, 50], look: [14, 0, 4], label: 'CAM · 壇ノ浦の沖' } },
+      U({ yoshitsune: [20, 2], kagetoki: [22, -8], miura: [22, 12], kono: [28, 0], shigeyoshi: [18, 14], noriyori: [-36, 24],
+          tomomori: [12, 2], noritsune: [14, -6], hideto: [14, 8], munemori: [2, -2], antoku: [-4, 2] }),
+      { battles: [{ x: 18, z: -7 }, { x: 17, z: 10 }, { x: 16, z: 2 }], battling: ['noritsune', 'kagetoki', 'hideto', 'miura', 'shigeyoshi', 'tomomori', 'yoshitsune'], traitor: 'shigeyoshi' }),
+    ph('15:00', { phase: '水手を射る', label: '水手', title: '水手も舵取りも射られ、源氏がなだれこむ',
+      text: '平家の船の<span class="info-highlight">水手や舵取りまでが射られ</span>、動けなくなった船に源氏の兵がなだれこんだ。<span class="info-west">平教経</span>は最後まで戦い、<span class="info-east">義経</span>のすぐ近くまで迫った。',
+      camera: { pos: [24, 32, 36], look: [8, 0, 0], label: 'CAM · 船上の戦い' } },
+      U({ yoshitsune: [12, 0], kagetoki: [14, -6], miura: [12, 8], kono: [18, -2], shigeyoshi: [14, 12], noriyori: [-36, 24],
+          tomomori: [6, 2], noritsune: [9, -4], hideto: [10, 8], munemori: [0, -2], antoku: [-4, 3] }),
+      { battles: [{ x: 10, z: -2 }, { x: 11, z: 8 }, { x: 8, z: 1 }], battling: ['noritsune', 'yoshitsune', 'kagetoki', 'hideto', 'miura', 'tomomori'], defeated: ['hideto'], traitor: 'shigeyoshi' }),
+    ph('15:30', { phase: '二位尼', label: '二位尼', title: '二位尼、幼い帝を抱いて海へ',
+      text: '敗北をさとった平家の人々は、次々に海へ身を投げた。清盛の妻・<span class="info-west">二位尼</span>は、6歳の<span class="info-west">安徳天皇</span>を抱き、<span class="info-highlight">三種の神器とともに海へ沈んだ</span>。',
+      camera: { pos: [14, 28, 28], look: [-2, 0, 0], label: 'CAM · 御座船' } },
+      U({ yoshitsune: [8, 0], kagetoki: [8, -6], miura: [2, 6], kono: [14, -2], shigeyoshi: [10, 10], noriyori: [-36, 24],
+          tomomori: [3, 1], noritsune: [6, -3], hideto: [10, 8], munemori: [-2, -2], antoku: [-4, 3] }),
+      { battles: [{ x: 7, z: -2 }, { x: 0, z: 5 }], battling: ['noritsune', 'yoshitsune', 'miura', 'antoku'], defeated: ['hideto', 'antoku'], traitor: 'shigeyoshi' }),
+    ph('16:00', { phase: '知盛の最期', label: '知盛', title: '平知盛、海に沈む',
+      text: '<span class="info-west">平教経</span>も、<span class="info-west">平知盛</span>も海に身を投げた。総大将の<span class="info-west">平宗盛</span>とその子は生け捕られ、帝の母・建礼門院は海から引き上げられた。<span class="info-highlight">午後4時ごろ、平家の敗北が決まる</span>。',
+      camera: { pos: [16, 36, 36], look: [2, 0, 2], label: 'CAM · 壇ノ浦の沖' } },
+      U({ yoshitsune: [6, 0], kagetoki: [2, -6], miura: [0, 6], kono: [10, -4], shigeyoshi: [10, 10], noriyori: [-36, 24],
+          tomomori: [3, 1], noritsune: [6, -3], hideto: [10, 8], munemori: [-4, -3], antoku: [-4, 3] }),
+      { defeated: ['hideto', 'antoku', 'noritsune', 'tomomori', 'munemori'], traitor: 'shigeyoshi' }),
+    ph('17:00', { phase: '戦の後', label: '戦の後', title: '平家の滅亡、そして武士の世へ',
+      text: '三種の神器のうち鏡と神璽は引き上げられたが、<span class="info-highlight">宝剣だけは見つからなかった</span>。源平の戦いはここで終わり、<span class="info-east">源頼朝</span>は武士の政権の土台を固めていく。',
+      camera: { pos: [30, 60, 64], look: [6, 0, 8], label: 'CAM · 関門海峡' } },
+      U({ yoshitsune: [10, 2], kagetoki: [8, -6], miura: [6, 8], kono: [16, -2], shigeyoshi: [14, 10], noriyori: [-36, 24],
+          tomomori: [3, 1], noritsune: [6, -3], hideto: [10, 8], munemori: [-4, -3], antoku: [-4, 3] }),
+      { defeated: ['hideto', 'antoku', 'noritsune', 'tomomori', 'munemori'], traitor: 'shigeyoshi' }),
+  ]);
+
+  _replaceArr(EN_PHASES, [
+    { phase: 'LEAVING HIKOSHIMA', label: 'Sortie', cam: 'CAM · HIKOSHIMA',
+      title: '500 Heike ships set out from Hikoshima',
+      text: `The 24th day of the 3rd month, 1185. Beaten at Yashima, the <span class="info-west">Heike</span> have fallen back to Hikoshima. <span class="info-east">Minamoto no Noriyori</span>'s army holds Kyushu behind them, so there is nowhere left to run. <span class="info-west">Taira no Tomomori</span> and the rest set out with some 500 ships to meet the Genji.` },
+    { phase: 'FLEETS FACE OFF', label: 'Face off', cam: 'CAM · OFF DAN-NO-URA',
+      title: 'Off Dan-no-ura, the Genji and Heike fleets face each other',
+      text: `<span class="info-east">Minamoto no Yoshitsune</span> has gathered some 840 ships, with the Kumano and Iyo navies on his side. The fleets face off near Dan-no-ura, and <span class="info-highlight">the fighting opens with long-range archery</span>.` },
+    { phase: 'TRUSTING SHIGEYOSHI', label: 'Shigeyoshi', cam: 'CAM · HEIKE FLEET',
+      title: '"Cut down Shigeyoshi" — but the commander trusted him',
+      text: `<span class="info-west">Taguchi Shigeyoshi</span>, leader of the Awa navy, is suspected of dealing with the Genji. Some Heike generals want him executed, but after talking with him the commander <span class="info-highlight">decides to trust him</span>.` },
+    { phase: 'RIDING THE TIDE', label: 'Tide', cam: 'CAM · OFF DAN-NO-URA',
+      title: 'Riding the eastward tide, the Heike attack',
+      text: `From around noon the battle turns fierce. At first the <span class="info-west">Heike</span>, riding the eastward tide, have the upper hand and <span class="info-highlight">try to encircle the Genji ships</span>.` },
+    { phase: 'BOARDING', label: 'Boarding', cam: 'CAM · SHIP TO SHIP',
+      title: 'Ship to ship, blade to blade',
+      text: `The archery gives way to <span class="info-highlight">boarding and hand-to-hand fighting</span>. <span class="info-west">Taira no Noritsune</span>'s men run wild at the front.` },
+    { phase: 'BETRAYAL', label: 'Betrayal', cam: 'CAM · THE AWA NAVY',
+      title: 'Defections spread through the Heike side',
+      text: `Seeing the battle turn against them, <span class="info-highlight">one Heike force after another defects</span>. <span class="info-west">Taguchi Shigeyoshi</span>'s Awa navy swings over to the Genji and turns on the Heike ships.` },
+    { phase: 'THE TIDE TURNS', label: 'Tide turns', cam: 'CAM · OFF DAN-NO-URA',
+      title: 'The tide turns, and the Genji push back',
+      text: `The famous story is that the tide reversed partway through and the <span class="info-east">Genji</span> pushed back. Today, though, many historians think <span class="info-highlight">the tide made little difference</span>.` },
+    { phase: 'SHOOTING THE ROWERS', label: 'Rowers', cam: 'CAM · SHIP TO SHIP',
+      title: 'Rowers and helmsmen shot down — the Genji pour aboard',
+      text: `Even the <span class="info-highlight">rowers and helmsmen of the Heike ships are shot down</span>, and the Genji pour onto the drifting ships. <span class="info-west">Taira no Noritsune</span> fights to the end and gets close to <span class="info-east">Yoshitsune</span> himself.` },
+    { phase: 'THE NUN OF THE SECOND RANK', label: 'The Nun', cam: "CAM · THE EMPEROR'S SHIP",
+      title: 'Holding the child emperor, the Nun goes into the sea',
+      text: `Knowing the battle is lost, the Heike throw themselves into the sea one after another. Kiyomori's widow, the <span class="info-west">Nun of the Second Rank</span>, takes the six-year-old <span class="info-west">Emperor Antoku</span> in her arms and <span class="info-highlight">sinks beneath the waves with the imperial regalia</span>.` },
+    { phase: "TOMOMORI'S END", label: 'Tomomori', cam: 'CAM · OFF DAN-NO-URA',
+      title: 'Taira no Tomomori goes into the sea',
+      text: `<span class="info-west">Taira no Noritsune</span> and <span class="info-west">Taira no Tomomori</span> both leap into the sea. The commander <span class="info-west">Taira no Munemori</span> and his son are captured, and the emperor's mother, Kenreimon-in, is pulled from the water. <span class="info-highlight">By about 4 p.m. the Heike defeat is sealed</span>.` },
+    { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · KANMON STRAIT',
+      title: 'The Heike are gone, and the age of the warrior begins',
+      text: `Of the three imperial regalia, the mirror and the jewel are recovered, but <span class="info-highlight">the sword is never found</span>. The Genpei War ends here, and <span class="info-east">Minamoto no Yoritomo</span> goes on to build the foundations of warrior rule.` },
+  ]);
+
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
+  _replaceArr(PHASE_ARROWS, [
+    [ mvp([-40, 0], [-20, 0], W) ],
+    [ mvp([-30, 0], [0, 0], W), mvp([56, 0], [32, 1], E) ],
+    [],
+    [ at('noritsune', 'kagetoki', W), at('hideto', 'miura', W), at('tomomori', 'yoshitsune', W) ],
+    [ at('noritsune', 'kagetoki', W), at('hideto', 'miura', W) ],
+    [ mvp([14, 9], [24, 16], W), at('shigeyoshi', 'hideto', W) ],
+    [ mvp([28, 1], [20, 2], E), mvp([32, -8], [22, -8], E) ],
+    [ at('yoshitsune', 'tomomori', E), at('miura', 'hideto', E), at('noritsune', 'yoshitsune', W) ],
+    [ at('miura', 'antoku', E) ],
+    [],
+    [],
+  ]);
+  _replaceArr(CINE, [
+    { focus: ['tomomori', 'antoku'], blend: 0.4, orbit: 0.015, dolly: 0.04 },
+    { orbit: -0.02, dolly: 0.04 },
+    { focus: ['shigeyoshi', 'munemori'], blend: 0.5, orbit: 0.02, dolly: 0.06 },
+    { focus: ['tomomori', 'yoshitsune'], blend: 0.6, orbit: 0.02, dolly: 0.06 },
+    { focus: ['noritsune', 'kagetoki'], blend: 0.8, orbit: -0.02, dolly: 0.1 },
+    { focus: ['shigeyoshi'], blend: 0.6, orbit: 0.02, dolly: 0.08 },
+    { orbit: 0.02, dolly: 0.04 },
+    { focus: ['noritsune', 'yoshitsune'], blend: 0.85, orbit: 0.025, dolly: 0.1 },
+    { focus: ['antoku'], blend: 0.8, orbit: -0.02, dolly: 0.08 },
+    { focus: ['tomomori'], blend: 0.6, orbit: 0.02, dolly: 0.06 },
+    { orbit: 0.02, dolly: -0.04 },
+  ]);
+  _replaceObj(CINE_MOMENTS, {
+    1: { ja: '向かい合う', en: 'FLEETS FACE OFF', subJa: '源氏840艘、平家500艘', subEn: '840 Genji ships, 500 Heike', shake: 0.2 },
+    3: { ja: '潮に乗る平家', en: 'RIDING THE TIDE', subJa: '平家、攻めかかる', subEn: 'The Heike attack', shake: 0.5, accent: 'gold' },
+    5: { ja: '裏切り', en: 'BETRAYAL', subJa: '阿波水軍、源氏へ', subEn: 'The Awa navy defects', shake: 0.6 },
+    7: { ja: '水手を射る', en: 'SHOOTING THE ROWERS', subJa: '源氏、なだれこむ', subEn: 'The Genji pour aboard', shake: 0.7, accent: 'gold' },
+    8: { ja: '二位尼', en: 'THE NUN', subJa: '帝とともに海へ', subEn: 'Into the sea with the emperor', shake: 0 },
+    9: { ja: '知盛の最期', en: "TOMOMORI'S END", subJa: '平家、滅ぶ', subEn: 'The fall of the Heike', shake: 0 },
+  });
+  _replaceArr(MOMENTUM, [52, 54, 54, 42, 44, 58, 68, 80, 90, 96, 98]);
+  _replaceArr(PHASE_ATMO, ['morning', 'morning', 'noon', 'noon', 'noon', 'noon', 'after', 'after', 'after', 'after', 'after']);
+  _replaceArr(PLACES, [
+    { x: 22, z: -20, ja: '壇ノ浦', en: 'Dan-no-ura', lift: 3 },
+    { x: -62, z: -6, ja: '彦島', en: 'Hikoshima', lift: 3 },
+    { x: -26, z: -22, ja: '赤間関', en: 'Akamagaseki', lift: 3, minor: true },
+    { x: -10, z: 18, ja: '門司', en: 'Moji', lift: 3, minor: true },
+    { x: 26, z: 28, ja: '田ノ浦', en: 'Tanoura', lift: 2, minor: true },
+    { x: -10, z: -2, ja: '早鞆の瀬戸', en: 'Hayatomo Narrows', lift: 1.5, minor: true },
+    { x: 74, z: 0, ja: '満珠島', en: 'Manju Island', lift: 2.5, minor: true },
+  ]);
+
+  const g = (o) => o;
+  _replaceObj(generalsData, {
+    yoshitsune: g({ name: '源義経', yomi: 'MINAMOTO NO YOSHITSUNE', faction: 'east', factionLabel: '源氏軍 総大将', force: '約840艘(全軍)', troops: 420, base: '満珠島の近く', birth: '1159', koku: '—',
+      bio: '源頼朝の弟。一ノ谷の戦い、屋島の戦いで平家を破ってきた。', episode: '壇ノ浦で平家を滅ぼしたが、その後、兄の頼朝と仲たがいし、追われる身となる。' }),
+    kagetoki: g({ name: '梶原景時', yomi: 'KAJIWARA KAGETOKI', faction: 'east', factionLabel: '源氏軍', force: '—', troops: 300, base: '—', birth: '?', koku: '相模',
+      bio: '頼朝に重く用いられた武将。義経の軍の目付役でもあった。', episode: '『平家物語』では、壇ノ浦の先陣を義経と争ったことが、のちの兄弟の不和の原因として語られる。' }),
+    miura: g({ name: '三浦義澄', yomi: 'MIURA YOSHIZUMI', faction: 'east', factionLabel: '源氏軍', force: '—', troops: 300, base: '—', birth: '1127', koku: '相模',
+      bio: '相模の三浦一族を率いる武将。早くから頼朝を支えた。', episode: '海に慣れた三浦の一族は、源氏の水軍の中心のひとつだった。' }),
+    kono: g({ name: '河野通信', yomi: 'KŌNO MICHINOBU', faction: 'east', factionLabel: '源氏軍 伊予水軍', force: '—', troops: 280, base: '—', birth: '1156', koku: '伊予',
+      bio: '伊予の水軍を率いた武将。', episode: '伊予や熊野の水軍が源氏についたことで、源氏は平家より多くの船をそろえられた。' }),
+    noriyori: g({ name: '源範頼', yomi: 'MINAMOTO NO NORIYORI', faction: 'east', factionLabel: '源氏軍 九州', force: '—', troops: 1500, base: '九州', birth: '?', koku: '—',
+      bio: '頼朝の弟で、義経の兄。', episode: '九州に渡って平家の退路を断った。戦いのあとも九州にとどまり、平家の領地の処分にあたった。' }),
+    tomomori: g({ name: '平知盛', yomi: 'TAIRA NO TOMOMORI', faction: 'west', factionLabel: '平家軍 大将', force: '約500艘(全軍)', troops: 420, base: '彦島', birth: '1152', koku: '—',
+      bio: '平清盛の四男。宗盛の弟で、平家随一の戦上手と言われた。', episode: '『平家物語』では、「見るべき程の事は見つ」と言い残して海に沈んだと語られる。' }),
+    munemori: g({ name: '平宗盛', yomi: 'TAIRA NO MUNEMORI', faction: 'west', factionLabel: '平家軍 総帥', force: '—', troops: 300, base: '彦島', birth: '1147', koku: '—',
+      bio: '平清盛の三男で、清盛の死後に平家の総帥となった。', episode: '壇ノ浦で子の清宗とともに生け捕られ、のちに処刑された。' }),
+    noritsune: g({ name: '平教経', yomi: 'TAIRA NO NORITSUNE', faction: 'west', factionLabel: '平家軍', force: '—', troops: 260, base: '—', birth: '1160', koku: '—',
+      bio: '清盛の甥。能登守。平家きっての猛将として知られる。', episode: '最後まで戦い、義経のすぐ近くまで迫った。最期は敵兵を道づれにして海へ身を投げたと語られる。' }),
+    antoku: g({ name: '安徳天皇', yomi: 'EMPEROR ANTOKU', faction: 'west', factionLabel: '平家軍 御座船', force: '—', troops: 140, base: '御座船', birth: '1178', koku: '—',
+      bio: '清盛の娘・徳子(建礼門院)の子。平家とともに都を離れていた。', episode: '6歳(数え8歳)で、祖母の二位尼に抱かれて海に沈んだ。各地に生きのびたという言い伝えが残る。' }),
+    shigeyoshi: g({ name: '田口重能', yomi: 'TAGUCHI SHIGEYOSHI', faction: 'west', factionLabel: '平家軍 阿波水軍', force: '—', troops: 320, base: '—', birth: '?', koku: '阿波',
+      bio: '阿波の豪族。長く平家に仕えた。', episode: '壇ノ浦では源氏に寝返った。平家方には、前から重能をうたがう者がいた。' }),
+    hideto: g({ name: '山鹿秀遠', yomi: 'YAMAGA HIDETO', faction: 'west', factionLabel: '平家軍 九州勢', force: '—', troops: 300, base: '—', birth: '?', koku: '筑前',
+      bio: '筑前の武士で、平家に味方した九州の勢力のひとつ。', episode: '平家方の先陣として戦ったと伝わる。' }),
+  });
+  _replaceObj(EN_GEN, {
+    yoshitsune: { name: 'Minamoto no Yoshitsune', yomi: '源義経', factionLabel: 'GENJI · COMMANDER', force: 'About 840 ships (all)', base: 'Near Manju Island', birth: '1159', koku: '—',
+      bio: "Yoritomo's younger brother, who had already beaten the Heike at Ichi-no-Tani and Yashima.", episode: 'He destroyed the Heike at Dan-no-ura, but later fell out with his brother Yoritomo and was hunted down.' },
+    kagetoki: { name: 'Kajiwara Kagetoki', yomi: '梶原景時', factionLabel: 'GENJI', force: '—', base: '—', birth: '?', koku: 'Sagami',
+      bio: "A trusted retainer of Yoritomo, posted with Yoshitsune's army as an overseer.", episode: "The Tale of the Heike says his quarrel with Yoshitsune over who would lead the attack here helped turn the brothers against each other." },
+    miura: { name: 'Miura Yoshizumi', yomi: '三浦義澄', factionLabel: 'GENJI', force: '—', base: '—', birth: '1127', koku: 'Sagami',
+      bio: 'Head of the Miura clan of Sagami, an early backer of Yoritomo.', episode: 'The seafaring Miura were one of the cores of the Genji navy.' },
+    kono: { name: 'Kōno Michinobu', yomi: '河野通信', factionLabel: 'GENJI · IYO NAVY', force: '—', base: '—', birth: '1156', koku: 'Iyo',
+      bio: 'Leader of the Iyo navy.', episode: 'With the Iyo and Kumano navies on their side, the Genji could field more ships than the Heike.' },
+    noriyori: { name: 'Minamoto no Noriyori', yomi: '源範頼', factionLabel: 'GENJI · KYUSHU', force: '—', base: 'Kyushu', birth: '?', koku: '—',
+      bio: "Yoritomo's younger brother and Yoshitsune's elder brother.", episode: 'He crossed to Kyushu and cut off the Heike retreat, staying on afterward to deal with the former Heike lands.' },
+    tomomori: { name: 'Taira no Tomomori', yomi: '平知盛', factionLabel: 'HEIKE · COMMANDER', force: 'About 500 ships (all)', base: 'Hikoshima', birth: '1152', koku: '—',
+      bio: "Kiyomori's fourth son, Munemori's younger brother, and said to be the best fighting general the Heike had.", episode: 'The Tale of the Heike has him declaring he has seen all there is to see before sinking into the sea.' },
+    munemori: { name: 'Taira no Munemori', yomi: '平宗盛', factionLabel: 'HEIKE · CLAN HEAD', force: '—', base: 'Hikoshima', birth: '1147', koku: '—',
+      bio: "Kiyomori's third son, who led the Heike after his father's death.", episode: 'He and his son Kiyomune were captured at Dan-no-ura and later executed.' },
+    noritsune: { name: 'Taira no Noritsune', yomi: '平教経', factionLabel: 'HEIKE', force: '—', base: '—', birth: '1160', koku: '—',
+      bio: "Kiyomori's nephew, Governor of Noto, famous as the fiercest of the Heike warriors.", episode: 'He fought to the end and got close to Yoshitsune himself. He is said to have leapt into the sea dragging enemy soldiers with him.' },
+    antoku: { name: 'Emperor Antoku', yomi: '安徳天皇', factionLabel: "HEIKE · EMPEROR'S SHIP", force: '—', base: "Emperor's ship", birth: '1178', koku: '—',
+      bio: "Son of Kiyomori's daughter Tokuko (Kenreimon-in), taken from the capital with the Heike.", episode: 'At six, he sank into the sea in the arms of his grandmother, the Nun of the Second Rank. Legends of his survival are told in many places.' },
+    shigeyoshi: { name: 'Taguchi Shigeyoshi', yomi: '田口重能', factionLabel: 'HEIKE · AWA NAVY', force: '—', base: '—', birth: '?', koku: 'Awa',
+      bio: 'A powerful Awa clan leader and long-time Heike retainer.', episode: 'He defected to the Genji at Dan-no-ura. Some on the Heike side had suspected him all along.' },
+    hideto: { name: 'Yamaga Hideto', yomi: '山鹿秀遠', factionLabel: 'HEIKE · KYUSHU', force: '—', base: '—', birth: '?', koku: 'Chikuzen',
+      bio: 'A Chikuzen warrior, one of the Kyushu forces that sided with the Heike.', episode: 'He is said to have led the Heike vanguard.' },
+  });
+  _replaceObj(LBL_EN, {
+    yoshitsune: 'Minamoto no Yoshitsune', kagetoki: 'Kajiwara', miura: 'Miura', kono: 'Kōno', noriyori: 'Noriyori',
+    tomomori: 'Taira no Tomomori', munemori: 'Munemori', noritsune: 'Noritsune', antoku: 'Emperor Antoku', shigeyoshi: 'Taguchi', hideto: 'Yamaga',
+  });
+  ['yoshitsune', 'noriyori'].forEach(id => { kamonImages[id] = "data:image/png;base64,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"; });
+  ['tomomori', 'munemori', 'noritsune', 'antoku'].forEach(id => { kamonImages[id] = "data:image/png;base64,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"; });
+}
+
 // 史実の表を保存しておく(切り替えで元に戻せるように)
 const BASE_TABLES = {
   phases: phases.slice(),
@@ -15095,6 +15506,312 @@ if (IS_WINTER) {
   });
 }
 
+// ---------- 壇ノ浦: 決断モード ----------
+function danEndingId(c) {
+  if (c[2] === 'execute') return c[8] === 'strike' ? 'E4' : 'E3';
+  if (c[8] === 'flee') return 'E2';
+  return 'E1';
+}
+let DAN_SEG = null;
+function danBuildSegments(c, put) {
+  if (!DAN_SEG) return;
+  if (c[2] === 'execute') {
+    put(DAN_SEG.execute);
+    if (c[8] === 'strike') put(DAN_SEG.strike);
+    else if (c[8] === 'retreat') put(DAN_SEG.retreat);
+    return;
+  }
+  if (c[8] === 'flee') put(DAN_SEG.flee);
+}
+
+if (IS_DAN) {
+  Object.assign(BX, { endingId: danEndingId, segments: danBuildSegments });
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
+  const GONE = ['shigeyoshi'];
+  // 重能がいない(斬られた)時の平家の船の位置
+  const HOLD = {
+    tomomori: [14, 1], noritsune: [18, -6], hideto: [18, 8], munemori: [4, -2], antoku: [-4, 2],
+    yoshitsune: [26, 1], kagetoki: [28, -8], miura: [28, 12], kono: [36, 0],
+  };
+
+  DAN_SEG = {
+    // ---------- 決断1: 重能を斬る ----------
+    execute: {
+      2: altPhase(2, {
+        ja: { phase: '重能を斬る', label: '重能', cam: 'CAM · 平家の船団',
+          title: '「うたがわしきは斬る」— 田口重能を斬る',
+          text: '総大将は、うたがいのある<span class="info-west">田口重能</span>を斬らせた。阿波の水軍は平家の将がじかに率いることになる。<span class="info-highlight">船は少し減ったが、裏切りの心配はなくなった</span>。' },
+        en: { phase: 'EXECUTING SHIGEYOSHI', label: 'Shigeyoshi', cam: 'CAM · HEIKE FLEET',
+          title: '"If in doubt, cut him down" — Taguchi Shigeyoshi is executed',
+          text: `The commander has the suspect <span class="info-west">Taguchi Shigeyoshi</span> executed, and Heike officers take direct command of the Awa navy. <span class="info-highlight">A few ships are lost, but so is the risk of betrayal</span>.` },
+        cam: { pos: [-6, 34, 34], look: [-2, 0, 4] },
+        units: { shigeyoshi: [2, 6] },
+        defeated: GONE,
+        cine: { focus: ['shigeyoshi', 'munemori'], blend: 0.6, orbit: 0.02, dolly: 0.06 },
+        moment: { ja: '重能を斬る', en: 'SHIGEYOSHI EXECUTED', subJa: '裏切りの芽をつむ', subEn: 'Nipping betrayal in the bud', shake: 0.3, accent: 'gold' },
+        mom: 52,
+      }),
+      3: altPhase(3, {
+        ja: { phase: '潮に乗る平家', label: '潮', cam: 'CAM · 壇ノ浦の沖',
+          title: '東へ流れる潮に乗って、平家が攻めかかる',
+          text: '正午ごろ、東へ流れる潮に乗った<span class="info-west">平家</span>が攻めかかった。阿波の船も<span class="info-west">知盛</span>の命令どおりに動き、<span class="info-highlight">源氏の船を囲みこもう</span>とする。' },
+        en: { phase: 'RIDING THE TIDE', label: 'Tide', cam: 'CAM · OFF DAN-NO-URA',
+          title: 'Riding the eastward tide, the Heike attack',
+          text: `Around noon the <span class="info-west">Heike</span> attack on the eastward tide. The Awa ships now follow <span class="info-west">Tomomori</span>'s orders exactly as they <span class="info-highlight">try to encircle the Genji fleet</span>.` },
+        cam: { pos: [10, 40, 50], look: [20, 0, 6] },
+        units: { shigeyoshi: [2, 6] },
+        battles: [{ x: 27, z: -8 }, { x: 28, z: 11 }, { x: 24, z: 1 }], battling: ['noritsune', 'kagetoki', 'hideto', 'miura', 'tomomori', 'yoshitsune'], defeated: GONE,
+        moment: null, mom: 40,
+      }),
+      4: altPhase(4, {
+        ja: { phase: '斬り込み', label: '斬り込み', cam: 'CAM · 船上の戦い',
+          title: '船に乗り移っての斬り合い',
+          text: '戦いは<span class="info-highlight">船に乗り移っての斬り合い</span>になった。<span class="info-west">平教経</span>の隊が先頭で暴れまわり、源氏の船を押しこんでいく。' },
+        en: { phase: 'BOARDING', label: 'Boarding', cam: 'CAM · SHIP TO SHIP',
+          title: 'Ship to ship, blade to blade',
+          text: `The battle turns into <span class="info-highlight">boarding and hand-to-hand fighting</span>. <span class="info-west">Taira no Noritsune</span>'s men run wild at the front, driving the Genji ships back.` },
+        cam: { pos: [36, 30, 40], look: [24, 0, 2] },
+        units: { shigeyoshi: [2, 6], noritsune: [26, -6], kagetoki: [30, -8], hideto: [26, 10], miura: [30, 13], tomomori: [21, 1], yoshitsune: [28, 1] },
+        battles: [{ x: 28, z: -7 }, { x: 28, z: 11 }, { x: 25, z: 1 }], battling: ['noritsune', 'kagetoki', 'hideto', 'miura', 'tomomori', 'yoshitsune'], defeated: GONE,
+        moment: null, mom: 40,
+      }),
+      5: altPhase(5, {
+        ja: { phase: '裏切りは起きない', label: '揺るがず', cam: 'CAM · 平家の船団',
+          title: '寝返る船は出なかった',
+          text: '形勢が苦しくなっても、平家の船団から<span class="info-highlight">寝返る船は出なかった</span>。源氏の船は、思ったように平家の列を崩せない。' },
+        en: { phase: 'NO BETRAYAL', label: 'Steady', cam: 'CAM · HEIKE FLEET',
+          title: 'No ship changes sides',
+          text: `Even as the fighting gets harder, <span class="info-highlight">no Heike ship defects</span>. The Genji cannot break the Heike line the way they hoped.` },
+        cam: { pos: [30, 40, 46], look: [16, 0, 4] },
+        units: Object.assign({ shigeyoshi: [2, 6] }, HOLD),
+        battles: [{ x: 23, z: -7 }, { x: 23, z: 10 }, { x: 20, z: 1 }], battling: ['noritsune', 'kagetoki', 'hideto', 'miura', 'tomomori', 'yoshitsune'], defeated: GONE,
+        arrows: [at('noritsune', 'kagetoki', W), at('hideto', 'miura', W)],
+        cine: { focus: ['tomomori'], blend: 0.5, orbit: 0.02, dolly: 0.06 },
+        moment: { ja: '揺るがない', en: 'HOLDING FIRM', subJa: '裏切りは起きない', subEn: 'No one defects', shake: 0.3 },
+        mom: 46,
+      }),
+      6: altPhase(6, {
+        ja: { phase: '潮が変わる', label: '逆潮', cam: 'CAM · 壇ノ浦の沖',
+          title: '潮が変わっても、平家は踏みとどまる',
+          text: '潮の向きが変わり、<span class="info-east">源氏</span>が押し返しにかかる。だが平家の船はまとまったまま、<span class="info-highlight">一歩も引かずに戦い続ける</span>。' },
+        en: { phase: 'THE TIDE TURNS', label: 'Tide turns', cam: 'CAM · OFF DAN-NO-URA',
+          title: 'The tide turns, but the Heike hold',
+          text: `The tide turns and the <span class="info-east">Genji</span> try to push back. But the Heike ships stay together and <span class="info-highlight">give no ground</span>.` },
+        cam: { pos: [30, 44, 50], look: [14, 0, 4] },
+        units: Object.assign({ shigeyoshi: [2, 6] }, HOLD, { yoshitsune: [24, 1], kagetoki: [26, -8], miura: [26, 12] }),
+        battles: [{ x: 21, z: -7 }, { x: 21, z: 10 }, { x: 19, z: 1 }], battling: ['noritsune', 'kagetoki', 'hideto', 'miura', 'tomomori', 'yoshitsune'], defeated: GONE,
+        arrows: [mvp([30, 1], [24, 1], E)],
+        moment: null, mom: 52,
+      }),
+      7: altPhase(7, {
+        ja: { phase: 'もちこたえる', label: '持久', cam: 'CAM · 船上の戦い',
+          title: '水手が射られても、平家はもちこたえる',
+          text: '源氏は平家の<span class="info-highlight">水手や舵取りをねらって射かけた</span>。動けなくなる船も出るが、まわりの船がかばい合い、平家の列はまだ崩れない。' },
+        en: { phase: 'HOLDING ON', label: 'Holding', cam: 'CAM · SHIP TO SHIP',
+          title: 'Even with their rowers shot, the Heike hold on',
+          text: `The Genji start <span class="info-highlight">shooting the Heike rowers and helmsmen</span>. Some ships are left drifting, but the others shield them, and the Heike line still holds.` },
+        cam: { pos: [30, 34, 40], look: [16, 0, 2] },
+        units: Object.assign({ shigeyoshi: [2, 6] }, HOLD, { yoshitsune: [22, 1], kagetoki: [24, -7], miura: [24, 11], noritsune: [18, -5] }),
+        battles: [{ x: 20, z: -6 }, { x: 21, z: 9 }, { x: 18, z: 1 }], battling: ['noritsune', 'kagetoki', 'hideto', 'miura', 'tomomori', 'yoshitsune'], defeated: GONE,
+        arrows: [at('yoshitsune', 'tomomori', E)],
+        cine: { focus: ['tomomori', 'yoshitsune'], blend: 0.7, orbit: 0.025, dolly: 0.08 },
+        moment: null, mom: 58,
+      }),
+    },
+    // ---------- 決断2(重能を斬った): 彦島へ引く ----------
+    retreat: {
+      8: altPhase(8, {
+        ja: { phase: '彦島へ', label: '引く', cam: 'CAM · 早鞆の瀬戸',
+          title: '知盛、船団をまとめて彦島へ引く',
+          text: '<span class="info-west">知盛</span>は勝負を急がなかった。船をまとめて早鞆の瀬戸を西へ抜け、<span class="info-highlight">彦島へ引き上げる</span>。教経の隊が最後尾を守る。' },
+        en: { phase: 'BACK TO HIKOSHIMA', label: 'Withdraw', cam: 'CAM · HAYATOMO NARROWS',
+          title: 'Tomomori gathers the fleet and falls back to Hikoshima',
+          text: `<span class="info-west">Tomomori</span> refuses to force the issue. He gathers his ships, slips west through the Hayatomo Narrows, and <span class="info-highlight">falls back to Hikoshima</span>, with Noritsune guarding the rear.` },
+        cam: { pos: [6, 44, 44], look: [-14, 0, 2] },
+        units: { tomomori: [-20, 1], noritsune: [-4, -3], hideto: [-10, 4], munemori: [-30, -2], antoku: [-38, 2], shigeyoshi: [2, 6], yoshitsune: [10, 1], kagetoki: [12, -7], miura: [12, 9], kono: [18, 0] },
+        battles: [{ x: 2, z: -2 }], battling: ['noritsune', 'yoshitsune'], defeated: GONE,
+        arrows: [mvp([14, 1], [-18, 1], W), at('noritsune', 'yoshitsune', W)],
+        cine: { focus: ['tomomori', 'noritsune'], blend: 0.5, orbit: -0.02, dolly: 0.06 },
+        moment: null, mom: 62,
+      }),
+      9: altPhase(9, {
+        ja: { phase: '彦島に立てこもる', label: '彦島', cam: 'CAM · 彦島',
+          title: '平家、彦島に立てこもる',
+          text: '源氏の船は早鞆の瀬戸を追ってきたが、彦島のまわりは平家が知りつくした海だ。<span class="info-highlight">深追いした源氏の船は引き返す</span>。' },
+        en: { phase: 'HOLDING HIKOSHIMA', label: 'Hikoshima', cam: 'CAM · HIKOSHIMA',
+          title: 'The Heike dig in at Hikoshima',
+          text: `The Genji chase them through the narrows, but the Heike know every current around Hikoshima. <span class="info-highlight">The Genji ships that push too far turn back</span>.` },
+        cam: { pos: [-30, 46, 44], look: [-44, 0, 4] },
+        units: { tomomori: [-48, 4], noritsune: [-40, -4], hideto: [-44, 8], munemori: [-54, -6], antoku: [-56, 8], shigeyoshi: [2, 6], yoshitsune: [-6, 1], kagetoki: [-4, -5], miura: [-4, 6], kono: [4, 0] },
+        defeated: GONE,
+        arrows: [mvp([-4, 1], [-40, 1], W)],
+        cine: { focus: ['tomomori'], blend: 0.4, orbit: 0.02, dolly: 0.05 },
+        moment: null, mom: 56,
+      }),
+      10: altPhase(10, {
+        ja: { phase: 'その後', label: 'その後', cam: 'CAM · 関門海峡',
+          title: '彦島に立てこもる',
+          text: '平家は滅びなかった。帝と三種の神器も無事だ。だが九州には<span class="info-east">範頼</span>の軍がいて、<span class="info-highlight">彦島に閉じこめられた戦いはまだ続く</span>。' },
+        en: { phase: 'WHAT CAME AFTER', label: 'After', cam: 'CAM · KANMON STRAIT',
+          title: 'Holding Hikoshima',
+          text: `The Heike survive, and so do the emperor and the regalia. But <span class="info-east">Noriyori</span>'s army still holds Kyushu, and <span class="info-highlight">the fight, bottled up at Hikoshima, goes on</span>.` },
+        cam: { pos: [-10, 64, 64], look: [-24, 0, 6] },
+        units: { tomomori: [-48, 4], noritsune: [-42, -4], hideto: [-44, 8], munemori: [-54, -6], antoku: [-56, 8], shigeyoshi: [2, 6], yoshitsune: [10, 1], kagetoki: [12, -6], miura: [12, 8], kono: [18, 0] },
+        defeated: GONE, arrows: [],
+        moment: { ja: '彦島に立てこもる', en: 'HOLDING HIKOSHIMA', subJa: '平家は生きのびた', subEn: 'The Heike survive', shake: 0 },
+        mom: 60,
+      }),
+    },
+    // ---------- 決断2(重能を斬った): 義経の船をねらう ----------
+    strike: {
+      8: altPhase(8, {
+        ja: { phase: '義経の船へ', label: '義経へ', cam: 'CAM · 船上の戦い',
+          title: '知盛と教経、義経の船へ突っこむ',
+          text: '「大将の船を沈めよ」。<span class="info-west">知盛</span>と<span class="info-west">教経</span>の船が、まっすぐ<span class="info-east">義経</span>の船へ漕ぎ寄せた。まわりの平家の船も<span class="info-highlight">いっせいに義経をめざす</span>。' },
+        en: { phase: "AT YOSHITSUNE'S SHIP", label: 'At Yoshitsune', cam: 'CAM · SHIP TO SHIP',
+          title: "Tomomori and Noritsune ram Yoshitsune's ship",
+          text: `"Sink their commander's ship!" <span class="info-west">Tomomori</span> and <span class="info-west">Noritsune</span> row straight for <span class="info-east">Yoshitsune</span>, and the Heike ships around them <span class="info-highlight">all turn toward him at once</span>.` },
+        cam: { pos: [34, 30, 34], look: [20, 0, 0] },
+        units: { shigeyoshi: [2, 6], tomomori: [19, 2], noritsune: [21, -2], hideto: [20, 6], yoshitsune: [23, 1], kagetoki: [26, -8], miura: [26, 12] },
+        battles: [{ x: 22, z: 1 }, { x: 25, z: -6 }], battling: ['tomomori', 'noritsune', 'yoshitsune', 'kagetoki'], defeated: GONE,
+        arrows: [at('noritsune', 'yoshitsune', W), at('tomomori', 'yoshitsune', W)],
+        cine: { focus: ['noritsune', 'yoshitsune'], blend: 0.9, orbit: 0.03, dolly: 0.12 },
+        moment: { ja: '義経の船へ', en: "AT YOSHITSUNE'S SHIP", subJa: '平家、総がかり', subEn: 'The Heike go all in', shake: 0.8, accent: 'gold' },
+        mom: 42,
+      }),
+      9: altPhase(9, {
+        ja: { phase: '義経、討たれる', label: '義経', cam: 'CAM · 船上の戦い',
+          title: '源義経、討たれる',
+          text: '船から船へ飛びうつって逃れようとした<span class="info-east">義経</span>に、<span class="info-west">教経</span>が追いついた。総大将を失った源氏の船は、<span class="info-highlight">ばらばらに東へ退いていく</span>。' },
+        en: { phase: 'YOSHITSUNE FALLS', label: 'Yoshitsune', cam: 'CAM · SHIP TO SHIP',
+          title: 'Minamoto no Yoshitsune is killed',
+          text: `<span class="info-east">Yoshitsune</span> tries to escape by leaping from ship to ship, but <span class="info-west">Noritsune</span> catches him. Their commander gone, the Genji ships <span class="info-highlight">scatter back to the east</span>.` },
+        cam: { pos: [36, 34, 40], look: [22, 0, 2] },
+        units: { shigeyoshi: [2, 6], tomomori: [20, 2], noritsune: [24, 0], hideto: [22, 6], yoshitsune: [25, 1], kagetoki: [36, -8], miura: [36, 12], kono: [44, 0] },
+        battles: [{ x: 25, z: 1 }], battling: ['noritsune', 'yoshitsune'], defeated: ['shigeyoshi', 'yoshitsune'],
+        arrows: [mvp([26, -8], [36, -8], E), mvp([26, 12], [36, 12], E)],
+        cine: { focus: ['yoshitsune', 'noritsune'], blend: 0.8, orbit: -0.02, dolly: 0.1 },
+        moment: { ja: '義経、討たれる', en: 'YOSHITSUNE FALLS', subJa: '源氏、退く', subEn: 'The Genji fall back', shake: 0.8 },
+        mom: 26,
+      }),
+      10: altPhase(10, {
+        ja: { phase: 'その後', label: 'その後', cam: 'CAM · 関門海峡',
+          title: '義経、討たれる',
+          text: '源氏の水軍は周防の沖まで退いた。<span class="info-east">頼朝</span>はいちばんの戦上手を失い、平家は関門海峡を守りぬいた。<span class="info-highlight">源平の戦いは、まだ終わらない</span>。' },
+        en: { phase: 'WHAT CAME AFTER', label: 'After', cam: 'CAM · KANMON STRAIT',
+          title: 'Yoshitsune Falls',
+          text: `The Genji navy falls back to the waters off Suō. <span class="info-east">Yoritomo</span> has lost his best field commander, and the Heike still hold the Kanmon Strait. <span class="info-highlight">The Genpei War is not over yet</span>.` },
+        cam: { pos: [30, 64, 64], look: [20, 0, 6] },
+        units: { shigeyoshi: [2, 6], tomomori: [20, 2], noritsune: [24, 0], hideto: [22, 6], yoshitsune: [25, 1], kagetoki: [56, -14], miura: [58, 14], kono: [66, 0] },
+        defeated: ['shigeyoshi', 'yoshitsune'], arrows: [mvp([36, 0], [62, 0], E)],
+        moment: { ja: '義経、討たれる', en: 'YOSHITSUNE FALLS', subJa: '平家、海峡を守る', subEn: 'The Heike hold the strait', shake: 0 },
+        mom: 20,
+      }),
+    },
+    // ---------- 決断2(史実の流れ): 帝を連れて逃れる ----------
+    flee: {
+      8: altPhase(8, {
+        ja: { phase: '御座船、西へ', label: '西へ', cam: 'CAM · 早鞆の瀬戸',
+          title: '知盛、帝の御座船を守って西へ',
+          text: '<span class="info-west">知盛</span>は一門の最期を待たなかった。<span class="info-west">安徳天皇</span>の御座船をかこみ、早鞆の瀬戸を西へ抜ける。<span class="info-west">教経</span>が最後尾で源氏の船をくいとめる。' },
+        en: { phase: "THE EMPEROR'S SHIP GOES WEST", label: 'West', cam: 'CAM · HAYATOMO NARROWS',
+          title: "Tomomori escorts the emperor's ship west",
+          text: `<span class="info-west">Tomomori</span> does not wait for the end. Surrounding <span class="info-west">Emperor Antoku</span>'s ship, he slips west through the Hayatomo Narrows while <span class="info-west">Noritsune</span> holds off the Genji at the rear.` },
+        cam: { pos: [10, 40, 40], look: [-14, 0, 2] },
+        units: { antoku: [-26, 3], tomomori: [-18, 1], munemori: [-14, -3], noritsune: [6, -3], yoshitsune: [10, 0], miura: [6, 6], kagetoki: [10, -6] },
+        battles: [{ x: 8, z: -2 }], battling: ['noritsune', 'yoshitsune'], defeated: ['hideto'], traitor: 'shigeyoshi',
+        arrows: [mvp([-4, 3], [-24, 3], W), at('noritsune', 'yoshitsune', W)],
+        cine: { focus: ['antoku', 'tomomori'], blend: 0.6, orbit: -0.02, dolly: 0.06 },
+        moment: { ja: '御座船、西へ', en: 'WEST WITH THE EMPEROR', subJa: '帝を守って逃れる', subEn: 'Saving the emperor', shake: 0.3, accent: 'gold' },
+        mom: 80,
+      }),
+      9: altPhase(9, {
+        ja: { phase: '彦島の沖を抜ける', label: '抜ける', cam: 'CAM · 彦島',
+          title: '彦島の沖を抜け、外海へ',
+          text: '九州の岸からは<span class="info-east">範頼</span>の兵が矢を射かけるが、知盛の船は彦島の沖を抜けた。<span class="info-west">教経</span>は追ってきた源氏の兵を道づれに、海へ消えた。' },
+        en: { phase: 'PAST HIKOSHIMA', label: 'Past', cam: 'CAM · HIKOSHIMA',
+          title: 'Past Hikoshima and out to the open sea',
+          text: `<span class="info-east">Noriyori</span>'s men shoot from the Kyushu shore, but Tomomori's ships slip past Hikoshima. <span class="info-west">Noritsune</span> vanishes into the sea, taking his Genji pursuers with him.` },
+        cam: { pos: [-34, 44, 44], look: [-52, 0, 8] },
+        units: { antoku: [-62, 12], tomomori: [-56, 10], munemori: [-50, 8], noritsune: [6, -3], noriyori: [-40, 20], yoshitsune: [0, 0], miura: [-4, 4], kagetoki: [2, -6] },
+        battles: [{ x: -48, z: 14 }], battling: ['munemori', 'noriyori'], defeated: ['hideto', 'noritsune'], traitor: 'shigeyoshi',
+        arrows: [mvp([-26, 3], [-60, 12], W), at('noriyori', 'munemori', E)],
+        cine: { focus: ['antoku'], blend: 0.6, orbit: 0.02, dolly: 0.06 },
+        moment: null, mom: 82,
+      }),
+      10: altPhase(10, {
+        ja: { phase: 'その後', label: 'その後', cam: 'CAM · 関門海峡',
+          title: '帝、落ちのびる',
+          text: '平家の多くは壇ノ浦で討たれたが、<span class="info-west">安徳天皇</span>と宝剣は西の海へ消えた。帝が生きのびたという言い伝えは、<span class="info-highlight">今も各地に残っている</span>。' },
+        en: { phase: 'WHAT CAME AFTER', label: 'After', cam: 'CAM · KANMON STRAIT',
+          title: 'The Emperor Escapes',
+          text: `Most of the Heike fall at Dan-no-ura, but <span class="info-west">Emperor Antoku</span> and the sacred sword vanish into the western sea. Legends that he survived <span class="info-highlight">are still told in many places today</span>.` },
+        cam: { pos: [-40, 60, 56], look: [-58, 0, 8] },
+        units: { antoku: [-86, 12], tomomori: [-80, 10], munemori: [-74, 8], noritsune: [6, -3], noriyori: [-40, 20], yoshitsune: [-10, 0], miura: [-14, 4], kagetoki: [-8, -6] },
+        defeated: ['hideto', 'noritsune'], traitor: 'shigeyoshi', arrows: [mvp([-60, 12], [-84, 12], W)],
+        moment: { ja: '帝、落ちのびる', en: 'THE EMPEROR ESCAPES', subJa: '宝剣とともに西の海へ', subEn: 'Into the west with the sword', shake: 0 },
+        mom: 84,
+      }),
+    },
+  };
+
+  _replaceObj(SEG, DAN_SEG);
+  _replaceArr(DECISION_IDX, [2, 8]);
+  _replaceObj(DECISIONS, {
+    2: {
+      who: 'munemori', applies: () => true,
+      ja: { title: '宗盛の決断', situation: '阿波水軍の田口重能が、源氏に通じているといううわさがある。斬れば裏切りの心配はなくなるが、阿波の兵が動揺するかもしれない。' },
+      en: { title: "MUNEMORI'S DECISION", situation: "There are rumors that Taguchi Shigeyoshi of the Awa navy is in contact with the Genji. Executing him would remove the risk — but it could also unsettle his Awa men." },
+      options: () => [
+        { id: 'spare', history: true, ja: ['重能を信じる', '史実どおり。話をして、そのまま使う'], en: ['Trust Shigeyoshi', 'As in history: talk to him and keep him on'] },
+        { id: 'execute', ja: ['重能を斬る', 'うたがわしきは斬る'], en: ['Execute Shigeyoshi', 'If in doubt, cut him down'] },
+      ],
+    },
+    8: {
+      who: 'tomomori', applies: () => true,
+      ja: { title: '知盛の決断' },
+      en: { title: "TOMOMORI'S DECISION" },
+      situation: () => decideState.choices[2] === 'execute'
+        ? { ja: '平家の列はまだ崩れていない。だが源氏の船は多く、潮も変わった。義経の船は、教経の隊のすぐ先にいる。', en: "The Heike line still holds. But the Genji have more ships and the tide has turned. Yoshitsune's ship is just ahead of Noritsune's men." }
+        : { ja: '裏切りが相次ぎ、源氏の兵が次々に乗りこんでくる。帝の御座船にも敵の船が迫っている。', en: "Defection after defection, and the Genji are boarding ship after ship. Enemy boats are closing on the emperor's ship." },
+      options: () => decideState.choices[2] === 'execute'
+        ? [
+          { id: 'retreat', ja: ['彦島へ引く', '船をまとめて立て直す'], en: ['Fall back to Hikoshima', 'Gather the fleet and regroup'] },
+          { id: 'strike', ja: ['義経の船をねらう', '大将を討てば勝てる'], en: ["Go for Yoshitsune's ship", 'Kill their commander and win'] },
+        ]
+        : [
+          { id: 'end', history: true, ja: ['一門とともに沈む', '史実どおり。見るべきものは見た'], en: ['Go down with the clan', 'As in history: you have seen enough'] },
+          { id: 'flee', ja: ['帝を連れて逃れる', '御座船を守って西の海へ'], en: ['Escape with the emperor', "Guard the emperor's ship and head west"] },
+        ],
+    },
+  });
+  _replaceObj(ENDINGS, {
+    E1: { ja: ['史実：平家の滅亡', '安徳天皇は海に沈み、知盛も教経も海に消えた。宝剣は戻らなかった。'], en: ['History: The Fall of the Heike', 'Emperor Antoku sinks beneath the waves, Tomomori and Noritsune are gone, and the sword is never recovered.'] },
+    E2: { ja: ['帝、落ちのびる', '知盛が御座船を守り、安徳天皇は宝剣とともに西の海へ逃れた。'], en: ['The Emperor Escapes', "Tomomori guards the emperor's ship, and Antoku escapes into the western sea with the sword."] },
+    E3: { ja: ['彦島に立てこもる', '重能を斬って裏切りを防ぎ、平家は彦島に引いて生きのびた。'], en: ['Holding Hikoshima', 'With Shigeyoshi gone there is no betrayal, and the Heike survive by falling back to Hikoshima.'] },
+    E4: { ja: ['義経、討たれる', '裏切りのない平家が義経の船を囲み、教経が義経を討ち取った。'], en: ['Yoshitsune Falls', "Without a traitor in their ranks, the Heike surround Yoshitsune's ship and Noritsune kills him."] },
+  });
+
+  Object.assign(STR.en, {
+    'sim.title': 'Dan-no-ura', 'sim.sub': 'The Last Battle of the Genpei War', 'sim.d1': 'Genryaku 2', 'sim.d2': '3rd mo. 24',
+    'legend.east': 'Genji', 'legend.west': 'Heike',
+    'sim.loading': 'Launching the fleets...',
+    'name.yoshitsune': 'Minamoto no Yoshitsune', 'name.tomomori': 'Taira no Tomomori',
+    'wi.historyDesc': 'What actually happened on the 24th day of the 3rd month, 1185.',
+    'dm.desc': 'Make two calls — as Taira no Munemori and as Taira no Tomomori. Four endings to discover.',
+  });
+  Object.assign(STR.ja, {
+    'sim.title': '壇ノ浦', 'sim.sub': '源平最後の海戦', 'sim.d1': '元暦二年', 'sim.d2': '三月二十四日',
+    'legend.east': '源氏', 'legend.west': '平家',
+    'sim.loading': '関門海峡に船団を展開中',
+    'name.yoshitsune': '源義経', 'name.tomomori': '平知盛',
+    'wi.historyDesc': '元暦二年三月二十四日に実際に起きたこと。',
+    'dm.desc': '平宗盛と平知盛、2つの決断で展開が変わる。エンディングは全4種。',
+  });
+}
+
 const decideState = { active: false, choices: {}, wasPlaying: false, open: null };
 let altPhaseSet = new Set();
 let lastAppliedPhase = -1;
@@ -15377,6 +16094,9 @@ const GROUND_ROADS = {
     [[-46, 28], [-30, 24], [-12, 20], [6, 14], [18, 15], [27, 17]],
     [[-2, -6], [-6, -14], [-8, -22]],
   ],
+  dannoura: [
+    [[-95, -27], [-60, -23], [-30, -18], [-10, -12], [10, -16], [30, -22], [50, -30]],   // 本州側の浜の道
+  ],
   'osaka-winter': [
     [[-30, 90], [-24, 60], [-8, 40], [0, 24]],                         // 茶臼山から真田丸の前へ
     [[34, 90], [34, 60], [30, 30]],                                    // 岡山から
@@ -15447,6 +16167,7 @@ function groundRiverLines() {
   if (IS_MINA) return MINA_RIVERS;
   if (IS_OSAKA) return OSAKA_RIVERS;
   if (IS_WINTER) return WINTER_RIVERS;
+  if (IS_DAN) return [];
   const line = [];
   for (let i = 0; i <= 30; i++) {
     const t = i / 30, x = -70 + t * 140;
@@ -15653,6 +16374,7 @@ function buildForest() {
       const h = sampleGrid(groundGrid.H, jx, jz);
       const slope = 1 - groundSlope(jx, jz).ny;
       if ((IS_SHIZ || IS_MINA || IS_OSAKA || IS_WINTER) && h < 0.3) continue;
+      if (IS_DAN && (danSeaDepth(jx, jz) > -3 || _hash2(jx * 1.3, jz * 2.9) > 0.45)) continue;   // 壇ノ浦: 海と浜に木を置かない
       if (IS_WINTER && (_hash2(jx * 1.3, jz * 2.9) > 0.22 || jz < -8 || Math.hypot(jx - 10, jz + 4) < 16 || Math.hypot(jx - 27, jz - 2) < 7)) continue;   // 冬の陣: 城の内側と砦のまわりに木を置かない
       if (IS_OSAKA && (_hash2(jx * 1.3, jz * 2.9) > 0.3 || jx * jx + (jz + 58) ** 2 < 150)) continue;   // 大坂は町と寺の多い台地。木はまばらに
       const f = forestAmount(h, slope, sampleGrid(groundGrid.N1, jx, jz), sampleGrid(groundGrid.N2, jx, jz));
@@ -15798,6 +16520,11 @@ const ACTS = {
     { from: 3, ja: ['第二幕', '朝', '今川の進軍'], en: ['ACT II', 'MORNING', 'The Imagawa Advance'] },
     { from: 7, ja: ['第三幕', '昼', '嵐の前'], en: ['ACT III', 'MIDDAY', 'Before the Storm'] },
     { from: 10, ja: ['第四幕', '午後', '桶狭間'], en: ['ACT IV', 'AFTERNOON', 'Okehazama'] },
+  ],
+  dannoura: [
+    { from: 0, ja: ['第一幕', '朝', '対峙'], en: ['ACT I', 'MORNING', 'The Face-off'] },
+    { from: 3, ja: ['第二幕', '昼', '潮'], en: ['ACT II', 'MIDDAY', 'The Tide'] },
+    { from: 7, ja: ['第三幕', '午後', '最期'], en: ['ACT III', 'AFTERNOON', 'The End'] },
   ],
   'osaka-winter': [
     { from: 0, ja: ['第一幕', '夜明け', '挑発'], en: ['ACT I', 'DAWN', 'The Bait'] },
