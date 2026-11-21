@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Sengoku Simulation | Japanese Historical Battles in 3D</title>
-<meta name="description" content="Watch Minatogawa, Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.">
+<meta name="description" content="Watch Minatogawa, Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake, Sekigahara and Osaka unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Sengoku Simulation | Japanese Historical Battles in 3D">
 <meta property="og:description" content="Watch the Battle of Sekigahara (1600) unfold in 3D, phase by phase, with commander profiles and a timeline.">
@@ -2619,6 +2619,7 @@ html[lang="en"] .title-logo { font-family: 'Cormorant Garamond', 'Noto Serif JP'
 .if-card.c-indigo .ifc-top { background: #3b4cca; color: #fff; }
 .if-card.c-lime .ifc-top { background: #7cc520; color: #1b1b1f; }
 .if-card.c-sky .ifc-top { background: #1fa3e0; color: #fff; }
+.if-card.c-scarlet .ifc-top { background: #d8342a; color: #fff; }
 .ifc-year { font-family: 'Dela Gothic One', sans-serif; font-size: 13px; background: #fff; color: #1b1b1f; border: 2px solid #1b1b1f; border-radius: 8px; padding: 1px 8px; }
 .ifc-name { font-family: 'Dela Gothic One', sans-serif; font-size: 21px; line-height: 1.2; }
 .ifc-q { display: block; font-size: 17px; font-weight: 900; padding: 14px 16px 6px; line-height: 1.45; }
@@ -3131,7 +3132,7 @@ setTimeout(updateAppHeight, 1000);
 const BATTLE_ID = (() => {
   try {
     const b = new URLSearchParams(location.search).get('battle');
-    return ['okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake', 'minatogawa'].includes(b) ? b : 'sekigahara';
+    return ['okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake', 'minatogawa', 'osaka-summer'].includes(b) ? b : 'sekigahara';
   } catch (e) { return 'sekigahara'; }
 })();
 const IS_OKE = BATTLE_ID === 'okehazama';
@@ -3142,11 +3143,12 @@ const IS_HONNO = BATTLE_ID === 'honnoji';
 const IS_YAMA = BATTLE_ID === 'yamazaki';
 const IS_SHIZ = BATTLE_ID === 'shizugatake';
 const IS_MINA = BATTLE_ID === 'minatogawa';
+const IS_OSAKA = BATTLE_ID === 'osaka-summer';
 // 合戦ごとの差し替え口(関ヶ原では空のまま)
 const BX = {};
-const GENERAL_IDS = { sekigahara: ['ieyasu', 'mitsunari'], okehazama: ['nobunaga', 'yoshimoto'], nagashino: ['nobunaga', 'katsuyori'], kawanakajima: ['shingen', 'kenshin'], mikatagahara: ['ieyasu', 'shingen'], honnoji: ['mitsuhide', 'nobunaga'], yamazaki: ['hideyoshi', 'mitsuhide'], shizugatake: ['hideyoshi', 'katsuie'], minatogawa: ['takauji', 'masashige'] }[BATTLE_ID];
-const GENERAL_SIDE = { sekigahara: { ieyasu: 'right', mitsunari: 'left' }, okehazama: { nobunaga: 'left', yoshimoto: 'right' }, nagashino: { nobunaga: 'left', katsuyori: 'right' }, kawanakajima: { shingen: 'right', kenshin: 'left' }, mikatagahara: { ieyasu: 'right', shingen: 'left' }, honnoji: { mitsuhide: 'right', nobunaga: 'left' }, yamazaki: { hideyoshi: 'right', mitsuhide: 'left' }, shizugatake: { hideyoshi: 'right', katsuie: 'left' }, minatogawa: { takauji: 'right', masashige: 'left' } }[BATTLE_ID];
-const DM_START = { sekigahara: 4, okehazama: 5, nagashino: 0, kawanakajima: 0, mikatagahara: 2, honnoji: 2, yamazaki: 0, shizugatake: 1, minatogawa: 3 }[BATTLE_ID];
+const GENERAL_IDS = { sekigahara: ['ieyasu', 'mitsunari'], okehazama: ['nobunaga', 'yoshimoto'], nagashino: ['nobunaga', 'katsuyori'], kawanakajima: ['shingen', 'kenshin'], mikatagahara: ['ieyasu', 'shingen'], honnoji: ['mitsuhide', 'nobunaga'], yamazaki: ['hideyoshi', 'mitsuhide'], shizugatake: ['hideyoshi', 'katsuie'], minatogawa: ['takauji', 'masashige'], 'osaka-summer': ['ieyasu', 'nobushige'] }[BATTLE_ID];
+const GENERAL_SIDE = { sekigahara: { ieyasu: 'right', mitsunari: 'left' }, okehazama: { nobunaga: 'left', yoshimoto: 'right' }, nagashino: { nobunaga: 'left', katsuyori: 'right' }, kawanakajima: { shingen: 'right', kenshin: 'left' }, mikatagahara: { ieyasu: 'right', shingen: 'left' }, honnoji: { mitsuhide: 'right', nobunaga: 'left' }, yamazaki: { hideyoshi: 'right', mitsuhide: 'left' }, shizugatake: { hideyoshi: 'right', katsuie: 'left' }, minatogawa: { takauji: 'right', masashige: 'left' }, 'osaka-summer': { ieyasu: 'right', nobushige: 'left' } }[BATTLE_ID];
+const DM_START = { sekigahara: 4, okehazama: 5, nagashino: 0, kawanakajima: 0, mikatagahara: 2, honnoji: 2, yamazaki: 0, shizugatake: 1, minatogawa: 3, 'osaka-summer': 2 }[BATTLE_ID];
 const ENDINGS_KEY = BATTLE_ID === 'sekigahara' ? 'sg_endings' : 'sg_endings_' + BATTLE_ID;
 
 const eras = [
@@ -3210,7 +3212,7 @@ const eras = [
     desc: '泰平の世の中の数少ない合戦',
     battles: [
       { id: 'osaka-winter', year: '1614', name: '大坂冬の陣', east: { name: '徳川軍', force: '約20万' }, west: { name: '豊臣軍', force: '約9万' }, winner: 'draw', winnerName: '和議', implemented: false },
-      { id: 'osaka-summer', year: '1615', name: '大坂夏の陣', east: { name: '徳川軍', force: '約15万' }, west: { name: '豊臣軍', force: '約5万' }, winner: 'east', winnerName: '徳川軍', implemented: false },
+      { id: 'osaka-summer', year: '1615', name: '大坂夏の陣', east: { name: '徳川軍', force: '約15万' }, west: { name: '豊臣軍', force: '約5万' }, winner: 'east', winnerName: '徳川軍', implemented: true },
       { id: 'shimabara', year: '1637', name: '島原の乱', east: { name: '幕府軍', force: '約12万' }, west: { name: '一揆軍', force: '約3万7千' }, winner: 'east', winnerName: '幕府軍', implemented: false },
     ],
   },
@@ -3245,7 +3247,7 @@ try {
 const STR = {
   en: {
     'meta.title': 'Sengoku Simulation | Japanese Historical Battles in 3D',
-    'meta.desc': 'Watch Minatogawa, Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake and Sekigahara unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.',
+    'meta.desc': 'Watch Minatogawa, Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake, Sekigahara and Osaka unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.',
     'home.title': 'SENGOKU',
     'title.sub': 'Famous battles of Japan in 3D. Watch them unfold — or change how they end.',
     'title.history': 'Watch History',
@@ -3296,7 +3298,7 @@ const STR = {
   },
   ja: {
     'meta.title': '戦国シミュレーション',
-    'meta.desc': '湊川・桶狭間・川中島・三方ヶ原・長篠・本能寺・山崎・賤ヶ岳・関ヶ原を3Dで再現。史実をたどるだけでなく、自分で決断して別の結末も探せる。無料・ブラウザで動作。',
+    'meta.desc': '湊川・桶狭間・川中島・三方ヶ原・長篠・本能寺・山崎・賤ヶ岳・関ヶ原・大坂夏の陣を3Dで再現。史実をたどるだけでなく、自分で決断して別の結末も探せる。無料・ブラウザで動作。',
     'home.title': '戦国',
     'title.sub': '日本の合戦を3Dで。史実をたどるか、歴史を変えるか。',
     'title.history': '史実を見る',
@@ -3652,6 +3654,8 @@ const IF_BATTLES = [
     q: { ja: 'もしも義元が、本陣の守りを固めていたら？', en: 'What if Yoshimoto had stayed on guard?' } },
   { id: 'nagashino', endings: 5, key: 'sg_endings_nagashino', color: 'cyan',
     q: { ja: 'もしも勝頼が、柵の端を回り込んでいたら？', en: 'What if Katsuyori had gone around the fence?' } },
+  { id: 'osaka-summer', endings: 4, key: 'sg_endings_osaka-summer', color: 'scarlet',
+    q: { ja: 'もしも豊臣秀頼が、戦場に出ていたら？', en: 'What if Hideyori had ridden out?' } },
   { id: 'minatogawa', endings: 4, key: 'sg_endings_minatogawa', color: 'sky',
     q: { ja: 'もしも新田義貞が、退かなかったら？', en: "What if Nitta Yoshisada hadn't pulled back?" } },
   { id: 'shizugatake', endings: 5, key: 'sg_endings_shizugatake', color: 'lime',
@@ -3984,7 +3988,7 @@ document.getElementById('backFromSim').addEventListener('click', () => {
 });
 
 // ========= シミュレーション =========
-const PLAYABLE_BATTLES = ['sekigahara', 'okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake', 'minatogawa'];
+const PLAYABLE_BATTLES = ['sekigahara', 'okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake', 'minatogawa', 'osaka-summer'];
 function openSimulation(battleId) {
   if (!PLAYABLE_BATTLES.includes(battleId)) return;
   if (battleId !== BATTLE_ID) {
@@ -6308,6 +6312,7 @@ const HORSE_COATS = [0x6b4428, 0x5a3820, 0x3a2a20, 0x7a5232, 0x2a2420, 0x8a7a68]
 // 騎馬の割合(合戦ごと)。指定がなければ総大将の隊 18%、ほかは 8%
 const CAVALRY_RATIO = {
   nagashino: { katsuyori: 0.3, baba: 0.45, yamagata: 0.5, sanada: 0.45, naito: 0.4, tsuchiya: 0.4, nobukado: 0.35, nobutoyo: 0.35, nobuzane: 0.15, siege: 0.1, teppo: 0, okudaira: 0 },
+  'osaka-summer': { ieyasu: 0.25, hidetada: 0.25, tadanao: 0.3, tadatomo: 0.3, ogasawara: 0.3, maeda: 0.25, nobushige: 0.4, katsunaga: 0.3, harufusa: 0.25, akashi: 0.25, hideyori: 0.3 },
   minatogawa: { takauji: 0.3, tadayoshi: 0.35, shiba: 0.3, shoni: 0.35, hosokawa: 0.25, masashige: 0.3, masasue: 0.3, yoshisada: 0.35, wakiya: 0.3, honma: 0.2 },
   shizugatake: { hideyoshi: 0.25, fukushima: 0.2, kato: 0.2, hidenaga: 0.2, hori: 0.2, nakagawa: 0.1, takayama: 0.1, kuwayama: 0.05, niwa: 0.1, katsuie: 0.25, morimasa: 0.2, katsumasa: 0.2, maeda: 0.25 },
   yamazaki: { hideyoshi: 0.2, hidenaga: 0.15, nakagawa: 0.15, takayama: 0.15, horio: 0.1, ikeda: 0.3, niwa: 0.2, nobutaka: 0.25, mitsuhide: 0.25, toshimitsu: 0.2, matsuda: 0.1, ise: 0.2, tsuda: 0.2, mimaki: 0.3 },
@@ -10314,6 +10319,442 @@ if (IS_MINA) {
   kamonImages.yoshisada = "data:image/png;base64,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";
 }
 
+
+// ========================================================
+// ===== 10戦目: 大坂夏の陣(?battle=osaka-summer) =====
+// ========================================================
+// 座標: x が東、z が南。北に大坂城、南へ上町台地がのびる。茶臼山と四天王寺、東に岡山
+const OSAKA_POS = {
+  castle: [0, -58], tennoji: [10, -20], chausu: [-16, 0], okayama: [32, -4], yasui: [-14, -16],
+  honjin: [-4, 48], hidetadaHQ: [34, 44],
+};
+const OSAKA_RIVERS = [
+  [[-90, -72], [-50, -75], [-10, -78], [30, -76], [90, -72]],     // 大川(淀川)
+  [[52, 90], [50, 40], [48, 0], [46, -40], [42, -74]],           // 平野川
+];
+function osakaTerrainHeight(x, z) {
+  const hill = (cx, cz, s, a) => Math.exp(-((x - cx) ** 2 + (z - cz) ** 2) / s) * a;
+  let h = 0.5 + __fbm(x * 0.05, z * 0.05, 3) * 0.6;
+  // 上町台地(南北にのびる高台)
+  const px = Math.abs(x - 2);
+  h += Math.max(0, Math.min(1, (26 - px) / 10)) * 1.3;
+  h += hill(-16, 0, 40, 2.4);       // 茶臼山
+  h += hill(32, -4, 26, 1.4);       // 岡山
+  h += hill(0, -58, 90, 1.6);       // 大坂城の高台
+  h += __fbm(x * 0.2, z * 0.2, 3) * 0.2;
+  let rd = 1e9;
+  OSAKA_RIVERS.forEach(line => { for (let i = 0; i < line.length - 1; i++) rd = Math.min(rd, _segDist(x, z, line[i], line[i + 1])); });
+  const k = Math.exp(-(rd * rd) / 8);
+  h = h * (1 - k * 0.9) - k * 0.4;
+  return Math.max(-0.5, h);
+}
+const osakaFlames = { castle: null };
+let osakaBanner = null;
+function buildOsakaDecor() {
+  const rmat = new THREE.MeshStandardMaterial({ color: 0x6888a8, transparent: true, opacity: 0.75, roughness: 0.2, metalness: 0.3 });
+  OSAKA_RIVERS.forEach(line => {
+    const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(line.map(([x, z]) => new THREE.Vector3(x, 0.12, z))), 60, 1.4, 6, false), rmat);
+    tube.scale.y = 0.15;
+    scene.add(tube);
+  });
+  const stone = new THREE.MeshStandardMaterial({ color: 0x8c867a, roughness: 1, flatShading: true });
+  const black = new THREE.MeshStandardMaterial({ color: 0x2c2c34, roughness: 0.8 });
+  const roof = new THREE.MeshStandardMaterial({ color: 0x3a3c44, roughness: 0.7, flatShading: true });
+  const gold = new THREE.MeshStandardMaterial({ color: 0xd8a82a, roughness: 0.35, metalness: 0.7 });
+  const white = new THREE.MeshStandardMaterial({ color: 0xe2dccb, roughness: 0.9 });
+  const wood = new THREE.MeshStandardMaterial({ color: 0x8a3a24, roughness: 0.9 });
+  // 大坂城(石垣と黒い天守)
+  {
+    const [cx, cz] = OSAKA_POS.castle;
+    const gy = getTerrainHeight(cx, cz);
+    const g = new THREE.Group();
+    g.position.set(cx, gy, cz);
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(5.2, 6.6, 2.4, 4, 1), stone);
+    base.rotation.y = Math.PI / 4; base.position.y = 1.2; base.castShadow = true; g.add(base);
+    // 本丸の塀
+    const wall = new THREE.Mesh(new THREE.BoxGeometry(14, 1.2, 0.4), white);
+    [[0, -7.2, 0], [0, 7.2, 0], [-7.2, 0, Math.PI / 2], [7.2, 0, Math.PI / 2]].forEach(([x, z, r]) => {
+      const m = wall.clone(); m.position.set(x, 0.6, z); m.rotation.y = r; g.add(m);
+    });
+    let y = 2.4;
+    [[5.0, 1.5], [4.2, 1.3], [3.4, 1.2], [2.6, 1.1], [1.9, 1.0]].forEach(([w, hh], i) => {
+      const b = new THREE.Mesh(new THREE.BoxGeometry(w, hh, w * 0.85), black);
+      b.position.y = y + hh / 2; b.castShadow = true; g.add(b);
+      const rf = new THREE.Mesh(new THREE.CylinderGeometry(w * 0.45, w * 0.82, 0.5, 4, 1), roof);
+      rf.rotation.y = Math.PI / 4; rf.scale.z = 0.85; rf.position.y = y + hh + 0.2; rf.castShadow = true; g.add(rf);
+      const trim = new THREE.Mesh(new THREE.BoxGeometry(w * 1.02, 0.12, w * 0.87), gold);
+      trim.position.y = y + hh - 0.1; g.add(trim);
+      y += hh + 0.35;
+    });
+    const top = new THREE.Mesh(new THREE.ConeGeometry(1.2, 0.9, 4), roof);
+    top.rotation.y = Math.PI / 4; top.position.y = y + 0.3; g.add(top);
+    scene.add(g);
+    // 炎(はじめは隠しておく)
+    const flameGeo = new THREE.ConeGeometry(0.9, 3.0, 6);
+    const flameMats = [0xff6a1a, 0xff9a2a, 0xffc04a].map(c => new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.88, depthWrite: false }));
+    const fg = new THREE.Group();
+    for (let i = 0; i < 24; i++) {
+      const f = new THREE.Mesh(flameGeo, flameMats[i % 3]);
+      const a = (i / 24) * Math.PI * 2 + (i % 2) * 0.3;
+      const lvl = i % 4;                                   // 天守の外側を、下の段から上へ
+      const rr = 3.0 - lvl * 0.45;
+      f.position.set(cx + Math.cos(a) * rr, gy + 3.4 + lvl * 1.7, cz + Math.sin(a) * rr * 0.9);
+      f.userData.ph = Math.random() * 6.28;
+      f.userData.base = 0.8 + Math.random() * 0.6;
+      fg.add(f);
+    }
+    fg.visible = false;
+    scene.add(fg);
+    osakaFlames.castle = fg;
+  }
+  // 四天王寺(五重塔と金堂)
+  {
+    const [cx, cz] = OSAKA_POS.tennoji;
+    const gy = getTerrainHeight(cx, cz);
+    const g = new THREE.Group();
+    g.position.set(cx, gy, cz);
+    let y = 0;
+    for (let i = 0; i < 5; i++) {
+      const w = 1.6 - i * 0.18;
+      const b = new THREE.Mesh(new THREE.BoxGeometry(w * 0.7, 0.7, w * 0.7), wood);
+      b.position.y = y + 0.35; g.add(b);
+      const rf = new THREE.Mesh(new THREE.CylinderGeometry(0.01, w * 0.95, 0.45, 4, 1), roof);
+      rf.rotation.y = Math.PI / 4; rf.position.y = y + 0.85; rf.castShadow = true; g.add(rf);
+      y += 0.85;
+    }
+    const sp = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.4, 4), gold);
+    sp.position.y = y + 0.6; g.add(sp);
+    const hall = new THREE.Mesh(new THREE.BoxGeometry(3.4, 1.3, 2.4), wood);
+    hall.position.set(0, 0.65, -4); hall.castShadow = true; g.add(hall);
+    const hr = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 2.6, 1.2, 4, 1), roof);
+    hr.rotation.y = Math.PI / 4; hr.scale.set(1.15, 1, 0.85); hr.position.set(0, 1.85, -4); g.add(hr);
+    scene.add(g);
+  }
+  // 安居神社(小さな社)
+  {
+    const [cx, cz] = OSAKA_POS.yasui;
+    const gy = getTerrainHeight(cx, cz);
+    const sh = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.8, 1.1), white);
+    sh.position.set(cx, gy + 0.4, cz); scene.add(sh);
+    const rf = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 1.1, 0.6, 4, 1), roof);
+    rf.rotation.y = Math.PI / 4; rf.position.set(cx, gy + 1.1, cz); scene.add(rf);
+    const torii = new THREE.Group();
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 1.4, 6), wood);
+    const p1 = post.clone(); p1.position.set(-0.6, 0.7, 0); torii.add(p1);
+    const p2 = post.clone(); p2.position.set(0.6, 0.7, 0); torii.add(p2);
+    const beam = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.12, 0.14), wood); beam.position.y = 1.4; torii.add(beam);
+    torii.position.set(cx, gy, cz + 1.8); scene.add(torii);
+  }
+  // 家康の金扇の馬印
+  {
+    const g = new THREE.Group();
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 3.2, 5), wood);
+    pole.position.y = 1.6; g.add(pole);
+    const fan = new THREE.Mesh(new THREE.CircleGeometry(0.9, 16, Math.PI * 0.15, Math.PI * 0.7), new THREE.MeshStandardMaterial({ color: 0xf0c23a, roughness: 0.3, metalness: 0.6, side: THREE.DoubleSide }));
+    fan.position.y = 2.7; g.add(fan);
+    g.userData.tilt = 0;
+    scene.add(g);
+    osakaBanner = g;
+  }
+}
+const OSAKA_ROCKS = [];
+const OSAKA_TREES = [];
+
+function makeOsakaUnits() {
+  return {
+    ieyasu:    new Unit('ieyasu',    '徳', 'east', -4, 48, '徳川家康', 1.5, true),
+    hidetada:  new Unit('hidetada',  '秀', 'east', 34, 44, '徳川秀忠', 1.3),
+    tadanao:   new Unit('tadanao',   '越', 'east', -14, 22, '松平忠直', 1.3),
+    tadatomo:  new Unit('tadatomo',  '本', 'east', 4, 18, '本多忠朝', 0.9),
+    ogasawara: new Unit('ogasawara', '小', 'east', 14, 22, '小笠原秀政', 0.9),
+    maeda:     new Unit('maeda',     '前', 'east', 32, 18, '前田利常', 1.2),
+    nobushige: new Unit('nobushige', '真', 'west', -16, 0, '真田信繁', 1.2, true),
+    katsunaga: new Unit('katsunaga', '毛', 'west', 6, -6, '毛利勝永', 1.1),
+    harufusa:  new Unit('harufusa',  '大', 'west', 32, -10, '大野治房', 1.1),
+    akashi:    new Unit('akashi',    '明', 'west', -38, -14, '明石全登', 0.9),
+    hideyori:  new Unit('hideyori',  '豊', 'west', 0, -52, '豊臣秀頼', 1.2),
+  };
+}
+
+// 特殊効果: 燃える大坂城と、家康の馬印
+let osakaLastFire = 0;
+function osakaChoices() {
+  return (typeof decideState !== 'undefined' && decideState.active) ? decideState.choices : {};
+}
+function osakaCastleBurning() {
+  return currentPhase >= 10 && osakaChoices()[3] !== 'sortie';
+}
+function osakaBannerDown() {
+  const c = osakaChoices();
+  if (c[3] === 'sortie' && c[8] === 'strike') return currentPhase >= 7;
+  return currentPhase === 7 || currentPhase === 8;
+}
+function osakaSpecialFx() {
+  const t = performance.now() / 1000;
+  // 馬印は家康についていく。倒れる時はゆっくり傾ける
+  if (osakaBanner && units.ieyasu) {
+    const p = units.ieyasu.group.position;
+    const dead = units.ieyasu.group.visible === false;
+    osakaBanner.visible = !dead;
+    osakaBanner.position.set(p.x + 1.4, p.y, p.z + 0.6);
+    const goal = osakaBannerDown() ? 1.35 : 0;
+    osakaBanner.userData.tilt += (goal - osakaBanner.userData.tilt) * 0.06;
+    osakaBanner.rotation.z = osakaBanner.userData.tilt;
+  }
+  const burning = osakaCastleBurning();
+  const grp = osakaFlames.castle;
+  if (grp) {
+    grp.visible = burning;
+    if (burning) grp.children.forEach(f => {
+      const w = f.userData.base * (0.75 + 0.35 * Math.sin(t * 7 + f.userData.ph) + 0.15 * Math.sin(t * 13 + f.userData.ph * 2));
+      f.scale.set(0.8 + 0.2 * Math.sin(t * 5 + f.userData.ph), w, 0.8 + 0.2 * Math.cos(t * 6 + f.userData.ph));
+    });
+  }
+  if (!burning || t - osakaLastFire < 0.16) return;
+  osakaLastFire = t;
+  const [cx, cz] = OSAKA_POS.castle;
+  const x = cx + (Math.random() - 0.5) * 6, z = cz + (Math.random() - 0.5) * 6;
+  const y = getTerrainHeight(cx, cz) + 3 + Math.random() * 4;
+  emitFire(x, y, z, 3);
+  addFx('flash', x, y + 0.4, z, { s0: 1.8, s1: 2.8, life: 0.45, color: Math.random() < 0.5 ? 0xff7a2a : 0xffb040 });
+  // 煙は薄く、北へ流す(画面を隠さない)
+  if (Math.random() < 0.3) addFx('smoke', x, y + 3, z, { color: 0x3a3430, life: 6, s0: 1.6, s1: 6, vy: 2.6, vx: 0.4, vz: -1.4, op: 0.55 });
+}
+function osakaMomentSound(idx) {
+  if (idx === 1) {
+    horagai(0.26, 0, 2.6);
+  } else if (idx === 4) {
+    crowdSurge(0.3, 0.1, 3.0);
+    let d = 0.2;
+    for (let i = 0; i < 6; i++) { taiko(0.36, d); d += 0.26; }
+  } else if (idx === 5) {
+    crowdSurge(0.32, 0.1, 3.2);
+    let d = 0.2;
+    for (let i = 0; i < 8; i++) { taiko(0.4, d); d += 0.22; }
+  } else if (idx === 7) {
+    [0.05, 0.6, 1.1].forEach(d => taiko(0.55, d));
+  } else if (idx === 10) {
+    [0.05, 0.9].forEach(d => taiko(0.5, d));
+  }
+}
+
+if (IS_OSAKA) {
+  Object.assign(BX, {
+    terrain: osakaTerrainHeight, decor: buildOsakaDecor, rocks: OSAKA_ROCKS, trees: OSAKA_TREES,
+    units: makeOsakaUnits, fx: osakaSpecialFx, sound: osakaMomentSound, drum: [5, 7],
+    dom: { kicker: 'OSAKA · 3D', year: '1615', rename: [['mitsunari', 'nobushige']] },
+  });
+
+  const ALL0 = {
+    ieyasu: [-4, 48], hidetada: [34, 44], tadanao: [-14, 22], tadatomo: [4, 18], ogasawara: [14, 22], maeda: [32, 18],
+    nobushige: [-16, 0], katsunaga: [6, -6], harufusa: [32, -10], akashi: [-38, -14], hideyori: [0, -52],
+  };
+  const U = (o) => Object.assign({}, ALL0, o);
+  const NEAR = { ieyasu: [-4, 36], hidetada: [34, 32], tadanao: [-14, 14], tadatomo: [4, 10], ogasawara: [14, 14], maeda: [32, 8] };
+  const ph = (time, ja, units, extra) => Object.assign({ time, units, battles: [], battling: [], defeated: [], traitor: null }, ja, extra || {});
+
+  _replaceArr(phases, [
+    ph('05:00', { phase: '布陣', label: '布陣', title: '豊臣方、茶臼山と四天王寺に陣取る',
+      text: '慶長20年5月7日。堀を埋められた大坂城ではもう守れない。<span class="info-west">真田信繁</span>は茶臼山に、その東に<span class="info-west">毛利勝永</span>が陣を置いた。豊臣方はおよそ<span class="info-highlight">5万5000</span>。',
+      camera: { pos: [10, 62, 66], look: [4, 0, 4], label: 'CAM · 天王寺' } }, U({})),
+    ph('10:00', { phase: '徳川の大軍', label: '大軍', title: '15万を超える徳川の大軍が南から迫る',
+      text: '<span class="info-east">徳川家康</span>は天王寺口の後ろに、<span class="info-east">秀忠</span>は岡山口の後ろに本陣を置き、二手から攻めかかる。数は<span class="info-highlight">豊臣方のおよそ3倍</span>。',
+      camera: { pos: [12, 66, 104], look: [10, 0, 34], label: 'CAM · 天王寺口' } }, U(NEAR)),
+    ph('11:30', { phase: '作戦', label: '作戦', title: 'ねらうは家康の首ひとつ',
+      text: '数で勝てない豊臣方の作戦は、敵を十分に引きつけておき、そのすきに西の<span class="info-west">明石全登</span>の隊が<span class="info-highlight">家康の本陣を突く</span>というものだった。',
+      camera: { pos: [-14, 62, 72], look: [-22, 0, 10], label: 'CAM · 茶臼山の西' } },
+      U(Object.assign({}, NEAR, { akashi: [-46, 4] }))),
+    ph('12:00', { phase: '秀頼、動かず', label: '開戦', title: '秀頼は城を出ず、戦いが始まる',
+      text: '真田らは<span class="info-west">豊臣秀頼</span>みずから戦場に出るよう願っていたが、秀頼は城にとどまった。そのころ、前に出た<span class="info-west">毛利勝永</span>の隊と<span class="info-east">本多忠朝</span>の隊の間で、<span class="info-highlight">予定より早く戦いが始まる</span>。',
+      camera: { pos: [24, 34, 34], look: [6, 0, 6], label: 'CAM · 四天王寺の南' } },
+      U(Object.assign({}, NEAR, { akashi: [-46, 4], katsunaga: [6, 2], tadatomo: [5, 7], hideyori: [0, -48] })),
+      { battles: [{ x: 5, z: 4 }], battling: ['katsunaga', 'tadatomo'] }),
+    ph('12:10', { phase: '毛利の猛攻', label: '毛利', title: '毛利勝永、徳川の大名を次々に破る',
+      text: '<span class="info-west">毛利勝永</span>の隊は、<span class="info-east">本多忠朝</span>、<span class="info-east">小笠原秀政</span>らを次々に打ち破った。<span class="info-highlight">思いがけない大活躍</span>だった。岡山口でも<span class="info-west">大野治房</span>らが<span class="info-east">前田利常</span>の軍勢とぶつかる。',
+      camera: { pos: [30, 32, 40], look: [10, 0, 12], label: 'CAM · 天王寺口' } },
+      U(Object.assign({}, NEAR, { akashi: [-46, 4], katsunaga: [8, 12], tadatomo: [6, 14], ogasawara: [13, 16], harufusa: [32, 0], maeda: [32, 4], hideyori: [0, -48] })),
+      { battles: [{ x: 8, z: 13 }, { x: 12, z: 15 }, { x: 32, z: 2 }], battling: ['katsunaga', 'tadatomo', 'ogasawara', 'harufusa', 'maeda'], defeated: ['tadatomo'] }),
+    ph('12:30', { phase: '真田の突撃', label: '突撃', title: '赤備え、越前勢へ突っこむ',
+      text: '作戦を切りかえた<span class="info-west">真田信繁</span>は、3500の兵で<span class="info-east">松平忠直</span>の越前勢1万5000に突撃した。数では大きく劣るが、<span class="info-highlight">死を覚悟した攻撃</span>で越前勢の右翼を突き崩す。',
+      camera: { pos: [-34, 30, 34], look: [-14, 0, 12], label: 'CAM · 茶臼山' } },
+      U(Object.assign({}, NEAR, { akashi: [-42, 10], katsunaga: [10, 18], ogasawara: [14, 20], harufusa: [32, 0], maeda: [32, 4], nobushige: [-13, 12], tadanao: [-14, 16], tadatomo: [6, 14], hideyori: [0, -48] })),
+      { battles: [{ x: -13, z: 14 }, { x: 12, z: 19 }, { x: 32, z: 2 }], battling: ['nobushige', 'tadanao', 'katsunaga', 'ogasawara', 'harufusa', 'maeda'], defeated: ['tadatomo'] }),
+    ph('13:00', { phase: '家康本陣へ', label: '本陣へ', title: '越前勢をつらぬき、家康の本陣へ',
+      text: '<span class="info-west">真田</span>の隊は越前勢を抜け、家康を守る旗本の隊も突破して、<span class="info-highlight">家康の本陣めがけて一直線</span>に駆けた。',
+      camera: { pos: [-30, 30, 56], look: [-8, 0, 30], label: 'CAM · 家康本陣' } },
+      U(Object.assign({}, NEAR, { akashi: [-40, 14], katsunaga: [10, 24], ogasawara: [16, 26], harufusa: [32, 0], maeda: [32, 4], nobushige: [-7, 30], tadanao: [-22, 20], tadatomo: [6, 14], ieyasu: [-4, 38], hideyori: [0, -48] })),
+      { battles: [{ x: -6, z: 34 }, { x: 13, z: 25 }, { x: 32, z: 2 }], battling: ['nobushige', 'ieyasu', 'katsunaga', 'ogasawara', 'harufusa', 'maeda'], defeated: ['tadatomo', 'ogasawara'] }),
+    ph('13:30', { phase: '馬印倒れる', label: '馬印', title: '家康の馬印が倒れる',
+      text: '真田の隊は二度にわたって本陣へ突っこみ、本陣は大混乱になった。三方ヶ原の戦いのとき以来倒れたことのなかった<span class="info-east">家康の馬印</span>が倒れ、家康は<span class="info-highlight">二度も自害を考えた</span>という。',
+      camera: { pos: [-22, 26, 66], look: [-2, 0, 40], label: 'CAM · 家康本陣' } },
+      U(Object.assign({}, NEAR, { akashi: [-40, 14], katsunaga: [10, 24], ogasawara: [16, 26], harufusa: [32, 0], maeda: [32, 4], nobushige: [-3, 40], tadanao: [-16, 26], tadatomo: [6, 14], ieyasu: [6, 52], hideyori: [0, -48] })),
+      { battles: [{ x: -1, z: 44 }, { x: 13, z: 25 }, { x: 32, z: 2 }], battling: ['nobushige', 'ieyasu', 'katsunaga', 'ogasawara', 'harufusa', 'maeda'], defeated: ['tadatomo', 'ogasawara'] }),
+    ph('14:00', { phase: '三度目', label: '三度目', title: '三度目の突撃、押し戻される',
+      text: '<span class="info-west">真田</span>は三度目の突撃をかけたが、二度の攻撃で兵は大きく減っていた。立て直した<span class="info-east">松平忠直</span>の越前勢に<span class="info-highlight">押し戻され、退くしかなかった</span>。',
+      camera: { pos: [-28, 30, 52], look: [-6, 0, 30], label: 'CAM · 家康本陣' } },
+      U(Object.assign({}, NEAR, { akashi: [-40, 14], katsunaga: [8, 16], ogasawara: [16, 26], harufusa: [30, -2], maeda: [32, 2], nobushige: [-6, 32], tadanao: [-8, 28], tadatomo: [6, 14], ieyasu: [2, 46], hideyori: [0, -48] })),
+      { battles: [{ x: -7, z: 30 }, { x: 31, z: 0 }], battling: ['nobushige', 'tadanao', 'harufusa', 'maeda'], defeated: ['tadatomo', 'ogasawara'] }),
+    ph('15:00', { phase: '安居神社', label: '安居', title: '真田信繁、安居神社で討たれる',
+      text: '退いた<span class="info-west">真田信繁</span>は、安居神社で休んでいたところを越前松平家の鉄砲組頭・西尾宗次に見つけられ、討ち取られたとされる。豊臣方の各隊も崩れ、<span class="info-highlight">徳川の大軍が城へ押し寄せる</span>。',
+      camera: { pos: [10, 30, 16], look: [-12, 0, -12], label: 'CAM · 安居神社' } },
+      U({ akashi: [-70, -10], katsunaga: [4, -40], harufusa: [26, -40], nobushige: [-14, -16], tadanao: [-10, -8], ieyasu: [-2, 30], hidetada: [30, 14], maeda: [26, -16], tadatomo: [6, 14], ogasawara: [16, 26], hideyori: [0, -52] }),
+      { defeated: ['tadatomo', 'ogasawara', 'nobushige'] }),
+    ph('16:00', { phase: '落城', label: '落城', title: '大坂城、燃える',
+      text: '夕方、大坂城に火の手が上がった。翌5月8日、<span class="info-west">豊臣秀頼</span>と母の淀殿は城内で自害し、<span class="info-highlight">豊臣家は滅びた</span>。このあと年号は元和と改められ、長く続いた戦乱の世が終わる。',
+      camera: { pos: [24, 56, 2], look: [0, 0, -40], label: 'CAM · 大坂城' } },
+      U({ akashi: [-80, -14], katsunaga: [4, -50], harufusa: [24, -50], nobushige: [-14, -16], tadanao: [-6, -40], ieyasu: [-2, 0], hidetada: [26, -6], maeda: [20, -40], tadatomo: [6, 14], ogasawara: [16, 26], hideyori: [0, -56] }),
+      { defeated: ['tadatomo', 'ogasawara', 'nobushige', 'hideyori'] }),
+  ]);
+
+  _replaceArr(EN_PHASES, [
+    { phase: 'DEPLOYMENT', label: 'Deploy', cam: 'CAM · TENNŌJI',
+      title: 'The Toyotomi take up positions at Chausuyama and Tennōji',
+      text: `The 7th day of the 5th month, 1615. With its moats filled in, Osaka Castle can no longer be held. <span class="info-west">Sanada Nobushige</span> camps on Chausuyama, with <span class="info-west">Mōri Katsunaga</span> to his east. The Toyotomi number about <span class="info-highlight">55,000</span>.` },
+    { phase: 'THE TOKUGAWA HOST', label: 'The host', cam: 'CAM · TENNŌJI ROAD',
+      title: 'More than 150,000 Tokugawa troops close in from the south',
+      text: `<span class="info-east">Tokugawa Ieyasu</span> sets his headquarters behind the Tennōji road and <span class="info-east">Hidetada</span> behind the Okayama road, attacking on two fronts. They have <span class="info-highlight">about three times as many men</span>.` },
+    { phase: 'THE PLAN', label: 'Plan', cam: 'CAM · WEST OF CHAUSUYAMA',
+      title: "One target: Ieyasu's head",
+      text: `Unable to win on numbers, the Toyotomi plan to draw the enemy in close while <span class="info-west">Akashi Takenori</span>'s men swing round from the west and <span class="info-highlight">strike Ieyasu's headquarters</span>.` },
+    { phase: 'HIDEYORI STAYS', label: 'First shots', cam: 'CAM · SOUTH OF TENNŌJI',
+      title: 'Hideyori stays in the castle, and the fighting starts',
+      text: `Sanada and the others wanted <span class="info-west">Toyotomi Hideyori</span> to ride out himself, but he stays inside the castle. Meanwhile <span class="info-west">Mōri Katsunaga</span>'s forward troops clash with <span class="info-east">Honda Tadatomo</span>'s, and <span class="info-highlight">the battle starts earlier than planned</span>.` },
+    { phase: "MŌRI'S ONSLAUGHT", label: 'Mōri', cam: 'CAM · TENNŌJI ROAD',
+      title: 'Mōri Katsunaga smashes one Tokugawa lord after another',
+      text: `<span class="info-west">Mōri Katsunaga</span>'s men beat <span class="info-east">Honda Tadatomo</span>, <span class="info-east">Ogasawara Hidemasa</span> and others in turn — <span class="info-highlight">a stunning performance no one expected</span>. On the Okayama road, <span class="info-west">Ōno Harufusa</span> and others collide with <span class="info-east">Maeda Toshitsune</span>'s army.` },
+    { phase: 'THE SANADA CHARGE', label: 'Charge', cam: 'CAM · CHAUSUYAMA',
+      title: 'The red-armored Sanada charge the Echizen army',
+      text: `Switching plans, <span class="info-west">Sanada Nobushige</span> charges <span class="info-east">Matsudaira Tadanao</span>'s 15,000 Echizen troops with 3,500 men. Badly outnumbered, the Sanada <span class="info-highlight">attack like men ready to die</span> and break the Echizen right wing.` },
+    { phase: 'TO THE HEADQUARTERS', label: 'To Ieyasu', cam: "CAM · IEYASU'S CAMP",
+      title: "Through the Echizen army, straight for Ieyasu's camp",
+      text: `The <span class="info-west">Sanada</span> cut through the Echizen army, then through Ieyasu's own guard, and ride <span class="info-highlight">straight for Ieyasu's headquarters</span>.` },
+    { phase: 'THE BANNER FALLS', label: 'Banner', cam: "CAM · IEYASU'S CAMP",
+      title: "Ieyasu's standard goes down",
+      text: `The Sanada charge into the headquarters twice, throwing it into chaos. <span class="info-east">Ieyasu's standard</span>, which had not fallen since the battle of Mikatagahara, goes down, and Ieyasu is said to have <span class="info-highlight">twice thought of taking his own life</span>.` },
+    { phase: 'THE THIRD CHARGE', label: 'Third', cam: "CAM · IEYASU'S CAMP",
+      title: 'The third charge is thrown back',
+      text: `The <span class="info-west">Sanada</span> charge a third time, but two attacks have cost them dearly. <span class="info-east">Matsudaira Tadanao</span>'s Echizen army, now rallied, <span class="info-highlight">pushes them back, and they must withdraw</span>.` },
+    { phase: 'YASUI SHRINE', label: 'Yasui', cam: 'CAM · YASUI SHRINE',
+      title: 'Sanada Nobushige is killed at Yasui Shrine',
+      text: `Resting at Yasui Shrine after the retreat, <span class="info-west">Sanada Nobushige</span> is said to have been found and killed by Nishio Munetsugu, a musket captain of the Echizen Matsudaira. The other Toyotomi units give way, and <span class="info-highlight">the Tokugawa host pours toward the castle</span>.` },
+    { phase: 'THE CASTLE FALLS', label: 'Falls', cam: 'CAM · OSAKA CASTLE',
+      title: 'Osaka Castle burns',
+      text: `In the evening, fire breaks out in Osaka Castle. The next day, <span class="info-west">Toyotomi Hideyori</span> and his mother Yodo-dono take their own lives inside, and <span class="info-highlight">the Toyotomi house comes to an end</span>. The era name is changed to Genna soon after, and the long age of war is over.` },
+  ]);
+
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
+  _replaceArr(PHASE_ARROWS, [
+    [ mvp([0, -48], [-14, -4], W), mvp([0, -48], [6, -10], W) ],
+    [ mvp([-4, 60], [-4, 40], E), mvp([34, 58], [34, 36], E), mvp([-14, 26], [-14, 16], E) ],
+    [ mvp([-38, -14], [-46, 2], W), mvp([-46, 4], [-14, 40], W) ],
+    [ at('katsunaga', 'tadatomo', W) ],
+    [ at('katsunaga', 'tadatomo', W), at('katsunaga', 'ogasawara', W), at('harufusa', 'maeda', W) ],
+    [ at('nobushige', 'tadanao', W), at('katsunaga', 'ogasawara', W) ],
+    [ mvp([-12, 16], [-7, 30], W), at('nobushige', 'ieyasu', W) ],
+    [ at('nobushige', 'ieyasu', W), mvp([-4, 38], [6, 52], E) ],
+    [ at('tadanao', 'nobushige', E), at('maeda', 'harufusa', E) ],
+    [ mvp([-6, 30], [-14, -12], W), mvp([30, 14], [28, -30], E) ],
+    [ mvp([-2, 20], [-2, -30], E), mvp([26, -6], [20, -40], E) ],
+  ]);
+  _replaceArr(CINE, [
+    { focus: ['nobushige', 'katsunaga'], blend: 0.4, orbit: 0.015, dolly: 0.04 },
+    { orbit: -0.02, dolly: 0.04 },
+    { orbit: 0.02, dolly: 0.04 },
+    { focus: ['katsunaga', 'tadatomo'], blend: 0.7, orbit: 0.02, dolly: 0.08 },
+    { focus: ['katsunaga'], blend: 0.7, orbit: -0.02, dolly: 0.08 },
+    { focus: ['nobushige', 'tadanao'], blend: 0.85, orbit: 0.025, dolly: 0.1 },
+    { focus: ['nobushige'], blend: 0.8, orbit: -0.02, dolly: 0.1 },
+    { focus: ['nobushige', 'ieyasu'], blend: 0.9, orbit: 0.03, dolly: 0.12 },
+    { focus: ['nobushige', 'tadanao'], blend: 0.7, orbit: -0.02, dolly: 0.08 },
+    { focus: ['nobushige'], blend: 0.7, orbit: 0.02, dolly: 0.06 },
+    { orbit: 0.02, dolly: -0.04 },
+  ]);
+  _replaceObj(CINE_MOMENTS, {
+    1: { ja: '徳川の大軍', en: 'THE TOKUGAWA HOST', subJa: '15万が南から迫る', subEn: '150,000 from the south', shake: 0.2 },
+    4: { ja: '毛利の猛攻', en: "MŌRI'S ONSLAUGHT", subJa: '本多忠朝、討死', subEn: 'Honda Tadatomo falls', shake: 0.6, accent: 'gold' },
+    5: { ja: '真田の突撃', en: 'THE SANADA CHARGE', subJa: 'ねらうは家康の首', subEn: "For Ieyasu's head", shake: 0.8, accent: 'gold' },
+    7: { ja: '馬印倒れる', en: 'THE BANNER FALLS', subJa: '家康の本陣、大混乱', subEn: "Chaos in Ieyasu's camp", shake: 0.9 },
+    9: { ja: '安居神社', en: 'YASUI SHRINE', subJa: '真田信繁、討死', subEn: 'Sanada Nobushige falls', shake: 0 },
+    10: { ja: '落城', en: 'THE FALL OF OSAKA', subJa: '豊臣家の最期', subEn: 'The end of the Toyotomi', shake: 0 },
+  });
+  _replaceArr(MOMENTUM, [70, 72, 72, 66, 56, 48, 38, 32, 50, 80, 96]);
+  ATMO_KEYS.osakadusk = Object.assign({}, ATMO_KEYS.late);
+  _replaceArr(PHASE_ATMO, ['morning', 'morning', 'noon', 'noon', 'noon', 'noon', 'noon', 'noon', 'after', 'after', 'osakadusk']);
+  _replaceArr(PLACES, [
+    { x: 0, z: -64, ja: '大坂城', en: 'Osaka Castle', lift: 9 },
+    { x: -16, z: -4, ja: '茶臼山', en: 'Chausuyama', lift: 4 },
+    { x: 10, z: -24, ja: '四天王寺', en: 'Shitennōji', lift: 5 },
+    { x: 32, z: -8, ja: '岡山', en: 'Okayama', lift: 3 },
+    { x: -14, z: -20, ja: '安居神社', en: 'Yasui Shrine', lift: 2.5, minor: true },
+    { x: -4, z: 56, ja: '家康本陣', en: "Ieyasu's camp", lift: 2, minor: true },
+    { x: 34, z: 52, ja: '秀忠本陣', en: "Hidetada's camp", lift: 2, minor: true },
+  ]);
+
+  const g = (o) => o;
+  _replaceObj(generalsData, {
+    ieyasu: g({ name: '徳川家康', yomi: 'TOKUGAWA IEYASU', faction: 'east', factionLabel: '徳川軍 総大将', force: '約15万(全軍)', troops: 15000, base: '天王寺口の後ろ', birth: '1543', koku: '駿府',
+      bio: '関ヶ原の戦いに勝って江戸に幕府を開いた。将軍職はすでに子の秀忠にゆずり、駿府で大御所として力をふるっていた。',
+      episode: '大坂の陣の翌年、駿府で亡くなる。' }),
+    hidetada: g({ name: '徳川秀忠', yomi: 'TOKUGAWA HIDETADA', faction: 'east', factionLabel: '徳川軍 将軍', force: '—', troops: 23000, base: '岡山口の後ろ', birth: '1579', koku: '江戸',
+      bio: '家康の三男で、江戸幕府の二代将軍。', episode: '娘の千姫は秀頼の妻だった。大坂城が落ちる前に、千姫は城から出された。' }),
+    tadanao: g({ name: '松平忠直', yomi: 'MATSUDAIRA TADANAO', faction: 'east', factionLabel: '徳川軍 越前勢', force: '約1万5000', troops: 15000, base: '天王寺口', birth: '1595', koku: '越前',
+      bio: '家康の孫。越前の大軍を率いた。', episode: '真田の突撃を受け止め、立て直して押し返した。真田信繁を討ったのも越前勢だったとされる。' }),
+    tadatomo: g({ name: '本多忠朝', yomi: 'HONDA TADATOMO', faction: 'east', factionLabel: '徳川軍 天王寺口', force: '—', troops: 1500, base: '天王寺口', birth: '1582', koku: '上総',
+      bio: '本多忠勝の次男。関ヶ原の戦いでも手柄を立てた。', episode: '毛利勝永の隊に突っこんで討死した。酒の失敗を悔やんだ話が残り、のちに酒断ちの神としてまつられた。' }),
+    ogasawara: g({ name: '小笠原秀政', yomi: 'OGASAWARA HIDEMASA', faction: 'east', factionLabel: '徳川軍 天王寺口', force: '—', troops: 1500, base: '天王寺口', birth: '1569', koku: '信濃',
+      bio: '信濃・松本の大名。', episode: '毛利勝永の隊との戦いで深い傷を負い、その日のうちに亡くなった。子の忠脩も討死した。' }),
+    maeda: g({ name: '前田利常', yomi: 'MAEDA TOSHITSUNE', faction: 'east', factionLabel: '徳川軍 岡山口', force: '—', troops: 15000, base: '岡山口', birth: '1594', koku: '加賀',
+      bio: '加賀百万石の大名。前田利家の子。', episode: '岡山口の先頭に立ち、豊臣方の隊と激しく戦った。' }),
+    nobushige: g({ name: '真田信繁', yomi: 'SANADA NOBUSHIGE', faction: 'west', factionLabel: '豊臣軍 天王寺口', force: '約3500', troops: 3500, base: '茶臼山', birth: '1567', koku: '信濃',
+      bio: '真田昌幸の子。「幸村」の名で知られる。冬の陣では「真田丸」で徳川方を苦しめた。',
+      episode: '夏の陣で家康の本陣に突っこみ、家康に死を覚悟させるまで追いつめたと伝わる。' }),
+    katsunaga: g({ name: '毛利勝永', yomi: 'MŌRI KATSUNAGA', faction: 'west', factionLabel: '豊臣軍 天王寺口', force: '—', troops: 4000, base: '四天王寺の南', birth: '1578?', koku: '豊前',
+      bio: '豊臣秀吉に仕えた武将の子。関ヶ原のあとは土佐の山内家に預けられていた。', episode: '夏の陣では本多忠朝ら徳川方の大名を次々に破った。城へ戻ったのち、秀頼とともに自害した。' }),
+    harufusa: g({ name: '大野治房', yomi: 'ŌNO HARUFUSA', faction: 'west', factionLabel: '豊臣軍 岡山口', force: '—', troops: 4600, base: '岡山', birth: '不詳', koku: '—',
+      bio: '豊臣家の重臣・大野治長の弟。', episode: '岡山口で前田勢ら徳川方の大軍とぶつかった。' }),
+    akashi: g({ name: '明石全登', yomi: 'AKASHI TAKENORI', faction: 'west', factionLabel: '豊臣軍 遊軍', force: '—', troops: 2000, base: '茶臼山の西', birth: '不詳', koku: '—',
+      bio: 'もと宇喜多家の重臣で、キリシタンとして知られる。', episode: '家康の本陣を横から突く役目だったという。戦いのあと行方がわからなくなった。' }),
+    hideyori: g({ name: '豊臣秀頼', yomi: 'TOYOTOMI HIDEYORI', faction: 'west', factionLabel: '豊臣軍 総大将', force: '約5万5000(全軍)', troops: 2000, base: '大坂城', birth: '1593', koku: '摂津・河内・和泉',
+      bio: '豊臣秀吉の子。父の死後も大坂城にあり、徳川家と並ぶ大きな存在だった。', episode: '夏の陣では城を出ず、落城の翌日に母の淀殿とともに自害した。数えで23歳だった。' }),
+  });
+  _replaceObj(EN_GEN, {
+    ieyasu: { name: 'Tokugawa Ieyasu', yomi: '徳川家康', factionLabel: 'TOKUGAWA · COMMANDER', force: 'About 150,000 (all)', base: 'Behind the Tennōji road', birth: '1543', koku: 'Sunpu',
+      bio: 'Victor of Sekigahara and founder of the shogunate in Edo. He had already handed the title of shogun to his son Hidetada, but still held real power as the retired shogun in Sunpu.',
+      episode: 'He died in Sunpu the following year.' },
+    hidetada: { name: 'Tokugawa Hidetada', yomi: '徳川秀忠', factionLabel: 'TOKUGAWA · SHOGUN', force: '—', base: 'Behind the Okayama road', birth: '1579', koku: 'Edo',
+      bio: "Ieyasu's third son and the second Tokugawa shogun.", episode: "His daughter Sen-hime was Hideyori's wife. She was sent out of the castle before it fell." },
+    tadanao: { name: 'Matsudaira Tadanao', yomi: '松平忠直', factionLabel: 'TOKUGAWA · ECHIZEN', force: 'About 15,000', base: 'Tennōji road', birth: '1595', koku: 'Echizen',
+      bio: "Ieyasu's grandson, leading the large Echizen army.", episode: 'He took the Sanada charge, rallied and pushed it back. Nobushige is said to have been killed by an Echizen man.' },
+    tadatomo: { name: 'Honda Tadatomo', yomi: '本多忠朝', factionLabel: 'TOKUGAWA · TENNŌJI ROAD', force: '—', base: 'Tennōji road', birth: '1582', koku: 'Kazusa',
+      bio: 'Second son of Honda Tadakatsu, who had also distinguished himself at Sekigahara.', episode: "He charged Mōri Katsunaga's men and was killed. Stories of his regret over drinking led to his later worship as a god for those trying to quit." },
+    ogasawara: { name: 'Ogasawara Hidemasa', yomi: '小笠原秀政', factionLabel: 'TOKUGAWA · TENNŌJI ROAD', force: '—', base: 'Tennōji road', birth: '1569', koku: 'Shinano',
+      bio: 'Lord of Matsumoto in Shinano.', episode: "Badly wounded fighting Mōri Katsunaga's men, he died that same day. His son Tadanaga was killed too." },
+    maeda: { name: 'Maeda Toshitsune', yomi: '前田利常', factionLabel: 'TOKUGAWA · OKAYAMA ROAD', force: '—', base: 'Okayama road', birth: '1594', koku: 'Kaga',
+      bio: 'Lord of the vast Kaga domain and son of Maeda Toshiie.', episode: 'He led the front on the Okayama road and fought the Toyotomi units there hard.' },
+    nobushige: { name: 'Sanada Nobushige', yomi: '真田信繁', factionLabel: 'TOYOTOMI · TENNŌJI ROAD', force: 'About 3,500', base: 'Chausuyama', birth: '1567', koku: 'Shinano',
+      bio: 'Son of Sanada Masayuki, better known as "Yukimura." In the winter campaign his "Sanada-maru" fort gave the Tokugawa a bloody nose.',
+      episode: "In the summer campaign he is said to have charged so deep into Ieyasu's camp that Ieyasu thought he would die." },
+    katsunaga: { name: 'Mōri Katsunaga', yomi: '毛利勝永', factionLabel: 'TOYOTOMI · TENNŌJI ROAD', force: '—', base: 'South of Tennōji', birth: 'c. 1578', koku: 'Buzen',
+      bio: "Son of one of Hideyoshi's generals. After Sekigahara he was kept under watch by the Yamauchi of Tosa.", episode: 'In the summer campaign he beat Honda Tadatomo and other Tokugawa lords one after another. Back in the castle, he died with Hideyori.' },
+    harufusa: { name: 'Ōno Harufusa', yomi: '大野治房', factionLabel: 'TOYOTOMI · OKAYAMA ROAD', force: '—', base: 'Okayama', birth: 'Unknown', koku: '—',
+      bio: 'Younger brother of the senior Toyotomi retainer Ōno Harunaga.', episode: 'He clashed with the Maeda and the rest of the Tokugawa host on the Okayama road.' },
+    akashi: { name: 'Akashi Takenori', yomi: '明石全登', factionLabel: 'TOYOTOMI · FLYING COLUMN', force: '—', base: 'West of Chausuyama', birth: 'Unknown', koku: '—',
+      bio: 'A former senior retainer of the Ukita and a well-known Christian.', episode: "His job was reportedly to hit Ieyasu's camp from the side. After the battle, his fate is unknown." },
+    hideyori: { name: 'Toyotomi Hideyori', yomi: '豊臣秀頼', factionLabel: 'TOYOTOMI · COMMANDER', force: 'About 55,000 (all)', base: 'Osaka Castle', birth: '1593', koku: 'Settsu, Kawachi, Izumi',
+      bio: "Hideyoshi's son. Even after his father's death he remained in Osaka Castle, a power to rival the Tokugawa.", episode: 'He never left the castle during the summer campaign, and took his own life with his mother Yodo-dono the day after it fell. He was 23 (by Japanese count).' },
+  });
+  _replaceObj(LBL_EN, {
+    ieyasu: 'Tokugawa Ieyasu', hidetada: 'Hidetada', tadanao: 'Tadanao', tadatomo: 'Honda', ogasawara: 'Ogasawara', maeda: 'Maeda',
+    nobushige: 'Sanada Nobushige', katsunaga: 'Mōri', harufusa: 'Ōno', akashi: 'Akashi', hideyori: 'Hideyori',
+  });
+  kamonImages.hidetada = kamonImages.ieyasu;
+  kamonImages.tadanao = kamonImages.ieyasu;
+  kamonImages.nobushige = "data:image/png;base64,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";
+  kamonImages.hideyori = "data:image/png;base64,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";
+}
+
 // 史実の表を保存しておく(切り替えで元に戻せるように)
 const BASE_TABLES = {
   phases: phases.slice(),
@@ -13641,6 +14082,305 @@ if (IS_MINA) {
   });
 }
 
+// ---------- 大坂夏の陣: 決断モード ----------
+function osakaEndingId(c) {
+  if (c[3] === 'sortie') return c[8] === 'strike' ? 'E4' : 'E3';
+  if (c[8] === 'escort') return 'E2';
+  return 'E1';
+}
+let OSAKA_SEG = null;
+function osakaBuildSegments(c, put) {
+  if (!OSAKA_SEG) return;
+  if (c[3] === 'sortie') {
+    put(OSAKA_SEG.sortie);
+    if (c[8] === 'strike') put(OSAKA_SEG.strike);
+    else if (c[8] === 'hold') put(OSAKA_SEG.hold);
+    return;
+  }
+  if (c[8] === 'escort') put(OSAKA_SEG.escort);
+}
+
+if (IS_OSAKA) {
+  Object.assign(BX, { endingId: osakaEndingId, segments: osakaBuildSegments });
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
+  const DOWN = ['tadatomo', 'ogasawara'];
+
+  OSAKA_SEG = {
+    // ---------- 決断1: 秀頼、出馬する ----------
+    sortie: {
+      3: altPhase(3, {
+        ja: { phase: '秀頼、出馬', label: '出馬', cam: 'CAM · 四天王寺',
+          title: '秀頼、千成瓢箪の馬印をかかげて城を出る',
+          text: '<span class="info-west">豊臣秀頼</span>は城を出た。父・秀吉の千成瓢箪の馬印をかかげて四天王寺の北に陣を置くと、豊臣方の兵は<span class="info-highlight">一気に奮い立った</span>。その前で、毛利の隊と本多の隊の戦いが始まる。' },
+        en: { phase: 'HIDEYORI RIDES OUT', label: 'Rides out', cam: 'CAM · SHITENNŌJI',
+          title: "Hideyori rides out under his father's gourd standard",
+          text: `<span class="info-west">Toyotomi Hideyori</span> leaves the castle. When he sets up north of Shitennōji under Hideyoshi's famous gourd standard, the Toyotomi troops <span class="info-highlight">are fired up</span>. In front of him, the Mōri and Honda units begin to fight.` },
+        cam: { pos: [24, 38, 24], look: [2, 0, -6] },
+        units: { hideyori: [-2, -22] },
+        battles: [{ x: 5, z: 4 }], battling: ['katsunaga', 'tadatomo'],
+        arrows: [mvp([0, -48], [-2, -24], W), at('katsunaga', 'tadatomo', W)],
+        cine: { focus: ['hideyori', 'katsunaga'], blend: 0.6, orbit: 0.02, dolly: 0.08 },
+        moment: { ja: '秀頼、出馬', en: 'HIDEYORI RIDES OUT', subJa: '千成瓢箪が戦場に', subEn: 'The gourd standard takes the field', shake: 0.4, accent: 'gold' },
+        mom: 60,
+      }),
+      4: altPhase(4, {
+        ja: { phase: '毛利の猛攻', label: '毛利', cam: 'CAM · 天王寺口',
+          title: '勢いづいた毛利勝永、徳川の大名を次々に破る',
+          text: '総大将が見ている。<span class="info-west">毛利勝永</span>の隊は<span class="info-east">本多忠朝</span>、<span class="info-east">小笠原秀政</span>らを打ち破った。秀頼の馬印を見た徳川方の大名たちには、<span class="info-highlight">動揺が広がる</span>。' },
+        en: { phase: "MŌRI'S ONSLAUGHT", label: 'Mōri', cam: 'CAM · TENNŌJI ROAD',
+          title: 'Fired up, Mōri Katsunaga smashes Tokugawa lord after lord',
+          text: `With their commander watching, <span class="info-west">Mōri Katsunaga</span>'s men beat <span class="info-east">Honda Tadatomo</span>, <span class="info-east">Ogasawara Hidemasa</span> and others. Among the Tokugawa lords who can see Hideyori's standard, <span class="info-highlight">unease spreads</span>.` },
+        cam: { pos: [30, 32, 34], look: [8, 0, 6] },
+        units: { hideyori: [-2, -18] },
+        battles: [{ x: 8, z: 13 }, { x: 12, z: 15 }, { x: 32, z: 2 }], battling: ['katsunaga', 'tadatomo', 'ogasawara', 'harufusa', 'maeda'], defeated: ['tadatomo'],
+        arrows: [at('katsunaga', 'tadatomo', W), at('katsunaga', 'ogasawara', W), at('harufusa', 'maeda', W)],
+        cine: { focus: ['katsunaga', 'hideyori'], blend: 0.6, orbit: -0.02, dolly: 0.08 },
+        moment: null,
+        mom: 50,
+      }),
+      5: altPhase(5, {
+        ja: { phase: '真田の突撃', label: '突撃', cam: 'CAM · 茶臼山',
+          title: '秀頼の目の前で、赤備えが駆け出す',
+          text: '<span class="info-west">真田信繁</span>は3500の兵で<span class="info-east">松平忠直</span>の越前勢に突撃した。うしろの茶臼山には<span class="info-west">秀頼</span>の馬印がひるがえり、<span class="info-highlight">兵たちは一歩も引かない</span>。' },
+        en: { phase: 'THE SANADA CHARGE', label: 'Charge', cam: 'CAM · CHAUSUYAMA',
+          title: "The red-armored Sanada charge under Hideyori's eyes",
+          text: `<span class="info-west">Sanada Nobushige</span> charges <span class="info-east">Matsudaira Tadanao</span>'s Echizen army with 3,500 men. Behind them, <span class="info-west">Hideyori</span>'s standard flies over Chausuyama, and <span class="info-highlight">no one gives an inch</span>.` },
+        cam: { pos: [-34, 32, 30], look: [-12, 0, 8] },
+        units: { hideyori: [-12, -6] },
+        battles: [{ x: -13, z: 14 }, { x: 12, z: 19 }, { x: 32, z: 2 }], battling: ['nobushige', 'tadanao', 'katsunaga', 'ogasawara', 'harufusa', 'maeda'], defeated: ['tadatomo'],
+        arrows: [at('nobushige', 'tadanao', W), mvp([-2, -18], [-12, -8], W)],
+        cine: { focus: ['nobushige', 'tadanao'], blend: 0.8, orbit: 0.025, dolly: 0.1 },
+        moment: null,
+        mom: 44,
+      }),
+      6: altPhase(6, {
+        ja: { phase: '家康本陣へ', label: '本陣へ', cam: 'CAM · 家康本陣',
+          title: '越前勢をつらぬき、家康の本陣へ',
+          text: '<span class="info-west">真田</span>の隊は越前勢を抜けて家康の本陣へ駆ける。茶臼山の<span class="info-west">秀頼</span>も兵を前へ進め、<span class="info-highlight">豊臣方の全軍が南へ押し出した</span>。' },
+        en: { phase: 'TO THE HEADQUARTERS', label: 'To Ieyasu', cam: "CAM · IEYASU'S CAMP",
+          title: "Through the Echizen army, straight for Ieyasu's camp",
+          text: `The <span class="info-west">Sanada</span> cut through the Echizen army toward Ieyasu's headquarters. On Chausuyama, <span class="info-west">Hideyori</span> sends his own troops forward too, and <span class="info-highlight">the whole Toyotomi army surges south</span>.` },
+        cam: { pos: [-30, 32, 52], look: [-8, 0, 24] },
+        units: { hideyori: [-10, 2] },
+        battles: [{ x: -6, z: 34 }, { x: 13, z: 25 }, { x: 32, z: 2 }], battling: ['nobushige', 'ieyasu', 'katsunaga', 'ogasawara', 'harufusa', 'maeda'], defeated: DOWN,
+        arrows: [at('nobushige', 'ieyasu', W), mvp([-12, -6], [-10, 0], W)],
+        cine: { focus: ['nobushige', 'ieyasu'], blend: 0.7, orbit: -0.02, dolly: 0.1 },
+        moment: null,
+        mom: 36,
+      }),
+      7: altPhase(7, {
+        ja: { phase: '馬印倒れる', label: '馬印', cam: 'CAM · 家康本陣',
+          title: '家康の馬印が倒れる',
+          text: '真田の隊は二度にわたって本陣へ突っこみ、<span class="info-east">家康の馬印</span>が倒れた。北には<span class="info-west">秀頼</span>の千成瓢箪が立っている。<span class="info-highlight">戦場の空気が変わり始めた</span>。' },
+        en: { phase: 'THE BANNER FALLS', label: 'Banner', cam: "CAM · IEYASU'S CAMP",
+          title: "Ieyasu's standard goes down",
+          text: `The Sanada charge into the headquarters twice, and <span class="info-east">Ieyasu's standard</span> goes down. To the north, <span class="info-west">Hideyori</span>'s gourd standard still stands. <span class="info-highlight">The mood of the battle is starting to turn</span>.` },
+        cam: { pos: [-22, 28, 64], look: [-2, 0, 38] },
+        units: { hideyori: [-8, 6] },
+        battles: [{ x: -1, z: 44 }, { x: 13, z: 25 }, { x: 32, z: 2 }], battling: ['nobushige', 'ieyasu', 'katsunaga', 'ogasawara', 'harufusa', 'maeda'], defeated: DOWN,
+        arrows: [at('nobushige', 'ieyasu', W), mvp([-4, 38], [6, 52], E)],
+        cine: { focus: ['nobushige', 'ieyasu'], blend: 0.9, orbit: 0.03, dolly: 0.12 },
+        moment: { ja: '馬印倒れる', en: 'THE BANNER FALLS', subJa: '千成瓢箪は立っている', subEn: 'The gourd standard still stands', shake: 0.9 },
+        mom: 30,
+      }),
+    },
+    // ---------- 決断2(秀頼が城にいる): 真田、城へ引き返す ----------
+    escort: {
+      8: altPhase(8, {
+        ja: { phase: '城へ', label: '城へ', cam: 'CAM · 天王寺',
+          title: '真田、三度目をやめて城へ引き返す',
+          text: '<span class="info-west">真田信繁</span>は三度目の突撃をやめた。残った兵をまとめて越前勢のすきまを抜け、<span class="info-highlight">秀頼のいる大坂城へ駆けもどる</span>。' },
+        en: { phase: 'BACK TO THE CASTLE', label: 'Castle', cam: 'CAM · TENNŌJI',
+          title: 'Sanada skips the third charge and rides back to the castle',
+          text: `<span class="info-west">Sanada Nobushige</span> calls off the third charge. Gathering what is left, he slips through a gap in the Echizen lines and <span class="info-highlight">races back to Osaka Castle, where Hideyori is</span>.` },
+        cam: { pos: [26, 40, 20], look: [0, 0, -16] },
+        units: { nobushige: [-4, -30], tadanao: [-10, 10], ieyasu: [2, 46], katsunaga: [6, -20] },
+        battles: [{ x: 31, z: 0 }], battling: ['harufusa', 'maeda'], defeated: DOWN,
+        arrows: [mvp([-4, 38], [-4, -28], W), mvp([8, 16], [6, -18], W)],
+        cine: { focus: ['nobushige'], blend: 0.6, orbit: 0.02, dolly: 0.08 },
+        moment: null,
+        mom: 66,
+      }),
+      9: altPhase(9, {
+        ja: { phase: '城を落ちる', label: '落ちる', cam: 'CAM · 大川',
+          title: '秀頼を連れて、城を落ちのびる',
+          text: '城に入った<span class="info-west">真田</span>は、<span class="info-west">秀頼</span>を連れて西の大川べりへ向かった。徳川の大軍が城へ押し寄せるなか、<span class="info-highlight">一行は舟で大坂を離れる</span>。' },
+        en: { phase: 'SLIPPING AWAY', label: 'Escape', cam: 'CAM · ŌKAWA RIVER',
+          title: 'Escaping the castle with Hideyori',
+          text: `Inside the castle, <span class="info-west">Sanada</span> takes <span class="info-west">Hideyori</span> west to the banks of the Ōkawa. As the Tokugawa host closes on the castle, <span class="info-highlight">they leave Osaka by boat</span>.` },
+        cam: { pos: [-8, 40, -24], look: [-24, 0, -58] },
+        units: { nobushige: [-30, -62], hideyori: [-26, -64], tadanao: [-6, -30], ieyasu: [-2, 24], hidetada: [30, 10], maeda: [24, -20], katsunaga: [4, -44], harufusa: [26, -40], akashi: [-70, -10] },
+        battles: [], battling: [], defeated: DOWN,
+        arrows: [mvp([-2, -54], [-26, -64], W), mvp([-8, 10], [-6, -28], E)],
+        cine: { focus: ['nobushige', 'hideyori'], blend: 0.6, orbit: -0.02, dolly: 0.06 },
+        moment: null,
+        mom: 80,
+      }),
+      10: altPhase(10, {
+        ja: { phase: 'その後', label: 'その後', cam: 'CAM · 大坂城',
+          title: '大坂城は燃えたが、秀頼は生きている',
+          text: '大坂城は燃え落ちた。だが<span class="info-west">秀頼</span>の姿はない。「真田が秀頼を連れて鹿児島へ逃れた」という言い伝えは、昔から語られてきた。<span class="info-highlight">もし本当だったら</span>、徳川の世は落ち着かないままだったかもしれない。' },
+        en: { phase: 'WHAT CAME AFTER', label: 'After', cam: 'CAM · OSAKA CASTLE',
+          title: 'Osaka Castle burns — but Hideyori is alive',
+          text: `Osaka Castle burns to the ground, but <span class="info-west">Hideyori</span> is nowhere to be found. There is an old legend that Sanada spirited him away to Kagoshima. <span class="info-highlight">If it had been true</span>, the Tokugawa peace might never have felt secure.` },
+        cam: { pos: [-10, 56, -6], look: [-24, 0, -48] },
+        units: { nobushige: [-82, -62], hideyori: [-86, -58], tadanao: [-6, -42], ieyasu: [-2, 0], hidetada: [26, -6], maeda: [20, -40], katsunaga: [4, -50], harufusa: [24, -50], akashi: [-80, -14] },
+        battles: [], battling: [], defeated: DOWN, arrows: [mvp([-30, -62], [-80, -60], W)],
+        moment: { ja: '鹿児島へ', en: 'TO SATSUMA', subJa: '真田、秀頼を連れて落ちのびる', subEn: 'Sanada escapes with Hideyori', shake: 0 },
+        mom: 84,
+      }),
+    },
+    // ---------- 決断2(秀頼が出馬): 守りを固める ----------
+    hold: {
+      8: altPhase(8, {
+        ja: { phase: '守りを固める', label: '固める', cam: 'CAM · 茶臼山',
+          title: '真田、茶臼山に引いて秀頼を守る',
+          text: '<span class="info-west">真田信繁</span>は深追いをやめ、茶臼山に引いた。<span class="info-west">秀頼</span>のまわりを毛利・大野・明石の隊が固める。家康の本陣は乱れたままで、<span class="info-highlight">徳川方も攻めあぐねる</span>。' },
+        en: { phase: 'DIGGING IN', label: 'Dig in', cam: 'CAM · CHAUSUYAMA',
+          title: 'Sanada pulls back to Chausuyama to guard Hideyori',
+          text: `<span class="info-west">Sanada Nobushige</span> stops the pursuit and falls back to Chausuyama. The Mōri, Ōno and Akashi units close up around <span class="info-west">Hideyori</span>. Ieyasu's camp is still in disarray, and <span class="info-highlight">the Tokugawa cannot find a way in</span>.` },
+        cam: { pos: [14, 44, 40], look: [-4, 0, 6] },
+        units: { nobushige: [-14, 4], hideyori: [-4, -8], katsunaga: [8, 0], harufusa: [28, -4], akashi: [-28, 0], tadanao: [-14, 20], ieyasu: [2, 52], hidetada: [34, 38], maeda: [32, 12] },
+        battles: [], battling: [], defeated: DOWN,
+        arrows: [mvp([-4, 38], [-14, 6], W), mvp([-46, 4], [-28, 0], W)],
+        cine: { focus: ['nobushige', 'hideyori'], blend: 0.5, orbit: 0.02, dolly: 0.06 },
+        moment: null,
+        mom: 48,
+      }),
+      9: altPhase(9, {
+        ja: { phase: '日暮れの使者', label: '使者', cam: 'CAM · 天王寺口',
+          title: '日暮れ、家康のもとへ和議の使者',
+          text: '日が傾き、両軍はにらみ合ったまま動かない。豊臣方は家康のもとへ使者を送った。秀頼が戦場に立っている今なら、<span class="info-highlight">豊臣家を残す話ができる</span>。' },
+        en: { phase: 'ENVOYS AT DUSK', label: 'Envoys', cam: 'CAM · TENNŌJI ROAD',
+          title: 'At dusk, envoys go to Ieyasu',
+          text: `As the sun drops, the two armies stand glaring at each other. The Toyotomi send envoys to Ieyasu. With Hideyori standing on the field, <span class="info-highlight">there is room to talk about saving the house</span>.` },
+        cam: { pos: [18, 50, 52], look: [-4, 0, 14] },
+        units: { nobushige: [-14, 6], hideyori: [-4, -6], katsunaga: [8, 2], harufusa: [28, -2], akashi: [-28, 2], tadanao: [-14, 24], ieyasu: [0, 50], hidetada: [34, 40], maeda: [32, 16] },
+        battles: [], battling: [], defeated: DOWN,
+        arrows: [mvp([-4, -2], [0, 44], W)],
+        cine: { focus: ['hideyori', 'ieyasu'], blend: 0.4, orbit: -0.02, dolly: 0.05 },
+        moment: null,
+        mom: 50,
+      }),
+      10: altPhase(10, {
+        ja: { phase: 'その後', label: 'その後', cam: 'CAM · 大坂城',
+          title: '豊臣家、残る',
+          text: '大坂城は燃えなかった。家康は和議を受け入れ、<span class="info-west">秀頼</span>は大坂を離れて一大名として生きる道を選ぶ。<span class="info-highlight">豊臣家は江戸の世まで続いた</span>かもしれない。' },
+        en: { phase: 'WHAT CAME AFTER', label: 'After', cam: 'CAM · OSAKA CASTLE',
+          title: 'The Toyotomi survive',
+          text: `Osaka Castle does not burn. Ieyasu accepts terms, and <span class="info-west">Hideyori</span> leaves Osaka to live on as an ordinary daimyo. <span class="info-highlight">The Toyotomi house might have lasted well into the Edo period</span>.` },
+        cam: { pos: [24, 56, 10], look: [0, 0, -34] },
+        units: { nobushige: [-6, -40], hideyori: [0, -50], katsunaga: [6, -42], harufusa: [20, -44], akashi: [-14, -44], tadanao: [-14, 30], ieyasu: [-2, 56], hidetada: [34, 52], maeda: [32, 30] },
+        battles: [], battling: [], defeated: DOWN, arrows: [],
+        moment: { ja: '豊臣家、残る', en: 'THE TOYOTOMI SURVIVE', subJa: '大坂城は燃えなかった', subEn: 'Osaka Castle does not burn', shake: 0 },
+        mom: 52,
+      }),
+    },
+    // ---------- 決断2(秀頼が出馬): 総がかり ----------
+    strike: {
+      8: altPhase(8, {
+        ja: { phase: '総がかり', label: '総がかり', cam: 'CAM · 家康本陣',
+          title: '秀頼の本隊もろとも、家康を追う',
+          text: '<span class="info-west">秀頼</span>の本隊、<span class="info-west">毛利</span>、<span class="info-west">明石</span>の隊が真田のあとに続いた。<span class="info-east">越前勢</span>が立て直すより早く、<span class="info-highlight">豊臣方の全軍が家康の本陣へなだれこむ</span>。' },
+        en: { phase: 'ALL-OUT ATTACK', label: 'All out', cam: "CAM · IEYASU'S CAMP",
+          title: "Hideyori's main force joins the hunt for Ieyasu",
+          text: `<span class="info-west">Hideyori</span>'s main force, <span class="info-west">Mōri</span> and <span class="info-west">Akashi</span> follow the Sanada in. Before the <span class="info-east">Echizen army</span> can rally, <span class="info-highlight">the whole Toyotomi army pours into Ieyasu's camp</span>.` },
+        cam: { pos: [-30, 34, 70], look: [0, 0, 38] },
+        units: { hideyori: [-4, 26], katsunaga: [8, 36], nobushige: [2, 48], akashi: [-14, 44], tadanao: [-18, 26], ieyasu: [6, 54] },
+        battles: [{ x: 4, z: 51 }, { x: -16, z: 30 }, { x: 31, z: 0 }], battling: ['nobushige', 'ieyasu', 'akashi', 'tadanao', 'harufusa', 'maeda'], defeated: DOWN,
+        arrows: [at('nobushige', 'ieyasu', W), mvp([-8, 6], [-4, 24], W), mvp([10, 24], [8, 34], W)],
+        cine: { focus: ['nobushige', 'ieyasu'], blend: 0.85, orbit: 0.025, dolly: 0.1 },
+        moment: { ja: '総がかり', en: 'ALL-OUT ATTACK', subJa: '全軍、家康の本陣へ', subEn: "Everyone into Ieyasu's camp", shake: 0.9, accent: 'gold' },
+        mom: 22,
+      }),
+      9: altPhase(9, {
+        ja: { phase: '家康、討たれる', label: '家康', cam: 'CAM · 家康本陣',
+          title: '徳川家康、討たれる',
+          text: '逃げる<span class="info-east">家康</span>に、<span class="info-west">真田</span>の兵が追いついた。総大将を失った徳川方は、<span class="info-highlight">天王寺口から総崩れになる</span>。' },
+        en: { phase: 'IEYASU FALLS', label: 'Ieyasu', cam: "CAM · IEYASU'S CAMP",
+          title: 'Tokugawa Ieyasu is killed',
+          text: `The <span class="info-west">Sanada</span> catch the fleeing <span class="info-east">Ieyasu</span>. Their commander gone, the Tokugawa <span class="info-highlight">collapse all along the Tennōji road</span>.` },
+        cam: { pos: [-20, 30, 74], look: [2, 0, 46] },
+        units: { ieyasu: [6, 56], nobushige: [4, 52], hideyori: [-4, 34], katsunaga: [8, 40], akashi: [-12, 48], tadanao: [-22, 36], hidetada: [40, 52], maeda: [36, 22] },
+        battles: [{ x: 5, z: 54 }], battling: ['nobushige', 'ieyasu'], defeated: ['tadatomo', 'ogasawara', 'ieyasu'],
+        arrows: [mvp([-14, 26], [-22, 36], E), mvp([34, 44], [40, 52], E)],
+        cine: { focus: ['nobushige', 'ieyasu'], blend: 0.8, orbit: -0.02, dolly: 0.1 },
+        moment: { ja: '家康、討たれる', en: 'IEYASU FALLS', subJa: '徳川方、総崩れ', subEn: 'The Tokugawa collapse', shake: 0.8 },
+        mom: 12,
+      }),
+      10: altPhase(10, {
+        ja: { phase: 'その後', label: 'その後', cam: 'CAM · 俯瞰',
+          title: '天下は、ふたたび揺れる',
+          text: '徳川の大軍は南へ退いた。将軍<span class="info-east">秀忠</span>は生きているが、<span class="info-east">家康</span>のいない徳川家から離れる大名も出ただろう。<span class="info-highlight">戦乱の世は、まだ終わらなかった</span>かもしれない。' },
+        en: { phase: 'WHAT CAME AFTER', label: 'After', cam: 'CAM · OVERVIEW',
+          title: 'The realm is up for grabs again',
+          text: `The Tokugawa host falls back south. Shogun <span class="info-east">Hidetada</span> is alive, but without <span class="info-east">Ieyasu</span> some lords would surely have drifted away. <span class="info-highlight">The age of war might not have ended after all</span>.` },
+        cam: { pos: [14, 84, 84], look: [4, 0, 10] },
+        units: { ieyasu: [6, 56], nobushige: [2, 40], hideyori: [-2, 22], katsunaga: [10, 30], akashi: [-14, 36], harufusa: [30, 6], tadanao: [-24, 68], hidetada: [44, 74], maeda: [38, 64] },
+        battles: [], battling: [], defeated: ['tadatomo', 'ogasawara', 'ieyasu'], arrows: [mvp([34, 44], [44, 72], E)],
+        moment: { ja: '家康、討たれる', en: 'IEYASU FALLS', subJa: '豊臣方の大逆転', subEn: 'A Toyotomi turnaround', shake: 0 },
+        mom: 10,
+      }),
+    },
+  };
+
+  _replaceObj(SEG, OSAKA_SEG);
+  _replaceArr(DECISION_IDX, [3, 8]);
+  _replaceObj(DECISIONS, {
+    3: {
+      who: 'hideyori', applies: () => true,
+      ja: { title: '秀頼の決断', situation: '真田らは、総大将みずから戦場に出てほしいと願っている。秀頼が出れば兵は奮い立つ。だが城を出れば、秀頼自身が徳川の大軍にねらわれる。' },
+      en: { title: "HIDEYORI'S DECISION", situation: 'Sanada and the others are begging their commander to take the field himself. If you ride out, the troops will be fired up — but outside the castle, you become a target for the whole Tokugawa host.' },
+      options: () => [
+        { id: 'stay', history: true, ja: ['城にとどまる', '史実どおり。城の中で戦いを見守る'], en: ['Stay in the castle', 'As in history: watch from inside'] },
+        { id: 'sortie', ja: ['出馬する', '千成瓢箪の馬印をかかげて天王寺へ'], en: ['Ride out', "Take Hideyoshi's gourd standard to Tennōji"] },
+      ],
+    },
+    8: {
+      who: 'nobushige', applies: () => true,
+      ja: { title: '信繁の決断' },
+      en: { title: "NOBUSHIGE'S DECISION" },
+      situation: () => decideState.choices[3] === 'sortie'
+        ? { ja: '家康の馬印は倒れた。うしろには秀頼の本隊がいて、兵の勢いはまだ残っている。だが越前勢が立て直しはじめた。', en: "Ieyasu's standard is down. Hideyori's main force is right behind you and the troops still have fight in them — but the Echizen army is starting to rally." }
+        : { ja: '家康の馬印は倒れた。だが二度の突撃で兵はもう少ない。越前勢が後ろから立て直してくる。秀頼は城の中だ。', en: "Ieyasu's standard is down, but two charges have left you few men. The Echizen army is rallying behind you, and Hideyori is still in the castle." },
+      options: () => decideState.choices[3] === 'sortie'
+        ? [
+          { id: 'hold', ja: ['茶臼山に引いて守る', '秀頼を守り、和議の道をさぐる'], en: ['Fall back to Chausuyama', 'Guard Hideyori and look for terms'] },
+          { id: 'strike', ja: ['総がかりで家康を追う', '秀頼の本隊も毛利も、いっしょに'], en: ['All-out attack on Ieyasu', "With Hideyori's force and Mōri behind you"] },
+        ]
+        : [
+          { id: 'third', history: true, ja: ['三度目の突撃', '史実どおり。家康の首だけをねらう'], en: ['Charge a third time', "As in history: go for Ieyasu's head"] },
+          { id: 'escort', ja: ['城へ引き返す', '秀頼を連れて大坂を落ちのびる'], en: ['Ride back to the castle', 'Get Hideyori out of Osaka'] },
+        ],
+    },
+  });
+  _replaceObj(ENDINGS, {
+    E1: { ja: ['史実：豊臣家の最期', '真田信繁は討死し、大坂城は燃えた。秀頼と淀殿は自害し、戦乱の世が終わる。'], en: ['History: The Fall of Osaka', 'Nobushige is killed and Osaka Castle burns. Hideyori and Yodo-dono take their own lives, and the age of war ends.'] },
+    E2: { ja: ['鹿児島へ', '真田が秀頼を連れて大坂を落ちのびた。言い伝えのとおりに。'], en: ['Escape to Satsuma', 'Sanada gets Hideyori out of Osaka — just as the legend says.'] },
+    E3: { ja: ['豊臣家、残る', '秀頼の出馬で踏みとどまり、和議で豊臣家が生き残った。'], en: ['The Toyotomi Survive', "Hideyori's presence holds the line, and terms save the Toyotomi house."] },
+    E4: { ja: ['家康、討たれる', '秀頼の本隊と真田が家康の本陣を崩し、家康を討ち取った。'], en: ['Ieyasu Falls', "Hideyori's force and the Sanada break Ieyasu's camp and kill him."] },
+  });
+
+  Object.assign(STR.en, {
+    'sim.title': 'Osaka', 'sim.sub': 'The Summer Campaign', 'sim.d1': 'Keichō 20', 'sim.d2': '5th mo. 7',
+    'legend.east': 'Tokugawa', 'legend.west': 'Toyotomi',
+    'sim.loading': 'Deploying the armies...',
+    'name.ieyasu': 'Tokugawa Ieyasu', 'name.nobushige': 'Sanada Nobushige',
+    'wi.historyDesc': 'What actually happened on the 7th day of the 5th month, 1615.',
+    'dm.desc': 'Make two calls — as Toyotomi Hideyori and as Sanada Nobushige. Four endings to discover.',
+  });
+  Object.assign(STR.ja, {
+    'sim.title': '大坂夏の陣', 'sim.sub': '豊臣家、最後の戦い', 'sim.d1': '慶長二十年', 'sim.d2': '五月七日',
+    'legend.east': '徳川軍', 'legend.west': '豊臣軍',
+    'sim.loading': '天王寺の布陣図を展開中',
+    'name.ieyasu': '徳川家康', 'name.nobushige': '真田信繁',
+    'wi.historyDesc': '慶長二十年五月七日に実際に起きたこと。',
+    'dm.desc': '豊臣秀頼と真田信繁、2つの決断で展開が変わる。エンディングは全4種。',
+  });
+}
+
 const decideState = { active: false, choices: {}, wasPlaying: false, open: null };
 let altPhaseSet = new Set();
 let lastAppliedPhase = -1;
@@ -13923,6 +14663,10 @@ const GROUND_ROADS = {
     [[-46, 28], [-30, 24], [-12, 20], [6, 14], [18, 15], [27, 17]],
     [[-2, -6], [-6, -14], [-8, -22]],
   ],
+  'osaka-summer': [
+    [[-2, 90], [-3, 50], [-1, 20], [2, -10], [2, -40], [0, -50]],     // 熊野街道(上町台地)
+    [[2, -40], [24, -36], [50, -30], [90, -26]],                       // 奈良へ
+  ],
   minatogawa: [
     [[-90, 10], [-50, 11], [-20, 13], [-6, 12], [10, 12], [30, 12], [60, 6], [90, 2]],     // 西国街道(浜の道)
     [[-6, 12], [-4, 20], [4, 26]],                                                          // 兵庫の津へ
@@ -13983,6 +14727,7 @@ function groundRiverLines() {
   if (IS_YAMA) return YAMA_RIVERS;
   if (IS_SHIZ) return [];
   if (IS_MINA) return MINA_RIVERS;
+  if (IS_OSAKA) return OSAKA_RIVERS;
   const line = [];
   for (let i = 0; i <= 30; i++) {
     const t = i / 30, x = -70 + t * 140;
@@ -14175,6 +14920,7 @@ function buildForest() {
   Object.values(typeof YAMA_POS !== 'undefined' && IS_YAMA ? YAMA_POS : {}).forEach(p => keep.push(p));
   Object.values(typeof SHIZ_POS !== 'undefined' && IS_SHIZ ? SHIZ_POS : {}).forEach(p => keep.push(p));
   Object.values(typeof MINA_POS !== 'undefined' && IS_MINA ? MINA_POS : {}).forEach(p => keep.push(p));
+  Object.values(typeof OSAKA_POS !== 'undefined' && IS_OSAKA ? OSAKA_POS : {}).forEach(p => keep.push(p));
   const blocked = (x, z) => keep.some(([kx, kz]) => (kx - x) ** 2 + (kz - z) ** 2 < 26);
   const nearFence = (x, z) => IS_NAGA && z > NAGA_FENCE.z0 - 3 && z < NAGA_FENCE.z1 + 3 && Math.abs(x - nagaFenceX(z)) < 4;
   const roads = GROUND_ROADS[BATTLE_ID] || [];
@@ -14186,7 +14932,8 @@ function buildForest() {
       const jx = x + (_hash2(x, z) - 0.5) * st, jz = z + (_hash2(z, x + 3) - 0.5) * st;
       const h = sampleGrid(groundGrid.H, jx, jz);
       const slope = 1 - groundSlope(jx, jz).ny;
-      if ((IS_SHIZ || IS_MINA) && h < 0.3) continue;
+      if ((IS_SHIZ || IS_MINA || IS_OSAKA) && h < 0.3) continue;
+      if (IS_OSAKA && (_hash2(jx * 1.3, jz * 2.9) > 0.3 || jx * jx + (jz + 58) ** 2 < 150)) continue;   // 大坂は町と寺の多い台地。木はまばらに
       const f = forestAmount(h, slope, sampleGrid(groundGrid.N1, jx, jz), sampleGrid(groundGrid.N2, jx, jz));
       if (f < 0.35 || _hash2(jx * 3.1, jz * 1.7) > f * 0.92) continue;
       if (sampleGrid(groundGrid.RV, jx, jz) < 2.2) continue;
@@ -14330,6 +15077,11 @@ const ACTS = {
     { from: 3, ja: ['第二幕', '朝', '今川の進軍'], en: ['ACT II', 'MORNING', 'The Imagawa Advance'] },
     { from: 7, ja: ['第三幕', '昼', '嵐の前'], en: ['ACT III', 'MIDDAY', 'Before the Storm'] },
     { from: 10, ja: ['第四幕', '午後', '桶狭間'], en: ['ACT IV', 'AFTERNOON', 'Okehazama'] },
+  ],
+  'osaka-summer': [
+    { from: 0, ja: ['第一幕', '朝', '天王寺'], en: ['ACT I', 'MORNING', 'Tennōji'] },
+    { from: 3, ja: ['第二幕', '昼', '突撃'], en: ['ACT II', 'MIDDAY', 'The Charge'] },
+    { from: 8, ja: ['第三幕', '夕', '落城'], en: ['ACT III', 'AFTERNOON', 'The Fall'] },
   ],
   minatogawa: [
     { from: 0, ja: ['第一幕', '朝', '陸と海'], en: ['ACT I', 'MORNING', 'By Land and Sea'] },
