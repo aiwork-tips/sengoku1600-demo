@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Sengoku Simulation | Japanese Historical Battles in 3D</title>
-<meta name="description" content="Watch Minatogawa, Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake, Sekigahara, Sanada-maru, Osaka and Dan-no-ura unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.">
+<meta name="description" content="Watch Minatogawa, Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake, Sekigahara, Sanada-maru, Osaka, Dan-no-ura and the Mongol invasion unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Sengoku Simulation | Japanese Historical Battles in 3D">
 <meta property="og:description" content="Watch the Battle of Sekigahara (1600) unfold in 3D, phase by phase, with commander profiles and a timeline.">
@@ -2622,6 +2622,7 @@ html[lang="en"] .title-logo { font-family: 'Cormorant Garamond', 'Noto Serif JP'
 .if-card.c-scarlet .ifc-top { background: #d8342a; color: #fff; }
 .if-card.c-plum .ifc-top { background: #9b3fb5; color: #fff; }
 .if-card.c-navy .ifc-top { background: #2a4f8f; color: #fff; }
+.if-card.c-slate .ifc-top { background: #4d6470; color: #fff; }
 .ifc-year { font-family: 'Dela Gothic One', sans-serif; font-size: 13px; background: #fff; color: #1b1b1f; border: 2px solid #1b1b1f; border-radius: 8px; padding: 1px 8px; }
 .ifc-name { font-family: 'Dela Gothic One', sans-serif; font-size: 21px; line-height: 1.2; }
 .ifc-q { display: block; font-size: 17px; font-weight: 900; padding: 14px 16px 6px; line-height: 1.45; }
@@ -3134,7 +3135,7 @@ setTimeout(updateAppHeight, 1000);
 const BATTLE_ID = (() => {
   try {
     const b = new URLSearchParams(location.search).get('battle');
-    return ['okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake', 'minatogawa', 'osaka-summer', 'osaka-winter', 'dannoura'].includes(b) ? b : 'sekigahara';
+    return ['okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake', 'minatogawa', 'osaka-summer', 'osaka-winter', 'dannoura', 'koan'].includes(b) ? b : 'sekigahara';
   } catch (e) { return 'sekigahara'; }
 })();
 const IS_OKE = BATTLE_ID === 'okehazama';
@@ -3148,11 +3149,12 @@ const IS_MINA = BATTLE_ID === 'minatogawa';
 const IS_OSAKA = BATTLE_ID === 'osaka-summer';
 const IS_WINTER = BATTLE_ID === 'osaka-winter';
 const IS_DAN = BATTLE_ID === 'dannoura';
+const IS_KOAN = BATTLE_ID === 'koan';
 // 合戦ごとの差し替え口(関ヶ原では空のまま)
 const BX = {};
-const GENERAL_IDS = { sekigahara: ['ieyasu', 'mitsunari'], okehazama: ['nobunaga', 'yoshimoto'], nagashino: ['nobunaga', 'katsuyori'], kawanakajima: ['shingen', 'kenshin'], mikatagahara: ['ieyasu', 'shingen'], honnoji: ['mitsuhide', 'nobunaga'], yamazaki: ['hideyoshi', 'mitsuhide'], shizugatake: ['hideyoshi', 'katsuie'], minatogawa: ['takauji', 'masashige'], 'osaka-summer': ['ieyasu', 'nobushige'], 'osaka-winter': ['ieyasu', 'nobushige'], dannoura: ['yoshitsune', 'tomomori'] }[BATTLE_ID];
-const GENERAL_SIDE = { sekigahara: { ieyasu: 'right', mitsunari: 'left' }, okehazama: { nobunaga: 'left', yoshimoto: 'right' }, nagashino: { nobunaga: 'left', katsuyori: 'right' }, kawanakajima: { shingen: 'right', kenshin: 'left' }, mikatagahara: { ieyasu: 'right', shingen: 'left' }, honnoji: { mitsuhide: 'right', nobunaga: 'left' }, yamazaki: { hideyoshi: 'right', mitsuhide: 'left' }, shizugatake: { hideyoshi: 'right', katsuie: 'left' }, minatogawa: { takauji: 'right', masashige: 'left' }, 'osaka-summer': { ieyasu: 'right', nobushige: 'left' }, 'osaka-winter': { ieyasu: 'right', nobushige: 'left' }, dannoura: { yoshitsune: 'right', tomomori: 'left' } }[BATTLE_ID];
-const DM_START = { sekigahara: 4, okehazama: 5, nagashino: 0, kawanakajima: 0, mikatagahara: 2, honnoji: 2, yamazaki: 0, shizugatake: 1, minatogawa: 3, 'osaka-summer': 2, 'osaka-winter': 2, dannoura: 1 }[BATTLE_ID];
+const GENERAL_IDS = { sekigahara: ['ieyasu', 'mitsunari'], okehazama: ['nobunaga', 'yoshimoto'], nagashino: ['nobunaga', 'katsuyori'], kawanakajima: ['shingen', 'kenshin'], mikatagahara: ['ieyasu', 'shingen'], honnoji: ['mitsuhide', 'nobunaga'], yamazaki: ['hideyoshi', 'mitsuhide'], shizugatake: ['hideyoshi', 'katsuie'], minatogawa: ['takauji', 'masashige'], 'osaka-summer': ['ieyasu', 'nobushige'], 'osaka-winter': ['ieyasu', 'nobushige'], dannoura: ['yoshitsune', 'tomomori'], koan: ['shoni', 'fan'] }[BATTLE_ID];
+const GENERAL_SIDE = { sekigahara: { ieyasu: 'right', mitsunari: 'left' }, okehazama: { nobunaga: 'left', yoshimoto: 'right' }, nagashino: { nobunaga: 'left', katsuyori: 'right' }, kawanakajima: { shingen: 'right', kenshin: 'left' }, mikatagahara: { ieyasu: 'right', shingen: 'left' }, honnoji: { mitsuhide: 'right', nobunaga: 'left' }, yamazaki: { hideyoshi: 'right', mitsuhide: 'left' }, shizugatake: { hideyoshi: 'right', katsuie: 'left' }, minatogawa: { takauji: 'right', masashige: 'left' }, 'osaka-summer': { ieyasu: 'right', nobushige: 'left' }, 'osaka-winter': { ieyasu: 'right', nobushige: 'left' }, dannoura: { yoshitsune: 'right', tomomori: 'left' }, koan: { shoni: 'right', fan: 'left' } }[BATTLE_ID];
+const DM_START = { sekigahara: 4, okehazama: 5, nagashino: 0, kawanakajima: 0, mikatagahara: 2, honnoji: 2, yamazaki: 0, shizugatake: 1, minatogawa: 3, 'osaka-summer': 2, 'osaka-winter': 2, dannoura: 1, koan: 4 }[BATTLE_ID];
 const ENDINGS_KEY = BATTLE_ID === 'sekigahara' ? 'sg_endings' : 'sg_endings_' + BATTLE_ID;
 
 const eras = [
@@ -3173,7 +3175,7 @@ const eras = [
     desc: '元寇と南北朝の動乱へと続く武家の時代',
     battles: [
       { id: 'bunei', year: '1274', name: '文永の役', east: { name: '鎌倉幕府', force: '約6千' }, west: { name: '元・高麗', force: '約3万' }, winner: 'east', winnerName: '鎌倉幕府', implemented: false },
-      { id: 'koan', year: '1281', name: '弘安の役', east: { name: '鎌倉幕府', force: '約4万' }, west: { name: '元・高麗', force: '約14万' }, winner: 'east', winnerName: '鎌倉幕府', implemented: false },
+      { id: 'koan', year: '1281', name: '弘安の役', east: { name: '鎌倉幕府', force: '約4万' }, west: { name: '元・高麗', force: '約14万' }, winner: 'east', winnerName: '鎌倉幕府', implemented: true },
     ],
   },
   {
@@ -3251,7 +3253,7 @@ try {
 const STR = {
   en: {
     'meta.title': 'Sengoku Simulation | Japanese Historical Battles in 3D',
-    'meta.desc': 'Watch Minatogawa, Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake, Sekigahara, Sanada-maru, Osaka and Dan-no-ura unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.',
+    'meta.desc': 'Watch Minatogawa, Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake, Sekigahara, Sanada-maru, Osaka, Dan-no-ura and the Mongol invasion unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.',
     'home.title': 'SENGOKU',
     'title.sub': 'Famous battles of Japan in 3D. Watch them unfold — or change how they end.',
     'title.history': 'Watch History',
@@ -3302,7 +3304,7 @@ const STR = {
   },
   ja: {
     'meta.title': '戦国シミュレーション',
-    'meta.desc': '湊川・桶狭間・川中島・三方ヶ原・長篠・本能寺・山崎・賤ヶ岳・関ヶ原・大坂冬の陣・大坂夏の陣・壇ノ浦を3Dで再現。史実をたどるだけでなく、自分で決断して別の結末も探せる。無料・ブラウザで動作。',
+    'meta.desc': '湊川・桶狭間・川中島・三方ヶ原・長篠・本能寺・山崎・賤ヶ岳・関ヶ原・大坂冬の陣・大坂夏の陣・壇ノ浦・弘安の役を3Dで再現。史実をたどるだけでなく、自分で決断して別の結末も探せる。無料・ブラウザで動作。',
     'home.title': '戦国',
     'title.sub': '日本の合戦を3Dで。史実をたどるか、歴史を変えるか。',
     'title.history': '史実を見る',
@@ -3658,6 +3660,8 @@ const IF_BATTLES = [
     q: { ja: 'もしも義元が、本陣の守りを固めていたら？', en: 'What if Yoshimoto had stayed on guard?' } },
   { id: 'nagashino', endings: 5, key: 'sg_endings_nagashino', color: 'cyan',
     q: { ja: 'もしも勝頼が、柵の端を回り込んでいたら？', en: 'What if Katsuyori had gone around the fence?' } },
+  { id: 'koan', endings: 4, key: 'sg_endings_koan', color: 'slate',
+    q: { ja: 'もしも元の大船団が、博多湾に向かっていたら？', en: 'What if the great Yuan fleet had sailed for Hakata?' } },
   { id: 'dannoura', endings: 4, key: 'sg_endings_dannoura', color: 'navy',
     q: { ja: 'もしも平家が、裏切り者を斬っていたら？', en: 'What if the Heike had executed the traitor?' } },
   { id: 'osaka-winter', endings: 4, key: 'sg_endings_osaka-winter', color: 'plum',
@@ -3996,7 +4000,7 @@ document.getElementById('backFromSim').addEventListener('click', () => {
 });
 
 // ========= シミュレーション =========
-const PLAYABLE_BATTLES = ['sekigahara', 'okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake', 'minatogawa', 'osaka-summer', 'osaka-winter', 'dannoura'];
+const PLAYABLE_BATTLES = ['sekigahara', 'okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake', 'minatogawa', 'osaka-summer', 'osaka-winter', 'dannoura', 'koan'];
 function openSimulation(battleId) {
   if (!PLAYABLE_BATTLES.includes(battleId)) return;
   if (battleId !== BATTLE_ID) {
@@ -4768,9 +4772,13 @@ function applyPhase(idx) {
   lastAppliedPhase = idx;
   updateAct(idx);
   const p = phases[idx];
-  const [h, m] = p.time.split(':');
+  const _tt = String(p.time);
+  const _sep = _tt.includes(':') ? ':' : (_tt.includes('/') ? '/' : '');
+  const [h, m] = _sep ? _tt.split(_sep) : [_tt, ''];
   document.getElementById('timeHour').textContent = h;
   document.getElementById('timeMin').textContent = m;
+  const _colon = document.querySelector('.time-colon');
+  if (_colon) { _colon.textContent = _sep || ':'; _colon.style.display = _sep ? '' : 'none'; }
   const PL = phaseL(p, idx);
   document.getElementById('timePhase').textContent = PL.phase;
   
@@ -6318,6 +6326,7 @@ const HORSE_COATS = [0x6b4428, 0x5a3820, 0x3a2a20, 0x7a5232, 0x2a2420, 0x8a7a68]
 // 騎馬の割合(合戦ごと)。指定がなければ総大将の隊 18%、ほかは 8%
 const CAVALRY_RATIO = {
   nagashino: { katsuyori: 0.3, baba: 0.45, yamagata: 0.5, sanada: 0.45, naito: 0.4, tsuchiya: 0.4, nobukado: 0.35, nobutoyo: 0.35, nobuzane: 0.15, siege: 0.1, teppo: 0, okudaira: 0 },
+  koan: { shoni: 0.35, otomo: 0.35, kono: 0.1, takezaki: 0.4, shimazu: 0.35, fan: 0.05, li: 0.05, zhang: 0, hindu: 0.1, hong: 0.1, kim: 0.05 },
   dannoura: { yoshitsune: 0, kagetoki: 0, miura: 0, kono: 0, noriyori: 0.3, tomomori: 0, munemori: 0, noritsune: 0, antoku: 0, shigeyoshi: 0, hideto: 0 },
   'osaka-winter': { ieyasu: 0.25, hidetada: 0.25, maeda: 0.25, ii: 0.3, tadanao: 0.3, todo: 0.25, nobushige: 0.2, daisuke: 0.2, iki: 0.2, chosokabe: 0.15, ishikawa: 0.1, hideyori: 0.2 },
   'osaka-summer': { ieyasu: 0.25, hidetada: 0.25, tadanao: 0.3, tadatomo: 0.3, ogasawara: 0.3, maeda: 0.25, nobushige: 0.4, katsunaga: 0.3, harufusa: 0.25, akashi: 0.25, hideyori: 0.3 },
@@ -11216,11 +11225,12 @@ function buildDanDecor() {
   sea.position.y = DAN_SEA_Y;
   scene.add(sea);
   // 潮の流れを見せる白いすじ
-  const smat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6, depthWrite: false });
+  const smat = new THREE.MeshBasicMaterial({ color: 0xd2e4ef });
   const sgeo = new THREE.PlaneGeometry(3.0, 0.16);
   for (let i = 0; i < 70; i++) {
     const m = new THREE.Mesh(sgeo, smat);
     m.rotation.x = -Math.PI / 2;
+    m.renderOrder = 3;
     const x = -80 + Math.random() * 160;
     const zn = _danCoast(DAN_NORTH, x) + 2, zs = _danCoast(DAN_SOUTH, x) - 2;
     m.position.set(x, DAN_SEA_Y + 0.02, zn + Math.random() * (zs - zn));
@@ -11563,6 +11573,403 @@ if (IS_DAN) {
   });
   ['yoshitsune', 'noriyori'].forEach(id => { kamonImages[id] = "data:image/png;base64,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"; });
   ['tomomori', 'munemori', 'noritsune', 'antoku'].forEach(id => { kamonImages[id] = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAOS0lEQVR4Xu2dR6g9SxHGP3P2mROKOWHOmDAL8hDBuHChLsSFAQwbcaGCCgYQ0aWYEMGsKMpTMWBOmHOOmHPO/C79PYpm5kxPOjPXWx8c7v8/Z6a7qrq6urqqeo6USCQSiUQikUgkEolEIpFIJBKJRCKRSCQSiUQikUgkEolEIpFIJBKJxG5wAenksyaO0UdiJC5YDfyFRj7fgmP0kZiAOOMvL50MFFjSEhyjj8QEeLBvK+k8Sb+U9AVJDy9t+fs5OEYfiQnwWnwVSb+Q9N/qc6/S5pzl4Bh9JDqA4Jl5DN6Fy4f/x2sXK/9/Whn4v0n6j6S/l7/vXEAB6Bs89UAf0HTRQiP0mk7T7WtLLkmLwQxujehgMZMZSP4ewr/Kl5cJA42QETh/zynXh9ppweV6+rh0ofUfHY3AQ40uPjfFVlrpGc5fBFULi8G7rKQbSrqFpOtIumUZ2H9K+pSkz0n6qqSLS3q/dP4gecAfJem1RSH+PVHKDBi03VTSxwtNwPQ+ofQNjbeWdEdJFynK+0VJ35f0JUnfkvQHSb+v6LC1aFX6xXFMBYjaXw/INSXdQdIDJV2/CJzZdYkBjmnn29LJcoCSxHbxAT5STPJUBbB8UMivS7pqGVyuo4g/k3T1Yv4P4a+S/iTpa5K+I+kdkj4t6cfVQ/ZXrBCnGjbHLDO1Nw6jDDjr9/vK7KidOP7PwCFoPph8f/z/+pk/SvpzGaQPBLM9FV4in13apN8uOqGri0auwUPXM1gEeEcGyKJ2VpEZ/XtJOxXwoHd53szyB0t6RTHdtVCiEL0sdAkuXuM+BGyfwd9Z6PefoQS2WFeT9KuwVNX913130Wx+Io/1fSxnyAYZIasayHTXylAP+tAsRyieNS1CHFKG+L0VALPt3cLY5c78vKrMYAZvDA1D98KzFaLmf8g6dE2wXYA1smWW95nFIaGN+d4DhjMIxgjNs//G0sn2ssvKjKGl5V4vd12KFq0DMt4VmFl44i+V9PNqlqw5y4eE6kGbYgWsLK9eafYP0X7IOiBjZI3Mx1q1VeCtDNsyGCMQc8j5GWJ+ye+nWIEtZv8Qz7YOyJZ7kbXlvjnsKT+lOEp9nvIQk2t8H60A0bo6o9eFrWf/ITkgW6wDsga7COR5i3ebMvNbHTovD97mdf2NW7/Wdrt2F1x7RoMv4MG/R9hyTlFMm/C4bT3EZytvlhmyBksku2YjBkuclGllaKxwLYAxTqS3YL+WdMWybvatnRYoMQRoG+P520yvyTs0IWOHuWf7AEuYEIhCcARhviHpysVM9XndCIj7Pyvp7cWMca2LGcK/xOGJCt5AOsn3m2Yrz9AsoF0G8gqSnijpWT3hYehlEO9ZPvy7Zedg2uOa/NsSoST69zvpJCxcw3KDtgdJul2RWx8/9AM9yBhZO0y9C3hQ8E5h7JAf4HX5e40CNhj8u0h6oaSvhN1GizWwFSCgc6UeX8CDPWb2x76hCdqgEVpbQb/IwkGtPqtomSLj3az/hoV3bhmYoUGxaX1LmdEEa5w+jX/7Uqlcf0Ap/kBg9Nfa5zM7BBjXfrd3aHmK/VGAAi21tehKaUfezDMyaFluzB8yBi3W6Wiw+cZcU5UDQ0NroZUAk9vCUMwtGJjBxzVaA88wTDLLiQcI0A4D8pkGBY6KRt/RZLfG7j148N4y+JYlsnVqevb6vzS8xfpwI1MoAIx9qFEBImLeH1AC9puGwbPSEeCx0nn5ImI4NBgefPpy2VlNSwusAPDuHcMhi2O6kW1U3F1hjB9gZs3Y4ycogeF+yaixxh8K21rYhHcJ83rwmP1EDA8tJbYg9EFfYIoT7cGH5yGFs5x2vf7XA/GYEYzZOWNG4aW3BGq6QJAH3HdE37YCoGX2W1npA7jPMfDshVd4Nv9D22H3jWynKt7q8Fp4o5JAGfIBaivw3JnMUYkDXnxACZhJ9rixAlTyXFLSN8tWsc96eABoG7ivsbDFgNfW2W9/CnqRLRja+m4Gazh7/DEMImCE/9BC+RQP1+YcvLejf5twTC8VOg6q/CA4ka/v2MJ68GkTTM3Jmyd4hNfWIJPvQ6ZTLeTRYA1/QUM8IJo9O1dEuSjzjoM5BrUVijPa6ygVOI+U9NEw8CjBkyQ9p1IcK83c2WeliSXsQ9vWev1HpmCK33E01NubViajtfhYoHaKqetL5lgBnlfa/3LwwLEImHXyBTGQ1bVrGIvIA7yNsYwxJtG6Xd4UMS/wk8Z4QLQEFjilUS73Hqvxfelct/0mSbcKW0YrBmHi14UBirPfO4axCmna4QWexg6+/ShkuVj8f214Br5tAsNx9lH6TfLG6+6YtbernMsK8FZJTw8z3dffJendgWZfpyTMNLSgrouEB3gZCpF37QRMA7IcQ8OmsNaP2Q7WzHtWkvggzBoRo21d0TAPALP15iFF7eXou9L5pjguURzu4GOvm9nH/2mDtvoUkP66opQA2uFhyuBHa7Hr7V8NDwrVtByEaAkLd2l/HJw3SLpfjwPknUdfhcwHK0tEVQ1ZupbIG45iDffT55GjoNAKze5jjC/kZ2z+kSGyBLsL//bBayXn81pCnX2DUe/Lybi9KGTcurJurJXEyzkocu9SPxedqb6+unwREjW0ce3SptfhCGhwphLaYqZyKMM3pIQ87zOOY/2PJqylUcwC1q9HS3pl2fdO2dsbKEI948i5Qz/HrpjRXiNvVsw1kTqCPF1A8GN4/0tZDqCDAeYvoE6B42u0F5XRVm8uzzyP+ccPsUxPBbwuUhzSd6iiZSbW94ytuplierv6bKF1SrVSX7uxfgEZWp6LYxWzUmYEbZO+fFlhwLNmDmiTmYBA4vrqJE494EvwRxtxoGJfsT9o6joGNwW0S3vIDhmahsUxxgyOhdsm8YGZZv1cTZMbYKdqyCxb+EsozxRY2XD+WF5IGnlSnTpY2ByjnroVajG/h+6xaR7bjkuwxz43935vgZEZGFLYXcNbNEzjJyYGhqYK1P6CnyfjR9rXQZlovm0dmG1EBDnG7eeOecjFgR9k5eVkTSt9FNh7v14xZ4eKLqYOdtw7u9LI1zjDTyWwvfT39GQKud/mltAtz/Dsobbn0tvlW0ADstpt5c8UxFSot0it6dAWIXelVynWJPMXD1MSH/hhT3DKkb87BwZ5ljZoq44TLLHDcJtRaeekxHcNh4gfG3LuSx8j4/AHcYe7VxU7ZPqYUTikfdFJD+h9yr2UiRnEFGiTtumjRSlb77EM+ItswNgE2KmBLcFdSxVOXGddFFJXEjma1lVhxDXO0hOypUizT3CO5bOndvFo3Z4VgJIv6Oxri+v0RZ/03UdXV3WReYHXqPz4J8jk6E7fFg4GwkU4ZMnY5z6sw9NFUEbfdgzlgf5PltfCkN/n6DTRP07PEinkBA1bUErBDWYwlsDPG/RJX7cvp5YASwZbMXwCfAjO5BEVZGkgSXQpSXfqaCviEC/I4Y3SiccPXZbN0bCFAljLHRiiLu8h0snae60Sd48hXBwxPsT2GZB64IaAIvBiJtZ+MnNPLmfra7hdzDwh3uuWF1aNOeXjNlA43hBGEseJHIDyUH30o/LWsTeXt4jVMjkatlIA4KBQnCHMgGuUgxuYWsLImG1e0uQCzprm6KUbbnuJwFO9lkfL1NU+9zPQvB6OU0hE8jiOhtnnjWY/rd5mFiONZxIO73aZevLp9VtHWp2revtWr7t97XCfP62VzX1tQXtdzwAO8Xzm4ZLrRwRve8kt41gFmnp/pBlewNRy8jMDWwFO3uCteyZOHYStnzP98OLTRFvlGHYPR77Yc7MtYvBO48yvlc48wFPra2rOJBwjoIgEIS4dJNrSGpgXeLPHn6jgWjveoTunjGzLgT7kWMITvPXVLp5pePYTVFkzWbSlcpgveNyNFdiLQ+K9PVFBaIqxgf8XONIIj2DLGMyuYEEQVuX16czSJTNtW8762Ld5gkd43YUS7MECWAH4UQbCpghtD3QtDUf84BFeUwEKPNi8XevoyZAjAysAj/AKNlf0zQkoMx7wkyvHgMO7W8K8Yu02xdYKgPlnQPhpmLutPCvsWFLdQ2YwKh9wDeGasLzhFZ6haVNncGsF8CDw6nNengDWEohnG8e0P1/6itYA5+wl4foaMG/wCs9n3gIYrItrbv3sWJKmRQFIy1r5PAikaZ9fjpmtdhAjKNguyr23tgDu/yal2GMtk2jl4lfEUALetwdizIFSbOoP/BaPNRTSSx6FLfBsGjbD1gpgk4hTZOGsAVfq+D07vKCRXL3753veHAI44eujZ2vASm5HcK0l71TAZvA1KyaAnIih9g74/X4vD/UGHATxz78C7l0rIWV64BnsYinYCrZAzMg10r8WNkWi1Bu6EodZR0CG2jy8f0rBAQUb3MO9/gmcpbOSTg/7FblbW+FN4cxY/RaPueFbhOzXvVCMQYEnsLBtdqk/5H0CwNd8D8+4hJy2lqpNcDvwfKYzgxY4vxE895dGfDKoPtCJY+efV6lNbVx763XY9/KszzSilD5o6jMMUxTVW094hveofGcKnmnU4fuXxixYF3AO/Z5Q1+ELBoXzfxzydA1en5k9NAP9DG3Qls8UxkGvD3q00Gve4Bneo2U6U/As4+ddp8yk+AyRvfPKgc54tm+ucGvFoW0OjdKXzxjOoX3OT9sugi23IN5qsSe2mY7X/DLHrnMAXOPgBYcs+LFoavB526fB904szY229bVFKJezCqR2eYkUB1e83YzwNULQHBiJW0wczfraUbGlAiwNm3PXE6wBvysQ079GoOjo2IMCuBq4Rgttnt1bZPgi3WNojdiC7kQikUgkEolEIpFIJBKJRCKRSCQSiUQikUgkEolEIpFIJBKJRCKRSCQSiUQikUgkEolEIpFIJBKnDP8DEYArHmrNk58AAAAASUVORK5CYII="; });
+}
+
+
+// ========================================================
+// ===== 13戦目: 弘安の役(?battle=koan) =====
+// ========================================================
+// 北九州の海を縮めて一枚にした地図。x が東、z が南。南が九州本土、北に壱岐。東に博多湾、西に伊万里湾(鷹島)と平戸
+const KOAN_POS = {
+  hakata: [50, 32], shika: [52, 4], takashima: [-52, 12], hirado: [-72, -6], iki: [-8, -46], dazaifu: [62, 58], imari: [-52, 30],
+};
+const KOAN_COAST = [[-82, 2], [-70, 4], [-62, 8], [-60, 24], [-46, 26], [-44, 10], [-30, 6], [-10, 4], [10, 6], [30, 8], [40, 10], [42, 24], [58, 28], [68, 12], [82, 8]];
+const KOAN_ISLES = [
+  { c: [52, 4], rx: 4, rz: 4 },        // 志賀島
+  { c: [-52, 12], rx: 4, rz: 3.5 },    // 鷹島
+  { c: [-72, -6], rx: 4, rz: 10 },     // 平戸島
+  { c: [-8, -46], rx: 9, rz: 7 },      // 壱岐
+];
+const KOAN_BAR = [[55, 6], [68, 13]];   // 海の中道
+const KOAN_SEA_Y = 0.3, KOAN_DECK = 0.62;
+function koanSeaDepth(x, z) {
+  let d = _danCoast(KOAN_COAST, x) - z;
+  KOAN_ISLES.forEach(({ c, rx, rz }) => {
+    const nx = (x - c[0]) / rx, nz = (z - c[1]) / rz;
+    d = Math.min(d, (Math.hypot(nx, nz) - 1) * Math.min(rx, rz));
+  });
+  d = Math.min(d, _segDist(x, z, KOAN_BAR[0], KOAN_BAR[1]) - 1.4);
+  return d;
+}
+function koanTerrainHeight(x, z) {
+  const sd = koanSeaDepth(x, z);
+  let h = 0.9 + Math.abs(__fbm(x * 0.05, z * 0.05, 3)) * 0.8;
+  h += Math.max(0, z - 36) * 0.22;                                   // 内陸の山並み
+  h += Math.exp(-((x + 8) ** 2 + (z + 46) ** 2) / 30) * 1.6;        // 壱岐
+  h += Math.exp(-((x + 72) ** 2 / 10 + (z + 6) ** 2 / 60)) * 2.2;   // 平戸
+  h += Math.exp(-((x + 52) ** 2 + (z - 12) ** 2) / 8) * 1.2;        // 鷹島
+  h += Math.exp(-((x - 52) ** 2 + (z - 4) ** 2) / 8) * 1.3;         // 志賀島
+  h += __fbm(x * 0.2, z * 0.2, 3) * 0.2;
+  if (sd > -3) {
+    const t = Math.min(1, (sd + 3) / 4);
+    h = h * (1 - t) + (0.15 - 0.55 * t) * t;
+  }
+  return Math.max(-0.5, h);
+}
+function koanWalkHeight(x, z) {
+  const t = koanTerrainHeight(x, z);
+  const sd = koanSeaDepth(x, z);
+  return Math.max(t, KOAN_DECK * Math.min(1, Math.max(0, sd / 1.5)));
+}
+const koanShips = {};
+const koanWaves = [];
+let koanLastT = 0;
+function buildKoanDecor() {
+  const wmat = new THREE.MeshStandardMaterial({ color: 0x4a82ae, transparent: true, opacity: 0.9, roughness: 0.15, metalness: 0.25 });
+  const sea = new THREE.Mesh(new THREE.PlaneGeometry(190, 190), wmat);
+  sea.rotation.x = -Math.PI / 2;
+  sea.position.y = KOAN_SEA_Y;
+  scene.add(sea);
+  // 波頭(ふだんは少なく、嵐の時に増やして速く流す)
+  const smat = new THREE.MeshBasicMaterial({ color: 0xd6e6f0 });   // 透明にすると海の下に隠れるので、不透明の薄い色にする
+  const sgeo = new THREE.PlaneGeometry(3.6, 0.5);
+  for (let i = 0; i < 120; i++) {
+    const m = new THREE.Mesh(sgeo, smat);
+    m.rotation.x = -Math.PI / 2;
+    m.rotation.z = 0.5;
+    m.renderOrder = 3;
+    m.userData.v = 0.6 + Math.random() * 0.8;
+    m.userData.k = i;
+    koanRespawnWave(m, true);
+    scene.add(m);
+    koanWaves.push(m);
+  }
+  // 博多湾の浜に石築地(元寇防塁)
+  const stone = new THREE.MeshStandardMaterial({ color: 0x9a948a, roughness: 1, flatShading: true });
+  const wall = [[40, 12], [42, 22], [50, 25], [58, 26.5], [63, 20], [67, 14]];
+  for (let i = 0; i < wall.length - 1; i++) {
+    const [ax, az] = wall[i], [bx, bz] = wall[i + 1];
+    const len = Math.hypot(bx - ax, bz - az);
+    const n = Math.ceil(len / 2.2);
+    for (let k = 0; k < n; k++) {
+      const t = (k + 0.5) / n;
+      const x = ax + (bx - ax) * t, z = az + (bz - az) * t;
+      const ox = -(bz - az) / len * 1.6, oz = (bx - ax) / len * 1.6;   // 陸側へ少しずらす
+      const px = x + ox, pz = z + oz;
+      const m = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.9, 0.9), stone);
+      m.position.set(px, koanTerrainHeight(px, pz) + 0.35, pz);
+      m.rotation.y = -Math.atan2(bz - az, bx - ax);
+      m.castShadow = true;
+      scene.add(m);
+    }
+  }
+  // 大宰府の建物
+  {
+    const [x, z] = KOAN_POS.dazaifu;
+    const y = koanTerrainHeight(x, z);
+    const hall = new THREE.Mesh(new THREE.BoxGeometry(4, 1.3, 2.4), new THREE.MeshStandardMaterial({ color: 0xa8432c, roughness: 0.9 }));
+    hall.position.set(x, y + 0.65, z); scene.add(hall);
+    const rf = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 2.8, 1.1, 4, 1), new THREE.MeshStandardMaterial({ color: 0x3a3c44, roughness: 0.8, flatShading: true }));
+    rf.rotation.y = Math.PI / 4; rf.scale.set(1.2, 1, 0.75); rf.position.set(x, y + 1.85, z); scene.add(rf);
+  }
+}
+function koanRespawnWave(m, anywhere) {
+  // 嵐の時は、船団のいる湾のまわりに波頭を集める
+  const stormy = typeof currentPhase !== 'undefined' && (currentPhase === 7 || currentPhase === 8) && !anywhere;
+  const c = (typeof decideState !== 'undefined' && decideState.active && decideState.choices[6] === 'hakata') ? [52, 10] : [-50, 6];
+  for (let tries = 0; tries < 30; tries++) {
+    const x = stormy ? c[0] - 30 + Math.random() * 60 : -78 + Math.random() * 156;
+    const z = stormy ? c[1] - 24 + Math.random() * 34 : -78 + Math.random() * 100;
+    if (koanSeaDepth(x, z) > 2) { m.position.set(x, KOAN_SEA_Y + 0.06, z); return; }
+  }
+  m.position.set(0, KOAN_SEA_Y + 0.02, -20);
+}
+const KOAN_ROCKS = [];
+const KOAN_TREES = [];
+
+function makeKoanUnits() {
+  return {
+    shoni:    new Unit('shoni',    '少', 'east', 52, 32, '少弐経資', 1.3, true),
+    otomo:    new Unit('otomo',    '大', 'east', 62, 31, '大友頼泰', 1.1),
+    kono:     new Unit('kono',     '河', 'east', 44, 30, '河野通有', 0.9),
+    takezaki: new Unit('takezaki', '竹', 'east', 57, 34, '竹崎季長', 0.7),
+    shimazu:  new Unit('shimazu',  '島', 'east', 34, 30, '島津久経', 1.0),
+    fan:      new Unit('fan',      '范', 'west', -72, -70, '范文虎', 1.5, true),
+    li:       new Unit('li',       '李', 'west', -62, -74, '李庭', 1.2),
+    zhang:    new Unit('zhang',    '張', 'west', -66, -64, '張百戸', 1.0),
+    hindu:    new Unit('hindu',    '忻', 'west', -6, -70, '忻都', 1.3),
+    hong:     new Unit('hong',     '洪', 'west', -14, -74, '洪茶丘', 1.1),
+    kim:      new Unit('kim',      '金', 'west', 2, -74, '金方慶', 1.1),
+  };
+}
+
+// 特殊効果: 波頭と船。閏7月1日の嵐では、波を速くして船を大きく揺らす(画面は暗くしない)
+const koanChoicesNow = () => (typeof decideState !== 'undefined' && decideState.active) ? decideState.choices : {};
+function koanStorm() { return currentPhase === 7; }
+function koanSpecialFx() {
+  const t = performance.now() / 1000;
+  const dt = Math.min(0.1, koanLastT ? t - koanLastT : 0);
+  koanLastT = t;
+  const storm = koanStorm();
+  const after = currentPhase === 8;
+  if (koanWaves.length) koanWaves[0].material.color.setHex(storm ? 0xffffff : (after ? 0xeef4f8 : 0xc4d8e6));
+  koanWaves.forEach(m => {
+    const active = storm || after || m.userData.k < 40;
+    m.visible = active;
+    if (!active) return;
+    const sp = storm ? 9 : (after ? 3 : 0.8);
+    if ((storm || after) && !m.userData.stormed) { m.userData.stormed = true; koanRespawnWave(m); }
+    if (!(storm || after)) m.userData.stormed = false;
+    m.position.x += sp * m.userData.v * dt;
+    m.position.z += sp * 0.5 * m.userData.v * dt;
+    const c = (typeof decideState !== 'undefined' && decideState.active && decideState.choices[6] === 'hakata') ? [52, 10] : [-50, 6];
+    const far = (storm || after) && (Math.abs(m.position.x - c[0]) > 32 || Math.abs(m.position.z - c[1]) > 22);
+    if (far || koanSeaDepth(m.position.x, m.position.z) < 1 || m.position.x > 80 || m.position.z > 30) koanRespawnWave(m);
+  });
+  Object.values(units).forEach(u => {
+    if (!u.troop) return;
+    let grp = koanShips[u.id];
+    if (!grp) grp = koanShips[u.id] = danMakeFleet(u);
+    const p = u.group.position;
+    const atSea = koanSeaDepth(p.x, p.z) > 1.2;
+    grp.visible = atSea;
+    if (!atSea) return;
+    const sink = u.defeated ? -0.35 : 0;
+    const amp = storm ? 4 : 1;
+    grp.children.forEach(b => {
+      if (b.userData.ph === undefined) return;
+      b.position.y = sink + Math.sin(t * (storm ? 3.2 : 1.3) + b.userData.ph) * 0.05 * amp;
+      b.rotation.z = Math.sin(t * (storm ? 2.6 : 1.1) + b.userData.ph) * 0.03 * amp + (u.defeated ? 0.14 : 0);
+      b.rotation.x = storm ? Math.sin(t * 2.1 + b.userData.ph * 1.7) * 0.08 : 0;
+    });
+  });
+}
+function koanMomentSound(idx) {
+  if (idx === 1) {
+    horagai(0.26, 0, 2.6);
+  } else if (idx === 2) {
+    crowdSurge(0.3, 0.1, 3.0);
+    let d = 0.2;
+    for (let i = 0; i < 6; i++) { taiko(0.36, d); d += 0.26; }
+  } else if (idx === 7) {
+    crowdSurge(0.22, 0.1, 4.0);
+    [0.05, 0.4, 0.9].forEach(d => taiko(0.5, d));
+  } else if (idx === 9) {
+    crowdSurge(0.3, 0.1, 3.0);
+    let d = 0.2;
+    for (let i = 0; i < 5; i++) { taiko(0.36, d); d += 0.24; }
+  }
+}
+
+if (IS_KOAN) {
+  Object.assign(BX, {
+    terrain: koanTerrainHeight, walk: koanWalkHeight, decor: buildKoanDecor, rocks: KOAN_ROCKS, trees: KOAN_TREES,
+    units: makeKoanUnits, fx: koanSpecialFx, sound: koanMomentSound, drum: [2, 9],
+    dom: { kicker: 'KŌAN · 3D', year: '1281', rename: [['ieyasu', 'shoni'], ['mitsunari', 'fan']] },
+  });
+
+  const ALL0 = {
+    shoni: [52, 32], otomo: [62, 31], kono: [44, 30], takezaki: [57, 34], shimazu: [34, 30],
+    fan: [-72, -70], li: [-62, -74], zhang: [-66, -64], hindu: [-6, -70], hong: [-14, -74], kim: [2, -74],
+  };
+  const U = (o) => Object.assign({}, ALL0, o);
+  const AT_IKI = { hindu: [-6, -32], hong: [-18, -34], kim: [6, -34] };
+  const AT_HIRADO = { fan: [-60, -16], li: [-62, -28], zhang: [-56, -22], hindu: [-48, -20], hong: [-54, -30], kim: [-44, -28] };
+  const AT_TAKA = { fan: [-56, 4], li: [-46, 4], zhang: [-50, 20], hindu: [-58, 16], hong: [-44, 17], kim: [-52, -4], shimazu: [-38, 30] };
+  const ph = (time, ja, units, extra) => Object.assign({ time, units, battles: [], battling: [], defeated: [], traitor: null }, ja, extra || {});
+
+  _replaceArr(phases, [
+    ph('5/3', { phase: '東路軍、出発', label: '出発', title: '元の大軍、ふたたび日本へ',
+      text: '弘安4年。文永の役から7年、<span class="info-west">元</span>はふたたび日本へ兵を出した。高麗から出る「東路軍」と、旧南宋から出る「江南軍」の二手だ。まず5月3日、<span class="info-highlight">東路軍が出発した</span>。',
+      camera: { pos: [0, 70, 40], look: [0, 0, -30], label: 'CAM · 玄界灘' } }, U({})),
+    ph('6/6', { phase: '石築地', label: '石築地', title: '博多湾の浜には、石の壁が待っていた',
+      text: '江南軍を待たずに博多湾へ入った<span class="info-west">東路軍</span>だったが、浜には文永の役のあとに築かれた<span class="info-highlight">石築地(元寇防塁)</span>が続いていた。上陸できず、東路軍は志賀島に上がる。',
+      camera: { pos: [46, 66, 58], look: [50, 0, 12], label: 'CAM · 博多湾' } },
+      U({ hindu: [56, 12], hong: [52, 4], kim: [46, 12] }), { arrows: [] }),
+    ph('6/8', { phase: '志賀島の戦い', label: '志賀島', title: '御家人たち、小舟と海の中道から攻めかかる',
+      text: '日本の武士たちは小回りのきく<span class="info-highlight">小舟で元の船に攻めかかり</span>、海の中道からも志賀島へ攻め寄せた。高麗側の記録にも、洪茶丘があやうく逃れたほどの激戦だったとある。',
+      camera: { pos: [40, 26, 30], look: [54, 0, 8], label: 'CAM · 志賀島' } },
+      U({ hindu: [56, 12], hong: [52, 4], kim: [46, 12], kono: [48, 14], takezaki: [53, 14], shoni: [62, 14], otomo: [66, 16] }),
+      { battles: [{ x: 51, z: 13 }, { x: 58, z: 8 }], battling: ['kono', 'takezaki', 'hindu', 'kim', 'shoni', 'hong'] }),
+    ph('6/9', { phase: '翌日も', label: '翌日', title: '翌日も敗れ、東路軍は博多湾を離れる',
+      text: '翌日の戦いでも<span class="info-west">東路軍</span>は敗れた。東路軍は<span class="info-highlight">博多湾を離れて西へ</span>退いていく。',
+      camera: { pos: [30, 50, 40], look: [30, 0, -4], label: 'CAM · 玄界灘' } },
+      U({ hindu: [30, -10], hong: [24, -16], kim: [36, -16], kono: [46, 26], takezaki: [54, 30] }),
+      { arrows: [] }),
+    ph('6/18', { phase: '江南軍の遅れ', label: '遅れ', title: '江南軍は、1か月半遅れてようやく出発',
+      text: '東路軍が5月3日に出たのに、<span class="info-west">江南軍</span>の出発は6月18日。<span class="info-highlight">二つの軍はうまく連携できていなかった</span>。東路軍は壱岐のあたりで待つ。',
+      camera: { pos: [-20, 60, 20], look: [-30, 0, -40], label: 'CAM · 壱岐' } },
+      U(Object.assign({}, AT_IKI))),
+    ph('7月', { phase: '平戸で合流', label: '平戸', title: '江南軍、平戸に着いて東路軍と合流',
+      text: '7月、<span class="info-west">江南軍</span>は平戸島に着き、東路軍と合流した。江南軍だけでおよそ10万。<span class="info-highlight">海を埋めるほどの大船団</span>になった。',
+      camera: { pos: [-30, 56, 20], look: [-56, 0, -18], label: 'CAM · 平戸' } },
+      U(Object.assign({}, AT_HIRADO))),
+    ph('7月末', { phase: '鷹島へ', label: '鷹島', title: '大船団、伊万里湾の鷹島へ',
+      text: '元の大船団は平戸から東へ移り、<span class="info-highlight">伊万里湾の鷹島のまわりに集まった</span>。ここから九州に上陸し、大宰府をめざすつもりだった。',
+      camera: { pos: [-30, 44, 46], look: [-50, 0, 10], label: 'CAM · 鷹島' } },
+      U(Object.assign({}, AT_TAKA))),
+    ph('閏7/1', { phase: '暴風', label: '暴風', title: '台風が、鷹島の大船団をおそう',
+      text: '閏7月1日、台風が伊万里湾をおそった。船どうしがぶつかり合い、<span class="info-highlight">多くの船が沈んだり壊れたりした</span>。のちに日本ではこの風を「神風」と呼ぶようになる。',
+      camera: { pos: [-28, 40, 44], look: [-50, 0, 10], label: 'CAM · 鷹島' } },
+      U(Object.assign({}, AT_TAKA)),
+      { defeated: ['kim'] }),
+    ph('閏7/5', { phase: '将軍たちの逃亡', label: '逃亡', title: '将軍たちは丈夫な船を選び、兵を残して帰った',
+      text: '『元史』によれば、5日、<span class="info-west">范文虎</span>ら将軍たちは残った丈夫な船を選んで乗りこみ、<span class="info-highlight">10万をこえる兵を鷹島に残して</span>去った。残った兵は張という百戸を大将に選んだ。',
+      camera: { pos: [-30, 48, 44], look: [-50, 0, 0], label: 'CAM · 鷹島' } },
+      U(Object.assign({}, AT_TAKA, { fan: [-60, -36], li: [-50, -40], hindu: [-40, -42], hong: [-66, -44], zhang: [-52, 12] })),
+      { defeated: ['kim'], arrows: [] }),
+    ph('閏7/7', { phase: '鷹島の戦い', label: '鷹島', title: '日本の武士たちが、鷹島に攻め寄せる',
+      text: '7日、日本の武士たちが鷹島に攻め寄せた。陸から駆けつけた者、敵の船に乗り移って戦った者の記録が残る。<span class="info-highlight">島に残された元の兵は、ほとんどが討たれるか捕らえられた</span>。',
+      camera: { pos: [-30, 32, 36], look: [-50, 0, 12], label: 'CAM · 鷹島' } },
+      U(Object.assign({}, AT_TAKA, { fan: [-66, -66], li: [-56, -70], hindu: [-40, -70], hong: [-72, -72], zhang: [-52, 12], shimazu: [-50, 18], kono: [-56, 8], takezaki: [-46, 10] })),
+      { battles: [{ x: -51, z: 14 }, { x: -54, z: 9 }], battling: ['zhang', 'shimazu', 'kono', 'takezaki'], defeated: ['kim'] }),
+    ph('閏7月', { phase: 'その後', label: 'その後', title: '二度目の襲来も、しりぞけた',
+      text: '元の大船団は帰らなかった。伊万里湾の海の底には、今も<span class="info-highlight">沈んだ元の船</span>が眠っている。だが恩賞の土地をもらえない御家人も多く、<span class="info-east">鎌倉幕府</span>は重い負担をかかえることになる。',
+      camera: { pos: [-22, 58, 50], look: [-42, 0, 0], label: 'CAM · 伊万里湾' } },
+      U(Object.assign({}, AT_TAKA, { fan: [-66, -76], li: [-56, -76], hindu: [-40, -76], hong: [-72, -76], zhang: [-52, 12], shimazu: [-50, 18], kono: [-56, 8], takezaki: [-46, 10] })),
+      { defeated: ['kim', 'zhang'] }),
+  ]);
+
+  _replaceArr(EN_PHASES, [
+    { phase: 'THE EASTERN ROUTE SAILS', label: 'Sails', cam: 'CAM · GENKAI SEA',
+      title: 'The Yuan come for Japan again',
+      text: `1281. Seven years after the first invasion, the <span class="info-west">Yuan</span> send forces to Japan again, in two armies: the "Eastern Route Army" from Goryeo and the "Jiangnan Army" from the former Southern Song. On the 3rd day of the 5th month, <span class="info-highlight">the Eastern Route Army sets sail</span>.` },
+    { phase: 'THE STONE WALL', label: 'The wall', cam: 'CAM · HAKATA BAY',
+      title: 'A stone wall waits on the beaches of Hakata Bay',
+      text: `Without waiting for the Jiangnan Army, the <span class="info-west">Eastern Route Army</span> sails into Hakata Bay — but the beach is lined with <span class="info-highlight">a stone defensive wall</span> built after the first invasion. Unable to land, they go ashore on Shikanoshima instead.` },
+    { phase: 'BATTLE OF SHIKANOSHIMA', label: 'Shikanoshima', cam: 'CAM · SHIKANOSHIMA',
+      title: 'Samurai attack from small boats and along the sandbar',
+      text: `The Japanese warriors <span class="info-highlight">attack the Yuan ships in nimble small boats</span> and push along the Umi-no-Nakamichi sandbar toward Shikanoshima. Goryeo records say the fighting was so fierce that Hong Dagu barely escaped.` },
+    { phase: 'THE NEXT DAY', label: 'Next day', cam: 'CAM · GENKAI SEA',
+      title: 'Beaten again, the Eastern Route Army leaves Hakata Bay',
+      text: `The <span class="info-west">Eastern Route Army</span> loses again the next day, and they <span class="info-highlight">leave Hakata Bay and fall back west</span>.` },
+    { phase: 'THE JIANGNAN DELAY', label: 'Delay', cam: 'CAM · IKI',
+      title: 'The Jiangnan Army finally sails, a month and a half late',
+      text: `The Eastern Route Army left on the 3rd day of the 5th month, but the <span class="info-west">Jiangnan Army</span> does not sail until the 18th of the 6th. <span class="info-highlight">The two armies are badly out of step</span>, and the Eastern Route Army waits around Iki.` },
+    { phase: 'JOINING AT HIRADO', label: 'Hirado', cam: 'CAM · HIRADO',
+      title: 'The Jiangnan Army reaches Hirado and joins up',
+      text: `In the 7th month the <span class="info-west">Jiangnan Army</span> reaches Hirado and joins the Eastern Route Army. The Jiangnan Army alone is some 100,000 strong — <span class="info-highlight">a fleet big enough to cover the sea</span>.` },
+    { phase: 'TO TAKASHIMA', label: 'Takashima', cam: 'CAM · TAKASHIMA',
+      title: 'The great fleet gathers at Takashima in Imari Bay',
+      text: `The Yuan fleet moves east from Hirado and <span class="info-highlight">gathers around Takashima in Imari Bay</span>, planning to land in Kyushu and march on Dazaifu.` },
+    { phase: 'THE STORM', label: 'Storm', cam: 'CAM · TAKASHIMA',
+      title: 'A typhoon strikes the great fleet at Takashima',
+      text: `On the 1st day of the intercalary 7th month, a typhoon hits Imari Bay. Ships smash into one another, and <span class="info-highlight">many sink or are wrecked</span>. In Japan this wind would later be called "kamikaze," the divine wind.` },
+    { phase: 'THE GENERALS FLEE', label: 'Flight', cam: 'CAM · TAKASHIMA',
+      title: 'The generals take the soundest ships and leave their men',
+      text: `According to the History of Yuan, on the 5th <span class="info-west">Fan Wenhu</span> and the other generals pick the soundest surviving ships and sail away, <span class="info-highlight">leaving more than 100,000 men on Takashima</span>. The men left behind choose a centurion named Zhang as their leader.` },
+    { phase: 'BATTLE OF TAKASHIMA', label: 'Takashima', cam: 'CAM · TAKASHIMA',
+      title: 'Japanese warriors storm Takashima',
+      text: `On the 7th, Japanese warriors attack Takashima. Records survive of men who rushed in from the land and men who boarded enemy ships. <span class="info-highlight">Almost all the Yuan soldiers left on the island are killed or captured</span>.` },
+    { phase: 'AFTERMATH', label: 'Aftermath', cam: 'CAM · IMARI BAY',
+      title: 'The second invasion is beaten back too',
+      text: `The great Yuan fleet never returns. On the seabed of Imari Bay, <span class="info-highlight">sunken Yuan ships</span> still lie today. But many retainers never received the land rewards they hoped for, and the <span class="info-east">Kamakura shogunate</span> is left with a heavy burden.` },
+  ]);
+
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
+  _replaceArr(PHASE_ARROWS, [
+    [ mvp([-6, -70], [-6, -50], W) ],
+    [ mvp([30, -10], [50, 10], W) ],
+    [ at('kono', 'kim', E), at('takezaki', 'hindu', E), at('shoni', 'hong', E) ],
+    [ mvp([50, 8], [30, -10], W) ],
+    [ mvp([-72, -70], [-64, -40], W) ],
+    [ mvp([-6, -32], [-46, -22], W) ],
+    [ mvp([-58, -20], [-54, 2], W) ],
+    [],
+    [ mvp([-54, 4], [-60, -34], W) ],
+    [ at('shimazu', 'zhang', E), at('kono', 'zhang', E) ],
+    [],
+  ]);
+  _replaceArr(CINE, [
+    { orbit: 0.015, dolly: 0.03 },
+    { focus: ['hindu', 'hong'], blend: 0.4, orbit: -0.02, dolly: 0.05 },
+    { focus: ['kono', 'takezaki'], blend: 0.6, orbit: 0.02, dolly: 0.08 },
+    { orbit: 0.02, dolly: 0.04 },
+    { orbit: -0.02, dolly: 0.03 },
+    { focus: ['fan'], blend: 0.4, orbit: 0.02, dolly: 0.04 },
+    { focus: ['fan', 'li'], blend: 0.4, orbit: 0.02, dolly: 0.05 },
+    { orbit: 0.03, dolly: 0.05 },
+    { focus: ['zhang'], blend: 0.4, orbit: -0.02, dolly: 0.05 },
+    { focus: ['zhang', 'shimazu'], blend: 0.7, orbit: 0.025, dolly: 0.08 },
+    { orbit: 0.02, dolly: -0.04 },
+  ]);
+  _replaceObj(CINE_MOMENTS, {
+    1: { ja: '石築地', en: 'THE STONE WALL', subJa: '博多湾に上陸できない', subEn: 'No landing at Hakata', shake: 0.2 },
+    2: { ja: '志賀島の戦い', en: 'SHIKANOSHIMA', subJa: '小舟で攻めかかる', subEn: 'Attacking in small boats', shake: 0.6, accent: 'gold' },
+    5: { ja: '平戸で合流', en: 'JOINING AT HIRADO', subJa: '海を埋める大船団', subEn: 'A fleet that covers the sea', shake: 0 },
+    7: { ja: '暴風', en: 'THE STORM', subJa: '大船団が沈む', subEn: 'The great fleet founders', shake: 0.9 },
+    9: { ja: '鷹島の戦い', en: 'BATTLE OF TAKASHIMA', subJa: '取り残された兵', subEn: 'The men left behind', shake: 0.6, accent: 'gold' },
+  });
+  _replaceArr(MOMENTUM, [40, 52, 62, 66, 56, 44, 40, 80, 88, 94, 96]);
+  _replaceArr(PHASE_ATMO, ['morning', 'noon', 'noon', 'noon', 'noon', 'noon', 'after', 'noon', 'noon', 'noon', 'after']);
+  _replaceArr(PLACES, [
+    { x: 50, z: 34, ja: '博多', en: 'Hakata', lift: 3 },
+    { x: 52, z: -2, ja: '志賀島', en: 'Shikanoshima', lift: 3 },
+    { x: -52, z: 7, ja: '鷹島', en: 'Takashima', lift: 3 },
+    { x: -72, z: -18, ja: '平戸島', en: 'Hirado', lift: 3 },
+    { x: -8, z: -54, ja: '壱岐', en: 'Iki', lift: 3 },
+    { x: 62, z: 54, ja: '大宰府', en: 'Dazaifu', lift: 3, minor: true },
+    { x: -52, z: 32, ja: '伊万里湾', en: 'Imari Bay', lift: 2, minor: true },
+    { x: 64, z: 8, ja: '海の中道', en: 'Umi-no-Nakamichi', lift: 1.5, minor: true },
+  ]);
+
+  const g = (o) => o;
+  _replaceObj(generalsData, {
+    shoni: g({ name: '少弐経資', yomi: 'SHŌNI TSUNESUKE', faction: 'east', factionLabel: '鎌倉幕府軍 鎮西', force: '約4万(全軍・諸説)', troops: 3000, base: '博多', birth: '1229', koku: '筑前・豊前・肥前',
+      bio: '大宰府を拠点に九州の御家人をまとめた少弐氏の当主。', episode: '弘安の役では博多湾の守りをまとめた。父の資能はこの戦いの傷がもとで亡くなったと伝わる。' }),
+    otomo: g({ name: '大友頼泰', yomi: 'ŌTOMO YORIYASU', faction: 'east', factionLabel: '鎌倉幕府軍 鎮西', force: '—', troops: 2500, base: '博多', birth: '1222', koku: '豊後',
+      bio: '豊後の守護。少弐氏とともに九州の守りを任された。', episode: '文永の役、弘安の役の両方で御家人を率いた。' }),
+    kono: g({ name: '河野通有', yomi: 'KŌNO MICHIARI', faction: 'east', factionLabel: '鎌倉幕府軍 伊予', force: '—', troops: 600, base: '博多湾', birth: '1250?', koku: '伊予',
+      bio: '伊予の水軍を率いる河野氏の武将。', episode: '石築地の前に陣を張り、元の船に乗りこんで戦ったと伝わる。' }),
+    takezaki: g({ name: '竹崎季長', yomi: 'TAKEZAKI SUENAGA', faction: 'east', factionLabel: '鎌倉幕府軍 肥後', force: '—', troops: 200, base: '博多', birth: '1246', koku: '肥後',
+      bio: '肥後の御家人。文永の役で手柄を立て、自ら鎌倉へ出向いて恩賞を求めた。', episode: '自分の戦いぶりを描かせた『蒙古襲来絵詞』で知られる。' }),
+    shimazu: g({ name: '島津久経', yomi: 'SHIMAZU HISATSUNE', faction: 'east', factionLabel: '鎌倉幕府軍 薩摩', force: '—', troops: 1500, base: '—', birth: '1225', koku: '薩摩',
+      bio: '薩摩の守護。九州の南から兵を率いて駆けつけた。', episode: '薩摩の御家人たちは、鷹島の戦いにも陸から駆けつけた記録を残している。' }),
+    fan: g({ name: '范文虎', yomi: 'FAN WENHU', faction: 'west', factionLabel: '元軍 江南軍', force: '約10万(江南軍)', troops: 6000, base: '江南', birth: '?', koku: '—',
+      bio: 'もとは南宋の将軍で、元に降った。江南軍を率いた。', episode: '嵐のあと、丈夫な船を選んで兵を置き去りにして帰ったと『元史』は伝える。' }),
+    li: g({ name: '李庭', yomi: 'LI TING', faction: 'west', factionLabel: '元軍 江南軍', force: '—', troops: 4000, base: '江南', birth: '?', koku: '—',
+      bio: '江南軍の将のひとり。', episode: '嵐をくぐりぬけて帰った将のひとりとされる。' }),
+    zhang: g({ name: '張百戸', yomi: 'ZHANG THE CENTURION', faction: 'west', factionLabel: '元軍 取り残された兵', force: '十数万(諸説)', troops: 5000, base: '鷹島', birth: '?', koku: '—',
+      bio: '名は伝わらない、百人隊長の張という人物。', episode: '将軍たちに置き去りにされた兵たちが、張を大将に選んだと『元史』にある。' }),
+    hindu: g({ name: '忻都', yomi: 'HINDU', faction: 'west', factionLabel: '元軍 東路軍', force: '約4万(東路軍)', troops: 4000, base: '高麗', birth: '?', koku: '—',
+      bio: 'モンゴル人の将軍。文永の役でも元の軍を率いた。', episode: '東路軍を率いて、先に博多湾へ攻め入った。' }),
+    hong: g({ name: '洪茶丘', yomi: 'HONG DAGU', faction: 'west', factionLabel: '元軍 東路軍', force: '—', troops: 3000, base: '高麗', birth: '1244', koku: '—',
+      bio: '元に仕えた高麗出身の将軍。', episode: '志賀島の戦いで馬を捨てて逃げ、あやうく助かったと高麗の記録にある。' }),
+    kim: g({ name: '金方慶', yomi: 'KIM BANG-GYEONG', faction: 'west', factionLabel: '元軍 高麗軍', force: '—', troops: 3000, base: '高麗', birth: '1212', koku: '—',
+      bio: '高麗の将軍。文永の役でも高麗軍を率いた。', episode: '志賀島で日本の兵と激しく戦ったと『高麗史』にある。' }),
+  });
+  _replaceObj(EN_GEN, {
+    shoni: { name: 'Shōni Tsunesuke', yomi: '少弐経資', factionLabel: 'KAMAKURA · KYUSHU', force: 'About 40,000 (all, accounts vary)', base: 'Hakata', birth: '1229', koku: 'Chikuzen, Buzen, Hizen',
+      bio: 'Head of the Shōni clan, which led the Kyushu retainers from Dazaifu.', episode: 'He organized the defense of Hakata Bay. His father Sukeyoshi is said to have died of wounds from this campaign.' },
+    otomo: { name: 'Ōtomo Yoriyasu', yomi: '大友頼泰', factionLabel: 'KAMAKURA · KYUSHU', force: '—', base: 'Hakata', birth: '1222', koku: 'Bungo',
+      bio: 'Constable of Bungo, who shared the defense of Kyushu with the Shōni.', episode: 'He led retainers in both Mongol invasions.' },
+    kono: { name: 'Kōno Michiari', yomi: '河野通有', factionLabel: 'KAMAKURA · IYO', force: '—', base: 'Hakata Bay', birth: 'c. 1250', koku: 'Iyo',
+      bio: 'A warrior of the Kōno clan, leaders of the Iyo navy.', episode: 'He is said to have camped in front of the stone wall and boarded Yuan ships to fight.' },
+    takezaki: { name: 'Takezaki Suenaga', yomi: '竹崎季長', factionLabel: 'KAMAKURA · HIGO', force: '—', base: 'Hakata', birth: '1246', koku: 'Higo',
+      bio: 'A Higo retainer who distinguished himself in 1274 and went all the way to Kamakura to ask for his reward.', episode: 'He is famous for the Mōko Shūrai Ekotoba scrolls he had painted of his own deeds.' },
+    shimazu: { name: 'Shimazu Hisatsune', yomi: '島津久経', factionLabel: 'KAMAKURA · SATSUMA', force: '—', base: '—', birth: '1225', koku: 'Satsuma',
+      bio: 'Constable of Satsuma, who brought troops up from the far south of Kyushu.', episode: 'Satsuma retainers left records of riding in from the land to fight at Takashima.' },
+    fan: { name: 'Fan Wenhu', yomi: '范文虎', factionLabel: 'YUAN · JIANGNAN ARMY', force: 'About 100,000 (Jiangnan)', base: 'Jiangnan', birth: '?', koku: '—',
+      bio: 'A former Southern Song general who went over to the Yuan and led the Jiangnan Army.', episode: 'The History of Yuan says he took the soundest ships after the storm and abandoned his men.' },
+    li: { name: 'Li Ting', yomi: '李庭', factionLabel: 'YUAN · JIANGNAN ARMY', force: '—', base: 'Jiangnan', birth: '?', koku: '—',
+      bio: 'One of the Jiangnan Army commanders.', episode: 'He is said to be one of the commanders who made it home through the storm.' },
+    zhang: { name: 'Zhang the Centurion', yomi: '張百戸', factionLabel: 'YUAN · THE ABANDONED', force: 'Over 100,000 (accounts vary)', base: 'Takashima', birth: '?', koku: '—',
+      bio: 'A centurion surnamed Zhang, whose full name is not recorded.', episode: 'The History of Yuan says the abandoned soldiers chose him as their leader.' },
+    hindu: { name: 'Hindu', yomi: '忻都', factionLabel: 'YUAN · EASTERN ROUTE', force: 'About 40,000 (Eastern Route)', base: 'Goryeo', birth: '?', koku: '—',
+      bio: 'A Mongol general who had also led the Yuan army in 1274.', episode: 'He led the Eastern Route Army into Hakata Bay first.' },
+    hong: { name: 'Hong Dagu', yomi: '洪茶丘', factionLabel: 'YUAN · EASTERN ROUTE', force: '—', base: 'Goryeo', birth: '1244', koku: '—',
+      bio: 'A Goryeo-born general in Yuan service.', episode: 'Goryeo records say he abandoned his horse and barely escaped at Shikanoshima.' },
+    kim: { name: 'Kim Bang-gyeong', yomi: '金方慶', factionLabel: 'YUAN · GORYEO ARMY', force: '—', base: 'Goryeo', birth: '1212', koku: '—',
+      bio: 'A Goryeo general who had also led the Goryeo troops in 1274.', episode: 'The History of Goryeo records his hard fighting against the Japanese at Shikanoshima.' },
+  });
+  _replaceObj(LBL_EN, {
+    shoni: 'Shōni Tsunesuke', otomo: 'Ōtomo', kono: 'Kōno', takezaki: 'Takezaki', shimazu: 'Shimazu',
+    fan: 'Fan Wenhu', li: 'Li Ting', zhang: 'Zhang', hindu: 'Hindu', hong: 'Hong Dagu', kim: 'Kim Bang-gyeong',
+  });
+  kamonImages.shoni = "data:image/png;base64,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";
+  kamonImages.shimazu = "data:image/png;base64,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";
 }
 
 // 史実の表を保存しておく(切り替えで元に戻せるように)
@@ -15812,6 +16219,259 @@ if (IS_DAN) {
   });
 }
 
+// ---------- 弘安の役: 決断モード ----------
+function koanEndingId(c) {
+  if (c[6] === 'hakata') return c[8] === 'wait' ? 'E4' : 'E3';
+  if (c[8] === 'stay') return 'E2';
+  return 'E1';
+}
+let KOAN_SEG = null;
+function koanBuildSegments(c, put) {
+  if (!KOAN_SEG) return;
+  if (c[6] === 'hakata') {
+    put(KOAN_SEG.hakata);
+    if (c[8] === 'wait') put(KOAN_SEG.wait);
+    else if (c[8] === 'attack') put(KOAN_SEG.attack);
+    return;
+  }
+  if (c[8] === 'stay') put(KOAN_SEG.stay);
+}
+
+if (IS_KOAN) {
+  Object.assign(BX, { endingId: koanEndingId, segments: koanBuildSegments });
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
+  const TAKA = { fan: [-56, 4], li: [-46, 4], zhang: [-50, 20], hindu: [-58, 16], hong: [-44, 17], kim: [-52, -4], shimazu: [-38, 30] };
+  const BAY = { fan: [48, 14], li: [58, 16], zhang: [53, 20], hindu: [44, 8], hong: [62, 6], kim: [40, 0], shimazu: [34, 30] };
+
+  KOAN_SEG = {
+    // ---------- 決断2(鷹島): 范文虎、兵とともに残る ----------
+    stay: {
+      8: altPhase(8, {
+        ja: { phase: '兵とともに残る', label: '残る', cam: 'CAM · 鷹島',
+          title: '范文虎、兵を見捨てずに鷹島に残る',
+          text: '<span class="info-west">范文虎</span>は逃げなかった。残った船を集め、鷹島の兵をまとめて<span class="info-highlight">木を切って船を造り直させる</span>。将軍が残ったことで、兵たちも落ち着きを取りもどした。' },
+        en: { phase: 'STAYING WITH THE MEN', label: 'Stays', cam: 'CAM · TAKASHIMA',
+          title: 'Fan Wenhu stays on Takashima with his men',
+          text: `<span class="info-west">Fan Wenhu</span> does not run. He gathers the surviving ships, organizes the men on Takashima, and <span class="info-highlight">sets them cutting timber to rebuild boats</span>. With their general still there, the troops steady themselves.` },
+        cam: { pos: [-30, 46, 44], look: [-50, 0, 6] },
+        units: Object.assign({}, TAKA, { zhang: [-52, 12], fan: [-56, 2], li: [-46, 2], hindu: [-60, 14], hong: [-42, 16] }),
+        defeated: ['kim'], arrows: [],
+        cine: { focus: ['fan', 'zhang'], blend: 0.5, orbit: 0.02, dolly: 0.06 },
+        moment: { ja: '残る', en: 'STAYING', subJa: '将軍は逃げなかった', subEn: 'The general does not run', shake: 0.2, accent: 'gold' },
+        mom: 74,
+      }),
+      9: altPhase(9, {
+        ja: { phase: '鷹島の戦い', label: '鷹島', cam: 'CAM · 鷹島',
+          title: '日本の武士が攻め寄せるが、元の兵は崩れない',
+          text: '7日、日本の武士たちが鷹島に攻め寄せた。だが将軍のもとでまとまった元の兵は<span class="info-highlight">島の上で守りを固め</span>、なかなか崩れない。',
+          },
+        en: { phase: 'BATTLE OF TAKASHIMA', label: 'Takashima', cam: 'CAM · TAKASHIMA',
+          title: "The Japanese attack, but the Yuan troops don't break",
+          text: `On the 7th, Japanese warriors storm Takashima. But with their general leading them, the Yuan troops <span class="info-highlight">dig in on the island</span> and refuse to break.` },
+        cam: { pos: [-30, 32, 36], look: [-50, 0, 12] },
+        units: Object.assign({}, TAKA, { zhang: [-52, 12], fan: [-56, 2], li: [-46, 2], hindu: [-60, 14], hong: [-42, 16], shimazu: [-48, 20], kono: [-58, 8], takezaki: [-44, 10] }),
+        battles: [{ x: -50, z: 16 }, { x: -56, z: 9 }], battling: ['zhang', 'shimazu', 'kono', 'fan', 'takezaki', 'li'], defeated: ['kim'],
+        arrows: [at('shimazu', 'zhang', E), at('kono', 'fan', E)],
+        cine: { focus: ['zhang', 'shimazu'], blend: 0.7, orbit: -0.02, dolly: 0.08 },
+        moment: null,
+        mom: 68,
+      }),
+      10: altPhase(10, {
+        ja: { phase: 'その後', label: 'その後', cam: 'CAM · 北九州',
+          title: '鷹島に残る',
+          text: '元の兵の多くは造り直した船で海を渡って帰った。侵攻はやはり失敗に終わったが、<span class="info-highlight">10万の兵が取り残されることはなかった</span>。范文虎の名は、逃げた将としてではなく残った将として語られたかもしれない。' },
+        en: { phase: 'WHAT CAME AFTER', label: 'After', cam: 'CAM · NORTHERN KYUSHU',
+          title: 'Staying on Takashima',
+          text: `Many of the Yuan troops get home on their rebuilt boats. The invasion still fails, but <span class="info-highlight">no 100,000 men are left behind</span>. Fan Wenhu might have been remembered as the general who stayed rather than the one who ran.` },
+        cam: { pos: [-10, 70, 50], look: [-30, 0, -10] },
+        units: Object.assign({}, TAKA, { zhang: [-54, -40], fan: [-60, -50], li: [-48, -54], hindu: [-40, -60], hong: [-66, -60], shimazu: [-48, 20], kono: [-56, 18], takezaki: [-44, 22] }),
+        defeated: ['kim'], arrows: [mvp([-52, 4], [-54, -36], W)],
+        moment: { ja: '鷹島に残る', en: 'STAYING ON TAKASHIMA', subJa: '兵は国へ帰った', subEn: 'The men make it home', shake: 0 },
+        mom: 84,
+      }),
+    },
+    // ---------- 決断1: 合流した大船団で、すぐ博多湾へ ----------
+    hakata: {
+      6: altPhase(6, {
+        ja: { phase: '博多湾へ', label: '博多湾', cam: 'CAM · 博多湾',
+          title: '合流した大船団、そのまま博多湾へ',
+          text: '<span class="info-west">范文虎</span>は鷹島に寄らず、合流した大船団で博多湾へ向かった。湾は<span class="info-highlight">海が見えないほどの船</span>で埋まる。浜には石築地、その後ろに九州の御家人が待つ。' },
+        en: { phase: 'INTO HAKATA BAY', label: 'Hakata', cam: 'CAM · HAKATA BAY',
+          title: 'The combined fleet sails straight for Hakata Bay',
+          text: `<span class="info-west">Fan Wenhu</span> skips Takashima and takes the combined fleet straight to Hakata Bay, which <span class="info-highlight">fills with so many ships the water disappears</span>. On the beach stands the stone wall, with the Kyushu retainers waiting behind it.` },
+        cam: { pos: [34, 40, 50], look: [52, 0, 12] },
+        units: Object.assign({}, BAY),
+        arrows: [mvp([-58, -20], [40, 4], W)],
+        cine: { focus: ['fan', 'zhang'], blend: 0.4, orbit: 0.02, dolly: 0.05 },
+        moment: { ja: '博多湾へ', en: 'INTO HAKATA BAY', subJa: '湾を埋める大船団', subEn: 'A fleet that fills the bay', shake: 0.3, accent: 'gold' },
+        mom: 34,
+      }),
+      7: altPhase(7, {
+        ja: { phase: '暴風', label: '暴風', cam: 'CAM · 博多湾',
+          title: '台風が、博多湾の大船団をおそう',
+          text: '閏7月1日、台風は博多湾にもやってきた。せまい湾につめこまれた船はぶつかり合って沈んでいく。それでも<span class="info-highlight">何万もの兵が志賀島や海の中道に流れ着いた</span>。' },
+        en: { phase: 'THE STORM', label: 'Storm', cam: 'CAM · HAKATA BAY',
+          title: 'The typhoon hits the fleet packed into Hakata Bay',
+          text: `On the 1st of the intercalary 7th month, the typhoon reaches Hakata Bay too. Crammed into the narrow bay, ships smash together and sink — but <span class="info-highlight">tens of thousands of men wash up on Shikanoshima and the sandbar</span>.` },
+        cam: { pos: [34, 40, 50], look: [52, 0, 12] },
+        units: Object.assign({}, BAY, { hong: [58, 9], zhang: [53, 20] }),
+        defeated: ['kim'], arrows: [],
+        cine: { orbit: 0.03, dolly: 0.05 },
+        moment: { ja: '暴風', en: 'THE STORM', subJa: '博多湾の大船団が沈む', subEn: 'The fleet in Hakata Bay founders', shake: 0.9 },
+        mom: 66,
+      }),
+    },
+    // ---------- 決断2(博多湾): 少弐経資、石築地から打って出る ----------
+    attack: {
+      8: altPhase(8, {
+        ja: { phase: '打って出る', label: '打って出る', cam: 'CAM · 博多湾',
+          title: '少弐経資、石築地から打って出る',
+          text: '嵐がやむと、<span class="info-east">少弐経資</span>はすぐに兵を出した。河野と竹崎は小舟で、少弐と大友は海の中道から、<span class="info-highlight">流れ着いた元の兵に攻めかかる</span>。' },
+        en: { phase: 'SALLYING OUT', label: 'Sally', cam: 'CAM · HAKATA BAY',
+          title: 'Shōni Tsunesuke sallies out from the stone wall',
+          text: `The moment the storm passes, <span class="info-east">Shōni Tsunesuke</span> sends his men out — Kōno and Takezaki by small boat, Shōni and Ōtomo along the sandbar — <span class="info-highlight">to fall on the Yuan troops washed ashore</span>.` },
+        cam: { pos: [36, 30, 40], look: [54, 0, 14] },
+        units: Object.assign({}, BAY, { hong: [58, 9], zhang: [53, 20], kono: [49, 18], takezaki: [56, 23], shoni: [62, 13], otomo: [66, 15] }),
+        battles: [{ x: 52, z: 19 }, { x: 60, z: 11 }], battling: ['kono', 'takezaki', 'zhang', 'shoni', 'hong', 'otomo'], defeated: ['kim'],
+        arrows: [at('kono', 'zhang', E), at('shoni', 'hong', E)],
+        cine: { focus: ['shoni', 'zhang'], blend: 0.7, orbit: 0.025, dolly: 0.08 },
+        moment: { ja: '打って出る', en: 'SALLY OUT', subJa: '石築地から攻めに', subEn: 'Out from behind the wall', shake: 0.6, accent: 'gold' },
+        mom: 80,
+      }),
+      9: altPhase(9, {
+        ja: { phase: '博多湾の掃討', label: '掃討', cam: 'CAM · 博多湾',
+          title: '弱った元の兵を、休ませずに討つ',
+          text: '嵐で疲れきった元の兵は、立て直すひまもなく討たれていった。<span class="info-west">范文虎</span>はわずかな船で湾を逃げ出す。<span class="info-highlight">博多湾の戦いは数日で終わった</span>。' },
+        en: { phase: 'CLEARING THE BAY', label: 'Clear', cam: 'CAM · HAKATA BAY',
+          title: 'No rest for the exhausted Yuan troops',
+          text: `Worn out by the storm, the Yuan troops are cut down before they can regroup. <span class="info-west">Fan Wenhu</span> escapes the bay with a handful of ships. <span class="info-highlight">The fight for Hakata Bay is over in days</span>.` },
+        cam: { pos: [36, 38, 46], look: [52, 0, 10] },
+        units: Object.assign({}, BAY, { hong: [58, 9], zhang: [53, 20], fan: [36, -20], hindu: [30, -24], kono: [50, 16], takezaki: [55, 20], shoni: [58, 10], otomo: [64, 14] }),
+        battles: [{ x: 56, z: 12 }], battling: ['shoni', 'hong'], defeated: ['kim', 'zhang', 'li'],
+        arrows: [mvp([48, 14], [36, -18], W)],
+        cine: { focus: ['shoni'], blend: 0.5, orbit: -0.02, dolly: 0.06 },
+        moment: null,
+        mom: 92,
+      }),
+      10: altPhase(10, {
+        ja: { phase: 'その後', label: 'その後', cam: 'CAM · 北九州',
+          title: '博多湾の勝利',
+          text: '博多湾に入った元の大船団は、嵐と御家人たちの攻撃で壊滅した。石築地は<span class="info-highlight">一度も破られなかった</span>。' },
+        en: { phase: 'WHAT CAME AFTER', label: 'After', cam: 'CAM · NORTHERN KYUSHU',
+          title: 'Victory at Hakata Bay',
+          text: `The Yuan fleet that entered Hakata Bay is destroyed by the storm and the retainers' attacks. The stone wall is <span class="info-highlight">never breached</span>.` },
+        cam: { pos: [20, 70, 60], look: [40, 0, 6] },
+        units: Object.assign({}, BAY, { hong: [58, 9], zhang: [53, 20], fan: [20, -60], hindu: [10, -64], kono: [50, 16], takezaki: [55, 20], shoni: [58, 10], otomo: [64, 14] }),
+        defeated: ['kim', 'zhang', 'li', 'hong'], arrows: [],
+        moment: { ja: '博多湾の勝利', en: 'VICTORY AT HAKATA', subJa: '石築地は破られなかった', subEn: 'The wall was never breached', shake: 0 },
+        mom: 96,
+      }),
+    },
+    // ---------- 決断2(博多湾): 石築地の後ろで待つ ----------
+    wait: {
+      8: altPhase(8, {
+        ja: { phase: '上陸を許す', label: '上陸', cam: 'CAM · 海の中道',
+          title: '待つあいだに、元の兵が海の中道から上陸',
+          text: '<span class="info-east">少弐経資</span>は石築地の後ろで守りを固めた。だがそのあいだに、流れ着いた元の兵は<span class="info-highlight">石築地のない海の中道の東から上陸</span>し、隊を立て直していく。' },
+        en: { phase: 'LETTING THEM LAND', label: 'Landing', cam: 'CAM · UMI-NO-NAKAMICHI',
+          title: 'While the Japanese wait, the Yuan land past the sandbar',
+          text: `<span class="info-east">Shōni Tsunesuke</span> holds firm behind the stone wall. Meanwhile the shipwrecked Yuan troops <span class="info-highlight">come ashore east of the sandbar, where there is no wall</span>, and start to regroup.` },
+        cam: { pos: [50, 40, 46], look: [66, 0, 16] },
+        units: Object.assign({}, BAY, { zhang: [71, 20], hong: [74, 24], li: [66, 10] }),
+        defeated: ['kim'],
+        arrows: [mvp([58, 12], [70, 20], W), mvp([60, 8], [73, 23], W)],
+        cine: { focus: ['zhang', 'hong'], blend: 0.6, orbit: 0.02, dolly: 0.06 },
+        moment: null,
+        mom: 52,
+      }),
+      9: altPhase(9, {
+        ja: { phase: '大宰府へ', label: '大宰府', cam: 'CAM · 大宰府',
+          title: '元の兵、大宰府をめざして南へ',
+          text: '立て直した<span class="info-west">元</span>の兵は、九州の守りの中心・大宰府をめざして南へ進んだ。<span class="info-east">少弐</span>と<span class="info-east">大友</span>の兵が急いで前に立ちふさがる。' },
+        en: { phase: 'TOWARD DAZAIFU', label: 'Dazaifu', cam: 'CAM · DAZAIFU',
+          title: 'The Yuan troops march south on Dazaifu',
+          text: `Regrouped, the <span class="info-west">Yuan</span> troops march south toward Dazaifu, the heart of Kyushu's defense. <span class="info-east">Shōni</span> and <span class="info-east">Ōtomo</span> rush to block the road.` },
+        cam: { pos: [46, 40, 72], look: [64, 0, 46] },
+        units: Object.assign({}, BAY, { zhang: [66, 44], hong: [71, 46], li: [66, 10], shoni: [62, 52], otomo: [70, 52], kono: [56, 46], takezaki: [60, 48] }),
+        battles: [{ x: 66, z: 48 }, { x: 71, z: 49 }], battling: ['zhang', 'shoni', 'hong', 'otomo'], defeated: ['kim'],
+        arrows: [mvp([71, 20], [66, 42], W), at('shoni', 'zhang', E)],
+        cine: { focus: ['zhang', 'shoni'], blend: 0.7, orbit: -0.02, dolly: 0.08 },
+        moment: { ja: '大宰府へ', en: 'TOWARD DAZAIFU', subJa: '元の兵、九州に上がる', subEn: 'The Yuan are ashore', shake: 0.6 },
+        mom: 40,
+      }),
+      10: altPhase(10, {
+        ja: { phase: 'その後', label: 'その後', cam: 'CAM · 大宰府',
+          title: '大宰府の危機',
+          text: '戦いは大宰府のすぐ前で続いた。嵐で船を失った元の兵は帰ることもできず、<span class="info-highlight">九州の陸の上で長い戦いになった</span>かもしれない。' },
+        en: { phase: 'WHAT CAME AFTER', label: 'After', cam: 'CAM · DAZAIFU',
+          title: 'Dazaifu in Danger',
+          text: `The fighting goes on right in front of Dazaifu. Having lost their ships in the storm, the Yuan troops cannot go home either — <span class="info-highlight">it might have become a long war on Kyushu soil</span>.` },
+        cam: { pos: [40, 60, 84], look: [60, 0, 40] },
+        units: Object.assign({}, BAY, { zhang: [64, 48], hong: [70, 49], li: [66, 10], shoni: [62, 54], otomo: [70, 55], kono: [56, 48], takezaki: [60, 52] }),
+        battles: [{ x: 64, z: 51 }], battling: ['zhang', 'shoni'], defeated: ['kim'], arrows: [],
+        moment: { ja: '大宰府の危機', en: 'DAZAIFU IN DANGER', subJa: '戦いは陸の上へ', subEn: 'The war moves ashore', shake: 0 },
+        mom: 46,
+      }),
+    },
+  };
+
+  _replaceObj(SEG, KOAN_SEG);
+  _replaceArr(DECISION_IDX, [6, 8]);
+  _replaceObj(DECISIONS, {
+    6: {
+      who: 'fan', applies: () => true,
+      ja: { title: '范文虎の決断', situation: '平戸で東路軍と合流し、海を埋めるほどの大船団になった。博多湾の浜には石の壁があるという。どこから九州に上がるか。' },
+      en: { title: "FAN WENHU'S DECISION", situation: "You have joined the Eastern Route Army at Hirado — a fleet that covers the sea. They say the beaches of Hakata Bay are walled with stone. Where do you land in Kyushu?" },
+      options: () => [
+        { id: 'takashima', history: true, ja: ['鷹島に集まる', '史実どおり。伊万里湾から上陸をねらう'], en: ['Gather at Takashima', 'As in history: aim to land from Imari Bay'] },
+        { id: 'hakata', ja: ['すぐ博多湾へ向かう', '大船団の数で石築地を押しきる'], en: ['Head straight for Hakata Bay', 'Overwhelm the stone wall with numbers'] },
+      ],
+    },
+    8: {
+      who: () => decideState.choices[6] === 'hakata' ? 'shoni' : 'fan', applies: () => true,
+      ja: () => decideState.choices[6] === 'hakata' ? { title: '経資の決断' } : { title: '范文虎の決断' },
+      en: () => decideState.choices[6] === 'hakata' ? { title: "TSUNESUKE'S DECISION" } : { title: "FAN WENHU'S DECISION" },
+      situation: () => decideState.choices[6] === 'hakata'
+        ? { ja: '嵐が去った博多湾。沈まなかった船から、元の兵が志賀島や海の中道に上がりはじめている。', en: 'The storm has passed over Hakata Bay. From the ships that did not sink, Yuan troops are starting to come ashore on Shikanoshima and the sandbar.' }
+        : { ja: '嵐で多くの船が沈んだ。残った船は少なく、鷹島には10万をこえる兵がいる。全員は乗せられない。', en: 'The storm has sunk much of the fleet. Few ships are left, and there are over 100,000 men on Takashima. They cannot all go.' },
+      options: () => decideState.choices[6] === 'hakata'
+        ? [
+          { id: 'attack', ja: ['石築地から打って出る', '弱っているうちに討つ'], en: ['Sally out from the wall', 'Strike while they are weak'] },
+          { id: 'wait', ja: ['石築地の後ろで待つ', '守りを固めて動かない'], en: ['Wait behind the wall', 'Hold the defenses and stay put'] },
+        ]
+        : [
+          { id: 'flee', history: true, ja: ['丈夫な船で帰る', '史実どおり。兵は残していく'], en: ['Sail home in the soundest ships', 'As in history: leave the men behind'] },
+          { id: 'stay', ja: ['兵とともに残る', '船を造り直して、みんなで帰る'], en: ['Stay with the men', 'Rebuild ships and get everyone home'] },
+        ],
+    },
+  });
+  _replaceObj(ENDINGS, {
+    E1: { ja: ['史実：神風と鷹島', '台風で船団は壊れ、置き去りにされた兵は鷹島で討たれた。'], en: ['History: The Divine Wind', 'The typhoon wrecks the fleet, and the men abandoned on Takashima are cut down.'] },
+    E2: { ja: ['鷹島に残る', '范文虎が兵とともに残り、多くの兵が国へ帰れた。'], en: ['Staying on Takashima', 'Fan Wenhu stays with his men, and many of them make it home.'] },
+    E3: { ja: ['博多湾の勝利', '博多湾に来た大船団を、嵐と御家人たちが打ち破った。'], en: ['Victory at Hakata', 'The storm and the Kyushu retainers destroy the fleet that came to Hakata Bay.'] },
+    E4: { ja: ['大宰府の危機', '上陸した元の兵が大宰府に迫り、戦いは陸の上へ。'], en: ['Dazaifu in Danger', 'Yuan troops land and close on Dazaifu, and the war moves ashore.'] },
+  });
+
+  Object.assign(STR.en, {
+    'sim.title': 'Kōan Invasion', 'sim.sub': 'The Second Mongol Invasion', 'sim.d1': 'Kōan 4', 'sim.d2': 'Summer',
+    'legend.east': 'Kamakura', 'legend.west': 'Yuan',
+    'sim.loading': 'Launching the fleets...',
+    'name.shoni': 'Shōni Tsunesuke', 'name.fan': 'Fan Wenhu',
+    'wi.historyDesc': 'What actually happened in the summer of 1281. Dates follow the old lunar calendar.',
+    'dm.desc': 'Make two calls — as Fan Wenhu, then as Fan or Shōni Tsunesuke. Four endings to discover.',
+  });
+  Object.assign(STR.ja, {
+    'sim.title': '弘安の役', 'sim.sub': '二度目の蒙古襲来', 'sim.d1': '弘安四年', 'sim.d2': '夏',
+    'legend.east': '鎌倉幕府', 'legend.west': '元',
+    'sim.loading': '玄界灘に船団を展開中',
+    'name.shoni': '少弐経資', 'name.fan': '范文虎',
+    'wi.historyDesc': '弘安四年の夏に実際に起きたこと(日付は旧暦)。',
+    'dm.desc': '范文虎と、范文虎または少弐経資。2つの決断で展開が変わる。エンディングは全4種。',
+  });
+}
+
 const decideState = { active: false, choices: {}, wasPlaying: false, open: null };
 let altPhaseSet = new Set();
 let lastAppliedPhase = -1;
@@ -16094,6 +16754,9 @@ const GROUND_ROADS = {
     [[-46, 28], [-30, 24], [-12, 20], [6, 14], [18, 15], [27, 17]],
     [[-2, -6], [-6, -14], [-8, -22]],
   ],
+  koan: [
+    [[50, 34], [56, 44], [62, 54]],                       // 博多から大宰府へ
+  ],
   dannoura: [
     [[-95, -27], [-60, -23], [-30, -18], [-10, -12], [10, -16], [30, -22], [50, -30]],   // 本州側の浜の道
   ],
@@ -16168,6 +16831,7 @@ function groundRiverLines() {
   if (IS_OSAKA) return OSAKA_RIVERS;
   if (IS_WINTER) return WINTER_RIVERS;
   if (IS_DAN) return [];
+  if (IS_KOAN) return [];
   const line = [];
   for (let i = 0; i <= 30; i++) {
     const t = i / 30, x = -70 + t * 140;
@@ -16374,6 +17038,7 @@ function buildForest() {
       const h = sampleGrid(groundGrid.H, jx, jz);
       const slope = 1 - groundSlope(jx, jz).ny;
       if ((IS_SHIZ || IS_MINA || IS_OSAKA || IS_WINTER) && h < 0.3) continue;
+      if (IS_KOAN && (koanSeaDepth(jx, jz) > -3 || _hash2(jx * 1.3, jz * 2.9) > 0.45)) continue;   // 弘安の役: 海と浜に木を置かない
       if (IS_DAN && (danSeaDepth(jx, jz) > -3 || _hash2(jx * 1.3, jz * 2.9) > 0.45)) continue;   // 壇ノ浦: 海と浜に木を置かない
       if (IS_WINTER && (_hash2(jx * 1.3, jz * 2.9) > 0.22 || jz < -8 || Math.hypot(jx - 10, jz + 4) < 16 || Math.hypot(jx - 27, jz - 2) < 7)) continue;   // 冬の陣: 城の内側と砦のまわりに木を置かない
       if (IS_OSAKA && (_hash2(jx * 1.3, jz * 2.9) > 0.3 || jx * jx + (jz + 58) ** 2 < 150)) continue;   // 大坂は町と寺の多い台地。木はまばらに
@@ -16520,6 +17185,11 @@ const ACTS = {
     { from: 3, ja: ['第二幕', '朝', '今川の進軍'], en: ['ACT II', 'MORNING', 'The Imagawa Advance'] },
     { from: 7, ja: ['第三幕', '昼', '嵐の前'], en: ['ACT III', 'MIDDAY', 'Before the Storm'] },
     { from: 10, ja: ['第四幕', '午後', '桶狭間'], en: ['ACT IV', 'AFTERNOON', 'Okehazama'] },
+  ],
+  koan: [
+    { from: 0, ja: ['第一幕', '初夏', '博多湾'], en: ['ACT I', 'EARLY SUMMER', 'Hakata Bay'] },
+    { from: 4, ja: ['第二幕', '夏', '大船団'], en: ['ACT II', 'SUMMER', 'The Great Fleet'] },
+    { from: 7, ja: ['第三幕', '閏七月', '嵐'], en: ['ACT III', 'LATE SUMMER', 'The Storm'] },
   ],
   dannoura: [
     { from: 0, ja: ['第一幕', '朝', '対峙'], en: ['ACT I', 'MORNING', 'The Face-off'] },
