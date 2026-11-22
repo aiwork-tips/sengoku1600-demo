@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Sengoku Simulation | Japanese Historical Battles in 3D</title>
-<meta name="description" content="Watch Minatogawa, Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake, Sekigahara, Sanada-maru, Osaka, Dan-no-ura and the Mongol invasion unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.">
+<meta name="description" content="Watch Minatogawa, Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake, Sekigahara, Sanada-maru, Osaka, Dan-no-ura, the Mongol invasion and Toba–Fushimi unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Sengoku Simulation | Japanese Historical Battles in 3D">
 <meta property="og:description" content="Watch the Battle of Sekigahara (1600) unfold in 3D, phase by phase, with commander profiles and a timeline.">
@@ -2623,6 +2623,7 @@ html[lang="en"] .title-logo { font-family: 'Cormorant Garamond', 'Noto Serif JP'
 .if-card.c-plum .ifc-top { background: #9b3fb5; color: #fff; }
 .if-card.c-navy .ifc-top { background: #2a4f8f; color: #fff; }
 .if-card.c-slate .ifc-top { background: #4d6470; color: #fff; }
+.if-card.c-rust .ifc-top { background: #b5562a; color: #fff; }
 .ifc-year { font-family: 'Dela Gothic One', sans-serif; font-size: 13px; background: #fff; color: #1b1b1f; border: 2px solid #1b1b1f; border-radius: 8px; padding: 1px 8px; }
 .ifc-name { font-family: 'Dela Gothic One', sans-serif; font-size: 21px; line-height: 1.2; }
 .ifc-q { display: block; font-size: 17px; font-weight: 900; padding: 14px 16px 6px; line-height: 1.45; }
@@ -3135,7 +3136,7 @@ setTimeout(updateAppHeight, 1000);
 const BATTLE_ID = (() => {
   try {
     const b = new URLSearchParams(location.search).get('battle');
-    return ['okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake', 'minatogawa', 'osaka-summer', 'osaka-winter', 'dannoura', 'koan'].includes(b) ? b : 'sekigahara';
+    return ['okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake', 'minatogawa', 'osaka-summer', 'osaka-winter', 'dannoura', 'koan', 'toba-fushimi'].includes(b) ? b : 'sekigahara';
   } catch (e) { return 'sekigahara'; }
 })();
 const IS_OKE = BATTLE_ID === 'okehazama';
@@ -3150,11 +3151,12 @@ const IS_OSAKA = BATTLE_ID === 'osaka-summer';
 const IS_WINTER = BATTLE_ID === 'osaka-winter';
 const IS_DAN = BATTLE_ID === 'dannoura';
 const IS_KOAN = BATTLE_ID === 'koan';
+const IS_TOBA = BATTLE_ID === 'toba-fushimi';
 // 合戦ごとの差し替え口(関ヶ原では空のまま)
 const BX = {};
-const GENERAL_IDS = { sekigahara: ['ieyasu', 'mitsunari'], okehazama: ['nobunaga', 'yoshimoto'], nagashino: ['nobunaga', 'katsuyori'], kawanakajima: ['shingen', 'kenshin'], mikatagahara: ['ieyasu', 'shingen'], honnoji: ['mitsuhide', 'nobunaga'], yamazaki: ['hideyoshi', 'mitsuhide'], shizugatake: ['hideyoshi', 'katsuie'], minatogawa: ['takauji', 'masashige'], 'osaka-summer': ['ieyasu', 'nobushige'], 'osaka-winter': ['ieyasu', 'nobushige'], dannoura: ['yoshitsune', 'tomomori'], koan: ['shoni', 'fan'] }[BATTLE_ID];
-const GENERAL_SIDE = { sekigahara: { ieyasu: 'right', mitsunari: 'left' }, okehazama: { nobunaga: 'left', yoshimoto: 'right' }, nagashino: { nobunaga: 'left', katsuyori: 'right' }, kawanakajima: { shingen: 'right', kenshin: 'left' }, mikatagahara: { ieyasu: 'right', shingen: 'left' }, honnoji: { mitsuhide: 'right', nobunaga: 'left' }, yamazaki: { hideyoshi: 'right', mitsuhide: 'left' }, shizugatake: { hideyoshi: 'right', katsuie: 'left' }, minatogawa: { takauji: 'right', masashige: 'left' }, 'osaka-summer': { ieyasu: 'right', nobushige: 'left' }, 'osaka-winter': { ieyasu: 'right', nobushige: 'left' }, dannoura: { yoshitsune: 'right', tomomori: 'left' }, koan: { shoni: 'right', fan: 'left' } }[BATTLE_ID];
-const DM_START = { sekigahara: 4, okehazama: 5, nagashino: 0, kawanakajima: 0, mikatagahara: 2, honnoji: 2, yamazaki: 0, shizugatake: 1, minatogawa: 3, 'osaka-summer': 2, 'osaka-winter': 2, dannoura: 1, koan: 4 }[BATTLE_ID];
+const GENERAL_IDS = { sekigahara: ['ieyasu', 'mitsunari'], okehazama: ['nobunaga', 'yoshimoto'], nagashino: ['nobunaga', 'katsuyori'], kawanakajima: ['shingen', 'kenshin'], mikatagahara: ['ieyasu', 'shingen'], honnoji: ['mitsuhide', 'nobunaga'], yamazaki: ['hideyoshi', 'mitsuhide'], shizugatake: ['hideyoshi', 'katsuie'], minatogawa: ['takauji', 'masashige'], 'osaka-summer': ['ieyasu', 'nobushige'], 'osaka-winter': ['ieyasu', 'nobushige'], dannoura: ['yoshitsune', 'tomomori'], koan: ['shoni', 'fan'], 'toba-fushimi': ['saigo', 'yoshinobu'] }[BATTLE_ID];
+const GENERAL_SIDE = { sekigahara: { ieyasu: 'right', mitsunari: 'left' }, okehazama: { nobunaga: 'left', yoshimoto: 'right' }, nagashino: { nobunaga: 'left', katsuyori: 'right' }, kawanakajima: { shingen: 'right', kenshin: 'left' }, mikatagahara: { ieyasu: 'right', shingen: 'left' }, honnoji: { mitsuhide: 'right', nobunaga: 'left' }, yamazaki: { hideyoshi: 'right', mitsuhide: 'left' }, shizugatake: { hideyoshi: 'right', katsuie: 'left' }, minatogawa: { takauji: 'right', masashige: 'left' }, 'osaka-summer': { ieyasu: 'right', nobushige: 'left' }, 'osaka-winter': { ieyasu: 'right', nobushige: 'left' }, dannoura: { yoshitsune: 'right', tomomori: 'left' }, koan: { shoni: 'right', fan: 'left' }, 'toba-fushimi': { saigo: 'right', yoshinobu: 'left' } }[BATTLE_ID];
+const DM_START = { sekigahara: 4, okehazama: 5, nagashino: 0, kawanakajima: 0, mikatagahara: 2, honnoji: 2, yamazaki: 0, shizugatake: 1, minatogawa: 3, 'osaka-summer': 2, 'osaka-winter': 2, dannoura: 1, koan: 4, 'toba-fushimi': 3 }[BATTLE_ID];
 const ENDINGS_KEY = BATTLE_ID === 'sekigahara' ? 'sg_endings' : 'sg_endings_' + BATTLE_ID;
 
 const eras = [
@@ -3228,7 +3230,7 @@ const eras = [
     years: '1853 — 1869',
     desc: '開国から戊辰戦争まで',
     battles: [
-      { id: 'toba-fushimi', year: '1868', name: '鳥羽・伏見の戦い', east: { name: '新政府軍', force: '約5千' }, west: { name: '旧幕府軍', force: '約1万5千' }, winner: 'east', winnerName: '新政府軍', implemented: false },
+      { id: 'toba-fushimi', year: '1868', name: '鳥羽・伏見の戦い', east: { name: '新政府軍', force: '約5千' }, west: { name: '旧幕府軍', force: '約1万5千' }, winner: 'east', winnerName: '新政府軍', implemented: true },
       { id: 'hakodate', year: '1869', name: '箱館戦争', east: { name: '新政府軍', force: '約8千' }, west: { name: '旧幕府軍', force: '約3千' }, winner: 'east', winnerName: '新政府軍', implemented: false },
     ],
   },
@@ -3253,7 +3255,7 @@ try {
 const STR = {
   en: {
     'meta.title': 'Sengoku Simulation | Japanese Historical Battles in 3D',
-    'meta.desc': 'Watch Minatogawa, Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake, Sekigahara, Sanada-maru, Osaka, Dan-no-ura and the Mongol invasion unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.',
+    'meta.desc': 'Watch Minatogawa, Okehazama, Kawanakajima, Mikatagahara, Nagashino, Honnō-ji, Yamazaki, Shizugatake, Sekigahara, Sanada-maru, Osaka, Dan-no-ura, the Mongol invasion and Toba–Fushimi unfold in 3D — or make the key decisions yourself and find other endings. Free, runs in your browser.',
     'home.title': 'SENGOKU',
     'title.sub': 'Famous battles of Japan in 3D. Watch them unfold — or change how they end.',
     'title.history': 'Watch History',
@@ -3304,7 +3306,7 @@ const STR = {
   },
   ja: {
     'meta.title': '戦国シミュレーション',
-    'meta.desc': '湊川・桶狭間・川中島・三方ヶ原・長篠・本能寺・山崎・賤ヶ岳・関ヶ原・大坂冬の陣・大坂夏の陣・壇ノ浦・弘安の役を3Dで再現。史実をたどるだけでなく、自分で決断して別の結末も探せる。無料・ブラウザで動作。',
+    'meta.desc': '湊川・桶狭間・川中島・三方ヶ原・長篠・本能寺・山崎・賤ヶ岳・関ヶ原・大坂冬の陣・大坂夏の陣・壇ノ浦・弘安の役・鳥羽伏見を3Dで再現。史実をたどるだけでなく、自分で決断して別の結末も探せる。無料・ブラウザで動作。',
     'home.title': '戦国',
     'title.sub': '日本の合戦を3Dで。史実をたどるか、歴史を変えるか。',
     'title.history': '史実を見る',
@@ -3660,6 +3662,8 @@ const IF_BATTLES = [
     q: { ja: 'もしも義元が、本陣の守りを固めていたら？', en: 'What if Yoshimoto had stayed on guard?' } },
   { id: 'nagashino', endings: 5, key: 'sg_endings_nagashino', color: 'cyan',
     q: { ja: 'もしも勝頼が、柵の端を回り込んでいたら？', en: 'What if Katsuyori had gone around the fence?' } },
+  { id: 'toba-fushimi', endings: 4, key: 'sg_endings_toba-fushimi', color: 'rust',
+    q: { ja: 'もしも淀藩が、城の門を開いていたら？', en: 'What if Yodo had opened its gates?' } },
   { id: 'koan', endings: 4, key: 'sg_endings_koan', color: 'slate',
     q: { ja: 'もしも元の大船団が、博多湾に向かっていたら？', en: 'What if the great Yuan fleet had sailed for Hakata?' } },
   { id: 'dannoura', endings: 4, key: 'sg_endings_dannoura', color: 'navy',
@@ -4000,7 +4004,7 @@ document.getElementById('backFromSim').addEventListener('click', () => {
 });
 
 // ========= シミュレーション =========
-const PLAYABLE_BATTLES = ['sekigahara', 'okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake', 'minatogawa', 'osaka-summer', 'osaka-winter', 'dannoura', 'koan'];
+const PLAYABLE_BATTLES = ['sekigahara', 'okehazama', 'nagashino', 'kawanakajima', 'mikatagahara', 'honnoji', 'yamazaki', 'shizugatake', 'minatogawa', 'osaka-summer', 'osaka-winter', 'dannoura', 'koan', 'toba-fushimi'];
 function openSimulation(battleId) {
   if (!PLAYABLE_BATTLES.includes(battleId)) return;
   if (battleId !== BATTLE_ID) {
@@ -4822,11 +4826,9 @@ function applyPhase(idx) {
     u.setDefeated(false);
   });
   
-  if (p.traitor && units[p.traitor]) {
-    units[p.traitor].setFaction('traitor');
-  } else {
-    Object.values(units).forEach(u => { if (u.faction === 'traitor') u.setFaction('west'); });
-  }
+  const _trs = [].concat(p.traitor || []);
+  Object.values(units).forEach(u => { if (u.faction === 'traitor' && !_trs.includes(u.id)) u.setFaction('west'); });
+  _trs.forEach(id => { if (units[id] && units[id].faction !== 'traitor') units[id].setFaction('traitor'); });
   
   (p.battling || []).forEach(id => { if (units[id]) units[id].battling = true; });
   (p.defeated || []).forEach(id => { if (units[id]) units[id].setDefeated(true); });
@@ -6326,6 +6328,7 @@ const HORSE_COATS = [0x6b4428, 0x5a3820, 0x3a2a20, 0x7a5232, 0x2a2420, 0x8a7a68]
 // 騎馬の割合(合戦ごと)。指定がなければ総大将の隊 18%、ほかは 8%
 const CAVALRY_RATIO = {
   nagashino: { katsuyori: 0.3, baba: 0.45, yamagata: 0.5, sanada: 0.45, naito: 0.4, tsuchiya: 0.4, nobukado: 0.35, nobutoyo: 0.35, nobuzane: 0.15, siege: 0.1, teppo: 0, okudaira: 0 },
+  'toba-fushimi': { saigo: 0.1, satsumaT: 0, satsumaF: 0, choshu: 0, nishiki: 0.3, yoshinobu: 0.2, takigawa: 0.05, kuwana: 0.1, aizu: 0.1, shinsengumi: 0, yodo: 0, tsu: 0 },
   koan: { shoni: 0.35, otomo: 0.35, kono: 0.1, takezaki: 0.4, shimazu: 0.35, fan: 0.05, li: 0.05, zhang: 0, hindu: 0.1, hong: 0.1, kim: 0.05 },
   dannoura: { yoshitsune: 0, kagetoki: 0, miura: 0, kono: 0, noriyori: 0.3, tomomori: 0, munemori: 0, noritsune: 0, antoku: 0, shigeyoshi: 0, hideto: 0 },
   'osaka-winter': { ieyasu: 0.25, hidetada: 0.25, maeda: 0.25, ii: 0.3, tadanao: 0.3, todo: 0.25, nobushige: 0.2, daisuke: 0.2, iki: 0.2, chosokabe: 0.15, ishikawa: 0.1, hideyori: 0.2 },
@@ -11972,6 +11975,398 @@ if (IS_KOAN) {
   kamonImages.shimazu = "data:image/png;base64,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";
 }
 
+
+// ========================================================
+// ===== 14戦目: 鳥羽・伏見の戦い(?battle=toba-fushimi) =====
+// ========================================================
+// 京の南の地図。x が東、z が南。北に東寺(京)、鳥羽街道が南へ下り、東に伏見。南の淀で川が集まり、南西に橋本・八幡、川向こうに山崎
+const TOBA_POS = {
+  toji: [-4, -68], koeda: [-12, -36], jonangu: [-8, -42], bugyosho: [26, -26], gokogu: [32, -36],
+  yodo: [-4, 18], hashimoto: [-34, 40], otokoyama: [-24, 48], yamazaki: [-52, 28], osaka: [-66, 66],
+};
+const TOBA_RIVERS = [
+  [[-22, -80], [-16, -56], [-12, -36], [-14, -20]],                    // 鴨川
+  [[-60, -80], [-40, -46], [-24, -20], [-12, 0], [-6, 10]],            // 桂川
+  [[80, -14], [44, -20], [26, -18], [8, 4], [-4, 12]],                 // 宇治川
+  [[-4, 12], [-18, 26], [-32, 36], [-50, 48], [-80, 70]],              // 淀川
+  [[46, 80], [10, 50], [-14, 40], [-30, 37]],                          // 木津川
+];
+function tobaTerrainHeight(x, z) {
+  const hill = (cx, cz, s, a) => Math.exp(-((x - cx) ** 2 + (z - cz) ** 2) / s) * a;
+  let h = 0.5 + __fbm(x * 0.05, z * 0.05, 3) * 0.4;
+  h += hill(-24, 48, 60, 3.2);          // 男山
+  h += hill(-64, 20, 120, 5.5);         // 天王山
+  h += hill(42, -34, 160, 1.6);         // 伏見の桃山
+  h += Math.max(0, x - 50) * 0.18 + Math.max(0, -z - 60) * 0.12;   // 東山・北山
+  h += __fbm(x * 0.2, z * 0.2, 3) * 0.15;
+  let rd = 1e9;
+  TOBA_RIVERS.forEach(line => { for (let i = 0; i < line.length - 1; i++) rd = Math.min(rd, _segDist(x, z, line[i], line[i + 1])); });
+  const k = Math.exp(-(rd * rd) / 5);
+  h = h * (1 - k * 0.9) - k * 0.35;
+  return Math.max(-0.4, h);
+}
+const tobaFlames = { grp: null };
+function buildTobaDecor() {
+  const rmat = new THREE.MeshStandardMaterial({ color: 0x6888a8, transparent: true, opacity: 0.8, roughness: 0.2, metalness: 0.3 });
+  TOBA_RIVERS.forEach((line, i) => {
+    const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(line.map(([x, z]) => new THREE.Vector3(x, 0.1, z))), 60, i === 3 ? 2.0 : 1.3, 6, false), rmat);
+    tube.scale.y = 0.15;
+    scene.add(tube);
+  });
+  const wall = new THREE.MeshStandardMaterial({ color: 0xe2dccb, roughness: 0.9 });
+  const roof = new THREE.MeshStandardMaterial({ color: 0x3a3c44, roughness: 0.7, flatShading: true });
+  const wood = new THREE.MeshStandardMaterial({ color: 0x8a3a24, roughness: 0.9 });
+  const stone = new THREE.MeshStandardMaterial({ color: 0x8c867a, roughness: 1, flatShading: true });
+  const house = (x, z, w, d, rot) => {
+    const y = tobaTerrainHeight(x, z);
+    const b = new THREE.Mesh(new THREE.BoxGeometry(w, 0.9, d), wall);
+    b.position.set(x, y + 0.45, z); b.rotation.y = rot || 0; b.castShadow = true; scene.add(b);
+    const r = new THREE.Mesh(new THREE.CylinderGeometry(0.01, Math.max(w, d) * 0.75, 0.7, 4, 1), roof);
+    r.rotation.y = Math.PI / 4 + (rot || 0); r.scale.set(w / Math.max(w, d) * 1.1, 1, d / Math.max(w, d) * 1.1); r.position.set(x, y + 1.25, z); scene.add(r);
+  };
+  // 東寺の五重塔(京の入口)
+  {
+    const [cx, cz] = TOBA_POS.toji;
+    const gy = tobaTerrainHeight(cx, cz);
+    let y = 0;
+    for (let i = 0; i < 5; i++) {
+      const w = 1.8 - i * 0.2;
+      const b = new THREE.Mesh(new THREE.BoxGeometry(w * 0.7, 0.8, w * 0.7), wood);
+      b.position.set(cx, gy + y + 0.4, cz); scene.add(b);
+      const rf = new THREE.Mesh(new THREE.CylinderGeometry(0.01, w * 0.95, 0.5, 4, 1), roof);
+      rf.rotation.y = Math.PI / 4; rf.position.set(cx, gy + y + 0.95, cz); rf.castShadow = true; scene.add(rf);
+      y += 0.95;
+    }
+  }
+  // 城南宮
+  house(TOBA_POS.jonangu[0], TOBA_POS.jonangu[1], 2.6, 1.6);
+  // 伏見奉行所(塀で囲む)
+  {
+    const [cx, cz] = TOBA_POS.bugyosho;
+    house(cx, cz, 4.2, 2.6);
+    house(cx - 3, cz + 2.5, 2.2, 1.4);
+    [[0, -4.5, 9, 0.3], [0, 4.5, 9, 0.3], [-4.5, 0, 0.3, 9], [4.5, 0, 0.3, 9]].forEach(([dx, dz, w, d]) => {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(w, 0.8, d), wall);
+      m.position.set(cx + dx, tobaTerrainHeight(cx + dx, cz + dz) + 0.4, cz + dz); scene.add(m);
+    });
+    const flameGeo = new THREE.ConeGeometry(0.7, 2.6, 6);
+    const mats = [0xff6a1a, 0xff9a2a, 0xffc04a].map(c => new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.88, depthWrite: false }));
+    const fg = new THREE.Group();
+    for (let i = 0; i < 16; i++) {
+      const f = new THREE.Mesh(flameGeo, mats[i % 3]);
+      const a = (i / 16) * Math.PI * 2;
+      const rr = 1.2 + (i % 3) * 0.9;
+      f.position.set(cx + Math.cos(a) * rr, tobaTerrainHeight(cx, cz) + 1.6 + (i % 2) * 0.6, cz + Math.sin(a) * rr * 0.7);
+      f.userData.ph = Math.random() * 6.28; f.userData.base = 0.8 + Math.random() * 0.5;
+      fg.add(f);
+    }
+    fg.visible = false; scene.add(fg); tobaFlames.grp = fg;
+  }
+  // 御香宮
+  house(TOBA_POS.gokogu[0], TOBA_POS.gokogu[1], 2.4, 1.6);
+  // 淀城(石垣と小さな天守)
+  {
+    const [cx, cz] = TOBA_POS.yodo;
+    const gy = tobaTerrainHeight(cx, cz);
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 4.0, 1.4, 4, 1), stone);
+    base.rotation.y = Math.PI / 4; base.position.set(cx, gy + 0.7, cz); base.castShadow = true; scene.add(base);
+    const t1 = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.2, 2.2), wall);
+    t1.position.set(cx, gy + 2.0, cz); t1.castShadow = true; scene.add(t1);
+    const r1 = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 2.1, 0.6, 4, 1), roof);
+    r1.rotation.y = Math.PI / 4; r1.scale.z = 0.85; r1.position.set(cx, gy + 2.85, cz); scene.add(r1);
+    const t2 = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.9, 1.3), wall);
+    t2.position.set(cx, gy + 3.5, cz); scene.add(t2);
+    const r2 = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 1.3, 0.7, 4, 1), roof);
+    r2.rotation.y = Math.PI / 4; r2.position.set(cx, gy + 4.3, cz); scene.add(r2);
+  }
+  // 橋本・山崎・伏見の家並み
+  [[-36, 42, 1.6, 1.1], [-32, 44, 1.6, 1.1], [-38, 38, 1.4, 1.0], [-54, 26, 1.6, 1.1], [-50, 30, 1.4, 1.0],
+   [22, -30, 1.6, 1.1], [30, -22, 1.6, 1.1], [18, -24, 1.4, 1.0], [-8, -60, 1.6, 1.1], [0, -62, 1.6, 1.1]].forEach(([x, z, w, d]) => house(x, z, w, d));
+}
+const TOBA_ROCKS = [];
+const TOBA_TREES = [];
+
+function makeTobaUnits() {
+  return {
+    saigo:       new Unit('saigo',       '西', 'east', -4, -64, '西郷隆盛', 1.3, true),
+    satsumaT:    new Unit('satsumaT',    '薩', 'east', -10, -44, '薩摩藩兵(鳥羽)', 1.2),
+    satsumaF:    new Unit('satsumaF',    '薩', 'east', 32, -40, '薩摩藩兵(伏見)', 1.1),
+    choshu:      new Unit('choshu',      '長', 'east', 40, -34, '長州藩兵', 1.1),
+    nishiki:     new Unit('nishiki',     '錦', 'east', -16, -74, '錦の御旗', 0.9),
+    yoshinobu:   new Unit('yoshinobu',   '慶', 'west', -66, 66, '徳川慶喜', 1.4, true),
+    takigawa:    new Unit('takigawa',    '幕', 'west', -12, 4, '旧幕府歩兵(鳥羽)', 1.4),
+    kuwana:      new Unit('kuwana',      '桑', 'west', -6, 10, '桑名藩兵', 1.0),
+    aizu:        new Unit('aizu',        '会', 'west', 8, 0, '会津藩兵', 1.2),
+    shinsengumi: new Unit('shinsengumi', '誠', 'west', 26, -26, '新選組', 0.8),
+    yodo:        new Unit('yodo',        '淀', 'west', -2, 16, '淀藩', 0.8),
+    tsu:         new Unit('tsu',         '津', 'west', -52, 28, '津藩(藤堂家)', 1.0),
+  };
+}
+
+// 特殊効果: 伏見奉行所の炎(1月3日の夜)と、山崎からの津藩の砲撃
+let tobaLastFire = 0;
+function tobaSpecialFx() {
+  const t = performance.now() / 1000;
+  const c = (typeof decideState !== 'undefined' && decideState.active) ? decideState.choices : {};
+  const burning = currentPhase === 2;
+  const grp = tobaFlames.grp;
+  if (grp) {
+    grp.visible = burning;
+    if (burning) grp.children.forEach(f => {
+      const w = f.userData.base * (0.75 + 0.35 * Math.sin(t * 7 + f.userData.ph));
+      f.scale.set(0.85 + 0.15 * Math.sin(t * 5 + f.userData.ph), w, 0.85);
+    });
+  }
+  const cannon = currentPhase === 8 && c[5] !== 'open';
+  if ((!burning && !cannon) || t - tobaLastFire < 0.3) return;
+  tobaLastFire = t;
+  if (burning) {
+    const [cx, cz] = TOBA_POS.bugyosho;
+    const x = cx + (Math.random() - 0.5) * 6, z = cz + (Math.random() - 0.5) * 4;
+    emitFire(x, tobaTerrainHeight(cx, cz) + 1.6, z, 3);
+    addFx('flash', x, tobaTerrainHeight(cx, cz) + 2, z, { s0: 1.6, s1: 2.6, life: 0.45, color: 0xff8a2a });
+  } else {
+    const [sx, sz] = [-50, 30];
+    addFx('flash', sx + (Math.random() - 0.5) * 3, tobaTerrainHeight(sx, sz) + 1.2, sz + (Math.random() - 0.5) * 2, { s0: 1.2, s1: 3.2, life: 0.35, color: 0xffd070 });
+    if (Math.random() < 0.3) addFx('smoke', sx, tobaTerrainHeight(sx, sz) + 1.6, sz, { color: 0xb8b0a4, life: 3, s0: 1, s1: 3, vy: 1.2, vx: 0.6, vz: 0.4, op: 0.4 });
+  }
+}
+function tobaMomentSound(idx) {
+  if (idx === 1) {
+    [0.05, 0.35, 0.7].forEach(d => taiko(0.55, d));
+  } else if (idx === 2) {
+    crowdSurge(0.28, 0.1, 3.0);
+  } else if (idx === 4) {
+    horagai(0.26, 0, 2.6);
+  } else if (idx === 8) {
+    [0.05, 0.4, 0.8, 1.2].forEach(d => taiko(0.55, d));
+    crowdSurge(0.28, 0.5, 2.6);
+  }
+}
+
+if (IS_TOBA) {
+  Object.assign(BX, {
+    terrain: tobaTerrainHeight, decor: buildTobaDecor, rocks: TOBA_ROCKS, trees: TOBA_TREES,
+    units: makeTobaUnits, fx: tobaSpecialFx, sound: tobaMomentSound, drum: [1, 8],
+    dom: { kicker: 'TOBA–FUSHIMI · 3D', year: '1868', rename: [['ieyasu', 'saigo'], ['mitsunari', 'yoshinobu']] },
+  });
+
+  const ALL0 = {
+    saigo: [-4, -64], satsumaT: [-10, -44], satsumaF: [32, -40], choshu: [40, -34], nishiki: [-16, -74],
+    yoshinobu: [-66, 66], takigawa: [-12, 4], kuwana: [-6, 10], aizu: [8, 0], shinsengumi: [26, -26], yodo: [-2, 16], tsu: [-52, 28],
+  };
+  const U = (o) => Object.assign({}, ALL0, o);
+  const D3 = { satsumaT: [-8, -18], takigawa: [-6, -8], kuwana: [-1, -5], aizu: [14, -8], shinsengumi: [18, -12], satsumaF: [20, -18], choshu: [26, -14] };
+  const D5 = { satsumaT: [-6, -2], nishiki: [-6, -20], takigawa: [-8, 8], kuwana: [-2, 9], aizu: [6, 9], shinsengumi: [10, 7], choshu: [12, -4], satsumaF: [8, -8] };
+  const D7 = { satsumaT: [-14, 26], choshu: [-8, 30], satsumaF: [-4, 27], nishiki: [-6, 14], takigawa: [-32, 40], kuwana: [-28, 45], aizu: [-24, 41], shinsengumi: [-20, 44] };
+  const ph = (time, ja, units, extra) => Object.assign({ time, units, battles: [], battling: [], defeated: [], traitor: null }, ja, extra || {});
+
+  _replaceArr(phases, [
+    ph('1/2', { phase: '討薩の表', label: '進発', title: '旧幕府軍、「討薩の表」をかかげて京へ',
+      text: '慶応4年1月2日。王政復古で政権を失った<span class="info-west">徳川慶喜</span>の大坂城から、薩摩を討つという「討薩の表」をかかげた<span class="info-west">旧幕府軍</span>が京へ向かった。その数は1万から1万5千。迎える<span class="info-east">新政府軍</span>は5千ほどだった。',
+      camera: { pos: [10, 66, 70], look: [0, 0, 6], label: 'CAM · 京の南' } }, U({})),
+    ph('1/3', { phase: '小枝橋', label: '小枝橋', title: '鳥羽の小枝橋で、薩摩の大砲が火をふく',
+      text: '1月3日の午後5時ごろ、鳥羽街道の小枝橋で、京へ入ろうとする<span class="info-west">旧幕府軍</span>と、守る<span class="info-east">薩摩</span>の兵がぶつかった。<span class="info-highlight">戊辰戦争の始まり</span>である。',
+      camera: { pos: [10, 34, 0], look: [-10, 0, -28], label: 'CAM · 小枝橋' } },
+      U({ takigawa: [-12, -30], kuwana: [-8, -24], satsumaT: [-12, -40], aizu: [20, -20] }),
+      { battles: [{ x: -12, z: -34 }], battling: ['takigawa', 'satsumaT'] }),
+    ph('1/3夜', { phase: '伏見奉行所', label: '伏見', title: '伏見でも戦いが始まり、奉行所が燃える',
+      text: '鳥羽の砲声を聞いて、<span class="info-east">薩摩・長州</span>の兵は伏見でも撃ちはじめた。<span class="info-west">新選組</span>や会津の兵がこもる伏見奉行所は、砲撃を受けて<span class="info-highlight">炎上した</span>。',
+      camera: { pos: [44, 30, -2], look: [26, 0, -24], label: 'CAM · 伏見奉行所' } },
+      U({ takigawa: [-10, -22], kuwana: [-6, -18], satsumaT: [-12, -34], satsumaF: [30, -34], choshu: [36, -28], aizu: [22, -22], shinsengumi: [26, -24] }),
+      { battles: [{ x: 28, z: -29 }, { x: -11, z: -27 }], battling: ['satsumaF', 'choshu', 'aizu', 'shinsengumi', 'takigawa', 'satsumaT'] }),
+    ph('1/4', { phase: '鳥羽街道', label: '鳥羽', title: '旧幕府軍、鳥羽街道を押し下げられる',
+      text: '4日も激しい戦いが続いた。兵の数では勝る<span class="info-west">旧幕府軍</span>だったが、<span class="info-east">薩摩</span>の銃と大砲に押され、鳥羽街道を<span class="info-highlight">少しずつ南へ下がっていく</span>。',
+      camera: { pos: [24, 44, 30], look: [4, 0, -10], label: 'CAM · 鳥羽街道' } },
+      U(Object.assign({}, D3)),
+      { battles: [{ x: -7, z: -13 }, { x: 17, z: -14 }], battling: ['satsumaT', 'takigawa', 'kuwana', 'aizu', 'satsumaF', 'shinsengumi'] }),
+    ph('1/5', { phase: '錦の御旗', label: '錦旗', title: '新政府軍の陣頭に、錦の御旗がひるがえる',
+      text: '5日、<span class="info-east">新政府軍</span>の陣頭に「錦の御旗」がかかげられた。天皇の軍のしるしだ。これで<span class="info-west">旧幕府軍</span>は<span class="info-highlight">「朝敵」</span>とみなされる立場に置かれた。',
+      camera: { pos: [16, 34, 6], look: [-4, 0, -12], label: 'CAM · 錦の御旗' } },
+      U(Object.assign({}, D5)),
+      { battles: [{ x: -7, z: 3 }, { x: 9, z: 1 }], battling: ['satsumaT', 'takigawa', 'choshu', 'aizu'] }),
+    ph('1/5', { phase: '淀城の門', label: '淀城', title: '味方のはずの淀藩が、城の門を閉ざす',
+      text: '旧幕府軍は淀城に入って立て直そうとした。だが<span class="info-west">淀藩</span>は<span class="info-highlight">城の門を開かなかった</span>。錦の御旗を見て、旧幕府軍から離れる藩が出はじめたのだ。',
+      camera: { pos: [16, 32, 40], look: [-2, 0, 12], label: 'CAM · 淀城' } },
+      U(Object.assign({}, D5, { takigawa: [-10, 12], kuwana: [-4, 8], aizu: [8, 12], shinsengumi: [12, 10] })),
+      { battles: [{ x: -6, z: 2 }], battling: ['satsumaT', 'kuwana'], traitor: 'yodo' }),
+    ph('1/5夕', { phase: '橋本へ', label: '退く', title: '淀を通れず、旧幕府軍は橋本へ退く',
+      text: '城に入れなかった<span class="info-west">旧幕府軍</span>は、淀川を渡って南西の橋本・八幡へ退いた。<span class="info-east">新政府軍</span>が淀まで進んでくる。',
+      camera: { pos: [10, 50, 54], look: [-16, 0, 24], label: 'CAM · 淀' } },
+      U({ takigawa: [-26, 34], kuwana: [-28, 40], aizu: [-20, 36], shinsengumi: [-16, 38], satsumaT: [-8, 6], choshu: [2, 4], satsumaF: [8, 2], nishiki: [-6, -8] }),
+      { traitor: 'yodo' }),
+    ph('1/6', { phase: '橋本の陣', label: '橋本', title: '橋本と男山で、最後の守り',
+      text: '6日、<span class="info-west">旧幕府軍</span>は橋本と男山に陣を構え直した。追ってきた<span class="info-east">新政府軍</span>との戦いが始まる。川の向こうの山崎には、<span class="info-west">津藩</span>の砲台がある。',
+      camera: { pos: [-4, 40, 60], look: [-26, 0, 34], label: 'CAM · 橋本' } },
+      U(Object.assign({}, D7)),
+      { battles: [{ x: -22, z: 36 }, { x: -12, z: 36 }], battling: ['satsumaT', 'takigawa', 'choshu', 'aizu', 'satsumaF', 'shinsengumi'], traitor: 'yodo' }),
+    ph('1/6', { phase: '津藩の砲撃', label: '津藩', title: '山崎の津藩が、旧幕府軍に大砲を向ける',
+      text: '味方だったはずの<span class="info-west">津藩</span>が、川の向こうの山崎から<span class="info-highlight">旧幕府軍に砲撃を始めた</span>。前と横から撃たれた旧幕府軍の戦線は、ついに崩れる。',
+      camera: { pos: [-22, 54, 76], look: [-38, 0, 36], label: 'CAM · 山崎と橋本' } },
+      U(Object.assign({}, D7, { takigawa: [-40, 50], kuwana: [-36, 54], aizu: [-30, 52], shinsengumi: [-26, 54], satsumaT: [-24, 36], choshu: [-16, 38] })),
+      { battles: [{ x: -34, z: 46 }], battling: ['tsu', 'takigawa', 'satsumaT', 'kuwana'], traitor: ['yodo', 'tsu'] }),
+    ph('1/6夜', { phase: '慶喜、城を出る', label: '慶喜', title: '徳川慶喜、夜の大坂城を抜け出す',
+      text: '敗れた兵が大坂へ逃げ帰るなか、<span class="info-west">徳川慶喜</span>は6日の夜、<span class="info-highlight">ひそかに大坂城を出た</span>。兵たちには知らされていなかった。',
+      camera: { pos: [-28, 46, 36], look: [-52, 0, 54], label: 'CAM · 大坂への道' } },
+      U({ takigawa: [-54, 58], kuwana: [-50, 62], aizu: [-46, 58], shinsengumi: [-42, 62], yoshinobu: [-70, 70], satsumaT: [-32, 40], choshu: [-26, 42], satsumaF: [-20, 40], nishiki: [-14, 26] }),
+      { traitor: ['yodo', 'tsu'] }),
+    ph('1/7', { phase: '開陽丸', label: '開陽丸', title: '慶喜、開陽丸で江戸へ',
+      text: '7日の朝、<span class="info-west">慶喜</span>は大坂湾の軍艦「開陽丸」に乗り、江戸へ向かった。旧幕府軍はまだ戦う力を残していたが、<span class="info-highlight">大将のいない戦いは終わった</span>。',
+      camera: { pos: [-10, 66, 74], look: [-30, 0, 30], label: 'CAM · 京の南' } },
+      U({ takigawa: [-58, 60], kuwana: [-54, 64], aizu: [-50, 60], shinsengumi: [-46, 64], yoshinobu: [-72, 72], satsumaT: [-34, 40], choshu: [-28, 44], satsumaF: [-22, 40], nishiki: [-16, 30] }),
+      { traitor: ['yodo', 'tsu'] }),
+  ]);
+
+  _replaceArr(EN_PHASES, [
+    { phase: 'MARCHING ON SATSUMA', label: 'March', cam: 'CAM · SOUTH OF KYOTO',
+      title: 'Shogunate troops march on Kyoto to "punish Satsuma"',
+      text: `The 2nd day of the 1st month, 1868. Having lost power in the Restoration coup, <span class="info-west">Tokugawa Yoshinobu</span> sends troops from Osaka Castle toward Kyoto under a declaration to punish Satsuma. The <span class="info-west">shogunate army</span> numbers 10,000 to 15,000; the <span class="info-east">new government</span> has about 5,000.` },
+    { phase: 'KOEDA BRIDGE', label: 'Koeda', cam: 'CAM · KOEDA BRIDGE',
+      title: "Satsuma's guns open fire at Koeda Bridge",
+      text: `Around 5 p.m. on the 3rd, at Koeda Bridge on the Toba road, the <span class="info-west">shogunate troops</span> trying to enter Kyoto clash with the <span class="info-east">Satsuma</span> men guarding it. <span class="info-highlight">The Boshin War has begun</span>.` },
+    { phase: 'THE FUSHIMI OFFICE', label: 'Fushimi', cam: "CAM · FUSHIMI MAGISTRATE'S OFFICE",
+      title: "Fighting spreads to Fushimi, and the magistrate's office burns",
+      text: `Hearing the guns at Toba, the <span class="info-east">Satsuma and Chōshū</span> troops at Fushimi open fire too. The Fushimi magistrate's office, held by the <span class="info-west">Shinsengumi</span> and Aizu men, is shelled and <span class="info-highlight">goes up in flames</span>.` },
+    { phase: 'THE TOBA ROAD', label: 'Toba', cam: 'CAM · TOBA ROAD',
+      title: 'The shogunate army is pushed back down the Toba road',
+      text: `The fighting rages on through the 4th. The <span class="info-west">shogunate army</span> has more men, but <span class="info-east">Satsuma</span>'s rifles and cannon <span class="info-highlight">push them south, step by step</span>.` },
+    { phase: 'THE IMPERIAL BANNER', label: 'Banner', cam: 'CAM · IMPERIAL BANNER',
+      title: 'The imperial brocade banner flies at the head of the new army',
+      text: `On the 5th, the "brocade banner" — the sign of the emperor's army — is raised at the front of the <span class="info-east">new government</span> army. The <span class="info-west">shogunate</span> side is now cast as <span class="info-highlight">"enemies of the court"</span>.` },
+    { phase: 'THE GATES OF YODO', label: 'Yodo', cam: 'CAM · YODO CASTLE',
+      title: 'Yodo, supposedly an ally, shuts its castle gates',
+      text: `The shogunate army tries to regroup inside Yodo Castle. But the <span class="info-west">Yodo domain</span> <span class="info-highlight">will not open the gates</span>. With the imperial banner flying, domains are starting to abandon the shogunate.` },
+    { phase: 'TO HASHIMOTO', label: 'Retreat', cam: 'CAM · YODO',
+      title: 'Shut out of Yodo, the shogunate army falls back to Hashimoto',
+      text: `Locked out of the castle, the <span class="info-west">shogunate army</span> crosses the Yodo River and falls back southwest to Hashimoto and Yawata. The <span class="info-east">new government</span> army advances to Yodo.` },
+    { phase: 'THE HASHIMOTO LINE', label: 'Hashimoto', cam: 'CAM · HASHIMOTO',
+      title: 'A last stand at Hashimoto and Otokoyama',
+      text: `On the 6th, the <span class="info-west">shogunate army</span> digs in again at Hashimoto and on Otokoyama, and the pursuing <span class="info-east">new government</span> troops attack. Across the river at Yamazaki sits the <span class="info-west">Tsu domain</span>'s battery.` },
+    { phase: "TSU'S GUNS", label: 'Tsu', cam: 'CAM · YAMAZAKI & HASHIMOTO',
+      title: 'Tsu, at Yamazaki, turns its cannon on the shogunate army',
+      text: `The <span class="info-west">Tsu domain</span>, supposedly an ally, <span class="info-highlight">opens fire on the shogunate army</span> from Yamazaki across the river. Shot at from the front and the flank, the shogunate line finally collapses.` },
+    { phase: 'YOSHINOBU SLIPS AWAY', label: 'Yoshinobu', cam: 'CAM · ROAD TO OSAKA',
+      title: 'Tokugawa Yoshinobu slips out of Osaka Castle by night',
+      text: `As his beaten troops stream back to Osaka, <span class="info-west">Tokugawa Yoshinobu</span> <span class="info-highlight">secretly leaves Osaka Castle</span> on the night of the 6th — without telling his men.` },
+    { phase: 'THE KAIYŌ MARU', label: 'Kaiyō', cam: 'CAM · SOUTH OF KYOTO',
+      title: 'Yoshinobu sails for Edo on the Kaiyō Maru',
+      text: `On the morning of the 7th, <span class="info-west">Yoshinobu</span> boards the warship Kaiyō Maru in Osaka Bay and heads for Edo. The shogunate army still had fight left in it, but <span class="info-highlight">with its leader gone, the battle was over</span>.` },
+  ]);
+
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
+  _replaceArr(PHASE_ARROWS, [
+    [ mvp([-60, 62], [-14, 10], W) ],
+    [ at('satsumaT', 'takigawa', E), mvp([-12, 4], [-12, -26], W) ],
+    [ at('satsumaF', 'shinsengumi', E), at('choshu', 'aizu', E) ],
+    [ at('satsumaT', 'takigawa', E), at('satsumaF', 'aizu', E) ],
+    [ mvp([-16, -60], [-6, -22], E), at('satsumaT', 'takigawa', E) ],
+    [ mvp([-8, 8], [-4, 15], W) ],
+    [ mvp([-6, 10], [-24, 34], W), mvp([-8, -2], [-8, 6], E) ],
+    [ at('satsumaT', 'takigawa', E), at('choshu', 'aizu', E) ],
+    [ at('tsu', 'takigawa', W), mvp([-32, 40], [-50, 56], W) ],
+    [ mvp([-40, 50], [-54, 58], W), mvp([-66, 66], [-70, 70], W) ],
+    [],
+  ]);
+  _replaceArr(CINE, [
+    { orbit: 0.015, dolly: 0.03 },
+    { focus: ['satsumaT', 'takigawa'], blend: 0.8, orbit: 0.02, dolly: 0.1 },
+    { focus: ['shinsengumi', 'satsumaF'], blend: 0.8, orbit: -0.02, dolly: 0.08 },
+    { focus: ['satsumaT', 'takigawa'], blend: 0.6, orbit: 0.02, dolly: 0.06 },
+    { focus: ['nishiki'], blend: 0.7, orbit: 0.02, dolly: 0.08 },
+    { focus: ['yodo'], blend: 0.6, orbit: -0.02, dolly: 0.06 },
+    { orbit: 0.02, dolly: 0.04 },
+    { focus: ['takigawa', 'satsumaT'], blend: 0.6, orbit: 0.02, dolly: 0.06 },
+    { focus: ['tsu'], blend: 0.5, orbit: -0.02, dolly: 0.05 },
+    { focus: ['yoshinobu'], blend: 0.5, orbit: 0.02, dolly: 0.04 },
+    { orbit: 0.02, dolly: -0.04 },
+  ]);
+  _replaceObj(CINE_MOMENTS, {
+    1: { ja: '小枝橋', en: 'KOEDA BRIDGE', subJa: '戊辰戦争の始まり', subEn: 'The Boshin War begins', shake: 0.6, accent: 'gold' },
+    2: { ja: '伏見奉行所', en: 'FUSHIMI BURNS', subJa: '奉行所が燃える', subEn: "The magistrate's office burns", shake: 0.5 },
+    4: { ja: '錦の御旗', en: 'THE IMPERIAL BANNER', subJa: '旧幕府軍、朝敵に', subEn: 'The shogunate becomes the enemy', shake: 0.3, accent: 'gold' },
+    5: { ja: '淀城の門', en: 'THE GATES OF YODO', subJa: '門は開かなかった', subEn: 'The gates stay shut', shake: 0.2 },
+    8: { ja: '津藩の砲撃', en: "TSU'S GUNS", subJa: '戦線が崩れる', subEn: 'The line collapses', shake: 0.8 },
+    9: { ja: '慶喜、城を出る', en: 'YOSHINOBU SLIPS AWAY', subJa: '夜の大坂城', subEn: 'Osaka Castle by night', shake: 0 },
+  });
+  _replaceArr(MOMENTUM, [36, 52, 58, 64, 74, 80, 84, 82, 92, 96, 98]);
+  ATMO_KEYS.tobanight = Object.assign({}, ATMO_KEYS.night, { rain: 0 });
+  _replaceArr(PHASE_ATMO, ['morning', 'late', 'tobanight', 'noon', 'noon', 'after', 'late', 'noon', 'after', 'tobanight', 'morning']);
+  _replaceArr(PLACES, [
+    { x: -4, z: -74, ja: '東寺(京)', en: 'Tō-ji (Kyoto)', lift: 6 },
+    { x: -14, z: -32, ja: '小枝橋', en: 'Koeda Bridge', lift: 2 },
+    { x: 26, z: -32, ja: '伏見奉行所', en: 'Fushimi office', lift: 3 },
+    { x: -4, z: 24, ja: '淀城', en: 'Yodo Castle', lift: 5 },
+    { x: -34, z: 34, ja: '橋本', en: 'Hashimoto', lift: 2, minor: true },
+    { x: -24, z: 54, ja: '男山', en: 'Otokoyama', lift: 4, minor: true },
+    { x: -54, z: 22, ja: '山崎', en: 'Yamazaki', lift: 2, minor: true },
+    { x: -66, z: 60, ja: '大坂へ', en: 'To Osaka', lift: 2, minor: true },
+  ]);
+
+  const g = (o) => o;
+  _replaceObj(generalsData, {
+    saigo: g({ name: '西郷隆盛', yomi: 'SAIGŌ TAKAMORI', faction: 'east', factionLabel: '新政府軍 薩摩', force: '約5千(全軍)', troops: 1500, base: '京', birth: '1828', koku: '薩摩',
+      bio: '薩摩藩の中心人物。大久保利通らとともに倒幕を進めた。', episode: 'このあと東へ進む新政府軍の参謀となり、江戸城の明けわたしを勝海舟と話し合う。' }),
+    satsumaT: g({ name: '薩摩藩兵(鳥羽)', yomi: 'SATSUMA TROOPS · TOBA', faction: 'east', factionLabel: '新政府軍 鳥羽', force: '—', troops: 2000, base: '城南宮', birth: '—', koku: '薩摩',
+      bio: '鳥羽街道の小枝橋を守った薩摩の兵。新しい銃と大砲をそろえていた。', episode: '小枝橋で旧幕府軍に砲撃し、戦いの口火を切った。' }),
+    satsumaF: g({ name: '薩摩藩兵(伏見)', yomi: 'SATSUMA TROOPS · FUSHIMI', faction: 'east', factionLabel: '新政府軍 伏見', force: '—', troops: 1200, base: '御香宮', birth: '—', koku: '薩摩',
+      bio: '伏見の御香宮のあたりに陣を置いた薩摩の兵。', episode: '高い所から伏見奉行所を砲撃した。' }),
+    choshu: g({ name: '長州藩兵', yomi: 'CHŌSHŪ TROOPS', faction: 'east', factionLabel: '新政府軍 伏見', force: '—', troops: 1000, base: '伏見', birth: '—', koku: '長州',
+      bio: '薩摩と手を組んだ長州の兵。', episode: '伏見で会津・新選組と戦った。' }),
+    nishiki: g({ name: '錦の御旗', yomi: 'THE IMPERIAL BANNER', faction: 'east', factionLabel: '新政府軍', force: '—', troops: 300, base: '—', birth: '—', koku: '—',
+      bio: '天皇の軍であることを示す旗。', episode: '岩倉具視らの発案で作られたと伝わる。この旗がかかげられたことで、旧幕府軍から離れる藩が出た。' }),
+    yoshinobu: g({ name: '徳川慶喜', yomi: 'TOKUGAWA YOSHINOBU', faction: 'west', factionLabel: '旧幕府軍 総大将', force: '約1万〜1万5千(全軍)', troops: 1500, base: '大坂城', birth: '1837', koku: '—',
+      bio: '江戸幕府の最後の将軍。大政奉還で政権を朝廷に返した。', episode: '戦いには出ず大坂城にいたが、6日の夜に城を出て、開陽丸で江戸へ帰った。' }),
+    takigawa: g({ name: '旧幕府歩兵(鳥羽)', yomi: 'SHOGUNATE INFANTRY · TOBA', faction: 'west', factionLabel: '旧幕府軍 鳥羽', force: '—', troops: 4000, base: '鳥羽街道', birth: '—', koku: '—',
+      bio: '西洋式の訓練を受けた幕府の歩兵隊や見廻組。鳥羽街道を京へ進んだ。', episode: '数では勝っていたが、小枝橋の砲撃で始まった戦いで押し下げられた。' }),
+    kuwana: g({ name: '桑名藩兵', yomi: 'KUWANA TROOPS', faction: 'west', factionLabel: '旧幕府軍 鳥羽', force: '—', troops: 1500, base: '鳥羽街道', birth: '—', koku: '桑名',
+      bio: '会津と並んで幕府を支えた桑名藩の兵。', episode: '鳥羽街道で薩摩の兵と戦った。' }),
+    aizu: g({ name: '会津藩兵', yomi: 'AIZU TROOPS', faction: 'west', factionLabel: '旧幕府軍 伏見', force: '—', troops: 2500, base: '伏見', birth: '—', koku: '会津',
+      bio: '京都守護職として京を守ってきた会津藩の兵。', episode: '伏見で薩摩・長州と激しく戦った。' }),
+    shinsengumi: g({ name: '新選組', yomi: 'SHINSENGUMI', faction: 'west', factionLabel: '旧幕府軍 伏見', force: '—', troops: 300, base: '伏見奉行所', birth: '—', koku: '—',
+      bio: '京の治安を守った剣客の集団。この戦いでは土方歳三が率いた。', episode: '伏見奉行所にこもって戦ったが、砲撃を受けて奉行所は燃えた。' }),
+    yodo: g({ name: '淀藩', yomi: 'YODO DOMAIN', faction: 'west', factionLabel: '旧幕府方', force: '—', troops: 400, base: '淀城', birth: '—', koku: '山城',
+      bio: '藩主の稲葉正邦は幕府の老中だった。', episode: '錦の御旗のあと、退いてきた旧幕府軍を城に入れなかった。' }),
+    tsu: g({ name: '津藩(藤堂家)', yomi: 'TSU DOMAIN', faction: 'west', factionLabel: '旧幕府方 山崎', force: '—', troops: 1200, base: '山崎', birth: '—', koku: '伊勢',
+      bio: '藤堂高虎を祖とする藩。幕府の命令で山崎の守りについていた。', episode: '6日、川向こうの旧幕府軍に砲撃し、戦線が崩れるきっかけをつくった。' }),
+  });
+  _replaceObj(EN_GEN, {
+    saigo: { name: 'Saigō Takamori', yomi: '西郷隆盛', factionLabel: 'NEW GOVT · SATSUMA', force: 'About 5,000 (all)', base: 'Kyoto', birth: '1828', koku: 'Satsuma',
+      bio: 'A leading figure of Satsuma who drove the overthrow of the shogunate with Ōkubo Toshimichi and others.', episode: 'He went on to be chief of staff of the army marching east, and negotiated the handover of Edo Castle with Katsu Kaishū.' },
+    satsumaT: { name: 'Satsuma troops (Toba)', yomi: '薩摩藩兵(鳥羽)', factionLabel: 'NEW GOVT · TOBA', force: '—', base: 'Jōnangū', birth: '—', koku: 'Satsuma',
+      bio: 'Satsuma soldiers holding Koeda Bridge on the Toba road, armed with modern rifles and cannon.', episode: 'Their cannon fire at Koeda Bridge started the battle.' },
+    satsumaF: { name: 'Satsuma troops (Fushimi)', yomi: '薩摩藩兵(伏見)', factionLabel: 'NEW GOVT · FUSHIMI', force: '—', base: 'Gokōgū', birth: '—', koku: 'Satsuma',
+      bio: 'Satsuma soldiers posted around the Gokōgū shrine at Fushimi.', episode: "They shelled the Fushimi magistrate's office from the high ground." },
+    choshu: { name: 'Chōshū troops', yomi: '長州藩兵', factionLabel: 'NEW GOVT · FUSHIMI', force: '—', base: 'Fushimi', birth: '—', koku: 'Chōshū',
+      bio: "Troops of Chōshū, Satsuma's ally.", episode: 'They fought the Aizu and Shinsengumi at Fushimi.' },
+    nishiki: { name: 'The Imperial Banner', yomi: '錦の御旗', factionLabel: 'NEW GOVT', force: '—', base: '—', birth: '—', koku: '—',
+      bio: "A brocade banner marking an army as the emperor's own.", episode: 'Said to have been made at the suggestion of Iwakura Tomomi and others. Once it flew, domains began abandoning the shogunate.' },
+    yoshinobu: { name: 'Tokugawa Yoshinobu', yomi: '徳川慶喜', factionLabel: 'SHOGUNATE · COMMANDER', force: '10,000–15,000 (all)', base: 'Osaka Castle', birth: '1837', koku: '—',
+      bio: 'The last Tokugawa shogun, who handed political power back to the court.', episode: 'He stayed in Osaka Castle rather than fight, then slipped out on the night of the 6th and sailed to Edo on the Kaiyō Maru.' },
+    takigawa: { name: 'Shogunate infantry (Toba)', yomi: '旧幕府歩兵(鳥羽)', factionLabel: 'SHOGUNATE · TOBA', force: '—', base: 'Toba road', birth: '—', koku: '—',
+      bio: "The shogunate's Western-drilled infantry and patrol units, marching up the Toba road to Kyoto.", episode: 'They had the numbers, but were pushed back once the fighting started at Koeda Bridge.' },
+    kuwana: { name: 'Kuwana troops', yomi: '桑名藩兵', factionLabel: 'SHOGUNATE · TOBA', force: '—', base: 'Toba road', birth: '—', koku: 'Kuwana',
+      bio: 'Troops of Kuwana, which stood with Aizu as a pillar of the shogunate.', episode: 'They fought the Satsuma men along the Toba road.' },
+    aizu: { name: 'Aizu troops', yomi: '会津藩兵', factionLabel: 'SHOGUNATE · FUSHIMI', force: '—', base: 'Fushimi', birth: '—', koku: 'Aizu',
+      bio: 'Troops of Aizu, which had policed Kyoto as its military protector.', episode: 'They fought hard against Satsuma and Chōshū at Fushimi.' },
+    shinsengumi: { name: 'Shinsengumi', yomi: '新選組', factionLabel: 'SHOGUNATE · FUSHIMI', force: '—', base: "Fushimi magistrate's office", birth: '—', koku: '—',
+      bio: 'A band of swordsmen who policed Kyoto, here led by Hijikata Toshizō.', episode: "They held the Fushimi magistrate's office until shelling set it on fire." },
+    yodo: { name: 'Yodo domain', yomi: '淀藩', factionLabel: 'SHOGUNATE SIDE', force: '—', base: 'Yodo Castle', birth: '—', koku: 'Yamashiro',
+      bio: 'Its lord, Inaba Masakuni, was a senior councillor of the shogunate.', episode: 'After the imperial banner appeared, it refused to let the retreating shogunate army into its castle.' },
+    tsu: { name: 'Tsu domain (Tōdō)', yomi: '津藩(藤堂家)', factionLabel: 'SHOGUNATE SIDE · YAMAZAKI', force: '—', base: 'Yamazaki', birth: '—', koku: 'Ise',
+      bio: 'The domain founded by Tōdō Takatora, posted at Yamazaki on shogunate orders.', episode: 'On the 6th it shelled the shogunate army across the river, triggering the collapse of the line.' },
+  });
+  _replaceObj(LBL_EN, {
+    saigo: 'Saigō Takamori', satsumaT: 'Satsuma (Toba)', satsumaF: 'Satsuma (Fushimi)', choshu: 'Chōshū', nishiki: 'Imperial Banner',
+    yoshinobu: 'Tokugawa Yoshinobu', takigawa: 'Shogunate (Toba)', kuwana: 'Kuwana', aizu: 'Aizu', shinsengumi: 'Shinsengumi', yodo: 'Yodo', tsu: 'Tsu',
+  });
+  ['saigo', 'satsumaT', 'satsumaF'].forEach(id => { kamonImages[id] = "data:image/png;base64,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"; });
+  kamonImages.choshu = "data:image/png;base64,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";
+  kamonImages.nishiki = "data:image/png;base64,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";
+  ['yoshinobu', 'takigawa'].forEach(id => { kamonImages[id] = kamonImages.ieyasu; });
+}
+
 // 史実の表を保存しておく(切り替えで元に戻せるように)
 const BASE_TABLES = {
   phases: phases.slice(),
@@ -16472,6 +16867,251 @@ if (IS_KOAN) {
   });
 }
 
+// ---------- 鳥羽・伏見の戦い: 決断モード ----------
+function tobaEndingId(c) {
+  if (c[5] === 'open') return c[9] === 'ride' ? 'E4' : 'E3';
+  if (c[9] === 'hold') return 'E2';
+  return 'E1';
+}
+let TOBA_SEG = null;
+function tobaBuildSegments(c, put) {
+  if (!TOBA_SEG) return;
+  if (c[5] === 'open') {
+    put(TOBA_SEG.open);
+    if (c[9] === 'ride') put(TOBA_SEG.ride);
+    else if (c[9] === 'flee') put(TOBA_SEG.leave);
+    return;
+  }
+  if (c[9] === 'hold') put(TOBA_SEG.hold);
+}
+
+if (IS_TOBA) {
+  Object.assign(BX, { endingId: tobaEndingId, segments: tobaBuildSegments });
+  const E = 'east', W = 'west';
+  const at = (from, to, side) => ({ from, to, side, style: 'attack' });
+  const mvp = (from, to, side) => ({ from, to, side, style: 'move' });
+  // 淀城に入った旧幕府軍の位置
+  const IN_YODO = { takigawa: [-8, 18], kuwana: [-2, 12], aizu: [4, 16], shinsengumi: [0, 22], yodo: [-4, 18] };
+  const SIEGE = { satsumaT: [-10, 2], choshu: [2, 2], satsumaF: [10, 4], nishiki: [-6, -12] };
+
+  TOBA_SEG = {
+    // ---------- 決断1: 淀藩、城の門を開く ----------
+    open: {
+      5: altPhase(5, {
+        ja: { phase: '淀城に入る', label: '淀城', cam: 'CAM · 淀城',
+          title: '淀藩が門を開き、旧幕府軍が淀城に入る',
+          text: '<span class="info-west">淀藩</span>は門を開いた。藩主は幕府の老中だ。退いてきた<span class="info-west">旧幕府軍</span>は<span class="info-highlight">淀城を足場に立て直す</span>。' },
+        en: { phase: 'INTO YODO CASTLE', label: 'Yodo', cam: 'CAM · YODO CASTLE',
+          title: 'Yodo opens its gates and the shogunate army moves in',
+          text: `The <span class="info-west">Yodo domain</span> opens its gates — its lord is a shogunate councillor, after all. The retreating <span class="info-west">shogunate army</span> <span class="info-highlight">uses Yodo Castle to regroup</span>.` },
+        cam: { pos: [16, 32, 40], look: [-2, 0, 12] },
+        units: Object.assign({}, IN_YODO, { satsumaT: [-8, -2], choshu: [8, -4] }),
+        battles: [], battling: [], traitor: null,
+        arrows: [mvp([-8, 8], [-6, 16], W), mvp([6, 9], [4, 15], W)],
+        cine: { focus: ['yodo'], blend: 0.6, orbit: 0.02, dolly: 0.06 },
+        moment: { ja: '淀城に入る', en: 'INTO YODO CASTLE', subJa: '門が開いた', subEn: 'The gates open', shake: 0.2, accent: 'gold' },
+        mom: 70,
+      }),
+      6: altPhase(6, {
+        ja: { phase: '淀の攻防', label: '淀', cam: 'CAM · 淀城',
+          title: '淀城の前で、新政府軍の攻撃をくいとめる',
+          text: '<span class="info-east">新政府軍</span>は淀城に攻めかかった。だが城と川に守られた<span class="info-west">旧幕府軍</span>は、<span class="info-highlight">ここで踏みとどまった</span>。' },
+        en: { phase: 'THE FIGHT AT YODO', label: 'Yodo', cam: 'CAM · YODO CASTLE',
+          title: 'The new government attack stalls before Yodo Castle',
+          text: `The <span class="info-east">new government</span> army attacks Yodo Castle. But protected by the walls and the rivers, the <span class="info-west">shogunate army</span> <span class="info-highlight">holds its ground</span>.` },
+        cam: { pos: [14, 34, 44], look: [-2, 0, 10] },
+        units: Object.assign({}, IN_YODO, SIEGE),
+        battles: [{ x: -8, z: 9 }, { x: 4, z: 9 }], battling: ['satsumaT', 'takigawa', 'choshu', 'aizu'], traitor: null,
+        arrows: [at('satsumaT', 'takigawa', E), at('choshu', 'aizu', E)],
+        cine: { focus: ['takigawa', 'satsumaT'], blend: 0.6, orbit: -0.02, dolly: 0.06 },
+        moment: null,
+        mom: 62,
+      }),
+      7: altPhase(7, {
+        ja: { phase: '津藩、動かず', label: '津藩', cam: 'CAM · 山崎',
+          title: '旧幕府軍がもちこたえ、津藩は様子を見る',
+          text: '淀で旧幕府軍がもちこたえているのを見て、山崎の<span class="info-west">津藩</span>は<span class="info-highlight">大砲を撃たなかった</span>。どちらにつくか、まだ決めかねている。' },
+        en: { phase: 'TSU WAITS', label: 'Tsu', cam: 'CAM · YAMAZAKI',
+          title: 'With the shogunate army holding, Tsu waits and watches',
+          text: `Seeing the shogunate army hold at Yodo, the <span class="info-west">Tsu domain</span> at Yamazaki <span class="info-highlight">holds its fire</span>. It has not yet decided which side to back.` },
+        cam: { pos: [-20, 44, 56], look: [-36, 0, 26] },
+        units: Object.assign({}, IN_YODO, SIEGE),
+        battles: [{ x: -8, z: 9 }], battling: ['satsumaT', 'takigawa'], traitor: null,
+        arrows: [],
+        cine: { focus: ['tsu'], blend: 0.5, orbit: 0.02, dolly: 0.05 },
+        moment: null,
+        mom: 58,
+      }),
+      8: altPhase(8, {
+        ja: { phase: 'にらみ合い', label: '膠着', cam: 'CAM · 淀',
+          title: '淀をはさんで、にらみ合いになる',
+          text: '1月6日になっても淀は落ちない。<span class="info-east">新政府軍</span>も兵が少なく、無理に攻めることはできない。戦いは<span class="info-highlight">淀をはさんだにらみ合い</span>になった。' },
+        en: { phase: 'STANDOFF', label: 'Standoff', cam: 'CAM · YODO',
+          title: 'A standoff across Yodo',
+          text: `By the 6th, Yodo still has not fallen. The <span class="info-east">new government</span> is short of men and cannot force the issue. The fighting settles into <span class="info-highlight">a standoff across Yodo</span>.` },
+        cam: { pos: [10, 46, 50], look: [-4, 0, 10] },
+        units: Object.assign({}, IN_YODO, SIEGE, { satsumaT: [-10, -2], choshu: [2, -2], satsumaF: [10, 0] }),
+        battles: [], battling: [], traitor: null,
+        arrows: [],
+        cine: { orbit: 0.02, dolly: 0.04 },
+        moment: null,
+        mom: 56,
+      }),
+    },
+    // ---------- 決断2(淀が門を開いた): 慶喜、それでも江戸へ ----------
+    leave: {
+      9: altPhase(9, {
+        ja: { phase: '慶喜、城を出る', label: '慶喜', cam: 'CAM · 大坂への道',
+          title: '淀で兵が踏みとどまるなか、慶喜は大坂城を出る',
+          text: '淀では旧幕府軍がまだ戦っていた。だが<span class="info-west">徳川慶喜</span>は「朝敵」となることをきらい、<span class="info-highlight">夜の大坂城を抜け出した</span>。' },
+        en: { phase: 'YOSHINOBU SLIPS AWAY', label: 'Yoshinobu', cam: 'CAM · ROAD TO OSAKA',
+          title: 'While his men hold Yodo, Yoshinobu leaves Osaka Castle',
+          text: `The shogunate army is still fighting at Yodo. But <span class="info-west">Tokugawa Yoshinobu</span>, unwilling to be branded an enemy of the court, <span class="info-highlight">slips out of Osaka Castle by night</span>.` },
+        cam: { pos: [-28, 46, 36], look: [-52, 0, 54] },
+        units: Object.assign({}, IN_YODO, SIEGE, { yoshinobu: [-70, 70] }),
+        battles: [], battling: [], traitor: null,
+        arrows: [mvp([-66, 66], [-70, 70], W)],
+        cine: { focus: ['yoshinobu'], blend: 0.5, orbit: 0.02, dolly: 0.04 },
+        moment: null,
+        mom: 70,
+      }),
+      10: altPhase(10, {
+        ja: { phase: 'その後', label: 'その後', cam: 'CAM · 淀城',
+          title: '淀に残された兵',
+          text: '大将がいなくなっても、淀城の兵はしばらく戦い続けた。だが<span class="info-highlight">誰のために戦うのか</span>がわからなくなり、やがて兵を引いて東へ向かう。戦いの舞台は関東へ移った。' },
+        en: { phase: 'WHAT CAME AFTER', label: 'After', cam: 'CAM · YODO CASTLE',
+          title: 'The Men Left at Yodo',
+          text: `Even with their leader gone, the troops at Yodo fight on for a while. But <span class="info-highlight">no one is sure what they are fighting for</span> anymore, and eventually they withdraw east. The war moves to the Kantō.` },
+        cam: { pos: [10, 50, 54], look: [-6, 0, 14] },
+        units: Object.assign({}, IN_YODO, SIEGE, { yoshinobu: [-72, 72] }),
+        battles: [], battling: [], traitor: null, arrows: [],
+        moment: { ja: '淀に残された兵', en: 'THE MEN LEFT AT YODO', subJa: '大将は江戸へ', subEn: 'Their leader is gone', shake: 0 },
+        mom: 80,
+      }),
+    },
+    // ---------- 決断2(淀が門を開いた): 慶喜、出陣 ----------
+    ride: {
+      9: altPhase(9, {
+        ja: { phase: '慶喜、出陣', label: '出陣', cam: 'CAM · 淀',
+          title: '徳川慶喜、みずから兵を率いて淀へ',
+          text: '<span class="info-west">徳川慶喜</span>は大坂城に残っていた新しい銃の部隊を率いて、夜のうちに淀へ駆けつけた。<span class="info-highlight">将軍が戦場に立った</span>。' },
+        en: { phase: 'YOSHINOBU RIDES OUT', label: 'Rides out', cam: 'CAM · YODO',
+          title: 'Tokugawa Yoshinobu leads troops to Yodo himself',
+          text: `<span class="info-west">Tokugawa Yoshinobu</span> takes the rifle units still waiting in Osaka Castle and reaches Yodo overnight. <span class="info-highlight">The shogun is on the battlefield</span>.` },
+        cam: { pos: [6, 40, 56], look: [-10, 0, 20] },
+        units: Object.assign({}, IN_YODO, SIEGE, { yoshinobu: [-10, 26] }),
+        battles: [], battling: [], traitor: null,
+        arrows: [mvp([-56, 60], [-12, 26], W)],
+        cine: { focus: ['yoshinobu'], blend: 0.6, orbit: 0.02, dolly: 0.06 },
+        moment: { ja: '慶喜、出陣', en: 'THE SHOGUN RIDES', subJa: '将軍が戦場へ', subEn: 'The shogun takes the field', shake: 0.5, accent: 'gold' },
+        mom: 44,
+      }),
+      10: altPhase(10, {
+        ja: { phase: 'その後', label: 'その後', cam: 'CAM · 鳥羽街道',
+          title: '京へ押し返す',
+          text: '将軍の出陣で旧幕府軍は勢いを取りもどし、<span class="info-east">新政府軍</span>を鳥羽まで押し返した。日和見していた藩の動きも変わったかもしれない。<span class="info-highlight">戦いは長引き、明治の始まりは大きく変わっていた</span>だろう。' },
+        en: { phase: 'WHAT CAME AFTER', label: 'After', cam: 'CAM · TOBA ROAD',
+          title: 'Pushing Back Toward Kyoto',
+          text: `With the shogun in the field, the shogunate army recovers and drives the <span class="info-east">new government</span> troops back to Toba. Fence-sitting domains might have changed sides. <span class="info-highlight">The war would have dragged on, and the Meiji era might have begun very differently</span>.` },
+        cam: { pos: [20, 50, 30], look: [-4, 0, -14] },
+        units: { yoshinobu: [-6, 4], takigawa: [-10, -14], kuwana: [-4, -10], aizu: [6, -12], shinsengumi: [12, -16], yodo: [-4, 18],
+                 satsumaT: [-12, -34], choshu: [8, -32], satsumaF: [24, -32], nishiki: [-8, -44] },
+        battles: [{ x: -11, z: -24 }], battling: ['takigawa', 'satsumaT'], traitor: null,
+        arrows: [at('takigawa', 'satsumaT', W), mvp([-4, 10], [-6, -6], W)],
+        moment: { ja: '京へ押し返す', en: 'BACK TOWARD KYOTO', subJa: '旧幕府軍の巻き返し', subEn: 'The shogunate strikes back', shake: 0 },
+        mom: 36,
+      }),
+    },
+    // ---------- 決断2(史実の流れ): 大坂城で迎え撃つ ----------
+    hold: {
+      9: altPhase(9, {
+        ja: { phase: '大坂城で戦う', label: '大坂城', cam: 'CAM · 大坂への道',
+          title: '慶喜、大坂城に残って迎え撃つと告げる',
+          text: '<span class="info-west">徳川慶喜</span>は城を出なかった。逃げ帰ってきた兵を集め、<span class="info-highlight">難攻不落の大坂城で戦う</span>と告げる。兵たちは歓声をあげた。' },
+        en: { phase: 'STANDING AT OSAKA', label: 'Osaka', cam: 'CAM · ROAD TO OSAKA',
+          title: 'Yoshinobu announces he will make his stand at Osaka Castle',
+          text: `<span class="info-west">Tokugawa Yoshinobu</span> does not leave. He gathers the troops streaming back and declares that he will <span class="info-highlight">fight from the impregnable Osaka Castle</span>. His men cheer.` },
+        cam: { pos: [-28, 46, 36], look: [-52, 0, 54] },
+        units: { takigawa: [-58, 58], kuwana: [-54, 62], aizu: [-50, 58], shinsengumi: [-46, 62], yoshinobu: [-72, 72],
+                 satsumaT: [-32, 40], choshu: [-26, 42], satsumaF: [-20, 40], nishiki: [-14, 26] },
+        battles: [], battling: [], traitor: ['yodo', 'tsu'],
+        arrows: [mvp([-40, 50], [-54, 58], W)],
+        cine: { focus: ['yoshinobu'], blend: 0.6, orbit: 0.02, dolly: 0.05 },
+        moment: { ja: '大坂城で戦う', en: 'STAND AT OSAKA', subJa: '将軍は逃げない', subEn: 'The shogun stays', shake: 0.4, accent: 'gold' },
+        mom: 80,
+      }),
+      10: altPhase(10, {
+        ja: { phase: 'その後', label: 'その後', cam: 'CAM · 京の南',
+          title: '大坂城に立てこもる',
+          text: '旧幕府軍は大坂城に立てこもった。数週間もすれば、関東から大軍がのぼってくるかもしれない。<span class="info-east">新政府軍</span>はうかつに攻められず、<span class="info-highlight">戦いは長い攻城戦になった</span>かもしれない。' },
+        en: { phase: 'WHAT CAME AFTER', label: 'After', cam: 'CAM · SOUTH OF KYOTO',
+          title: 'Holding Osaka Castle',
+          text: `The shogunate army holds Osaka Castle. Within weeks a large army might come up from the Kantō. The <span class="info-east">new government</span> cannot attack carelessly, and <span class="info-highlight">the war might have become a long siege</span>.` },
+        cam: { pos: [-10, 66, 74], look: [-30, 0, 30] },
+        units: { takigawa: [-58, 58], kuwana: [-54, 62], aizu: [-50, 58], shinsengumi: [-46, 62], yoshinobu: [-72, 72],
+                 satsumaT: [-36, 44], choshu: [-30, 46], satsumaF: [-24, 44], nishiki: [-18, 30] },
+        battles: [], battling: [], traitor: ['yodo', 'tsu'], arrows: [],
+        moment: { ja: '大坂城に立てこもる', en: 'HOLDING OSAKA CASTLE', subJa: '長い攻城戦へ', subEn: 'A long siege ahead', shake: 0 },
+        mom: 74,
+      }),
+    },
+  };
+
+  _replaceObj(SEG, TOBA_SEG);
+  _replaceArr(DECISION_IDX, [5, 9]);
+  _replaceObj(DECISIONS, {
+    5: {
+      who: 'yodo', applies: () => true,
+      ja: { title: '淀藩の決断', situation: '負けた旧幕府軍が、淀城に入れてくれと門の前に来ている。藩主は幕府の老中だ。だが新政府軍の陣には、錦の御旗がひるがえっている。' },
+      en: { title: "YODO'S DECISION", situation: "The beaten shogunate army is at your gates, asking to be let in. Your lord is a shogunate councillor — but the imperial banner is flying over the new government army." },
+      options: () => [
+        { id: 'close', history: true, ja: ['門を閉ざす', '史実どおり。錦の御旗には逆らえない'], en: ['Keep the gates shut', "As in history: you can't defy the imperial banner"] },
+        { id: 'open', ja: ['門を開く', '幕府への義理を守る'], en: ['Open the gates', 'Stay loyal to the shogunate'] },
+      ],
+    },
+    9: {
+      who: 'yoshinobu', applies: () => true,
+      ja: { title: '慶喜の決断' },
+      en: { title: "YOSHINOBU'S DECISION" },
+      situation: () => decideState.choices[5] === 'open'
+        ? { ja: '淀城で兵が踏みとどまっている。だが新政府軍は錦の御旗をかかげている。このまま戦えば、自分は「朝敵」だ。', en: 'Your troops are holding at Yodo Castle. But the enemy flies the imperial banner — if you keep fighting, you are an enemy of the court.' }
+        : { ja: '淀でも橋本でも負け、兵が大坂へ逃げ帰ってくる。大坂城にはまだ新しい銃の部隊も残っている。', en: 'Beaten at Yodo and Hashimoto, your troops are streaming back to Osaka. But Osaka Castle still holds fresh rifle units.' },
+      options: () => decideState.choices[5] === 'open'
+        ? [
+          { id: 'flee', ja: ['江戸へ帰る', '朝敵にはなりたくない'], en: ['Go back to Edo', 'You will not be an enemy of the court'] },
+          { id: 'ride', ja: ['みずから出陣する', '淀の兵のもとへ駆けつける'], en: ['Ride out yourself', 'Join your men at Yodo'] },
+        ]
+        : [
+          { id: 'flee', history: true, ja: ['大坂城を出る', '史実どおり。開陽丸で江戸へ'], en: ['Leave Osaka Castle', 'As in history: sail to Edo on the Kaiyō Maru'] },
+          { id: 'hold', ja: ['大坂城で戦う', '難攻不落の城で迎え撃つ'], en: ['Fight from Osaka Castle', 'Make a stand in the impregnable castle'] },
+        ],
+    },
+  });
+  _replaceObj(ENDINGS, {
+    E1: { ja: ['史実：慶喜、江戸へ', '淀藩も津藩も離れ、旧幕府軍は敗れた。慶喜は兵を残して江戸へ帰った。'], en: ['History: Yoshinobu Goes to Edo', 'Yodo and Tsu turn away, the shogunate army is beaten, and Yoshinobu leaves his men behind for Edo.'] },
+    E2: { ja: ['大坂城に立てこもる', '慶喜が大坂城に残り、長い攻城戦が始まった。'], en: ['Holding Osaka Castle', 'Yoshinobu stays in Osaka Castle, and a long siege begins.'] },
+    E3: { ja: ['淀に残された兵', '淀城で踏みとどまったが、大将の慶喜は江戸へ帰った。'], en: ['The Men Left at Yodo', 'The army holds at Yodo Castle — but Yoshinobu goes back to Edo anyway.'] },
+    E4: { ja: ['京へ押し返す', '淀で踏みとどまり、慶喜の出陣で新政府軍を押し返した。'], en: ['Pushing Back Toward Kyoto', 'The army holds at Yodo, and with Yoshinobu in the field it drives the new government back.'] },
+  });
+
+  Object.assign(STR.en, {
+    'sim.title': 'Toba–Fushimi', 'sim.sub': 'The Start of the Boshin War', 'sim.d1': 'Keiō 4', 'sim.d2': '1st month',
+    'legend.east': 'New Govt', 'legend.west': 'Shogunate',
+    'sim.loading': 'Deploying the armies...',
+    'name.saigo': 'Saigō Takamori', 'name.yoshinobu': 'Tokugawa Yoshinobu',
+    'wi.historyDesc': 'What actually happened from the 2nd to the 7th day of the 1st month, 1868. Dates follow the old lunar calendar.',
+    'dm.desc': 'Make two calls — as the Yodo domain and as Tokugawa Yoshinobu. Four endings to discover.',
+  });
+  Object.assign(STR.ja, {
+    'sim.title': '鳥羽・伏見', 'sim.sub': '戊辰戦争のはじまり', 'sim.d1': '慶応四年', 'sim.d2': '一月',
+    'legend.east': '新政府軍', 'legend.west': '旧幕府軍',
+    'sim.loading': '京の南に布陣図を展開中',
+    'name.saigo': '西郷隆盛', 'name.yoshinobu': '徳川慶喜',
+    'wi.historyDesc': '慶応四年一月二日〜七日に実際に起きたこと(日付は旧暦)。',
+    'dm.desc': '淀藩と徳川慶喜、2つの決断で展開が変わる。エンディングは全4種。',
+  });
+}
+
 const decideState = { active: false, choices: {}, wasPlaying: false, open: null };
 let altPhaseSet = new Set();
 let lastAppliedPhase = -1;
@@ -16754,6 +17394,11 @@ const GROUND_ROADS = {
     [[-46, 28], [-30, 24], [-12, 20], [6, 14], [18, 15], [27, 17]],
     [[-2, -6], [-6, -14], [-8, -22]],
   ],
+  'toba-fushimi': [
+    [[-6, -80], [-10, -50], [-12, -36], [-8, -14], [-4, 12]],          // 鳥羽街道
+    [[34, -60], [28, -30], [10, 0], [-2, 12]],                         // 伏見から淀へ
+    [[-4, 18], [-20, 30], [-34, 40], [-56, 60], [-76, 76]],            // 京街道(大坂へ)
+  ],
   koan: [
     [[50, 34], [56, 44], [62, 54]],                       // 博多から大宰府へ
   ],
@@ -16832,6 +17477,7 @@ function groundRiverLines() {
   if (IS_WINTER) return WINTER_RIVERS;
   if (IS_DAN) return [];
   if (IS_KOAN) return [];
+  if (IS_TOBA) return TOBA_RIVERS;
   const line = [];
   for (let i = 0; i <= 30; i++) {
     const t = i / 30, x = -70 + t * 140;
@@ -17026,6 +17672,7 @@ function buildForest() {
   Object.values(typeof MINA_POS !== 'undefined' && IS_MINA ? MINA_POS : {}).forEach(p => keep.push(p));
   Object.values(typeof OSAKA_POS !== 'undefined' && IS_OSAKA ? OSAKA_POS : {}).forEach(p => keep.push(p));
   Object.values(typeof WINTER_POS !== 'undefined' && IS_WINTER ? WINTER_POS : {}).forEach(p => keep.push(p));
+  Object.values(typeof TOBA_POS !== 'undefined' && IS_TOBA ? TOBA_POS : {}).forEach(p => keep.push(p));
   const blocked = (x, z) => keep.some(([kx, kz]) => (kx - x) ** 2 + (kz - z) ** 2 < 26);
   const nearFence = (x, z) => IS_NAGA && z > NAGA_FENCE.z0 - 3 && z < NAGA_FENCE.z1 + 3 && Math.abs(x - nagaFenceX(z)) < 4;
   const roads = GROUND_ROADS[BATTLE_ID] || [];
@@ -17038,6 +17685,7 @@ function buildForest() {
       const h = sampleGrid(groundGrid.H, jx, jz);
       const slope = 1 - groundSlope(jx, jz).ny;
       if ((IS_SHIZ || IS_MINA || IS_OSAKA || IS_WINTER) && h < 0.3) continue;
+      if (IS_TOBA && _hash2(jx * 1.3, jz * 2.9) > 0.32) continue;   // 鳥羽・伏見: 田畑と町の多い盆地。木はまばらに
       if (IS_KOAN && (koanSeaDepth(jx, jz) > -3 || _hash2(jx * 1.3, jz * 2.9) > 0.45)) continue;   // 弘安の役: 海と浜に木を置かない
       if (IS_DAN && (danSeaDepth(jx, jz) > -3 || _hash2(jx * 1.3, jz * 2.9) > 0.45)) continue;   // 壇ノ浦: 海と浜に木を置かない
       if (IS_WINTER && (_hash2(jx * 1.3, jz * 2.9) > 0.22 || jz < -8 || Math.hypot(jx - 10, jz + 4) < 16 || Math.hypot(jx - 27, jz - 2) < 7)) continue;   // 冬の陣: 城の内側と砦のまわりに木を置かない
@@ -17185,6 +17833,11 @@ const ACTS = {
     { from: 3, ja: ['第二幕', '朝', '今川の進軍'], en: ['ACT II', 'MORNING', 'The Imagawa Advance'] },
     { from: 7, ja: ['第三幕', '昼', '嵐の前'], en: ['ACT III', 'MIDDAY', 'Before the Storm'] },
     { from: 10, ja: ['第四幕', '午後', '桶狭間'], en: ['ACT IV', 'AFTERNOON', 'Okehazama'] },
+  ],
+  'toba-fushimi': [
+    { from: 0, ja: ['第一幕', '一月三日', '開戦'], en: ['ACT I', 'THE 3RD', 'The First Shots'] },
+    { from: 3, ja: ['第二幕', '四日・五日', '錦の御旗'], en: ['ACT II', 'THE 4TH–5TH', 'The Banner'] },
+    { from: 7, ja: ['第三幕', '六日・七日', '崩壊'], en: ['ACT III', 'THE 6TH–7TH', 'The Collapse'] },
   ],
   koan: [
     { from: 0, ja: ['第一幕', '初夏', '博多湾'], en: ['ACT I', 'EARLY SUMMER', 'Hakata Bay'] },
