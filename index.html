@@ -2646,6 +2646,17 @@ html[lang="en"] .cp-battle { font-family: 'Cormorant Garamond', serif; font-size
 .career-panel .cp-opt { padding: 11px 12px; }
 body[data-career-unit="ieyasu"] #lbl-ieyasu, body[data-career-unit="motoyasu"] #lbl-motoyasu { outline: 2px solid #f4c542; outline-offset: 1px; box-shadow: 0 0 12px rgba(244,197,66,0.85); }
 body[data-career-unit="ieyasu"] #lbl-ieyasu::before, body[data-career-unit="motoyasu"] #lbl-motoyasu::before { content: '★ '; color: #d49a12; }
+.cr-picks { display: flex; gap: 8px; max-width: 420px; margin: 0 auto 12px; }
+.cr-pick { flex: 1; display: flex; align-items: center; gap: 8px; padding: 8px 10px; cursor: pointer; font-family: inherit; text-align: left;
+  background: rgba(10,8,5,0.55); border: 1px solid rgba(201,169,97,0.3); color: #c9b896; }
+.cr-pick img { width: 28px; height: 28px; filter: brightness(0) invert(0.85) sepia(0.5); opacity: 0.7; }
+.cr-pick span { display: flex; flex-direction: column; }
+.cr-pick b { font-size: 13px; font-weight: 800; }
+.cr-pick small { font-size: 10px; color: #8a7c69; }
+.cr-pick.sel { background: linear-gradient(135deg, rgba(139,26,26,0.55), rgba(40,26,16,0.9)); border-color: #f4c542; color: #fff4d8; }
+.cr-pick.sel img { opacity: 1; }
+body[data-career-unit="nobunaga"] #lbl-nobunaga { outline: 2px solid #f4c542; outline-offset: 1px; box-shadow: 0 0 12px rgba(244,197,66,0.85); }
+body[data-career-unit="nobunaga"] #lbl-nobunaga::before { content: '★ '; color: #d49a12; }
 #screen-home .home-hero { padding-top: 46px; }
 
 /* ---------- ポップ(もしも) ---------- */
@@ -21188,8 +21199,11 @@ function initSekigahara() {
 // クリアするとセーブできる(localStorage: sg_career_<id>)
 const CAREERS = {
   ieyasu: {
-    ja: { name: '徳川家康', sub: '人質の少年から、天下人へ', life: '1543 — 1616' },
-    en: { name: 'Tokugawa Ieyasu', sub: 'From hostage boy to ruler of Japan', life: '1543 — 1616' },
+    kamon: null,   // 本体の kamonImages.ieyasu を使う
+    ja: { name: '徳川家康', sub: '人質の少年から、天下人へ', life: '1543 — 1616', decide: '家康の決断',
+      r: ['天下人の器 — やり直しなしで、家康の生涯をたどりきった。', '辛抱の人 — 迷いながらも、天下人への道を歩みきった。', '七転び八起き — 何度つまずいても、最後は天下を取った。'] },
+    en: { name: 'Tokugawa Ieyasu', sub: 'From hostage boy to ruler of Japan', life: '1543 — 1616', decide: "IEYASU'S DECISION",
+      r: ["Born to rule — you followed Ieyasu's whole life without a single retry.", 'Patient to the end — a few stumbles, but you walked the road to power.', 'Fall seven times, rise eight — many retries, but in the end the realm was yours.'] },
     stages: [
       { battle: 'okehazama', unit: 'motoyasu', year: 1560, age: 19,
         ja: { who: '松平元康', intro: '今川家の人質として駿府で育った松平元康(のちの家康)は、今川義元の尾張攻めに加わった。任されたのは、織田の砦に囲まれた大高城を助ける役目だ。',
@@ -21319,6 +21333,78 @@ const CAREERS = {
         ] },
     ],
   },
+  nobunaga: {
+    kamon: 'data:image/png;base64,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',
+    ja: { name: '織田信長', sub: '尾張のうつけから、天下布武へ', life: '1534 — 1582', decide: '信長の決断',
+      r: ['天下布武 — やり直しなしで、信長の生涯を駆けぬけた。', '天下の大器 — 迷いながらも、天下に手をかけた。', '人間五十年 — 何度つまずいても、最後まで駆けぬけた。'] },
+    en: { name: 'Oda Nobunaga', sub: 'From the "fool of Owari" to the brink of ruling Japan', life: '1534 — 1582', decide: "NOBUNAGA'S DECISION",
+      r: ["Rule by force — you raced through Nobunaga's whole life without a single retry.", 'Built for greatness — a few stumbles, but you laid your hand on the realm.', 'Fifty years of a man\'s life — many retries, but you ran it to the end.'] },
+    stages: [
+      { battle: 'okehazama', unit: 'nobunaga', year: 1560, age: 27,
+        ja: { who: '織田信長', intro: '尾張の大名・織田信長。まだ尾張一国をまとめたばかりだ。そこへ駿河・遠江・三河を治める今川義元が、2万5千の大軍で攻めこんできた。',
+          outro: '義元を討ちとった信長の名は、一気に知れわたった。やがて家康と手を結び、美濃へ、そして京へと進んでいく。' },
+        en: { who: 'Oda Nobunaga', intro: 'Oda Nobunaga has only just brought Owari under his control. Now Imagawa Yoshimoto, lord of Suruga, Tōtōmi and Mikawa, invades with an army of 25,000.',
+          outro: 'Killing Yoshimoto makes Nobunaga famous overnight. Soon he allies with Ieyasu and pushes on into Mino, and then to Kyoto.' },
+        quiz: [
+          { at: 2,
+            ja: { sit: '夜明け前、丸根・鷲津の砦が今川軍に攻められているという知らせが清洲城に届いた。家老たちは籠城をすすめていた。',
+              opts: [['「敦盛」を舞い、わずかな供で城を飛び出す', 1], ['清洲城に籠もって守りを固める', 0], ['今川に使いを送り、和睦を願う', 0]],
+              exp: '信長は幸若舞「敦盛」を舞うと、立ったまま食事をとって清洲城を飛び出した。従うのは小姓ら、わずか5〜6騎だったという。' },
+            en: { sit: 'Before dawn, word reaches Kiyosu Castle that the Marune and Washizu forts are under attack. Your senior retainers have urged you to hold the castle.',
+              opts: [['Dance "Atsumori" and ride out with a handful of men', 1], ['Stay in Kiyosu Castle and defend', 0], ['Send an envoy to the Imagawa to ask for peace', 0]],
+              exp: 'Nobunaga danced the "Atsumori," ate standing up, and galloped out of Kiyosu with only five or six pages behind him.' } },
+          { at: 8,
+            ja: { sit: '善照寺砦に兵が集まった。およそ2千。前の中島砦へは、両側が深田の一本道。敵から兵の少なさが丸見えになる。',
+              opts: [['家老たちが止めるのを振り切り、中島砦へ進む', 1], ['善照寺砦に籠もり、今川を待ち受ける', 0], ['兵を分けて、夜になるのを待つ', 0]],
+              exp: '家老たちは馬の轡にすがって止めたが、信長は聞かずに中島砦へ移った。このあと激しい雨が降り、雨が上がると信長は「それ、かかれ」と突撃を命じる。' },
+            en: { sit: 'About 2,000 men have gathered at Zenshōji fort. The way forward to Nakajima fort is a single path between deep paddies — the enemy will see how few you are.',
+              opts: [['Ignore your retainers and push on to Nakajima', 1], ['Hold Zenshōji and wait for the Imagawa', 0], ['Split your men and wait for nightfall', 0]],
+              exp: 'His retainers grabbed his horse\'s bridle to stop him, but Nobunaga pressed on to Nakajima. Then a violent rainstorm struck — and when it cleared, he ordered the charge.' } },
+        ] },
+      { battle: 'nagashino', unit: 'nobunaga', year: 1575, age: 42,
+        ja: { who: '織田信長', intro: '京をおさえ、天下に手をかけた信長。同盟を結ぶ徳川家康から、武田勝頼に囲まれた長篠城を救ってほしいと頼まれた。',
+          outro: '武田は多くの名将を失った。翌年、信長は安土城を築きはじめ、天下統一へと進む。' },
+        en: { who: 'Oda Nobunaga', intro: 'Master of Kyoto, Nobunaga is reaching for the whole realm. His ally Tokugawa Ieyasu begs him to save Nagashino Castle from Takeda Katsuyori.',
+          outro: 'The Takeda lose many of their best generals. The next year Nobunaga begins building Azuchi Castle and pushes on toward unifying Japan.' },
+        quiz: [
+          { at: 0,
+            ja: { sit: '家康の頼みで、長篠城を救いに来た。だが武田の騎馬武者は強い。設楽原でどう構える？',
+              opts: [['馬防柵を築き、鉄砲で待ち受ける', 1], ['全軍で長篠城の武田を襲う', 0], ['岐阜城から動かず、様子を見る', 0]],
+              exp: '信長は約3万の大軍で設楽原に着き、連吾川に沿って馬防柵を築いた。柵の内側には、たくさんの鉄砲が並べられた。' },
+            en: { sit: "You've come at Ieyasu's request to save Nagashino — but the Takeda horsemen are formidable. How will you set up at Shitaragahara?",
+              opts: [['Build palisades and wait with guns', 1], ['Throw everything at the Takeda around Nagashino', 0], ['Stay at Gifu Castle and watch', 0]],
+              exp: 'Nobunaga reached Shitaragahara with some 30,000 men and built palisades along the Rengo River, with large numbers of guns lined up behind them.' } },
+          { at: 9,
+            ja: { sit: '昼になった。柵と鉄砲に阻まれた武田勢は、山県昌景ら名だたる武将を失い、勢いが尽きてきた。',
+              opts: [['柵から出て、武田を押し返す', 1], ['柵の内に籠もり続ける', 0], ['兵を引いて岐阜へ戻る', 0]],
+              exp: '昼になると、織田・徳川の兵が柵から出て押し返した。武田軍は総崩れとなり、勝頼はわずかな兵で信濃へ逃れた。' },
+            en: { sit: 'Noon. Stopped by the fences and guns, the Takeda have lost famous generals like Yamagata Masakage, and their attack is running out of steam.',
+              opts: [['Come out from the fences and push them back', 1], ['Stay behind the fences', 0], ['Pull back to Gifu', 0]],
+              exp: 'At noon the Oda and Tokugawa troops came out from behind the fences and pushed back. The Takeda army collapsed, and Katsuyori escaped to Shinano with only a few men.' } },
+        ] },
+      { battle: 'honnoji', unit: 'nobunaga', year: 1582, age: 49,
+        ja: { who: '織田信長', intro: '武田を滅ぼし、天下統一まであと一歩。そこへ、中国で毛利と戦う羽柴秀吉から「毛利の大軍がせまっている」と知らせが届く。',
+          outro: '信長は本能寺に散った。天下統一の夢は、家臣の秀吉と、同盟を結んだ家康に引きつがれていく。' },
+        en: { who: 'Oda Nobunaga', intro: 'The Takeda are destroyed, and unification is within reach. Then word comes from Hashiba Hideyoshi, fighting the Mōri in the west: a huge Mōri army is approaching.',
+          outro: 'Nobunaga dies at Honnō-ji. His dream of uniting Japan passes to his retainer Hideyoshi and his ally Ieyasu.' },
+        quiz: [
+          { at: 0,
+            ja: { sit: '備中高松城を囲む秀吉から、援軍を求める知らせが届いた。どうする？',
+              opts: [['自ら中国へ出陣すると決め、明智光秀にも出陣を命じる', 1], ['秀吉に、毛利と和睦するよう命じる', 0], ['安土城に残り、秀吉にまかせる', 0]],
+              exp: '信長は自ら中国へ出陣すると決め、明智光秀にも急いで出陣を命じた。そして自分は、少ない供で京の本能寺に入った。' },
+            en: { sit: 'Hideyoshi, besieging Takamatsu Castle in Bitchū, asks for reinforcements. What do you do?',
+              opts: [['Decide to march west yourself, and order Akechi Mitsuhide out too', 1], ['Order Hideyoshi to make peace with the Mōri', 0], ['Stay at Azuchi and leave it to Hideyoshi', 0]],
+              exp: 'Nobunaga decided to lead an army west himself and ordered Akechi Mitsuhide to march at once. He then went ahead to Honnō-ji in Kyoto with only a small escort.' } },
+          { at: 5,
+            ja: { sit: '夜明け、本能寺が桔梗の旗に囲まれた。森蘭丸が「明智の者と見えます」と告げる。供はわずか百人ほどだ。',
+              opts: [['みずから弓をとり、槍をとって戦う', 1], ['裏口から抜け出し、信忠のいる妙覚寺へ逃げる', 0], ['門を開けて、光秀と話をつける', 0]],
+              exp: '信長はみずから弓を引き、弦が切れると槍で戦った。肘に傷を負うと女たちを逃がして御殿の奥へ入り、燃えあがる本能寺の中で自害したとされる。' },
+            en: { sit: 'Dawn. Honnō-ji is surrounded by bellflower banners. Mori Ranmaru reports: "They look like Akechi\'s men." You have only about a hundred attendants.',
+              opts: [['Take up a bow, then a spear, and fight', 1], ['Slip out the back to Nobutada at Myōkaku-ji', 0], ['Open the gate and talk to Mitsuhide', 0]],
+              exp: 'Nobunaga shot arrows himself, then fought with a spear when his bowstring broke. Wounded in the elbow, he told the women to flee and withdrew into the hall, where he is said to have taken his own life as the temple burned.' } },
+        ] },
+    ],
+  },
 };
 
 Object.assign(STR.ja, {
@@ -21353,7 +21439,8 @@ function careerLoad(id) {
 function careerSave(id, stage, misses) {
   try { localStorage.setItem('sg_career_' + id, JSON.stringify({ stage, misses, at: Date.now() })); return true; } catch (e) { return false; }
 }
-function careerRating(m) { return t(m === 0 ? 'cr.r0' : m <= 3 ? 'cr.r1' : 'cr.r2'); }
+function careerRating(cid, m) { const L = LANG === 'en' ? CAREERS[cid].en : CAREERS[cid].ja; return L.r[m === 0 ? 0 : m <= 3 ? 1 : 2]; }
+function careerKamon(cid) { return CAREERS[cid].kamon || (typeof kamonImages !== 'undefined' && kamonImages.ieyasu) || ''; }
 function careerBattleName(id) {
   const fb = findBattle(id);
   return fb ? battleL(fb.battle).name : id;
@@ -21397,8 +21484,15 @@ function renderCareer() {
   const cid = careerSel, C = CAREERS[cid], L = LANG === 'en' ? C.en : C.ja;
   const save = careerLoad(cid);
   const done = save ? save.stage : 0;
-  const kamon = (typeof kamonImages !== 'undefined' && kamonImages.ieyasu) || '';
-  let html = `<div class="cr-card">
+  const kamon = careerKamon(cid);
+  let html = '<div class="cr-picks">';
+  Object.entries(CAREERS).forEach(([id, c]) => {
+    const sv = careerLoad(id), n = c.stages.length, d = sv ? Math.min(sv.stage, n) : 0;
+    const cl = LANG === 'en' ? c.en : c.ja;
+    html += `<button type="button" class="cr-pick${id === cid ? ' sel' : ''}" data-cid="${id}"><img src="${careerKamon(id)}" alt=""><span><b>${cl.name}</b><small>${d} / ${n}</small></span></button>`;
+  });
+  html += '</div>';
+  html += `<div class="cr-card">
     <div class="cr-who">${kamon ? `<img src="${kamon}" alt="">` : ''}<div><div class="cr-name">${L.name}</div><div class="cr-life">${L.life} · ${C.stages.length} ${t('cr.battles')}</div></div></div>
     <div class="cr-tag">${L.sub}</div>
     <ol class="cr-line">`;
@@ -21412,7 +21506,7 @@ function renderCareer() {
   });
   html += `</ol>`;
   if (save && done >= C.stages.length) {
-    html += `<div class="cr-final"><div class="cr-final-t">${t('cr.lifeClear')}</div><div class="cr-final-d">${careerRating(save.misses)}</div></div>`;
+    html += `<div class="cr-final"><div class="cr-final-t">${t('cr.lifeClear')}</div><div class="cr-final-d">${careerRating(cid, save.misses)}</div></div>`;
   }
   html += `<div class="cr-save">${save ? `${t('cr.saved')}: ${t('cr.stage').replace('{n}', Math.min(done, C.stages.length))} ${t('cr.clear')} · ${t('cr.misses')} ${save.misses}` : t('cr.nosave')}</div><div class="cr-btns">`;
   if (save && done > 0 && done < C.stages.length) {
@@ -21423,6 +21517,7 @@ function renderCareer() {
   }
   html += `</div><div class="cr-hint">${t('cr.saveHint')}</div></div><div class="cr-soon">${t('cr.soon')}</div>`;
   root.innerHTML = html;
+  root.querySelectorAll('.cr-pick').forEach(b => b.addEventListener('click', () => { careerSel = b.dataset.cid; renderCareer(); }));
   const c = document.getElementById('crContinue');
   if (c) c.addEventListener('click', () => careerGo(cid, done, save.misses));
   document.getElementById('crStart').addEventListener('click', () => careerGo(cid, 0, 0));
@@ -21471,11 +21566,12 @@ function careerShowQuiz(q) {
   const st = careerStage(), Q = LANG === 'en' ? q.en : q.ja;
   const box = document.getElementById('careerPanel');
   const k = st.quiz.indexOf(q) + 1;
-  const kamon = (typeof kamonImages !== 'undefined' && kamonImages.ieyasu) || '';
+  const kamon = careerKamon(careerState.cid);
+  const CL = LANG === 'en' ? CAREERS[careerState.cid].en : CAREERS[careerState.cid].ja;
   const order = Q.opts.map((o, i) => i).sort(() => Math.random() - 0.5);
   box.className = 'decision-panel career-panel quiz';
-  box.innerHTML = `<div class="dp-head"><span class="dp-tag">${t('cr.decide')} ${k}/${st.quiz.length}</span><span class="dp-time">${BASE_TABLES.phases[q.at].time}</span></div>
-    <div class="dp-who">${kamon ? `<img src="${kamon}" alt="">` : ''}<span>${t('cr.decide')}</span></div>
+  box.innerHTML = `<div class="dp-head"><span class="dp-tag">${CL.decide} ${k}/${st.quiz.length}</span><span class="dp-time">${BASE_TABLES.phases[q.at].time}</span></div>
+    <div class="dp-who">${kamon ? `<img src="${kamon}" alt="">` : ''}<span>${CL.decide}</span></div>
     <div class="dp-sit">${Q.sit}</div><div class="dp-opts"></div>`;
   const list = box.querySelector('.dp-opts');
   order.forEach(i => {
@@ -21544,7 +21640,7 @@ function careerShowClear() {
   box.className = 'decision-panel career-panel clear active';
   box.innerHTML = `<div class="dp-head"><span class="dp-tag">${t('cr.stage').replace('{n}', careerState.stage + 1)} ${t('cr.clear')}</span><span class="dp-time">${t('cr.misses')} ${careerState.misses}</span></div>
     <div class="cp-battle">${last ? t('cr.lifeClear') : careerBattleName(st.battle)}</div>
-    <div class="dp-sit">${S.outro}${last ? `<br><br><b>${careerRating(careerState.misses)}</b>` : ''}</div>
+    <div class="dp-sit">${S.outro}${last ? `<br><br><b>${careerRating(careerState.cid, careerState.misses)}</b>` : ''}</div>
     <div class="cp-btns"><button type="button" class="cp-btn save" id="cpSave">${t('cr.save')}</button>
     ${last ? '' : `<button type="button" class="cp-btn main" id="cpNext">${t('cr.nextBattle')}</button>`}
     <button type="button" class="cp-btn" id="cpTimeline">${t('cr.toTimeline')}</button></div>`;
