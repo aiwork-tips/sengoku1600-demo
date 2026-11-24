@@ -2576,6 +2576,76 @@ html[lang="en"] .title-logo { font-family: 'Cormorant Garamond', 'Noto Serif JP'
 }
 .title-note { margin-top: 28px; font-size: 10.5px; color: #8a7c69; line-height: 1.7; }
 #screen-home .back-btn { top: 12px; }
+/* ---------- 武将の生涯 ---------- */
+.title-btn.career { background: linear-gradient(160deg, #2a2119, #15100b); border: 1px solid rgba(201,169,97,0.6); box-shadow: 0 4px 16px rgba(30,20,10,0.35), inset 0 0 0 1px rgba(201,169,97,0.15); color: #f4e8cc; border-radius: 4px; }
+.title-btn.career .tb-kanji { background: #8b1a1a; color: #f4c542; font-family: 'Noto Serif JP', serif; font-weight: 900; border-radius: 4px; border: 1px solid rgba(244,197,66,0.6); }
+.title-btn.career .tb-main { font-family: 'Noto Serif JP', serif; letter-spacing: 0.06em; }
+html[lang="en"] .title-btn.career .tb-main { font-family: 'Cormorant Garamond', serif; font-size: 21px; }
+.title-btn.career .tb-desc { color: #c9b896; }
+.title-btn.career:active { transform: translateY(2px); }
+.tb-new { position: absolute; top: -10px; right: 12px; background: #f4c542; color: #2b1d0e; font-size: 10px; font-weight: 900; letter-spacing: 0.15em; padding: 2px 9px; border-radius: 2px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+#screen-career {
+  display: block; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  background: radial-gradient(ellipse at 50% 0%, #3a2a1c 0%, #17110b 55%, #0f0b07 100%);
+  color: #f4e8cc; padding: 58px 16px max(44px, env(safe-area-inset-bottom));
+}
+#screen-career .back-btn { color: #c9a961; border-color: rgba(201,169,97,0.4); background: rgba(10,8,5,0.6); }
+.cr-head { text-align: center; margin-bottom: 20px; }
+.cr-eyebrow { font-size: 10px; letter-spacing: 0.4em; color: #c9a961; }
+.cr-title { font-family: 'Noto Serif JP', serif; font-weight: 900; font-size: 34px; margin: 8px 0 8px; letter-spacing: 0.12em; color: #f4e8cc; }
+html[lang="en"] .cr-title { font-family: 'Cormorant Garamond', serif; font-size: 38px; letter-spacing: 0.04em; }
+.cr-sub { font-size: 12px; color: #c9b896; line-height: 1.7; max-width: 330px; margin: 0 auto; }
+.cr-label { font-size: 10px; letter-spacing: 0.3em; color: #c9a961; margin: 0 auto 10px; max-width: 420px; }
+.cr-card { max-width: 420px; margin: 0 auto; background: linear-gradient(180deg, rgba(36,26,18,0.95), rgba(18,13,8,0.97)); border: 1px solid rgba(201,169,97,0.45); padding: 16px 14px 14px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.cr-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, #c93030, #f4c542, #c93030, transparent); }
+.cr-who { display: flex; align-items: center; gap: 12px; }
+.cr-who img { width: 44px; height: 44px; filter: brightness(0) invert(0.85) sepia(0.5); }
+.cr-name { font-family: 'Noto Serif JP', serif; font-weight: 900; font-size: 24px; letter-spacing: 0.1em; }
+html[lang="en"] .cr-name { font-family: 'Cormorant Garamond', serif; font-size: 26px; letter-spacing: 0.02em; }
+.cr-life { font-size: 10px; color: #a89680; letter-spacing: 0.15em; margin-top: 2px; }
+.cr-tag { margin: 10px 0 12px; font-size: 12px; color: #f4c542; letter-spacing: 0.08em; }
+.cr-line { list-style: none; margin: 0 0 12px; padding: 0 0 0 4px; position: relative; }
+.cr-line::before { content: ''; position: absolute; left: 10px; top: 10px; bottom: 10px; width: 2px; background: rgba(201,169,97,0.3); }
+.cr-node { display: grid; grid-template-columns: 14px 40px 1fr auto; align-items: center; gap: 8px; padding: 7px 0; position: relative; }
+.cr-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid rgba(201,169,97,0.6); background: #17110b; z-index: 1; }
+.cr-node.done .cr-dot { background: #c9a961; border-color: #c9a961; }
+.cr-node.next .cr-dot { background: #f4c542; border-color: #fff4d8; box-shadow: 0 0 10px rgba(244,197,66,0.9); }
+.cr-year { font-size: 12px; font-weight: 800; color: #c9a961; font-feature-settings: 'tnum'; }
+.cr-bt { display: flex; flex-direction: column; }
+.cr-bt b { font-size: 14px; color: #f4e8cc; font-weight: 800; }
+.cr-bt small { font-size: 10px; color: #a89680; }
+.cr-node.locked .cr-bt b, .cr-node.locked .cr-year { opacity: 0.5; }
+.cr-badge { font-size: 9px; letter-spacing: 0.15em; font-weight: 800; padding: 2px 7px; border: 1px solid rgba(201,169,97,0.4); color: #a89680; }
+.cr-node.done .cr-badge { background: #c9a961; color: #1a130c; border-color: #c9a961; }
+.cr-node.next .cr-badge { background: #8b1a1a; color: #fff4d8; border-color: #c93030; }
+.cr-final { text-align: center; padding: 10px; margin-bottom: 10px; border: 1px solid rgba(244,197,66,0.6); background: rgba(139,26,26,0.25); }
+.cr-final-t { font-family: 'Noto Serif JP', serif; font-weight: 900; font-size: 20px; color: #f4c542; letter-spacing: 0.15em; }
+.cr-final-d { font-size: 11px; color: #f4e8cc; margin-top: 4px; line-height: 1.6; }
+.cr-save { font-size: 10.5px; color: #a89680; text-align: center; margin-bottom: 10px; }
+.cr-btns, .cp-btns { display: flex; flex-direction: column; gap: 8px; }
+.cr-btn, .cp-btn { font-family: inherit; font-size: 13px; font-weight: 800; letter-spacing: 0.1em; padding: 11px; cursor: pointer; background: rgba(10,8,5,0.6); color: #f4e8cc; border: 1px solid rgba(201,169,97,0.45); }
+.cr-btn.main, .cp-btn.main { background: linear-gradient(135deg, #a32222, #6e1414); border-color: #f4c542; color: #fff4d8; }
+.cp-btn.save { background: #c9a961; color: #1a130c; border-color: #f4c542; }
+.cp-btn.save.done { background: rgba(201,169,97,0.25); color: #f4e8cc; }
+.cr-hint { font-size: 10px; color: #8a7c69; text-align: center; margin-top: 10px; }
+.cr-soon { font-size: 10.5px; color: #8a7c69; text-align: center; margin-top: 18px; letter-spacing: 0.1em; }
+.career-panel { width: min(350px, 92vw); }
+.cp-battle { font-family: 'Noto Serif JP', serif; font-weight: 900; font-size: 24px; color: #f4e8cc; letter-spacing: 0.1em; text-align: center; margin: 4px 0 2px; }
+html[lang="en"] .cp-battle { font-family: 'Cormorant Garamond', serif; font-size: 26px; letter-spacing: 0.02em; }
+.cp-who { font-size: 11px; color: #c9a961; text-align: center; margin-bottom: 10px; letter-spacing: 0.08em; }
+.career-panel.result { text-align: center; }
+.cp-mark { font-size: 40px; line-height: 1; font-weight: 900; margin: 2px 0 4px; }
+.career-panel.ok .cp-mark { color: #f4c542; }
+.career-panel.ng .cp-mark { color: #e04848; }
+.cp-res { font-family: 'Noto Serif JP', serif; font-weight: 900; font-size: 22px; letter-spacing: 0.12em; margin-bottom: 8px; }
+.career-panel.ok .cp-res { color: #f4c542; }
+.career-panel.ng .cp-res { color: #ff6a5a; }
+.cp-ngsub { font-size: 10px; color: #a89680; margin-bottom: 4px; }
+.cp-right { font-size: 13px; font-weight: 800; color: #f4e8cc; margin-bottom: 8px; padding: 6px 8px; border: 1px solid rgba(201,169,97,0.45); background: rgba(201,169,97,0.1); }
+.career-panel.result .dp-sit, .career-panel.clear .dp-sit { text-align: left; }
+.career-panel .cp-opt { padding: 11px 12px; }
+body[data-career-unit="ieyasu"] #lbl-ieyasu, body[data-career-unit="motoyasu"] #lbl-motoyasu { outline: 2px solid #f4c542; outline-offset: 1px; box-shadow: 0 0 12px rgba(244,197,66,0.85); }
+body[data-career-unit="ieyasu"] #lbl-ieyasu::before, body[data-career-unit="motoyasu"] #lbl-motoyasu::before { content: '★ '; color: #d49a12; }
 #screen-home .home-hero { padding-top: 46px; }
 
 /* ---------- ポップ(もしも) ---------- */
@@ -2819,6 +2889,12 @@ html[lang="en"] .act-card .ac-title { font-family: 'Cormorant Garamond', 'Noto S
           <span class="tb-desc" data-i18n="title.ifDesc">—</span>
           <span class="tb-count" id="titleIfCount"></span>
         </button>
+        <button type="button" class="title-btn career" id="titleCareer">
+          <span class="tb-new">NEW</span>
+          <span class="tb-kanji">将</span>
+          <span class="tb-main" data-i18n="title.career">A Warlord's Life</span>
+          <span class="tb-desc" data-i18n="title.careerDesc">—</span>
+        </button>
       </div>
       <div class="title-note" data-i18n="home.note">Troop numbers and other figures are approximate and vary by source.</div>
     </div>
@@ -2834,6 +2910,18 @@ html[lang="en"] .act-card .ac-title { font-family: 'Cormorant Garamond', 'Noto S
       <div class="if-total" id="ifTotal"></div>
     </div>
     <div class="if-list" id="ifList"></div>
+  </section>
+
+  <!-- ===== 武将の生涯 ===== -->
+  <section class="screen" id="screen-career">
+    <button class="back-btn" id="backFromCareer" data-i18n="cr.back">◀ Title</button>
+    <div class="cr-head">
+      <div class="cr-eyebrow" data-i18n="cr.eyebrow">A WARLORD'S LIFE</div>
+      <h2 class="cr-title" data-i18n="cr.title">A Warlord's Life</h2>
+      <div class="cr-sub" data-i18n="cr.sub">—</div>
+    </div>
+    <div class="cr-label" data-i18n="cr.choose">CHOOSE A WARLORD</div>
+    <div id="careerBody"></div>
   </section>
 
   <section class="screen" id="screen-home">
@@ -2956,6 +3044,7 @@ html[lang="en"] .act-card .ac-title { font-family: 'Cormorant Garamond', 'Noto S
           <button type="button" id="ecHistory"></button>
         </div>
       </div>
+      <div class="decision-panel career-panel" id="careerPanel"></div>
       <div class="cam-label" id="camLabel">CAM · OVERVIEW</div>
       <button type="button" class="cam-mode-btn" id="camModeBtn">● AUTO CAM</button>
       <button type="button" class="sound-btn" id="soundBtn">♪ OFF</button>
@@ -3592,6 +3681,7 @@ function setLang(l) {
   renderEras();
   renderTitle();
   renderIfList();
+  renderCareer();
   if (currentScreen === 'era' && currentEra) openEra(currentEra.id);
   refreshSimText();
   if (typeof refreshScenarioUI === 'function' && sim3DInitialized) refreshScenarioUI();
@@ -4010,7 +4100,11 @@ document.getElementById('backFromSim').addEventListener('click', () => {
   setScenario(null, false);
   audioQuiet();
   stopPlay();
-  if (entryMode === 'if') {
+  if (entryMode === 'career') {
+    careerLeave();
+    renderCareer();
+    showScreen('career');
+  } else if (entryMode === 'if') {
     renderIfList();
     showScreen('if');
   } else {
@@ -4045,6 +4139,7 @@ function openSimulation(battleId) {
     requestAnimationFrame(() => { scrollToPhase(0, false); scrollLockUntil = Date.now() + 1200; });
     setTimeout(() => {
       if (pendingDecide) { pendingDecide = false; setScenario('decide'); }
+      else if (careerState.active) careerShowIntro();
       else startPlay();
     }, 500);
   }
@@ -4789,6 +4884,7 @@ function updateLabels() {
 
 function applyPhase(idx) {
   if (decideState.active && decisionGate(idx)) return;
+  if (careerState.active && careerGate(idx)) return;
   lastAppliedPhase = idx;
   updateAct(idx);
   const p = phases[idx];
@@ -4826,6 +4922,7 @@ function applyPhase(idx) {
   onPhaseCinematic(idx);
   markAltTitle(idx);
   maybeShowEnding(idx);
+  careerAfterPhase(idx);
   
   if (p.fog !== undefined) {
     fogPlane.material.opacity = p.fog;
@@ -21077,10 +21174,420 @@ function initSekigahara() {
     requestAnimationFrame(() => { scrollToPhase(0, false); scrollLockUntil = Date.now() + 1200; });
     setTimeout(() => {
       if (pendingDecide) { pendingDecide = false; setScenario('decide'); }
+      else if (careerState.active) careerShowIntro();
       else startPlay();
     }, 800);
   }, 1200);
 }
+
+
+// ========================================================
+// ===== 武将の生涯モード(?career=ieyasu&stage=0) =====
+// ========================================================
+// 1人の武将になって、その生涯の合戦を順に戦う。合戦のとちゅうで「史実の決断」を選べないと敗北。
+// クリアするとセーブできる(localStorage: sg_career_<id>)
+const CAREERS = {
+  ieyasu: {
+    ja: { name: '徳川家康', sub: '人質の少年から、天下人へ', life: '1543 — 1616' },
+    en: { name: 'Tokugawa Ieyasu', sub: 'From hostage boy to ruler of Japan', life: '1543 — 1616' },
+    stages: [
+      { battle: 'okehazama', unit: 'motoyasu', year: 1560, age: 19,
+        ja: { who: '松平元康', intro: '今川家の人質として駿府で育った松平元康(のちの家康)は、今川義元の尾張攻めに加わった。任されたのは、織田の砦に囲まれた大高城を助ける役目だ。',
+          outro: '義元の死をきっかけに、元康は岡崎へ戻って今川から独立した。やがて信長と手を結ぶ。' },
+        en: { who: 'Matsudaira Motoyasu', intro: 'Raised as a hostage of the Imagawa at Sunpu, Matsudaira Motoyasu — the future Ieyasu — joins Imagawa Yoshimoto\'s invasion of Owari. His job: relieve Ōtaka Castle, surrounded by Oda forts.',
+          outro: 'Yoshimoto\'s death lets Motoyasu return to Okazaki and break free of the Imagawa. Before long he allies with Nobunaga.' },
+        quiz: [
+          { at: 1,
+            ja: { sit: '大高城は織田方の砦に囲まれ、兵糧が尽きかけている。義元から任された役目は？',
+              opts: [['大高城に兵糧を運び入れ、丸根砦を攻める', 1], ['鳴海城へ向かい、岡部元信を助ける', 0], ['清洲城へ攻めこみ、信長を討つ', 0]],
+              exp: '元康は5月18日に囲みを破って大高城へ兵糧を運び入れ、19日の夜明け前に丸根砦を攻め落とした。' },
+            en: { sit: 'Ōtaka Castle is surrounded by Oda forts and running out of food. What job has Yoshimoto given you?',
+              opts: [['Get supplies into Ōtaka and attack Marune fort', 1], ['March to Narumi Castle to help Okabe Motonobu', 0], ['Strike Kiyosu Castle and kill Nobunaga', 0]],
+              exp: 'On the 18th Motoyasu broke through to bring supplies into Ōtaka, and before dawn on the 19th he took Marune fort.' } },
+          { at: 13,
+            ja: { sit: '「義元さまが討たれた」という知らせが大高城に届いた。だが、本当かどうかはわからない。',
+              opts: [['確かめてから城を出て、岡崎へ退く', 1], ['大高城に籠もって、織田を迎え撃つ', 0], ['すぐに城を捨て、駿府へ逃げ帰る', 0]],
+              exp: '元康はすぐには信じず、伯父の水野信元から使いが来てから大高城を出た。岡崎では、今川の兵が城を去るのを待って入ったと伝わる。' },
+            en: { sit: 'Word reaches Ōtaka that Yoshimoto has been killed — but you can\'t be sure it\'s true.',
+              opts: [['Confirm it, then fall back to Okazaki', 1], ['Hold Ōtaka and fight the Oda', 0], ['Abandon the castle and flee to Sunpu', 0]],
+              exp: 'Motoyasu didn\'t believe it at first, leaving Ōtaka only after a messenger came from his uncle Mizuno Nobumoto. At Okazaki he is said to have waited for the Imagawa garrison to leave before moving in.' } },
+        ] },
+      { battle: 'mikatagahara', unit: 'ieyasu', year: 1572, age: 31,
+        ja: { who: '徳川家康', intro: '名を徳川家康と改め、浜松城の主となった。そこへ「甲斐の虎」武田信玄が大軍で攻めこんでくる。',
+          outro: '家康は命からがら生きのびた。翌年、信玄は病でこの世を去る。' },
+        en: { who: 'Tokugawa Ieyasu', intro: 'Now named Tokugawa Ieyasu and lord of Hamamatsu Castle, he faces Takeda Shingen, the "Tiger of Kai," invading with a huge army.',
+          outro: 'Ieyasu barely escapes with his life. The next year, Shingen dies of illness.' },
+        quiz: [
+          { at: 2,
+            ja: { sit: '武田の大軍が、浜松城の前を素通りして西へ向かっていく。家臣たちは城を守るよう止めている。',
+              opts: [['城を出て、武田軍を追う', 1], ['城に籠もり、通り過ぎるのを待つ', 0], ['岡崎城へ退いて、守りを固める', 0]],
+              exp: '家康は止める声をおさえて城を出た。だが三方ヶ原の台地で待ち構えていた武田軍に、大敗することになる。' },
+            en: { sit: 'The Takeda army marches straight past Hamamatsu Castle, heading west. Your retainers urge you to stay inside.',
+              opts: [['Ride out and chase the Takeda', 1], ['Stay in the castle and let them pass', 0], ['Fall back to Okazaki Castle', 0]],
+              exp: 'Ieyasu overrode his retainers and rode out — only to be crushed by the Takeda army waiting on the Mikatagahara plateau.' } },
+          { at: 8,
+            ja: { sit: '大敗して浜松城へ逃げ帰った。武田の兵が城に迫ってくる。',
+              opts: [['城門を開けたまま、篝火を焚く', 1], ['城門を固く閉ざして守る', 0], ['城を捨てて、岡崎へ落ちのびる', 0]],
+              exp: '家康は城門を開け、篝火を焚かせたと伝わる(空城の計)。罠を恐れた武田軍は攻めこまなかったという。ただし、のちの時代に作られた話だという説もある。' },
+            en: { sit: 'Beaten, you\'ve fled back to Hamamatsu Castle. Takeda troops are closing in.',
+              opts: [['Leave the gates open and light bonfires', 1], ['Bar the gates and defend', 0], ['Abandon the castle and flee to Okazaki', 0]],
+              exp: 'Ieyasu is said to have left the gates open with bonfires burning — the "empty fort" trick — and the wary Takeda didn\'t attack. Some historians think the story was invented later.' } },
+        ] },
+      { battle: 'nagashino', unit: 'ieyasu', year: 1575, age: 34,
+        ja: { who: '徳川家康', intro: '信玄の跡を継いだ武田勝頼が三河に攻めこみ、家臣の奥平信昌が守る長篠城を囲んだ。',
+          outro: '武田は多くの名将を失った。7年後、武田家は滅びる。' },
+        en: { who: 'Tokugawa Ieyasu', intro: 'Shingen\'s heir, Takeda Katsuyori, invades Mikawa and besieges Nagashino Castle, held by Ieyasu\'s retainer Okudaira Nobumasa.',
+          outro: 'The Takeda lose many of their best generals. Seven years later, the clan is destroyed.' },
+        quiz: [
+          { at: 0,
+            ja: { sit: '長篠城を囲む武田軍は1万を超える。徳川だけで勝つのはむずかしい。',
+              opts: [['織田信長に援軍を頼む', 1], ['徳川だけで武田と決戦する', 0], ['長篠城をあきらめて引き上げる', 0]],
+              exp: '家康は信長に援軍を求めた。信長は大軍を率いて出陣し、5月18日に設楽原へ陣を敷いた。' },
+            en: { sit: 'The Takeda army besieging Nagashino is over 10,000 strong — too much for the Tokugawa alone.',
+              opts: [['Ask Oda Nobunaga for reinforcements', 1], ['Fight the Takeda on your own', 0], ['Give up Nagashino and pull back', 0]],
+              exp: 'Ieyasu asked Nobunaga for help, and Nobunaga marched out with a large army, camping at Shitaragahara on the 18th.' } },
+          { at: 1,
+            ja: { sit: '設楽原で武田軍とにらみ合う。武田の背後には、長篠城を見張る鳶ヶ巣山の砦がある。家臣の酒井忠次に、何を命じる？',
+              opts: [['夜のうちに山を回り、鳶ヶ巣山の砦を襲わせる', 1], ['武田の本陣へ、まっすぐ夜討ちをかけさせる', 0], ['岡崎城へ戻り、守りにつかせる', 0]],
+              exp: '家康は酒井忠次に命じて、鳶ヶ巣山の砦を奇襲させた。背後を取られた武田軍は、柵の待つ設楽原へ攻めかかるしかなくなった。' },
+            en: { sit: 'You face the Takeda at Shitaragahara. Behind them, the Tobigasuyama forts watch Nagashino Castle. What do you order Sakai Tadatsugu to do?',
+              opts: [['Circle through the hills by night and raid Tobigasuyama', 1], ['Make a night attack straight at the Takeda HQ', 0], ['Return to guard Okazaki Castle', 0]],
+              exp: 'Ieyasu sent Sakai Tadatsugu to raid the Tobigasuyama forts. With their rear cut, the Takeda had to attack the fences at Shitaragahara.' } },
+        ] },
+      { battle: 'sekigahara', unit: 'ieyasu', year: 1600, age: 59,
+        ja: { who: '徳川家康', intro: '信長と秀吉の時代を生き抜いた家康は、秀吉の死後、大名たちの筆頭となった。そこへ石田三成らが兵を挙げる。',
+          outro: '天下分け目の戦いに勝った。3年後、家康は征夷大将軍となり、江戸に幕府を開く。' },
+        en: { who: 'Tokugawa Ieyasu', intro: 'Having outlived Nobunaga and Hideyoshi, Ieyasu is now the most powerful lord in Japan. Then Ishida Mitsunari and his allies raise an army against him.',
+          outro: 'Ieyasu wins the battle that decides the realm. Three years later he becomes shogun and founds the shogunate in Edo.' },
+        quiz: [
+          { at: 1,
+            ja: { sit: '9月15日の未明。大垣城にいた石田三成らの西軍が、雨の中を関ヶ原へ移ったという知らせが入った。',
+              opts: [['すぐに後を追い、関ヶ原へ進む', 1], ['空になった大垣城を攻め落とす', 0], ['いったん江戸へ引き返す', 0]],
+              exp: '東軍も夜明け前に関ヶ原へ入り、西軍と向かい合って陣を敷いた。' },
+            en: { sit: 'Before dawn on the 15th. Word comes that Mitsunari\'s Western army has left Ōgaki Castle in the rain for Sekigahara.',
+              opts: [['Follow them to Sekigahara at once', 1], ['Take the empty Ōgaki Castle', 0], ['Head back to Edo for now', 0]],
+              exp: 'The Eastern army also reached Sekigahara before dawn and deployed facing the Western army.' } },
+          { at: 7,
+            ja: { sit: '昼になっても勝負がつかない。松尾山の小早川秀秋は、東軍につくと約束していたのに動かない。',
+              opts: [['松尾山に鉄砲を撃ちかけ、決断をせまる', 1], ['全軍で松尾山の小早川を攻める', 0], ['日が暮れるまで、じっと待つ', 0]],
+              exp: '家康は松尾山へ鉄砲を撃ちかけさせ、小早川に決断をせまったと伝わる(問鉄砲)。この話を疑う研究者もいる。小早川隊が大谷隊に攻めかかり、西軍は崩れた。' },
+            en: { sit: 'Noon, and still no decision. On Mount Matsuo, Kobayakawa Hideaki promised to join you — but he isn\'t moving.',
+              opts: [['Fire guns at Mount Matsuo to force his hand', 1], ['Send the whole army against Kobayakawa', 0], ['Wait quietly until dark', 0]],
+              exp: 'Ieyasu is said to have had guns fired toward Mount Matsuo to force Kobayakawa to choose — though some historians doubt the story. Kobayakawa attacked Ōtani, and the West collapsed.' } },
+        ] },
+      { battle: 'osaka-winter', unit: 'ieyasu', year: 1614, age: 73,
+        ja: { who: '徳川家康', intro: '将軍職を息子の秀忠に譲り、大御所となった家康。豊臣秀頼のいる大坂城を、20万の大軍で囲んだ。',
+          outro: '和議のあと、大坂城の堀は埋められ、本丸だけの城になった。' },
+        en: { who: 'Tokugawa Ieyasu', intro: 'Retired in favor of his son Hidetada, Ieyasu still holds the real power. He surrounds Osaka Castle, home of Toyotomi Hideyori, with 200,000 men.',
+          outro: 'After the peace, Osaka Castle\'s moats are filled in, leaving only the inner keep.' },
+        quiz: [
+          { at: 0,
+            ja: { sit: '大坂城を囲んだ。だが秀吉が築いたこの城の守りは固い。どう攻める？',
+              opts: [['まずは城の周りの砦を、一つずつ落とす', 1], ['すぐに全軍で本丸へ総攻めをかける', 0], ['囲んだまま、一年でも兵糧攻めにする', 0]],
+              exp: '家康は城を囲んだあと、しばらくは城の周りでの小さな戦いにとどめ、木津川口や鴫野などで勝ちを重ねていった。' },
+            en: { sit: 'Osaka Castle is surrounded — but the fortress Hideyoshi built is strong. How do you attack?',
+              opts: [['Take the outlying forts one by one first', 1], ['Storm the inner keep with everything at once', 0], ['Starve them out, even if it takes a year', 0]],
+              exp: 'Ieyasu first kept to smaller actions around the castle, winning a string of fights at places like Kizugawa-guchi and Shigino.' } },
+          { at: 10,
+            ja: { sit: '真田丸の前で、味方は大きな損害を出した。冬の寒さの中、長い戦いは不利だ。',
+              opts: [['大砲で本丸を撃ち、和議に持ちこむ', 1], ['もう一度、真田丸に総攻めをかける', 0], ['囲みを解いて、駿府へ帰る', 0]],
+              exp: '家康は本丸に大砲を撃ちこませ、城の人々をおびえさせた。こうして和議が結ばれ、城の堀は埋められることになった。' },
+            en: { sit: 'Your men have taken heavy losses in front of the Sanada-maru, and a long winter siege favors the defenders.',
+              opts: [['Bombard the keep with cannon and push for peace', 1], ['Storm the Sanada-maru again', 0], ['Lift the siege and go home to Sunpu', 0]],
+              exp: 'Ieyasu had cannon fire into the inner keep, terrifying those inside. A peace was agreed — and the castle\'s moats were filled in.' } },
+        ] },
+      { battle: 'osaka-summer', unit: 'ieyasu', year: 1615, age: 74,
+        ja: { who: '徳川家康', intro: '堀を失った大坂城に、豊臣方はふたたび牢人を集めはじめた。家康、最後の戦いである。',
+          outro: '豊臣家は滅び、長い戦国の世が終わった。翌年、家康は75歳でこの世を去る。' },
+        en: { who: 'Tokugawa Ieyasu', intro: 'Even with its moats gone, Osaka Castle is filling with masterless samurai again. This will be Ieyasu\'s last battle.',
+          outro: 'The Toyotomi are destroyed and the long age of war is over. The next year, Ieyasu dies at 75.' },
+        quiz: [
+          { at: 0,
+            ja: { sit: '冬の陣の和議で、大坂城は本丸だけになった。ところが豊臣方は、ふたたび牢人を集めはじめた。',
+              opts: [['ふたたび大軍で大坂へ攻め寄せる', 1], ['豊臣家に大坂を任せ、戦をやめる', 0], ['まずは江戸の守りを固める', 0]],
+              exp: '家康はふたたび大軍を大坂へ向けた。堀を失った豊臣方は城に籠もれず、城の外で戦うしかなかった。' },
+            en: { sit: 'The winter peace left Osaka Castle with only its keep — yet the Toyotomi are gathering masterless samurai again.',
+              opts: [['March on Osaka again with a great army', 1], ['Leave Osaka to the Toyotomi and end the war', 0], ['Strengthen Edo\'s defenses first', 0]],
+              exp: 'Ieyasu sent his army against Osaka once more. Without its moats, the Toyotomi side couldn\'t hold the castle and had to fight in the open.' } },
+          { at: 9,
+            ja: { sit: '真田信繁の赤備えが越前勢をつらぬき、本陣のすぐそばまで迫ってきた！',
+              opts: [['本陣を下げて、ひとまず逃れる', 1], ['馬印を立てたまま、本陣にとどまる', 0], ['自ら槍をとって、真田と戦う', 0]],
+              exp: '真田隊の突撃で家康の馬印が倒れ、家康は本陣を退いた。生きのびた家康の軍は、やがて真田隊を押し返していく。' },
+            en: { sit: 'Sanada Nobushige\'s red-armored troops have smashed through the Echizen corps and are almost on your headquarters!',
+              opts: [['Pull back your headquarters and escape for now', 1], ['Stay put with your standard raised', 0], ['Take up a spear and fight Sanada yourself', 0]],
+              exp: 'Sanada\'s charge knocked down Ieyasu\'s standard, and Ieyasu fell back. Having survived, his army gradually pushed the Sanada back.' } },
+        ] },
+    ],
+  },
+};
+
+Object.assign(STR.ja, {
+  'title.career': '武将の生涯', 'title.careerDesc': '一人の武将になって、その生涯の合戦を戦う。史実どおりに決断できるか？',
+  'cr.back': '◀ タイトル', 'cr.eyebrow': "A WARLORD'S LIFE", 'cr.title': '武将の生涯', 'cr.sub': '史実と同じ決断を選べなければ敗北。合戦をクリアするとセーブできる。',
+  'cr.choose': '武将を選ぶ', 'cr.soon': 'ほかの武将は準備中', 'cr.battles': '戦',
+  'cr.continue': '続きから', 'cr.start': 'はじめから', 'cr.again': 'もう一度はじめから', 'cr.nosave': 'セーブデータはありません',
+  'cr.saved': 'セーブ', 'cr.cleared': 'クリア', 'cr.next': 'つぎ', 'cr.locked': '未', 'cr.misses': 'やり直し',
+  'cr.age': '歳', 'cr.stage': '第{n}戦', 'cr.go': '出陣する', 'cr.decide': '家康の決断', 'cr.ok': '史実どおり！', 'cr.ng': '敗北',
+  'cr.ngSub': '史実の家康がとった道は——', 'cr.cont': 'つづける ▶', 'cr.retry': 'この合戦をやり直す', 'cr.toTimeline': '年表へ戻る',
+  'cr.clear': 'クリア', 'cr.save': 'セーブする', 'cr.didSave': '✓ セーブしました', 'cr.nextBattle': '次の合戦へ ▶',
+  'cr.lifeClear': '生涯クリア', 'cr.you': 'あなた', 'cr.saveHint': 'セーブは合戦をクリアしたときにできます',
+  'cr.r0': '天下人の器 — やり直しなしで、家康の生涯をたどりきった。', 'cr.r1': '辛抱の人 — 迷いながらも、天下人への道を歩みきった。', 'cr.r2': '七転び八起き — 何度つまずいても、最後は天下を取った。',
+});
+Object.assign(STR.en, {
+  'title.career': "A Warlord's Life", 'title.careerDesc': 'Become one warlord and fight the battles of his life. Can you make the calls history made?',
+  'cr.back': '◀ Title', 'cr.eyebrow': "A WARLORD'S LIFE", 'cr.title': "A Warlord's Life", 'cr.sub': "Miss history's choice and you lose. Clear a battle to save your progress.",
+  'cr.choose': 'CHOOSE A WARLORD', 'cr.soon': 'More warlords coming soon', 'cr.battles': 'battles',
+  'cr.continue': 'Continue', 'cr.start': 'New game', 'cr.again': 'Play again from the start', 'cr.nosave': 'No saved game',
+  'cr.saved': 'Saved', 'cr.cleared': 'CLEAR', 'cr.next': 'NEXT', 'cr.locked': '—', 'cr.misses': 'retries',
+  'cr.age': '', 'cr.stage': 'Battle {n}', 'cr.go': 'To battle', 'cr.decide': "IEYASU'S DECISION", 'cr.ok': 'Just like history!', 'cr.ng': 'DEFEAT',
+  'cr.ngSub': 'What the real Ieyasu did:', 'cr.cont': 'Continue ▶', 'cr.retry': 'Retry this battle', 'cr.toTimeline': 'Back to timeline',
+  'cr.clear': 'CLEAR', 'cr.save': 'Save', 'cr.didSave': '✓ Saved', 'cr.nextBattle': 'Next battle ▶',
+  'cr.lifeClear': 'A LIFE COMPLETE', 'cr.you': 'YOU', 'cr.saveHint': 'You can save after clearing a battle',
+  'cr.r0': "Born to rule — you followed Ieyasu's whole life without a single retry.", 'cr.r1': 'Patient to the end — a few stumbles, but you walked the road to power.', 'cr.r2': 'Fall seven times, rise eight — many retries, but in the end the realm was yours.',
+});
+
+// ----- セーブデータ -----
+function careerLoad(id) {
+  try { const s = JSON.parse(localStorage.getItem('sg_career_' + id) || 'null'); return (s && typeof s.stage === 'number') ? s : null; } catch (e) { return null; }
+}
+function careerSave(id, stage, misses) {
+  try { localStorage.setItem('sg_career_' + id, JSON.stringify({ stage, misses, at: Date.now() })); return true; } catch (e) { return false; }
+}
+function careerRating(m) { return t(m === 0 ? 'cr.r0' : m <= 3 ? 'cr.r1' : 'cr.r2'); }
+function careerBattleName(id) {
+  const fb = findBattle(id);
+  return fb ? battleL(fb.battle).name : id;
+}
+function careerUrl(cid, stage, misses) {
+  const C = CAREERS[cid];
+  const st = C.stages[stage];
+  const q = new URLSearchParams();
+  if (st.battle !== 'sekigahara') q.set('battle', st.battle);
+  q.set('open', '1');
+  q.set('career', cid);
+  q.set('stage', String(stage));
+  q.set('cm', String(misses || 0));
+  q.set('lang', LANG);
+  return location.pathname + '?' + q.toString();
+}
+function careerGo(cid, stage, misses) { location.href = careerUrl(cid, stage, misses); }
+
+// ----- 今の合戦が生涯モードかどうか -----
+const careerState = (() => {
+  let q;
+  try { q = new URLSearchParams(location.search); } catch (e) { return { active: false }; }
+  const cid = q.get('career');
+  const stage = parseInt(q.get('stage') || '0', 10);
+  const C = CAREERS[cid];
+  if (!C || !(stage >= 0 && stage < C.stages.length) || C.stages[stage].battle !== BATTLE_ID) return { active: false };
+  return { active: true, cid, stage, misses: Math.max(0, parseInt(q.get('cm') || '0', 10) || 0), answered: {}, open: null, wasPlaying: false, ended: false };
+})();
+if (careerState.active) {
+  entryMode = 'career';
+  document.body.dataset.career = careerState.cid;
+  document.body.dataset.careerUnit = CAREERS[careerState.cid].stages[careerState.stage].unit;
+}
+function careerStage() { return CAREERS[careerState.cid].stages[careerState.stage]; }
+
+// ----- 年表の画面 -----
+let careerSel = 'ieyasu';
+function renderCareer() {
+  const root = document.getElementById('careerBody');
+  if (!root) return;
+  const cid = careerSel, C = CAREERS[cid], L = LANG === 'en' ? C.en : C.ja;
+  const save = careerLoad(cid);
+  const done = save ? save.stage : 0;
+  const kamon = (typeof kamonImages !== 'undefined' && kamonImages.ieyasu) || '';
+  let html = `<div class="cr-card">
+    <div class="cr-who">${kamon ? `<img src="${kamon}" alt="">` : ''}<div><div class="cr-name">${L.name}</div><div class="cr-life">${L.life} · ${C.stages.length} ${t('cr.battles')}</div></div></div>
+    <div class="cr-tag">${L.sub}</div>
+    <ol class="cr-line">`;
+  C.stages.forEach((st, i) => {
+    const S = LANG === 'en' ? st.en : st.ja;
+    const cls = i < done ? 'done' : (i === done ? 'next' : 'locked');
+    const badge = i < done ? t('cr.cleared') : (i === done ? t('cr.next') : t('cr.locked'));
+    const age = LANG === 'en' ? `age ${st.age}` : `数え${st.age}${t('cr.age')}`;
+    html += `<li class="cr-node ${cls}" data-stage="${i}"><span class="cr-dot"></span><span class="cr-year">${st.year}</span>
+      <span class="cr-bt"><b>${careerBattleName(st.battle)}</b><small>${S.who} · ${age}</small></span><span class="cr-badge">${badge}</span></li>`;
+  });
+  html += `</ol>`;
+  if (save && done >= C.stages.length) {
+    html += `<div class="cr-final"><div class="cr-final-t">${t('cr.lifeClear')}</div><div class="cr-final-d">${careerRating(save.misses)}</div></div>`;
+  }
+  html += `<div class="cr-save">${save ? `${t('cr.saved')}: ${t('cr.stage').replace('{n}', Math.min(done, C.stages.length))} ${t('cr.clear')} · ${t('cr.misses')} ${save.misses}` : t('cr.nosave')}</div><div class="cr-btns">`;
+  if (save && done > 0 && done < C.stages.length) {
+    html += `<button type="button" class="cr-btn main" id="crContinue">${t('cr.continue')} — ${careerBattleName(C.stages[done].battle)}</button>`;
+    html += `<button type="button" class="cr-btn" id="crStart">${t('cr.start')}</button>`;
+  } else {
+    html += `<button type="button" class="cr-btn main" id="crStart">${save && done >= C.stages.length ? t('cr.again') : t('cr.start')}</button>`;
+  }
+  html += `</div><div class="cr-hint">${t('cr.saveHint')}</div></div><div class="cr-soon">${t('cr.soon')}</div>`;
+  root.innerHTML = html;
+  const c = document.getElementById('crContinue');
+  if (c) c.addEventListener('click', () => careerGo(cid, done, save.misses));
+  document.getElementById('crStart').addEventListener('click', () => careerGo(cid, 0, 0));
+}
+
+// ----- 合戦の中: 出陣の札 → 決断(クイズ) → クリア -----
+function careerShowIntro() {
+  const st = careerStage(), S = LANG === 'en' ? st.en : st.ja;
+  const box = document.getElementById('careerPanel');
+  const n = careerState.stage + 1, N = CAREERS[careerState.cid].stages.length;
+  const age = LANG === 'en' ? `age ${st.age}` : `数え${st.age}${t('cr.age')}`;
+  box.className = 'decision-panel career-panel intro';
+  box.innerHTML = `<div class="dp-head"><span class="dp-tag">${t('cr.stage').replace('{n}', n)} / ${N}</span><span class="dp-time">${st.year}</span></div>
+    <div class="cp-battle">${careerBattleName(st.battle)}</div>
+    <div class="cp-who">${S.who} · ${age}</div>
+    <div class="dp-sit">${S.intro}</div>
+    <div class="cp-btns"><button type="button" class="cp-btn main" id="cpGo">${t('cr.go')}</button></div>`;
+  document.getElementById('sim-container').classList.add('deciding');
+  requestAnimationFrame(() => box.classList.add('active'));
+  document.getElementById('cpGo').addEventListener('click', () => {
+    careerHide();
+    const q0 = st.quiz.find(q => q.at === 0 && !careerState.answered[0]);
+    if (q0) { careerState.wasPlaying = true; careerShowQuiz(q0); }
+    else startPlay();
+  });
+}
+function careerHide() {
+  const box = document.getElementById('careerPanel');
+  box.classList.remove('active');
+  document.getElementById('sim-container').classList.remove('deciding');
+  careerState.open = null;
+}
+function careerGate(idx) {
+  if (!careerState.active) return false;
+  const q = careerStage().quiz.find(x => x.at > 0 && !careerState.answered[x.at] && idx >= x.at);
+  if (!q) return false;
+  careerState.wasPlaying = careerState.wasPlaying || isPlaying;
+  stopPlay();
+  currentPhase = q.at - 1;
+  if (lastAppliedPhase !== q.at - 1) applyPhase(q.at - 1);
+  scrollToPhase(q.at - 1, false);
+  careerShowQuiz(q);
+  return true;
+}
+function careerShowQuiz(q) {
+  const st = careerStage(), Q = LANG === 'en' ? q.en : q.ja;
+  const box = document.getElementById('careerPanel');
+  const k = st.quiz.indexOf(q) + 1;
+  const kamon = (typeof kamonImages !== 'undefined' && kamonImages.ieyasu) || '';
+  const order = Q.opts.map((o, i) => i).sort(() => Math.random() - 0.5);
+  box.className = 'decision-panel career-panel quiz';
+  box.innerHTML = `<div class="dp-head"><span class="dp-tag">${t('cr.decide')} ${k}/${st.quiz.length}</span><span class="dp-time">${BASE_TABLES.phases[q.at].time}</span></div>
+    <div class="dp-who">${kamon ? `<img src="${kamon}" alt="">` : ''}<span>${t('cr.decide')}</span></div>
+    <div class="dp-sit">${Q.sit}</div><div class="dp-opts"></div>`;
+  const list = box.querySelector('.dp-opts');
+  order.forEach(i => {
+    const [name, ok] = Q.opts[i];
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'dp-opt cp-opt';
+    b.dataset.ok = ok ? '1' : '0';
+    b.innerHTML = `<span class="dp-opt-name">${name}</span>`;
+    b.addEventListener('click', () => careerAnswer(q, !!ok));
+    list.appendChild(b);
+  });
+  careerState.open = q.at;
+  document.getElementById('sim-container').classList.add('deciding');
+  requestAnimationFrame(() => box.classList.add('active'));
+  if (typeof taiko === 'function') { taiko(0.4, 0); taiko(0.3, 0.35); }
+}
+function careerAnswer(q, ok) {
+  const Q = LANG === 'en' ? q.en : q.ja;
+  const box = document.getElementById('careerPanel');
+  const right = Q.opts.find(o => o[1])[0];
+  if (ok) {
+    box.className = 'decision-panel career-panel result ok active';
+    box.innerHTML = `<div class="cp-mark">◎</div><div class="cp-res">${t('cr.ok')}</div>
+      <div class="cp-right">${right}</div><div class="dp-sit">${Q.exp}</div>
+      <div class="cp-btns"><button type="button" class="cp-btn main" id="cpCont">${t('cr.cont')}</button></div>`;
+    if (typeof horagai === 'function') horagai(0.18, 0, 1.4);
+    document.getElementById('cpCont').addEventListener('click', () => {
+      careerState.answered[q.at] = true;
+      careerHide();
+      currentPhase = q.at;
+      applyPhase(q.at);
+      scrollToPhase(q.at);
+      // 最後の場面なら再生し直さない(startPlay は最後から先頭に戻ってしまう)
+      if (careerState.wasPlaying && q.at < phases.length - 1) startPlay();
+      careerState.wasPlaying = false;
+    });
+  } else {
+    careerState.misses++;
+    box.className = 'decision-panel career-panel result ng active';
+    box.innerHTML = `<div class="cp-mark">✕</div><div class="cp-res">${t('cr.ng')}</div>
+      <div class="cp-ngsub">${t('cr.ngSub')}</div><div class="cp-right">${right}</div><div class="dp-sit">${Q.exp}</div>
+      <div class="cp-btns"><button type="button" class="cp-btn main" id="cpRetry">${t('cr.retry')}</button>
+      <button type="button" class="cp-btn" id="cpTimeline">${t('cr.toTimeline')}</button></div>`;
+    if (typeof taiko === 'function') { taiko(0.5, 0); taiko(0.4, 0.5); }
+    document.getElementById('cpRetry').addEventListener('click', () => careerGo(careerState.cid, careerState.stage, careerState.misses));
+    document.getElementById('cpTimeline').addEventListener('click', careerExitToTimeline);
+  }
+}
+let careerEndTimer = null;
+function careerAfterPhase(idx) {
+  clearTimeout(careerEndTimer);
+  if (!careerState.active || careerState.ended || idx !== phases.length - 1) return;
+  if (careerStage().quiz.some(q => !careerState.answered[q.at])) return;
+  careerEndTimer = setTimeout(() => {
+    if (currentPhase !== phases.length - 1 || currentScreen !== 'sim') return;
+    careerShowClear();
+  }, 4300);
+}
+function careerShowClear() {
+  careerState.ended = true;
+  stopPlay();
+  const C = CAREERS[careerState.cid], st = careerStage(), S = LANG === 'en' ? st.en : st.ja;
+  const last = careerState.stage === C.stages.length - 1;
+  const box = document.getElementById('careerPanel');
+  box.className = 'decision-panel career-panel clear active';
+  box.innerHTML = `<div class="dp-head"><span class="dp-tag">${t('cr.stage').replace('{n}', careerState.stage + 1)} ${t('cr.clear')}</span><span class="dp-time">${t('cr.misses')} ${careerState.misses}</span></div>
+    <div class="cp-battle">${last ? t('cr.lifeClear') : careerBattleName(st.battle)}</div>
+    <div class="dp-sit">${S.outro}${last ? `<br><br><b>${careerRating(careerState.misses)}</b>` : ''}</div>
+    <div class="cp-btns"><button type="button" class="cp-btn save" id="cpSave">${t('cr.save')}</button>
+    ${last ? '' : `<button type="button" class="cp-btn main" id="cpNext">${t('cr.nextBattle')}</button>`}
+    <button type="button" class="cp-btn" id="cpTimeline">${t('cr.toTimeline')}</button></div>`;
+  document.getElementById('sim-container').classList.add('deciding');
+  document.getElementById('cpSave').addEventListener('click', (e) => {
+    if (careerSave(careerState.cid, careerState.stage + 1, careerState.misses)) {
+      e.currentTarget.textContent = t('cr.didSave');
+      e.currentTarget.disabled = true;
+      e.currentTarget.classList.add('done');
+    }
+  });
+  const nx = document.getElementById('cpNext');
+  if (nx) nx.addEventListener('click', () => careerGo(careerState.cid, careerState.stage + 1, careerState.misses));
+  document.getElementById('cpTimeline').addEventListener('click', careerExitToTimeline);
+}
+// 生涯モードを抜ける(同じページで史実モードを開いても決断が出ないように)
+function careerLeave() {
+  clearTimeout(careerEndTimer);
+  careerHide();
+  careerSel = careerState.cid || 'ieyasu';
+  careerState.active = false;
+  entryMode = 'history';
+  delete document.body.dataset.career;
+  delete document.body.dataset.careerUnit;
+  try {
+    const q = new URLSearchParams(location.search);
+    ['career', 'stage', 'cm'].forEach(k => q.delete(k));
+    const qs = q.toString();
+    history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
+  } catch (e) { /* ignore */ }
+}
+function careerExitToTimeline() {
+  if (typeof endCinematic === 'function') endCinematic();
+  stopPlay();
+  if (typeof audioQuiet === 'function') audioQuiet();
+  careerLeave();
+  renderCareer();
+  showScreen('career');
+}
+
+screens.career = document.getElementById('screen-career');
+document.getElementById('titleCareer').addEventListener('click', () => { renderCareer(); showScreen('career'); });
+document.getElementById('backFromCareer').addEventListener('click', () => { renderTitle(); showScreen('title'); });
 
 // ========= 初期レンダリング =========
 initConfig();
