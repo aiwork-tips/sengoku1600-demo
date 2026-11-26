@@ -2663,6 +2663,10 @@ html[lang="en"] .cr-pick b { font-size: 11px; }
 .cr-pick img { width: 24px; height: 24px; flex: none; }
 body[data-career-unit="hideyoshi"] #lbl-hideyoshi { outline: 2px solid #f4c542; outline-offset: 1px; box-shadow: 0 0 12px rgba(244,197,66,0.85); }
 body[data-career-unit="hideyoshi"] #lbl-hideyoshi::before { content: '★ '; color: #d49a12; }
+.cr-picks { flex-wrap: wrap; }
+.cr-pick { flex: 1 1 calc(50% - 4px); }
+body[data-career-unit="nobushige"] #lbl-nobushige { outline: 2px solid #f4c542; outline-offset: 1px; box-shadow: 0 0 12px rgba(244,197,66,0.85); }
+body[data-career-unit="nobushige"] #lbl-nobushige::before { content: '★ '; color: #d49a12; }
 #screen-home .home-hero { padding-top: 46px; }
 
 /* ---------- ポップ(もしも) ---------- */
@@ -21329,7 +21333,7 @@ const CAREERS = {
             en: { sit: 'The winter peace left Osaka Castle with only its keep — yet the Toyotomi are gathering masterless samurai again.',
               opts: [['March on Osaka again with a great army', 1], ['Leave Osaka to the Toyotomi and end the war', 0], ['Strengthen Edo\'s defenses first', 0]],
               exp: 'Ieyasu sent his army against Osaka once more. Without its moats, the Toyotomi side couldn\'t hold the castle and had to fight in the open.' } },
-          { at: 9,
+          { at: 7,
             ja: { sit: '真田信繁の赤備えが越前勢をつらぬき、本陣のすぐそばまで迫ってきた！',
               opts: [['本陣を下げて、ひとまず逃れる', 1], ['馬印を立てたまま、本陣にとどまる', 0], ['自ら槍をとって、真田と戦う', 0]],
               exp: '真田隊の突撃で家康の馬印が倒れ、家康は本陣を退いた。生きのびた家康の軍は、やがて真田隊を押し返していく。' },
@@ -21480,6 +21484,57 @@ const CAREERS = {
             en: { sit: 'Night, at Kinomoto. Up on Ōiwayama, Sakuma Morimasa seems to have seen the line of torches and realized you are back.',
               opts: [['Chase Morimasa the moment he pulls back', 1], ['Rest the men until dawn', 0], ["Strike straight at Katsuie's headquarters", 0]],
               exp: 'As soon as Morimasa abandoned Ōiwayama and began to withdraw, Hideyoshi ordered the pursuit. At dawn his young retainers charged Shibata Katsumasa\'s unit below Shizugatake — the birth of the "Seven Spears of Shizugatake."' } },
+        ] },
+    ],
+  },
+  nobushige: {
+    kamon: 'data:image/png;base64,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',
+    ja: { name: '真田信繁', sub: '九度山から、日本一の兵へ', life: '1567 — 1615', decide: '信繁の決断',
+      r: ['日本一の兵 — やり直しなしで、信繁の最後の戦いを駆けぬけた。', '六文銭の意地 — 迷いながらも、家康をあと一歩まで追いつめた。', '不屈の赤備え — 何度つまずいても、最後まで戦いぬいた。'] },
+    en: { name: 'Sanada Nobushige', sub: 'From exile at Kudoyama to "the finest warrior in Japan"', life: '1567 — 1615', decide: "NOBUSHIGE'S DECISION",
+      r: ['Finest warrior in Japan — you fought Nobushige\'s last battles without a single retry.', 'Pride of the six coins — a few stumbles, but you brought Ieyasu to the brink.', 'The unbreakable red army — many retries, but you fought to the very end.'] },
+    stages: [
+      { battle: 'osaka-winter', unit: 'nobushige', year: 1614, age: 48,
+        ja: { who: '真田信繁', intro: '関ヶ原で西軍についた父・昌幸とともに、紀伊の九度山に流されていた真田信繁。豊臣秀頼に招かれて九度山を抜け出し、大坂城に入った。城の南に築いた砦「真田丸」で、徳川の大軍を待ち構える。',
+          outro: '真田丸は最後まで破れなかった。だが和議のあと真田丸は壊され、城の堀も埋められてしまう。' },
+        en: { who: 'Sanada Nobushige', intro: 'Exiled to Kudoyama in Kii with his father Masayuki after siding with the West at Sekigahara, Sanada Nobushige slips away to answer Toyotomi Hideyori\'s call and enters Osaka Castle. He waits for the Tokugawa army in the Sanada-maru, a fort he has built south of the castle.',
+          outro: 'The Sanada-maru never falls. But after the peace it is torn down, and the castle\'s moats are filled in.' },
+        quiz: [
+          { at: 1,
+            ja: { sit: '真田丸の正面には、前田利常の1万2000が陣を構えている。どうする？',
+              opts: [['東の副郭から前田勢を挑発し、おびき寄せる', 1], ['砦から打って出て、前田の陣を襲う', 0], ['城の中へ退き、守りを固める', 0]],
+              exp: '信繁は真田丸の東、空堀をへだてた副郭から前田勢を挑発した。前田勢が攻め上ると副郭はもぬけの殻。怒った前田勢は、空堀の待つ真田丸へ押し寄せることになる。' },
+            en: { sit: 'Maeda Toshitsune\'s 12,000 men are camped right in front of the Sanada-maru. What do you do?',
+              opts: [['Taunt the Maeda from the eastern outwork to draw them in', 1], ['Sally out and raid the Maeda camp', 0], ['Pull back inside the castle and dig in', 0]],
+              exp: 'Nobushige taunted the Maeda from an outwork east of the Sanada-maru. When they charged it, they found it empty — and in their anger they surged on toward the Sanada-maru and its deep dry moat.' } },
+          { at: 7,
+            ja: { sit: '堀の中は、攻める者と逃げる者が入り乱れて大混乱だ。徳川方は「内通の合図だ」と思いこみ、まだ押し寄せてくる。',
+              opts: [['子の大助と伊木遠雄に、打って出るよう命じる', 1], ['砦から一歩も出ず、守りに徹する', 0], ['全軍で茶臼山の家康本陣を突く', 0]],
+              exp: '信繁は子の大助と伊木遠雄に出撃を命じた。二人の隊は混乱した徳川方を激しく打ち、徳川方は大きな損害を出して退いた。' },
+            en: { sit: 'The moat is chaos, attackers and fleeing men tangled together — and the Tokugawa, thinking they\'ve seen a traitor\'s signal, keep pouring in.',
+              opts: [['Order your son Daisuke and Iki Tōkatsu to sally out', 1], ['Stay inside the fort and only defend', 0], ["Lead everyone against Ieyasu's HQ at Chausuyama", 0]],
+              exp: 'Nobushige sent his son Daisuke and Iki Tōkatsu out to attack. They hammered the confused Tokugawa troops, who finally pulled back with heavy losses.' } },
+        ] },
+      { battle: 'osaka-summer', unit: 'nobushige', year: 1615, age: 49,
+        ja: { who: '真田信繁', intro: '堀を埋められた大坂城では、もう守れない。信繁は城を出て茶臼山に陣を取った。ねらうのは、家康の首ひとつ。',
+          outro: '信繁は安居神社で討たれたとされる。家康をあと一歩まで追いつめた戦いぶりは「日本一の兵」とたたえられた。' },
+        en: { who: 'Sanada Nobushige', intro: 'With its moats filled in, Osaka Castle can\'t be defended. Nobushige takes up position on Chausuyama outside the walls. He has one target: Ieyasu himself.',
+          outro: 'Nobushige is said to have been killed at Yasui Shrine. For bringing Ieyasu to the very brink, he was hailed as "the finest warrior in Japan."' },
+        quiz: [
+          { at: 5,
+            ja: { sit: '毛利勝永の隊が、予定より早く戦いを始めてしまった。敵を引きつけて家康の本陣を突く作戦は、もう使えない。',
+              opts: [['目の前の越前勢へ、全軍で突撃する', 1], ['茶臼山にとどまり、守りを固める', 0], ['城へ退いて、秀頼を守る', 0]],
+              exp: '作戦を切りかえた信繁は、3500の兵で松平忠直の越前勢1万5000に突撃した。数では大きく劣るが、死を覚悟した攻撃で越前勢の右翼を突き崩した。' },
+            en: { sit: 'Mōri Katsunaga\'s unit has started the fight too early. The plan — lure the enemy in, then strike Ieyasu\'s HQ — is ruined.',
+              opts: [['Charge the Echizen corps in front of you with everything', 1], ['Hold Chausuyama and defend', 0], ['Fall back to the castle to guard Hideyori', 0]],
+              exp: 'Switching plans, Nobushige charged Matsudaira Tadanao\'s 15,000-strong Echizen corps with 3,500 men. Hugely outnumbered but ready to die, they broke the Echizen right wing.' } },
+          { at: 6,
+            ja: { sit: '越前勢の右翼を突き崩した。その先の道は、家康の本陣へつながっている。',
+              opts: [['そのまま家康の本陣めがけて駆ける', 1], ['兵をまとめて茶臼山へ戻る', 0], ['越前勢の大将・松平忠直をねらう', 0]],
+              exp: '真田の隊は越前勢を抜け、旗本の隊も突破して家康の本陣へ一直線に駆けた。本陣は大混乱になり、家康の馬印が倒れた。' },
+            en: { sit: 'You\'ve broken the Echizen right wing. The road beyond leads straight to Ieyasu\'s headquarters.',
+              opts: [["Ride straight for Ieyasu's headquarters", 1], ['Regroup and return to Chausuyama', 0], ['Go after the Echizen commander, Matsudaira Tadanao', 0]],
+              exp: "The Sanada troops broke through the Echizen corps and Ieyasu's bodyguard and rode straight at his headquarters. The camp fell into chaos and Ieyasu's standard went down." } },
         ] },
     ],
   },
