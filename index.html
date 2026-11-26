@@ -2657,6 +2657,12 @@ body[data-career-unit="ieyasu"] #lbl-ieyasu::before, body[data-career-unit="moto
 .cr-pick.sel img { opacity: 1; }
 body[data-career-unit="nobunaga"] #lbl-nobunaga { outline: 2px solid #f4c542; outline-offset: 1px; box-shadow: 0 0 12px rgba(244,197,66,0.85); }
 body[data-career-unit="nobunaga"] #lbl-nobunaga::before { content: '★ '; color: #d49a12; }
+.cr-pick { padding: 8px 7px; gap: 6px; min-width: 0; }
+.cr-pick b { font-size: 12px; line-height: 1.25; }
+html[lang="en"] .cr-pick b { font-size: 11px; }
+.cr-pick img { width: 24px; height: 24px; flex: none; }
+body[data-career-unit="hideyoshi"] #lbl-hideyoshi { outline: 2px solid #f4c542; outline-offset: 1px; box-shadow: 0 0 12px rgba(244,197,66,0.85); }
+body[data-career-unit="hideyoshi"] #lbl-hideyoshi::before { content: '★ '; color: #d49a12; }
 #screen-home .home-hero { padding-top: 46px; }
 
 /* ---------- ポップ(もしも) ---------- */
@@ -21402,6 +21408,78 @@ const CAREERS = {
             en: { sit: 'Dawn. Honnō-ji is surrounded by bellflower banners. Mori Ranmaru reports: "They look like Akechi\'s men." You have only about a hundred attendants.',
               opts: [['Take up a bow, then a spear, and fight', 1], ['Slip out the back to Nobutada at Myōkaku-ji', 0], ['Open the gate and talk to Mitsuhide', 0]],
               exp: 'Nobunaga shot arrows himself, then fought with a spear when his bowstring broke. Wounded in the elbow, he told the women to flee and withdrew into the hall, where he is said to have taken his own life as the temple burned.' } },
+        ] },
+    ],
+  },
+  hideyoshi: {
+    kamon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAARcklEQVR4Xu2dV6hGRxHHxxZ7LLGLomjUqIgldqwxVowPKohijVF8EH2wgIpIRIMdC1gxVvRBUVGxK4qi0ST2xBLFHrux98LvMn+ZLOd8Z/eUPd+52T9c7r3fd87ZndnZ2ZnZ2TlmFwxcyMm8lpk9zMx+Y2b/8Z//mtm/zeyfZvZMM7tpYInua9goGMALe99fYma/NTsY8F0/fzWz95vZFf2+JgSVwEBd1AfsImYHP1OhZ7wsDDqzvU8A4nefN7NLeH+mCsEStB0qaJam6Ps8Bxq0a5rZ38zsX67qhzQA3//DheQEb2iKMC5B22yYwuA5AGOZ9azHNzCzF5rZx83sjWZ2nH+ua0pnoWhjTT/C7HzLwRBoC21w+wnLwJK0HQrEAb2Nmf26QzWflFBaIgQSgGN89qMBcmY/12AQ8vtEbx8hLcHStG0akTmPMLN3m9nvneGoXgaKAUArMAhohKeY2ZEjZiNCQHsf8WftWv8lHLrml2Z2Jb8/V/Bq0rZZMCiox9clM1IDHmdp/Ow0M7tyoVHGgPBzFTP7UIYdQHsIwFlmB1oJlCyTNWnbJKRK8cUZ6L/7oHQNvgQBjYARx/9vGGGUyYCjTZ6T4wW8YkQ7a9C2OWgwPhCCLznrsmbmuWZ22YKlQO09xgUoBn+GXEE0VIwjDKE2bbOgRL3NAZgOLl0wiAKDcXH3GnLA9Qz45czsRX4D7Q+t5/AELYEBervgiQyhJm2zobYAqL0P+9oaLXOYzoAJ+l9+OQP3RTM7z20IMbwPtMU1tzSzK/izc+nlPvpy7wJBrUnbZiGVyoAwmDnqX9cQxr1FgVqWSr6tz+gxbiDeB8hxA2vStmlIBRNrf72Z/djdQNbct7pQvNjMnmNmP/WNm/f54IPcWQxoiyDQtwvcQBmk/D7aOZ3bZk3aNo24Dl/S1/b7mNlX3Cs428ye6LF4GX2lgx+vRwsgTHFZ2WUE/sXMHl84+EIt2jaNyCQMOyJuGpDoEr46BIDGCADQUnA/s4Odvhw38PnO3TF7ADVp2yRSNfmj4KJpcPitNZu9+7FLgFR3LQ1Qk7ZNos9Q6gsExdlaagTWtgFq07ZJyJp+us96InO7ooByxxQJxH2E0TmqubYXUJO22ZBr3c4F+fn41/wN04YCM7LkEQbi85f3dXzoPuFShRs6Av2LBugQ1qBtMmoLgAbtz97zvmBO1+dx7yAHDAjtnWlmv/O/WVKGoLbhDRoHDAWdtNyAGrRtFn0bJhh8aaBGhuCUzSAtA4/u8TJ2BaJeWxB0ArVp2yz6tkwZDAkBe/Hp4IzZDgbScriB39wRC4gbTk9z7pZqyNq0bRJp0gQu3qfMDpJDXukD/zyzg3w8kkX4jpBsyS6gIMucgTnZzH42EAdACNhreIeZHeUPybU14jIAoGdJ2jaP1JJ/tqdtowVYR99pZhdLqCwZDNCVFZy7/zAlK7gGbZuGVCtp12y5ntqh8hmo083s+JCjX6KSJSy1s4Jr0LZpiEG4dF8LA8/MjzGBaBT+xOwgqSOu6UPQLLyXPzcnH1DagZxE2j/FG8nZDYx9W5q2zUJJmuyyEeKF4QxM3+DEkDDXPsgpzwkE1c4KrknbZqGZpJM65ATmrMnKEj4jnB7KQc2s4Nq0bRKalZ8tTNJQLt8fCq3zmlnBtWmbBSVG1RyQYfYDD7LECJs0AZAtIOg74gN4CDwnJzrHNdDIfW/zdX0XdD1nEchYYqmJaWq7UJu2TUJr912C6ke96yROuhzoO33/jAIbAKyRFVyLts1CWoesWx3C1K6fcgOI+slIlFC8xmdzrtaS+icrOBqcOTaHPBCdDcwxOqMXsDRtsyHXvZkTqFQGkXxAbIH7e0oYJ3cea2aPc/+flLBjzezqvinzucJOKL17alYwAaHcAFQt2g4FUuH7qC8Lmn3fN7PrB0pl0eeidj5AxNK0bR5S4zfxOP9Xk6xdCQGHRp9rZncaSXGaFZyTGj4lKzguA0vTtllEGyDGAdJgUJopVGoDxMEgMverkHs4ZAfQlzFZwTVp2yT6vIC+SCBCEL2EUi8gCsGN3bXrSw3XdjAu6kMKvY3ocaRewJK0bQ4SAHxyDe7QbIzh4nP8rECuURYDQfj2Q2nh9AnPhIMkbFJFARpCbdo2idrRMhmOpHbJ1RwSOC09vygsEFGbtlmQ61PPBbX3JXcFY46ewr0g/g103Xf9GBnPGYoEcg3PuZGZ3SM8YwhoDZYdiko8wNvJiQPUpG2zKN0xYwCj5V6yG1h7O7gmbZtGXz4A+Xqf9hn3djP7WAgXj8kH6EoIGTqDoOVhbJm4WrRtHmIUKV938B/Kub3HVTUVRO5uZjdz9c1ZgBKDTEhTwvos8mgX6JovjCwUWYu2zSOuq6zTygSOg/TQhMpc6z9CA0JAiZk9dDgULfFerywiL6IUtWjbJOIgPtKZ/ackDBzXfbKCnzqyTFzUGjUEoDZtmwQzslaZuNpLQE3aNomapdRqG4E1adssapZSq+0G1qRtNtQOBCl4U6NMnNoiySS6f0IMJKVpX3zHgBJ6zkVN2mZDbQFQe31l4mKK+NQycUrO+JbXG2ZAdQiVZ7NESDAUNVSdYtxTvBKOdnFdzqnimrRtFn1VNIbi83w/tkIIbVL0meyj2E5MOaM4VfyOglKltYJr0zYLxvjVU6GMXsrEvcDs4OTOZTzyh7q+ldlBIOjaZvZAs4MqYqSDUTbuy76HkJupC9QeRhqVyEgRY8sX9/JVTgx1hO/sKWg/NLMPev6ANEMuatO2WUTBo4KHIn0p0u/GLlljBH2OtmrQNgljGDMXpDK1vsqKljEV116+03buWKg90Sw7AOg8QPxuaLdxF2rTtmnsCreODcXmglk+dqbnYE3aGnaAQY+Zu3pbWcMFAHGj5hpmBz9CTuJHw0YRzxWw9cw7BHhRFT/8rTeGav1uOESIMxt3sutYOp/xXdMGhwwafB0xU8AnHkiNfxOl5FrQloSNI24IUSGMwY+vpKPeAEUklYQqQeBaAlRNCDYK1nENPid8NOuVaKKsoPt6wYk/hjhDTEbR6SCetWbMpKEA0YjjOBmDn743WAJAPiJAE8RzA7E2Ec8A0Yhs2FMw+PLv9WLKtPqYThrxm/g/16cCIGGQNuBZIKe4dcOKUGFJFaGKBSi6Mn85dYx67xKANEWcZ4K0eGXDnkBrPtU5UmMv3W7WEpAjAPEMo15m3byDPYPUvgZ/6OVQJQKg5UD3SAjWqK7S0AHNRs7/yeAbOgFUKgCpTUBboGmClSHL/Hoe0t1VdXSsDZDeRxuEj2mzhY1XhrZy0/pC6Zo/xQZI75VnQJtgye3khh2Q+r1rcqpoaPCjG5hjBHY9T0JA220pmAAlTDCY8Scn6KKZR26f1v6cwZ9TAGg7RwtoqUjpXDrhZa+g8CzWM4zIUZ06asU9MWlDs58TxHFAawlAbJM+RC2gZJOxdFYNOy/tyogYMSzNr+f7I92g4pUwXIegcCCD4Axl4lJEBunt3lPy98ZCbdKHT4b3GcoFjaBaKXRS91A0sv/wPaez69xByrtFsIQAaKbLIhfIkCXpgmpdVNIi7ftqvvXK6+QjKOZEUeiz3OLmxRKkjGN4kbMPKOFSWshpTkiD0Qf6wkESwBtK7un0Ud+AMwnQzGkoUtwj2Ik818x+7vRRIAOav2F28AJrIfJ0DWHPQozDCxyueLK//Il8+z4VrRJtQ24cGuFNPpPI79d9uapf142JA3S1odlOX5jd9I0+9vVH9A0FquAVL8yCdzqgIuzdfkTcegW8DZw3Zsk1i8xQzR+9kqWPEdqf11EuXa9noR2YLTkVP/oGjs/HegFpbIC+0Cd9riNm6r/oSfsiAY7XdwWx4CU8hbdCVVshB1f1sq9fD4xQHD3dji2dsbo+LRo19jlzaYCuGMFQFDKnz9qOjskr3AdvsTng9eqQC8Obv6jsTV09EccuXE5d3hxmdF0zVRDmFoCuLeextHXdx/Pjzia8hufwfhVXUo1ypo9y6up0zK3reh3snEyZ8qy5BWBKX4buTfkYeQzvGYPRQpDji3dBrgyW6hG+FtMxDBQMGKp/K+jBtTnHqxvODwmp+AhP4S08htd8D+8ZAx1KLcZYAQA0iirGRaOTGmSKMd3czB6V+MfRYm/ohiYLvJKRR4wBXsJTeAvgNd/De65dJV9RMYQn+RLAGkVnKMqs7VLA359IXKOl18whtbpvS0CXTQPPUj7CW66VPQDvwRLxnEFIexzjBy1SV4fKnyeGpxxndlABNBozqZU7NHBzfb8vAhCzjaAN3sAjeCXAQ3gZPSHu4yALvAdTNPkkoHrIkftOiMmnvj2RLYhQJ29oZm9eWRDWFoCugYcn8EYDCs/gXRz4GCiD5/B+FfUvSPVwpIqORgtVvqwI4LAFaxgxcQCxLw0VQnX/2OBOiXZYSwBoN/KI8DE80MDDG3ikQyzQlMZQdL+Osa2i/gXNasKgfeo8FQRe3XKyx8iBiFap2C6iSwY359raApDyAFrjZGC/AJ7otTa7eCDtoRdqrab+oxDQCaxVdbwveBOln92wtyTST0nYqPaWiiXUEoC0/9AWy94y8+GBTiZJC/ZFExVcg9dLF7fIhvbm75a5OZNavBg+rH8yaEDX+jdnZHFpAUi9HNlBArSmdlCOZyT7Cl6DvUlK1U4ghObu0KWCAHFIdnR9Hp64kLpnarx9CQHo6huuHDQI0AaN0c7JGfgYH4DHe7cjKEmk+veuZSA3rg/jeKNoZNycsYQ5BSDHh4eWqf2XBoTHezX7gXLe2K6kMmeuFogC0TWDzk5iCbceqTpTwZtDAPqWMvoosJRBQ3Tlcmd87LNUP7yFxzk5k9UhLcC+deoS5ljm8Zou44l3CrPxAabGEqYIwJAPTx/p65zGrIxneLt3sz9CyZ7vGrEUdAlJlwsZ3afruPtU6kKOEYAuVw7XjT4AubM5rlzJhJDqh6dKkt1baFuSHD8SO+dKBJmb+SUCsJQQ5giB2oaX8HT0tm9NKDKlpaDviHYOA9Jr5lK/EgCSUwmndh0PX3oZyqFfvJPqXzXqVwLl8JMkOdUeyPEcFEtIDbC4DqdGFf8f60QpkbPLvUx9+LkM0SEB0LoPD9PClnsPqSpSwXlLaKlrOMSc1KqO16fbqCf4FjWJExpgbaqc4X45O2uytLmGa9l65V6h5ra21n14Bw83ofpTKEZ9Xa/1v5QQ8NwuFxJBiAPIa2cVUOkTMC0NXCvwjOjDzxWM6uuDBp/3I8A7sHq8fyzkGqI2IWiJ5SBlZOpnkzVzSnhbCAOIb3568M/P9BdKyMbgGdzDvbu0Td8gjv1cah9eaTnbm3DvWEQhUN5AjUSQ1IiLewkvd7X6BHcjya598IrJrdG4hUeHZvAFCcFRZv9/lbu0wdS4/i51nh4o4cgVbw3piqSxzpKJwytj9Uwd2FgqRyH1aqhSCo/A5md+ikjQs5JzBMpyHas6ZQco4SIVKp2sIYsWKIuGPmljRZ/hFnadbNJgyVic0tc0MYQ8f3iSTphDh2jNcrqFrBYORsZ1VrNWa7lyDdPf8ThV1wwlj44q4CoGmcPcdNZxL8+IOXnqq4I06m9fP2U0qr9ROKEdHuikzyat/TGIjJYgdDG5ZJZxNu80MzvVzI5PMmV1fjEnf67rWrQEz+TZtBHPAZb0UddCaxz41VR+DkOWghjNzBADOGVLdA5m8yKpo4PKRn3jrwuER3mb2Gf8RC7/c4Q8goGT6zcGys1XHwWOtpOSxbl/qo3e0f8X2LFTFA/gVp7nb0bjICleBxoE0EdpsOpYUwAEbSWLIRF6mxhGGwERzTwAQ1PoWUCqdg7kPFd95VpqASjw1NdXhGvOPo7CPghAKgg65jTEHGkQZjiQIVgD0YugH0MzWAKUS1s17JMAdCH2T8wTNPD7gi31taGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaHhUOJ/h70jnzZu/kkAAAAASUVORK5CYII=',
+    ja: { name: '豊臣秀吉', sub: '足軽から、天下人へ', life: '1537 — 1598', decide: '秀吉の決断',
+      r: ['天下人 — やり直しなしで、足軽から天下へのぼりつめた。', '人たらし — 迷いながらも、天下への階段をのぼりきった。', 'なにくそ — 何度つまずいても、最後は天下をつかんだ。'] },
+    en: { name: 'Toyotomi Hideyoshi', sub: 'From foot soldier to ruler of Japan', life: '1537 — 1598', decide: "HIDEYOSHI'S DECISION",
+      r: ['Ruler of the realm — you climbed from foot soldier to the top without a single retry.', 'The charmer — a few stumbles, but you climbed every step to power.', 'Never say die — many retries, but in the end you seized the realm.'] },
+    stages: [
+      { battle: 'nagashino', unit: 'hideyoshi', year: 1575, age: 39,
+        ja: { who: '羽柴秀吉', intro: '足軽から身を起こし、信長のもとで出世を重ねて近江長浜城の城主となった羽柴秀吉。長篠城を救う信長の軍に加わり、設楽原の柵の後ろに陣を取る。',
+          outro: '武田は大敗した。このあと秀吉は信長から中国攻めを任され、毛利と戦うことになる。' },
+        en: { who: 'Hashiba Hideyoshi', intro: 'Risen from the ranks under Nobunaga to become lord of Nagahama Castle, Hashiba Hideyoshi joins Nobunaga\'s army to relieve Nagashino, posted behind the fences at Shitaragahara.',
+          outro: 'The Takeda are crushed. Nobunaga soon gives Hideyoshi command of the campaign against the Mōri in the west.' },
+        quiz: [
+          { at: 5,
+            ja: { sit: '山県昌景らの武田勢が、連吾川を越えて柵に迫ってくる。武田の騎馬武者は強い。',
+              opts: [['柵の内側から、鉄砲で迎え撃つ', 1], ['柵を出て、騎馬で迎え撃つ', 0], ['持ち場を捨てて、後ろの山へ退く', 0]],
+              exp: '武田勢が柵に迫ると、柵の内側から鉄砲がいっせいに火を噴いた。『信長公記』では、柵の前に出した鉄砲はおよそ千挺。有名な「三段撃ち」は、のちの書物が広めた話と考えられている。' },
+            en: { sit: 'Yamagata Masakage and the Takeda are crossing the Rengo River toward the fences. Their horsemen are formidable.',
+              opts: [['Meet them with guns from behind the fences', 1], ['Ride out from the fences to meet them', 0], ['Abandon your post and fall back to the hills', 0]],
+              exp: 'As the Takeda reached the fences, guns opened fire from behind them. The Shinchō Kōki puts about 1,000 guns at the front. The famous "three-row volley" is thought to be a later invention.' } },
+          { at: 9,
+            ja: { sit: '昼になった。柵と鉄砲に阻まれた武田勢は、名だたる武将を失い、勢いが尽きてきた。',
+              opts: [['柵から出て川を越え、武田の陣へ攻めこむ', 1], ['柵の内に籠もり続ける', 0], ['兵を引いて長浜へ戻る', 0]],
+              exp: '昼になると、柴田勝家・羽柴秀吉らの隊が柵から出て川を越え、武田の陣へ迫った。武田軍は総崩れとなった。' },
+            en: { sit: 'Noon. Stopped by the fences and guns, the Takeda have lost famous generals and are running out of steam.',
+              opts: [['Leave the fences, cross the river and attack', 1], ['Stay behind the fences', 0], ['Pull back to Nagahama', 0]],
+              exp: 'At noon, units under Shibata Katsuie and Hashiba Hideyoshi came out from the fences, crossed the river and closed on the Takeda lines. The Takeda army collapsed.' } },
+        ] },
+      { battle: 'yamazaki', unit: 'hideyoshi', year: 1582, age: 46,
+        ja: { who: '羽柴秀吉', intro: '中国攻めの大将として、備中高松城を水攻めで囲んでいた秀吉。そこへ、主君・信長が本能寺で討たれたという知らせが届く。',
+          outro: '信長の仇を討った秀吉は、織田家の中で一気に力を強めていく。' },
+        en: { who: 'Hashiba Hideyoshi', intro: 'Commanding the western campaign, Hideyoshi has Takamatsu Castle surrounded by floodwater. Then news arrives: his lord Nobunaga has been killed at Honnō-ji.',
+          outro: 'Having avenged Nobunaga, Hideyoshi quickly becomes the strongest man in the Oda clan.' },
+        quiz: [
+          { at: 0,
+            ja: { sit: '信長が明智光秀に討たれた。目の前には毛利の大軍がいる。どうする？',
+              opts: [['急いで毛利と和睦し、京へ引き返す', 1], ['まずは高松城を落としてから考える', 0], ['毛利と手を結び、いっしょに光秀を討つ', 0]],
+              exp: '秀吉は毛利と和睦し、大急ぎで畿内へ引き返した(中国大返し)。摂津の諸将や、信長の三男織田信孝、丹羽長秀も加わり、軍勢はふくれあがった。' },
+            en: { sit: 'Nobunaga has been killed by Akechi Mitsuhide — and a large Mōri army is right in front of you. What do you do?',
+              opts: [['Make peace with the Mōri fast and race back to Kyoto', 1], ['Take Takamatsu Castle first, then decide', 0], ['Ally with the Mōri to strike Mitsuhide together', 0]],
+              exp: 'Hideyoshi made peace with the Mōri and rushed back toward the capital — the famous "great return from the west." Lords from Settsu, Nobunaga\'s son Nobutaka and Niwa Nagahide joined him, swelling his army.' } },
+          { at: 5,
+            ja: { sit: '円明寺川をはさんで押し合いが続く。明智軍は数で劣りながらよく戦っている。淀川ぞいには池田恒興の隊がいる。',
+              opts: [['淀川ぞいの池田隊に川を渡らせ、横から突く', 1], ['全軍で正面から押しこむ', 0], ['日が暮れるまで守りを固める', 0]],
+              exp: '淀川ぞいの池田恒興らの隊が気づかれないまま川を渡り、明智軍の横を突いた。丹羽長秀・織田信孝の隊も続き、明智軍は総崩れになった。' },
+            en: { sit: 'The two sides are locked across the Enmyōji River. Outnumbered, the Akechi army is fighting hard. Ikeda Tsuneoki\'s unit is down by the Yodo River.',
+              opts: [["Send Ikeda's unit across by the Yodo to hit their flank", 1], ['Push straight ahead with everything', 0], ['Hold firm until dark', 0]],
+              exp: 'Ikeda Tsuneoki\'s men crossed the river by the Yodo unnoticed and struck the Akechi flank. Niwa Nagahide and Oda Nobutaka followed, and the Akechi army collapsed.' } },
+        ] },
+      { battle: 'shizugatake', unit: 'hideyoshi', year: 1583, age: 47,
+        ja: { who: '羽柴秀吉', intro: '信長のあとをめぐって、織田家の重臣・柴田勝家と争うことになった。余呉湖のまわりで砦を並べてにらみ合うなか、秀吉は兵を挙げた織田信孝を討つため美濃の大垣へ向かう。',
+          outro: '勝家を破った秀吉は、織田家の中で並ぶ者のない力を手にした。やがて関白となり、天下を一つにまとめあげる。' },
+        en: { who: 'Hashiba Hideyoshi', intro: 'Hideyoshi and Shibata Katsuie, the Oda clan\'s senior general, are fighting over Nobunaga\'s legacy. While their forts face off around Lake Yogo, Hideyoshi heads to Ōgaki in Mino to deal with Oda Nobutaka.',
+          outro: 'With Katsuie beaten, no one in the Oda clan can match Hideyoshi. He will become imperial regent and unite all of Japan.' },
+        quiz: [
+          { at: 4,
+            ja: { sit: '大垣にいるところへ、「大岩山の砦が落ち、中川清秀が討たれた」という知らせが届いた。',
+              opts: [['すぐに兵を返し、夜通し駆け戻る', 1], ['まず大垣で信孝を片づけてから戻る', 0], ['砦の兵に、自分たちで守れと命じる', 0]],
+              exp: '秀吉はすぐに兵を返し、およそ50kmの道をわずか5時間ほどで駆け戻ったと伝わる(美濃大返し)。道ぞいの村々には、夜道を照らす松明が用意された。' },
+            en: { sit: 'At Ōgaki, news arrives: the Ōiwayama fort has fallen and Nakagawa Kiyohide is dead.',
+              opts: [['Turn the army around and march through the night', 1], ['Finish off Nobutaka at Ōgaki first', 0], ['Tell the forts to hold on their own', 0]],
+              exp: 'Hideyoshi turned his army around at once and is said to have covered about 50 km in roughly five hours — the "great return from Mino" — with villages along the road lighting torches for the night march.' } },
+          { at: 6,
+            ja: { sit: '夜、木之本に着いた。大岩山の佐久間盛政は、松明の列を見て秀吉が戻ったと気づいたようだ。',
+              opts: [['盛政が退くところを、すぐに追わせる', 1], ['夜明けまで兵を休ませる', 0], ['勝家の本陣へ、まっすぐ攻めこむ', 0]],
+              exp: '盛政が大岩山を捨てて退きはじめると、秀吉はすぐに追撃を命じた。夜明け、賤ヶ岳のふもとで近習たちが柴田勝政の隊に斬りこむ。「賤ヶ岳の七本槍」の誕生だ。' },
+            en: { sit: 'Night, at Kinomoto. Up on Ōiwayama, Sakuma Morimasa seems to have seen the line of torches and realized you are back.',
+              opts: [['Chase Morimasa the moment he pulls back', 1], ['Rest the men until dawn', 0], ["Strike straight at Katsuie's headquarters", 0]],
+              exp: 'As soon as Morimasa abandoned Ōiwayama and began to withdraw, Hideyoshi ordered the pursuit. At dawn his young retainers charged Shibata Katsumasa\'s unit below Shizugatake — the birth of the "Seven Spears of Shizugatake."' } },
         ] },
     ],
   },
