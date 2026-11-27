@@ -2671,6 +2671,8 @@ body[data-career-unit="yoshitsune"] #lbl-yoshitsune { outline: 2px solid #f4c542
 body[data-career-unit="yoshitsune"] #lbl-yoshitsune::before { content: '★ '; color: #d49a12; }
 /* 決断の札が出ているあいだは、幕の見出しを重ねない */
 #sim-container.deciding .act-card { display: none; }
+body[data-career-unit="shinsengumi"] #lbl-shinsengumi, body[data-career-unit="hijikata"] #lbl-hijikata { outline: 2px solid #f4c542; outline-offset: 1px; box-shadow: 0 0 12px rgba(244,197,66,0.85); }
+body[data-career-unit="shinsengumi"] #lbl-shinsengumi::before, body[data-career-unit="hijikata"] #lbl-hijikata::before { content: '★ '; color: #d49a12; }
 #screen-home .home-hero { padding-top: 46px; }
 
 /* ---------- ポップ(もしも) ---------- */
@@ -21593,6 +21595,57 @@ const CAREERS = {
         ] },
     ],
   },
+  hijikata: {
+    kamon: 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20x%3D%2250%22%20y%3D%2280%22%20font-size%3D%2282%22%20text-anchor%3D%22middle%22%20font-family%3D%22serif%22%20font-weight%3D%22900%22%20fill%3D%22%23000%22%3E%E8%AA%A0%3C/text%3E%3C/svg%3E',
+    ja: { name: '土方歳三', sub: '多摩の薬売りから、新選組の鬼の副長へ', life: '1835 — 1869', decide: '土方の決断',
+      r: ['鬼の副長 — やり直しなしで、土方の戦いを駆けぬけた。', '誠の旗 — 迷いながらも、最後まで旗をおろさなかった。', '義に生きる — 何度つまずいても、最後まで戦いぬいた。'] },
+    en: { name: 'Hijikata Toshizō', sub: 'From medicine peddler to the Shinsengumi\'s "demon vice-commander"', life: '1835 — 1869', decide: "HIJIKATA'S DECISION",
+      r: ["Demon vice-commander — you fought Hijikata's battles without a single retry.", 'The banner of sincerity — a few stumbles, but you never lowered the flag.', 'True to the end — many retries, but you fought it out to the last.'] },
+    stages: [
+      { battle: 'toba-fushimi', unit: 'shinsengumi', year: 1868, age: 34,
+        ja: { who: '土方歳三(新選組)', intro: '武蔵の多摩で生まれ、京で新選組の副長として名を上げた土方歳三。局長の近藤勇が銃で撃たれて傷を負ったため、土方が新選組を率いて伏見奉行所に入る。',
+          outro: '慶喜は江戸へ去り、新選組は多くの仲間を失った。土方はこのあと甲州・会津と戦いの場を移し、やがて蝦夷地へ渡る。' },
+        en: { who: 'Hijikata Toshizō (Shinsengumi)', intro: 'Born in Tama in Musashi, Hijikata Toshizō made his name in Kyoto as vice-commander of the Shinsengumi. With commander Kondō Isami wounded by a gunshot, Hijikata leads the Shinsengumi into the Fushimi magistrate\'s office.',
+          outro: 'Yoshinobu leaves for Edo, and the Shinsengumi has lost many comrades. Hijikata will fight on in Kai and Aizu, and finally cross to Ezo.' },
+        quiz: [
+          { at: 2,
+            ja: { sit: '鳥羽の方角から砲声が聞こえた。伏見奉行所の新選組に向かって、高台の御香宮から薩摩の大砲が撃ちこまれてくる。',
+              opts: [['刀を抜き、薩摩の陣へ斬りこむ', 1], ['奉行所の奥に籠もり、夜明けを待つ', 0], ['すぐに兵を引き、大坂へ退く', 0]],
+              exp: '新選組は刀を抜いて薩摩の陣へ斬りこもうとしたが、高台からの銃と大砲に阻まれたと伝わる。伏見奉行所は砲撃を受けて炎上した。' },
+            en: { sit: 'Cannon fire echoes from Toba. From the heights of Gokōnomiya, Satsuma guns start pounding the Shinsengumi in the Fushimi magistrate\'s office.',
+              opts: [['Draw swords and charge the Satsuma lines', 1], ['Hide deep in the compound and wait for dawn', 0], ['Pull back to Osaka at once', 0]],
+              exp: 'The Shinsengumi are said to have drawn their swords and tried to charge the Satsuma lines, only to be stopped by rifles and cannon firing from the heights. The magistrate\'s office was shelled and burned.' } },
+          { at: 10,
+            ja: { sit: '慶喜は大坂城を抜け出し、江戸へ去った。新選組は銃と大砲の前に、多くの仲間を失った。',
+              opts: [['「もう刀や槍の時代ではない」と、洋式の戦い方に切りかえる', 1], ['剣の腕をさらにみがき、斬りこみにかける', 0], ['新選組を解いて、多摩へ帰る', 0]],
+              exp: '新選組は新政府軍の銃や大砲の前に惨敗した。戦いのあと土方は「もはや刀や槍の時代ではなくなった」と嘆いたという。こののち土方は洋式の軍服に身をつつみ、洋式の戦い方で戦っていく。' },
+            en: { sit: 'Yoshinobu has slipped out of Osaka Castle and left for Edo. Against rifles and cannon, the Shinsengumi has lost many comrades.',
+              opts: [['Accept that swords are finished and switch to Western tactics', 1], ['Sharpen your swordsmanship and keep charging', 0], ['Disband the Shinsengumi and go home to Tama', 0]],
+              exp: 'The Shinsengumi was crushed by the government side\'s modern guns. Afterwards Hijikata is said to have lamented that the age of swords and spears was over. From then on he wore a Western uniform and fought with Western tactics.' } },
+        ] },
+      { battle: 'hakodate', unit: 'hijikata', year: 1869, age: 35,
+        ja: { who: '土方歳三', intro: '会津での戦いを経て、榎本武揚の艦隊とともに蝦夷地へ渡った土方は、陸軍奉行並となった。明治2年4月、新政府軍が蝦夷地に上陸する。',
+          outro: '土方歳三は一本木関門で倒れた。新選組の副長として、最後まで旧幕府のために戦いぬいた。葬られた場所は、いまもわかっていない。' },
+        en: { who: 'Hijikata Toshizō', intro: 'After the fighting in Aizu, Hijikata crossed to Ezo with Enomoto Takeaki\'s fleet and became deputy army minister. In the 4th month of 1869, the government army lands in Ezo.',
+          outro: 'Hijikata Toshizō falls at the Ippongi gate, fighting for the old shogunate to the very end. Where he was buried is still unknown.' },
+        quiz: [
+          { at: 1,
+            ja: { sit: '新政府軍が江差から箱館へ攻め寄せてくる。山道の二股口を守るのは、土方の300人ほどだ。',
+              opts: [['山に胸壁をいくつも築き、銃で撃ち続けて守る', 1], ['山を下りて、正面から斬りこむ', 0], ['二股口を捨てて、五稜郭へ戻る', 0]],
+              exp: '土方の隊は二日がかりで16か所の胸壁を築き、夜を徹した銃撃戦で新政府軍を退けた。新政府軍は兵を増やして攻め直したが、ふたたび撤退した。' },
+            en: { sit: 'The government army is pushing from Esashi toward Hakodate. Holding the mountain road at Futamata are Hijikata and about 300 men.',
+              opts: [['Build breastworks across the hills and keep firing', 1], ['Charge down the mountain with swords', 0], ['Abandon Futamata and return to Goryōkaku', 0]],
+              exp: "Hijikata's men spent two days building 16 breastworks and beat the attackers back in an all-night firefight. The government army came back reinforced — and withdrew again." } },
+          { at: 6,
+            ja: { sit: '箱館の市街は落ち、弁天台場には新選組の仲間が取り残されている。五稜郭を出れば、敵のまっただ中だ。',
+              opts: [['わずかな兵を連れ、弁天台場を救いに出る', 1], ['五稜郭に残り、守りを固める', 0], ['榎本に降伏をすすめる', 0]],
+              exp: '土方はわずかな兵を連れて五稜郭を出た。一本木関門で兵を指揮していたところを銃弾に撃たれ、そこで討ち死にした。' },
+            en: { sit: 'Hakodate town has fallen, and Shinsengumi comrades are trapped in the Benten battery. Leaving Goryōkaku means riding into the middle of the enemy.',
+              opts: [['Ride out with a few men to relieve Benten', 1], ['Stay at Goryōkaku and dig in', 0], ['Urge Enomoto to surrender', 0]],
+              exp: 'Hijikata rode out of Goryōkaku with a handful of men. Directing his troops at the Ippongi checkpoint, he was hit by a bullet and died on the spot.' } },
+        ] },
+    ],
+  },
 };
 
 Object.assign(STR.ja, {
@@ -21773,6 +21826,7 @@ function careerShowQuiz(q) {
     list.appendChild(b);
   });
   careerState.open = q.at;
+  endCinematic();   // 演出の黒帯が出ていたら閉じてから札を出す
   document.getElementById('sim-container').classList.add('deciding');
   requestAnimationFrame(() => box.classList.add('active'));
   if (typeof taiko === 'function') { taiko(0.4, 0); taiko(0.3, 0.35); }
